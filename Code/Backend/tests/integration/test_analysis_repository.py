@@ -48,7 +48,8 @@ async def analysis(taxonomy: Taxonomy) -> CallAnalysis:
     rubric = load_rubric(DEFAULT_RUBRIC_PATH, taxonomy)
     provider = ScriptedLayerProvider()
     use_case, _ = build(taxonomy, rubric, provider)
-    return await use_case.execute(AnalyzeTranscriptCommand(transcript=CALL_89), provider)
+    stored = await use_case.execute(AnalyzeTranscriptCommand(transcript=CALL_89), provider)
+    return stored.analysis
 
 
 @pytest.fixture

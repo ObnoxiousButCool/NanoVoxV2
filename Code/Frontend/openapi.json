@@ -1,0 +1,1925 @@
+{
+  "components": {
+    "schemas": {
+      "AgentResponse": {
+        "properties": {
+          "agent_name": {
+            "title": "Agent Name",
+            "type": "string"
+          },
+          "average_score": {
+            "title": "Average Score",
+            "type": "number"
+          },
+          "call_count": {
+            "title": "Call Count",
+            "type": "integer"
+          },
+          "escalated": {
+            "title": "Escalated",
+            "type": "integer"
+          },
+          "max_score": {
+            "title": "Max Score",
+            "type": "integer"
+          },
+          "min_score": {
+            "title": "Min Score",
+            "type": "integer"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          },
+          "tier": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Null when the sample is too small to rate the agent fairly.",
+            "title": "Tier"
+          },
+          "unresolved": {
+            "title": "Unresolved",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "agent_name",
+          "call_count",
+          "average_score",
+          "min_score",
+          "max_score",
+          "unresolved",
+          "escalated",
+          "tier",
+          "note"
+        ],
+        "title": "AgentResponse",
+        "type": "object"
+      },
+      "AnalysisResponse": {
+        "properties": {
+          "agent_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Agent Name"
+          },
+          "assist_events": {
+            "items": {
+              "$ref": "#/components/schemas/AssistEventResponse"
+            },
+            "title": "Assist Events",
+            "type": "array"
+          },
+          "broker_signals": {
+            "items": {
+              "$ref": "#/components/schemas/BrokerSignalResponse"
+            },
+            "title": "Broker Signals",
+            "type": "array"
+          },
+          "category": {
+            "title": "Category",
+            "type": "string"
+          },
+          "category_label": {
+            "title": "Category Label",
+            "type": "string"
+          },
+          "duration_minutes": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Duration Minutes"
+          },
+          "id": {
+            "description": "Database id, for linking straight to the call.",
+            "title": "Id",
+            "type": "integer"
+          },
+          "l4_signals": {
+            "items": {
+              "$ref": "#/components/schemas/L4SignalResponse"
+            },
+            "title": "L4 Signals",
+            "type": "array"
+          },
+          "layers": {
+            "items": {
+              "$ref": "#/components/schemas/LayerResponse"
+            },
+            "title": "Layers",
+            "type": "array"
+          },
+          "markers": {
+            "items": {
+              "$ref": "#/components/schemas/MarkerResponse"
+            },
+            "title": "Markers",
+            "type": "array"
+          },
+          "member_context": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Member Context"
+          },
+          "provenance": {
+            "$ref": "#/components/schemas/ProvenanceResponse"
+          },
+          "reference": {
+            "title": "Reference",
+            "type": "string"
+          },
+          "rejected_attribution_notes": {
+            "description": "Broker attributions discarded because their evidence did not check out.",
+            "items": {
+              "type": "string"
+            },
+            "title": "Rejected Attribution Notes",
+            "type": "array"
+          },
+          "rejected_marker_notes": {
+            "description": "Observations discarded because their evidence did not check out.",
+            "items": {
+              "type": "string"
+            },
+            "title": "Rejected Marker Notes",
+            "type": "array"
+          },
+          "resolution": {
+            "title": "Resolution",
+            "type": "string"
+          },
+          "score": {
+            "$ref": "#/components/schemas/ScoreResponse"
+          },
+          "sentiment_end": {
+            "title": "Sentiment End",
+            "type": "string"
+          },
+          "sentiment_start": {
+            "title": "Sentiment Start",
+            "type": "string"
+          },
+          "signal_codes": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Signal Codes",
+            "type": "array"
+          },
+          "source": {
+            "title": "Source",
+            "type": "string"
+          },
+          "summary": {
+            "title": "Summary",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "transcript": {
+            "items": {
+              "$ref": "#/components/schemas/TurnResponse"
+            },
+            "title": "Transcript",
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "reference",
+          "title",
+          "summary",
+          "category",
+          "category_label",
+          "resolution",
+          "sentiment_start",
+          "sentiment_end",
+          "agent_name",
+          "member_context",
+          "duration_minutes",
+          "source",
+          "signal_codes",
+          "score",
+          "markers",
+          "rejected_marker_notes",
+          "rejected_attribution_notes",
+          "l4_signals",
+          "broker_signals",
+          "assist_events",
+          "layers",
+          "transcript",
+          "provenance"
+        ],
+        "title": "AnalysisResponse",
+        "type": "object"
+      },
+      "AnalyzeRequest": {
+        "properties": {
+          "model": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Model override for this analysis.",
+            "title": "Model"
+          },
+          "provider": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Provider name. Defaults to the configured provider.",
+            "title": "Provider"
+          },
+          "transcript": {
+            "description": "Pasted transcript, one speaker turn per line as 'Speaker: text'.",
+            "maxLength": 200000,
+            "minLength": 1,
+            "title": "Transcript",
+            "type": "string"
+          }
+        },
+        "required": [
+          "transcript"
+        ],
+        "title": "AnalyzeRequest",
+        "type": "object"
+      },
+      "AssistEventResponse": {
+        "properties": {
+          "at_turn_seq": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "At Turn Seq"
+          },
+          "is_gap": {
+            "title": "Is Gap",
+            "type": "boolean"
+          },
+          "outcome": {
+            "title": "Outcome",
+            "type": "string"
+          },
+          "recommendation": {
+            "title": "Recommendation",
+            "type": "string"
+          },
+          "severity": {
+            "title": "Severity",
+            "type": "string"
+          },
+          "timestamp_label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Timestamp Label"
+          },
+          "trigger": {
+            "title": "Trigger",
+            "type": "string"
+          }
+        },
+        "required": [
+          "outcome",
+          "trigger",
+          "recommendation",
+          "severity",
+          "at_turn_seq",
+          "timestamp_label",
+          "is_gap"
+        ],
+        "title": "AssistEventResponse",
+        "type": "object"
+      },
+      "AttentionItemResponse": {
+        "properties": {
+          "count": {
+            "title": "Count",
+            "type": "integer"
+          },
+          "owner": {
+            "title": "Owner",
+            "type": "string"
+          },
+          "references": {
+            "items": {
+              "type": "string"
+            },
+            "title": "References",
+            "type": "array"
+          },
+          "rule_id": {
+            "title": "Rule Id",
+            "type": "string"
+          },
+          "severity": {
+            "title": "Severity",
+            "type": "string"
+          },
+          "subject": {
+            "title": "Subject",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "unresolved": {
+            "title": "Unresolved",
+            "type": "integer"
+          },
+          "why": {
+            "title": "Why",
+            "type": "string"
+          }
+        },
+        "required": [
+          "rule_id",
+          "title",
+          "subject",
+          "why",
+          "owner",
+          "severity",
+          "count",
+          "unresolved",
+          "references"
+        ],
+        "title": "AttentionItemResponse",
+        "type": "object"
+      },
+      "BrokerResponse": {
+        "properties": {
+          "broker_name": {
+            "title": "Broker Name",
+            "type": "string"
+          },
+          "call_references": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Call References",
+            "type": "array"
+          },
+          "is_net_positive": {
+            "title": "Is Net Positive",
+            "type": "boolean"
+          },
+          "negative": {
+            "title": "Negative",
+            "type": "integer"
+          },
+          "positive": {
+            "title": "Positive",
+            "type": "integer"
+          },
+          "signals": {
+            "title": "Signals",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "broker_name",
+          "signals",
+          "negative",
+          "positive",
+          "is_net_positive",
+          "call_references"
+        ],
+        "title": "BrokerResponse",
+        "type": "object"
+      },
+      "BrokerSignalResponse": {
+        "properties": {
+          "basis": {
+            "title": "Basis",
+            "type": "string"
+          },
+          "broker_name": {
+            "title": "Broker Name",
+            "type": "string"
+          },
+          "evidence_turn_seq": {
+            "title": "Evidence Turn Seq",
+            "type": "integer"
+          },
+          "issue": {
+            "title": "Issue",
+            "type": "string"
+          },
+          "polarity": {
+            "title": "Polarity",
+            "type": "string"
+          },
+          "quote": {
+            "title": "Quote",
+            "type": "string"
+          }
+        },
+        "required": [
+          "broker_name",
+          "polarity",
+          "basis",
+          "issue",
+          "evidence_turn_seq",
+          "quote"
+        ],
+        "title": "BrokerSignalResponse",
+        "type": "object"
+      },
+      "CallSummaryResponse": {
+        "properties": {
+          "agent_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Agent Name"
+          },
+          "analysed_at": {
+            "format": "date-time",
+            "title": "Analysed At",
+            "type": "string"
+          },
+          "broker_names": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Broker Names",
+            "type": "array"
+          },
+          "category": {
+            "title": "Category",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "reference": {
+            "title": "Reference",
+            "type": "string"
+          },
+          "resolution": {
+            "title": "Resolution",
+            "type": "string"
+          },
+          "score": {
+            "title": "Score",
+            "type": "integer"
+          },
+          "score_status": {
+            "title": "Score Status",
+            "type": "string"
+          },
+          "signal_codes": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Signal Codes",
+            "type": "array"
+          },
+          "source": {
+            "title": "Source",
+            "type": "string"
+          },
+          "summary": {
+            "title": "Summary",
+            "type": "string"
+          },
+          "tier": {
+            "title": "Tier",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "reference",
+          "title",
+          "summary",
+          "category",
+          "agent_name",
+          "resolution",
+          "score",
+          "score_status",
+          "tier",
+          "source",
+          "analysed_at",
+          "signal_codes",
+          "broker_names"
+        ],
+        "title": "CallSummaryResponse",
+        "type": "object"
+      },
+      "CallsPageResponse": {
+        "properties": {
+          "has_more": {
+            "title": "Has More",
+            "type": "boolean"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/CallSummaryResponse"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "limit": {
+            "title": "Limit",
+            "type": "integer"
+          },
+          "offset": {
+            "title": "Offset",
+            "type": "integer"
+          },
+          "total": {
+            "description": "Matching calls, before paging.",
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "limit",
+          "offset",
+          "has_more"
+        ],
+        "title": "CallsPageResponse",
+        "type": "object"
+      },
+      "CategoryEntry": {
+        "properties": {
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "label",
+          "description"
+        ],
+        "title": "CategoryEntry",
+        "type": "object"
+      },
+      "CategoryResponse": {
+        "properties": {
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "count": {
+            "title": "Count",
+            "type": "integer"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "percentage_of_total": {
+            "title": "Percentage Of Total",
+            "type": "number"
+          },
+          "unresolved": {
+            "title": "Unresolved",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "code",
+          "label",
+          "count",
+          "unresolved",
+          "percentage_of_total"
+        ],
+        "title": "CategoryResponse",
+        "type": "object"
+      },
+      "ComponentHealthResponse": {
+        "properties": {
+          "detail": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Detail"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/ComponentStatus"
+          }
+        },
+        "required": [
+          "name",
+          "status"
+        ],
+        "title": "ComponentHealthResponse",
+        "type": "object"
+      },
+      "ComponentStatus": {
+        "description": "Outcome of probing a single component.",
+        "enum": [
+          "up",
+          "down"
+        ],
+        "title": "ComponentStatus",
+        "type": "string"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "title": "Detail",
+            "type": "array"
+          }
+        },
+        "title": "HTTPValidationError",
+        "type": "object"
+      },
+      "HealthResponse": {
+        "properties": {
+          "application": {
+            "title": "Application",
+            "type": "string"
+          },
+          "checked_at": {
+            "format": "date-time",
+            "title": "Checked At",
+            "type": "string"
+          },
+          "components": {
+            "items": {
+              "$ref": "#/components/schemas/ComponentHealthResponse"
+            },
+            "title": "Components",
+            "type": "array"
+          },
+          "environment": {
+            "title": "Environment",
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/ComponentStatus"
+          },
+          "version": {
+            "title": "Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "application",
+          "version",
+          "environment",
+          "checked_at"
+        ],
+        "title": "HealthResponse",
+        "type": "object"
+      },
+      "HistogramBinResponse": {
+        "properties": {
+          "count": {
+            "title": "Count",
+            "type": "integer"
+          },
+          "is_below_threshold": {
+            "title": "Is Below Threshold",
+            "type": "boolean"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "lower": {
+            "title": "Lower",
+            "type": "integer"
+          },
+          "upper": {
+            "title": "Upper",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "label",
+          "lower",
+          "upper",
+          "count",
+          "is_below_threshold"
+        ],
+        "title": "HistogramBinResponse",
+        "type": "object"
+      },
+      "HistogramResponse": {
+        "properties": {
+          "below_threshold_count": {
+            "title": "Below Threshold Count",
+            "type": "integer"
+          },
+          "bins": {
+            "items": {
+              "$ref": "#/components/schemas/HistogramBinResponse"
+            },
+            "title": "Bins",
+            "type": "array"
+          },
+          "peak": {
+            "title": "Peak",
+            "type": "integer"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "bins",
+          "total",
+          "below_threshold_count",
+          "peak"
+        ],
+        "title": "HistogramResponse",
+        "type": "object"
+      },
+      "L4CategoryEntry": {
+        "properties": {
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "default_severity": {
+            "title": "Default Severity",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "owner": {
+            "title": "Owner",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "label",
+          "owner",
+          "default_severity"
+        ],
+        "title": "L4CategoryEntry",
+        "type": "object"
+      },
+      "L4SignalResponse": {
+        "properties": {
+          "category": {
+            "title": "Category",
+            "type": "string"
+          },
+          "narrative": {
+            "title": "Narrative",
+            "type": "string"
+          },
+          "owner": {
+            "title": "Owner",
+            "type": "string"
+          },
+          "recommended_action": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recommended Action"
+          },
+          "severity": {
+            "title": "Severity",
+            "type": "string"
+          }
+        },
+        "required": [
+          "category",
+          "owner",
+          "severity",
+          "narrative",
+          "recommended_action"
+        ],
+        "title": "L4SignalResponse",
+        "type": "object"
+      },
+      "LayerResponse": {
+        "properties": {
+          "layer": {
+            "title": "Layer",
+            "type": "string"
+          },
+          "payload": {
+            "additionalProperties": true,
+            "title": "Payload",
+            "type": "object"
+          }
+        },
+        "required": [
+          "layer",
+          "payload"
+        ],
+        "title": "LayerResponse",
+        "type": "object"
+      },
+      "MarkerResponse": {
+        "properties": {
+          "description": {
+            "title": "Description",
+            "type": "string"
+          },
+          "dimension": {
+            "title": "Dimension",
+            "type": "string"
+          },
+          "evidence_turn_seq": {
+            "title": "Evidence Turn Seq",
+            "type": "integer"
+          },
+          "polarity": {
+            "title": "Polarity",
+            "type": "string"
+          },
+          "quote": {
+            "title": "Quote",
+            "type": "string"
+          }
+        },
+        "required": [
+          "polarity",
+          "dimension",
+          "description",
+          "evidence_turn_seq",
+          "quote"
+        ],
+        "title": "MarkerResponse",
+        "type": "object"
+      },
+      "MetricsResponse": {
+        "properties": {
+          "broker_signal_count": {
+            "title": "Broker Signal Count",
+            "type": "integer"
+          },
+          "distinct_broker_count": {
+            "title": "Distinct Broker Count",
+            "type": "integer"
+          },
+          "escalation_rate": {
+            "title": "Escalation Rate",
+            "type": "number"
+          },
+          "first_contact_resolution_rate": {
+            "description": "RESOLVED as a percentage of all calls. Excludes PARTIALLY RESOLVED.",
+            "title": "First Contact Resolution Rate",
+            "type": "number"
+          },
+          "mean_score": {
+            "description": "Reported alongside the median because the distribution is bimodal; one number alone would hide the low cluster.",
+            "title": "Mean Score",
+            "type": "number"
+          },
+          "median_score": {
+            "title": "Median Score",
+            "type": "number"
+          },
+          "provisional_score_count": {
+            "title": "Provisional Score Count",
+            "type": "integer"
+          },
+          "total_calls": {
+            "title": "Total Calls",
+            "type": "integer"
+          },
+          "unresolved_rate": {
+            "title": "Unresolved Rate",
+            "type": "number"
+          }
+        },
+        "required": [
+          "total_calls",
+          "median_score",
+          "mean_score",
+          "first_contact_resolution_rate",
+          "escalation_rate",
+          "unresolved_rate",
+          "broker_signal_count",
+          "distinct_broker_count",
+          "provisional_score_count"
+        ],
+        "title": "MetricsResponse",
+        "type": "object"
+      },
+      "OverviewResponse": {
+        "properties": {
+          "attention": {
+            "items": {
+              "$ref": "#/components/schemas/AttentionItemResponse"
+            },
+            "title": "Attention",
+            "type": "array"
+          },
+          "categories": {
+            "items": {
+              "$ref": "#/components/schemas/CategoryResponse"
+            },
+            "title": "Categories",
+            "type": "array"
+          },
+          "histogram": {
+            "$ref": "#/components/schemas/HistogramResponse"
+          },
+          "metrics": {
+            "$ref": "#/components/schemas/MetricsResponse"
+          },
+          "taxonomy_coverage": {
+            "description": "Share of calls landing in a defined category. Below 90% means the taxonomy needs revising, not the chart.",
+            "title": "Taxonomy Coverage",
+            "type": "number"
+          }
+        },
+        "required": [
+          "metrics",
+          "histogram",
+          "categories",
+          "attention",
+          "taxonomy_coverage"
+        ],
+        "title": "OverviewResponse",
+        "type": "object"
+      },
+      "OwnerLoadResponse": {
+        "properties": {
+          "count": {
+            "title": "Count",
+            "type": "integer"
+          },
+          "owner": {
+            "title": "Owner",
+            "type": "string"
+          }
+        },
+        "required": [
+          "owner",
+          "count"
+        ],
+        "title": "OwnerLoadResponse",
+        "type": "object"
+      },
+      "ProvenanceResponse": {
+        "properties": {
+          "analysed_at": {
+            "format": "date-time",
+            "title": "Analysed At",
+            "type": "string"
+          },
+          "duration_ms": {
+            "title": "Duration Ms",
+            "type": "number"
+          },
+          "input_tokens": {
+            "title": "Input Tokens",
+            "type": "integer"
+          },
+          "model": {
+            "title": "Model",
+            "type": "string"
+          },
+          "output_tokens": {
+            "title": "Output Tokens",
+            "type": "integer"
+          },
+          "prompt_version": {
+            "title": "Prompt Version",
+            "type": "string"
+          },
+          "provider": {
+            "title": "Provider",
+            "type": "string"
+          },
+          "rubric_version": {
+            "title": "Rubric Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "provider",
+          "model",
+          "prompt_version",
+          "rubric_version",
+          "analysed_at",
+          "input_tokens",
+          "output_tokens",
+          "duration_ms"
+        ],
+        "title": "ProvenanceResponse",
+        "type": "object"
+      },
+      "ProviderResponse": {
+        "properties": {
+          "configured": {
+            "description": "Whether the provider's required settings are present.",
+            "title": "Configured",
+            "type": "boolean"
+          },
+          "detail": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Detail"
+          },
+          "implemented": {
+            "description": "False for providers registered but not built.",
+            "title": "Implemented",
+            "type": "boolean"
+          },
+          "is_default": {
+            "title": "Is Default",
+            "type": "boolean"
+          },
+          "model": {
+            "title": "Model",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "reachable": {
+            "description": "Whether it answered a probe just now.",
+            "title": "Reachable",
+            "type": "boolean"
+          },
+          "selectable": {
+            "description": "Whether an analysis may be run against it.",
+            "title": "Selectable",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "name",
+          "model",
+          "configured",
+          "reachable",
+          "implemented",
+          "selectable",
+          "is_default"
+        ],
+        "title": "ProviderResponse",
+        "type": "object"
+      },
+      "ProvidersResponse": {
+        "properties": {
+          "default": {
+            "title": "Default",
+            "type": "string"
+          },
+          "providers": {
+            "items": {
+              "$ref": "#/components/schemas/ProviderResponse"
+            },
+            "title": "Providers",
+            "type": "array"
+          }
+        },
+        "required": [
+          "default",
+          "providers"
+        ],
+        "title": "ProvidersResponse",
+        "type": "object"
+      },
+      "ScoreResponse": {
+        "properties": {
+          "applied_offset": {
+            "title": "Applied Offset",
+            "type": "integer"
+          },
+          "gate_messages": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Gate Messages",
+            "type": "array"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "tier": {
+            "title": "Tier",
+            "type": "string"
+          },
+          "total_negative": {
+            "title": "Total Negative",
+            "type": "integer"
+          },
+          "total_positive": {
+            "title": "Total Positive",
+            "type": "integer"
+          },
+          "value": {
+            "title": "Value",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "value",
+          "status",
+          "tier",
+          "total_positive",
+          "total_negative",
+          "applied_offset",
+          "gate_messages"
+        ],
+        "title": "ScoreResponse",
+        "type": "object"
+      },
+      "SignalEntryResponse": {
+        "properties": {
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "count": {
+            "title": "Count",
+            "type": "integer"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "owner": {
+            "title": "Owner",
+            "type": "string"
+          },
+          "percentage_of_corpus": {
+            "title": "Percentage Of Corpus",
+            "type": "number"
+          }
+        },
+        "required": [
+          "code",
+          "label",
+          "owner",
+          "count",
+          "percentage_of_corpus"
+        ],
+        "title": "SignalEntryResponse",
+        "type": "object"
+      },
+      "SignalTypeEntry": {
+        "properties": {
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "severity": {
+            "title": "Severity",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "label",
+          "severity"
+        ],
+        "title": "SignalTypeEntry",
+        "type": "object"
+      },
+      "SignalsResponse": {
+        "properties": {
+          "categories": {
+            "description": "Every configured L4 category, including those with no signals \u2014 the absence is shown rather than implied.",
+            "items": {
+              "$ref": "#/components/schemas/SignalEntryResponse"
+            },
+            "title": "Categories",
+            "type": "array"
+          },
+          "owners": {
+            "items": {
+              "$ref": "#/components/schemas/OwnerLoadResponse"
+            },
+            "title": "Owners",
+            "type": "array"
+          }
+        },
+        "required": [
+          "categories",
+          "owners"
+        ],
+        "title": "SignalsResponse",
+        "type": "object"
+      },
+      "TaxonomyResponse": {
+        "properties": {
+          "categories": {
+            "items": {
+              "$ref": "#/components/schemas/CategoryEntry"
+            },
+            "title": "Categories",
+            "type": "array"
+          },
+          "l4_categories": {
+            "items": {
+              "$ref": "#/components/schemas/L4CategoryEntry"
+            },
+            "title": "L4 Categories",
+            "type": "array"
+          },
+          "resolutions": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Resolutions",
+            "type": "array"
+          },
+          "rubric_version": {
+            "title": "Rubric Version",
+            "type": "string"
+          },
+          "sentiment_states": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Sentiment States",
+            "type": "array"
+          },
+          "severities": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Severities",
+            "type": "array"
+          },
+          "signal_types": {
+            "items": {
+              "$ref": "#/components/schemas/SignalTypeEntry"
+            },
+            "title": "Signal Types",
+            "type": "array"
+          },
+          "tiers": {
+            "$ref": "#/components/schemas/TierThresholdsEntry"
+          }
+        },
+        "required": [
+          "categories",
+          "l4_categories",
+          "signal_types",
+          "sentiment_states",
+          "resolutions",
+          "severities",
+          "tiers",
+          "rubric_version"
+        ],
+        "title": "TaxonomyResponse",
+        "type": "object"
+      },
+      "TierThresholdsEntry": {
+        "properties": {
+          "average": {
+            "title": "Average",
+            "type": "integer"
+          },
+          "good": {
+            "title": "Good",
+            "type": "integer"
+          },
+          "min_calls_for_tier_rating": {
+            "title": "Min Calls For Tier Rating",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "good",
+          "average",
+          "min_calls_for_tier_rating"
+        ],
+        "title": "TierThresholdsEntry",
+        "type": "object"
+      },
+      "TurnResponse": {
+        "properties": {
+          "role": {
+            "title": "Role",
+            "type": "string"
+          },
+          "seq": {
+            "title": "Seq",
+            "type": "integer"
+          },
+          "speaker_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Speaker Name"
+          },
+          "text": {
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "seq",
+          "role",
+          "speaker_name",
+          "text"
+        ],
+        "title": "TurnResponse",
+        "type": "object"
+      },
+      "ValidationError": {
+        "properties": {
+          "ctx": {
+            "title": "Context",
+            "type": "object"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "title": "Location",
+            "type": "array"
+          },
+          "msg": {
+            "title": "Message",
+            "type": "string"
+          },
+          "type": {
+            "title": "Error Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError",
+        "type": "object"
+      }
+    }
+  },
+  "info": {
+    "summary": "Call intelligence for member services.",
+    "title": "NanoVox API",
+    "version": "0.1.0"
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/api/v1/analyses": {
+      "post": {
+        "operationId": "analyse_api_v1_analyses_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AnalyzeRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnalysisResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Analyse a pasted transcript",
+        "tags": [
+          "analyses"
+        ]
+      }
+    },
+    "/api/v1/calls": {
+      "get": {
+        "operationId": "list_calls_api_v1_calls_get",
+        "parameters": [
+          {
+            "description": "Call category code.",
+            "in": "query",
+            "name": "category",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Call category code.",
+              "title": "Category"
+            }
+          },
+          {
+            "description": "Agent name.",
+            "in": "query",
+            "name": "agent",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Agent name.",
+              "title": "Agent"
+            }
+          },
+          {
+            "description": "Outcome, e.g. UNRESOLVED.",
+            "in": "query",
+            "name": "resolution",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Outcome, e.g. UNRESOLVED.",
+              "title": "Resolution"
+            }
+          },
+          {
+            "in": "query",
+            "name": "max_score",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 100,
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Max Score"
+            }
+          },
+          {
+            "in": "query",
+            "name": "min_score",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 100,
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Min Score"
+            }
+          },
+          {
+            "in": "query",
+            "name": "has_broker_signal",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Has Broker Signal"
+            }
+          },
+          {
+            "description": "Signal code, e.g. clinical_risk.",
+            "in": "query",
+            "name": "signal",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Signal code, e.g. clinical_risk.",
+              "title": "Signal"
+            }
+          },
+          {
+            "description": "Matches title, summary or reference.",
+            "in": "query",
+            "name": "search",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Matches title, summary or reference.",
+              "title": "Search"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 25,
+              "maximum": 200,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "minimum": 0,
+              "title": "Offset",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CallsPageResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List analysed calls",
+        "tags": [
+          "calls"
+        ]
+      }
+    },
+    "/api/v1/calls/{call_id}": {
+      "get": {
+        "operationId": "get_call_api_v1_calls__call_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "call_id",
+            "required": true,
+            "schema": {
+              "title": "Call Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnalysisResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "One call in full",
+        "tags": [
+          "calls"
+        ]
+      }
+    },
+    "/api/v1/dashboard/agents": {
+      "get": {
+        "operationId": "get_agents_api_v1_dashboard_agents_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/AgentResponse"
+                  },
+                  "title": "Response Get Agents Api V1 Dashboard Agents Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Agent performance",
+        "tags": [
+          "dashboard"
+        ]
+      }
+    },
+    "/api/v1/dashboard/brokers": {
+      "get": {
+        "operationId": "get_brokers_api_v1_dashboard_brokers_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/BrokerResponse"
+                  },
+                  "title": "Response Get Brokers Api V1 Dashboard Brokers Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Broker scorecard",
+        "tags": [
+          "dashboard"
+        ]
+      }
+    },
+    "/api/v1/dashboard/overview": {
+      "get": {
+        "operationId": "get_overview_api_v1_dashboard_overview_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OverviewResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "What needs attention",
+        "tags": [
+          "dashboard"
+        ]
+      }
+    },
+    "/api/v1/dashboard/signals": {
+      "get": {
+        "operationId": "get_signals_api_v1_dashboard_signals_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SignalsResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "L4 signal distribution",
+        "tags": [
+          "dashboard"
+        ]
+      }
+    },
+    "/api/v1/health": {
+      "get": {
+        "operationId": "get_health_api_v1_health_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "503": {
+            "description": "A component is unavailable."
+          }
+        },
+        "summary": "Report application and dependency health",
+        "tags": [
+          "system"
+        ]
+      }
+    },
+    "/api/v1/providers": {
+      "get": {
+        "operationId": "list_providers_api_v1_providers_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProvidersResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "List model providers and their current availability",
+        "tags": [
+          "providers"
+        ]
+      }
+    },
+    "/api/v1/taxonomy": {
+      "get": {
+        "operationId": "get_taxonomy_api_v1_taxonomy_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaxonomyResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Controlled vocabularies",
+        "tags": [
+          "system"
+        ]
+      }
+    }
+  }
+}

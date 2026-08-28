@@ -29,6 +29,7 @@ def test_the_expected_tables_are_mapped() -> None:
         "l4_signals",
         "broker_signals",
         "assist_events",
+        "call_signals",
     }
 
 

@@ -19,11 +19,18 @@ from application.ports.health_probe import HealthProbe
 from application.ports.llm_provider import LLMProvider
 from application.ports.redaction import NoRedaction, RedactionPort
 from application.use_cases.analyze_transcript import AnalyzeTranscript
+from application.use_cases.get_dashboard import (
+    GetAgentPerformance,
+    GetBrokerScorecard,
+    GetOverview,
+    GetSignalDistribution,
+)
 from application.use_cases.get_health import GetHealth
 from application.use_cases.list_providers import ListProviders
 from domain.scoring.rubric import Rubric
 from domain.scoring.rubric_engine import RubricEngine
 from domain.taxonomy import Taxonomy
+from infrastructure.config.dashboard_loader import DashboardConfig, load_dashboard_config
 from infrastructure.config.rubric_loader import load_rubric
 from infrastructure.config.settings import Settings
 from infrastructure.config.taxonomy_loader import load_taxonomy
@@ -35,6 +42,7 @@ from infrastructure.logging.llm_audit import LlmAuditLog
 from infrastructure.persistence.engine import create_database_engine, create_session_factory
 from infrastructure.persistence.health_probe import DatabaseHealthProbe
 from infrastructure.persistence.repositories.analysis_repository import SqlAnalysisRepository
+from infrastructure.persistence.repositories.read_models import SqlReadModelRepository
 from infrastructure.system_clock import SystemClock
 
 
@@ -53,6 +61,7 @@ class Container:
     provider_registry: ProviderRegistry
     schemas: AnalysisSchemas
     redaction: RedactionPort
+    dashboard: DashboardConfig
 
     def get_health(self) -> GetHealth:
         return GetHealth(probes=self.health_probes, clock=self.clock)
@@ -73,6 +82,26 @@ class Container:
 
     def analysis_repository(self) -> SqlAnalysisRepository:
         return SqlAnalysisRepository(self.session_factory, self.taxonomy)
+
+    def read_models(self) -> SqlReadModelRepository:
+        return SqlReadModelRepository(self.session_factory)
+
+    def get_overview(self) -> GetOverview:
+        return GetOverview(
+            self.read_models(),
+            self.taxonomy,
+            self.dashboard.histogram,
+            self.dashboard.attention_rules,
+        )
+
+    def get_agent_performance(self) -> GetAgentPerformance:
+        return GetAgentPerformance(self.read_models(), self.rubric)
+
+    def get_broker_scorecard(self) -> GetBrokerScorecard:
+        return GetBrokerScorecard(self.read_models())
+
+    def get_signal_distribution(self) -> GetSignalDistribution:
+        return GetSignalDistribution(self.read_models(), self.taxonomy)
 
     def analyze_transcript(self) -> AnalyzeTranscript:
         return AnalyzeTranscript(
@@ -111,6 +140,7 @@ def build_container(settings: Settings) -> Container:
         provider_registry=ProviderRegistry(settings, audit),
         schemas=build_analysis_schemas(taxonomy, rubric),
         redaction=NoRedaction(),
+        dashboard=load_dashboard_config(settings.dashboard_path, taxonomy),
     )
 
 

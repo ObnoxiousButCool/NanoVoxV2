@@ -90,16 +90,18 @@ export interface RequestOptions {
   readonly acceptStatuses?: readonly number[]
 }
 
-/** Issue a GET against the API and parse the JSON response. */
-export async function getJson<T>(path: string, options: RequestOptions = {}): Promise<T> {
+async function request<T>(
+  path: string,
+  init: RequestInit,
+  options: RequestOptions,
+): Promise<T> {
   const baseUrl = options.baseUrl ?? getConfig().apiBaseUrl
   const doFetch = options.fetchFn ?? fetch
 
   let response: Response
   try {
     response = await doFetch(`${baseUrl}${path}`, {
-      method: 'GET',
-      headers: { Accept: 'application/json' },
+      ...init,
       ...(options.signal ? { signal: options.signal } : {}),
     })
   } catch (cause) {
@@ -112,4 +114,26 @@ export async function getJson<T>(path: string, options: RequestOptions = {}): Pr
   }
 
   return (await response.json()) as T
+}
+
+/** Issue a POST with a JSON body. */
+export async function postJson<T>(
+  path: string,
+  body: unknown,
+  options: RequestOptions = {},
+): Promise<T> {
+  return request<T>(
+    path,
+    {
+      method: 'POST',
+      headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    },
+    options,
+  )
+}
+
+/** Issue a GET against the API and parse the JSON response. */
+export async function getJson<T>(path: string, options: RequestOptions = {}): Promise<T> {
+  return request<T>(path, { method: 'GET', headers: { Accept: 'application/json' } }, options)
 }

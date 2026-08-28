@@ -6,8 +6,9 @@
  * surface in this application is required to have.
  */
 
-import type { ComponentHealth, ComponentStatus } from '@/entities/health'
-import { useHealth } from '@/features/diagnostics/useHealth'
+import type { ComponentHealth, ComponentStatus } from '@/shared/api/types'
+import { useHealth } from '@/shared/api/queries'
+import { PageHeader } from '@/shared/ui/primitives'
 import { ApiError, NetworkError } from '@/shared/api/client'
 import { cx } from '@/shared/ui/cx'
 import styles from './DiagnosticsPage.module.css'
@@ -51,11 +52,11 @@ export function DiagnosticsPage() {
   const { data, error, isPending, isFetching } = useHealth()
 
   return (
-    <main className={styles.page}>
-      <header className={styles.header}>
-        <h1>Diagnostics</h1>
-        <p>Live status of the backend and every dependency it declares.</p>
-      </header>
+    <>
+      <PageHeader
+        title="Diagnostics"
+        subtitle="Live status of the backend and every dependency it declares."
+      />
 
       <section className={styles.card} aria-labelledby="system-status">
         <div className={styles.cardHeader}>
@@ -86,11 +87,11 @@ export function DiagnosticsPage() {
                   <dt>Checked at</dt>
                   <dd>{new Date(data.checked_at).toLocaleString()}</dd>
                 </div>
-                {data.components.map((component) => (
+                {(data.components ?? []).map((component) => (
                   <ComponentRow key={component.name} component={component} />
                 ))}
               </dl>
-              {data.components.length === 0 ? (
+              {(data.components ?? []).length === 0 ? (
                 <p className={styles.note}>
                   The backend declares no dependencies to check. Shown so the absence is
                   visible rather than implied.
@@ -103,6 +104,6 @@ export function DiagnosticsPage() {
           ) : null}
         </div>
       </section>
-    </main>
+    </>
   )
 }

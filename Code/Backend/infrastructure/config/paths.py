@@ -24,6 +24,7 @@ DEFAULT_CORPUS_DIR: Path = PROJECT_ROOT / "Samples"
 DEFAULT_CONFIG_DIR: Path = BACKEND_ROOT / "config"
 DEFAULT_TAXONOMY_PATH: Path = DEFAULT_CONFIG_DIR / "taxonomy.yaml"
 DEFAULT_RUBRIC_PATH: Path = DEFAULT_CONFIG_DIR / "rubric.yaml"
+DEFAULT_DASHBOARD_PATH: Path = DEFAULT_CONFIG_DIR / "dashboard.yaml"
 
 
 def default_database_url() -> str:

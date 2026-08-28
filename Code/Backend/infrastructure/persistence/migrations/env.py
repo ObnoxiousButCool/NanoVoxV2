@@ -27,6 +27,26 @@ from infrastructure.persistence.models import Base
 target_metadata = Base.metadata
 
 
+def _disable_foreign_keys(connection: Connection) -> None:
+    """Turn foreign keys off for the duration of the migration.
+
+    SQLite cannot ALTER most columns, so ``batch_alter_table`` drops and recreates
+    the table instead. With ``PRAGMA foreign_keys=ON`` — which the application
+    engine sets — that DROP performs an implicit DELETE FROM, which fires every
+    child table's ON DELETE CASCADE. A migration that only meant to add a column
+    silently empties turns, layers, markers and every other child row.
+
+    This is the documented approach for SQLite batch migrations, and the reason
+    it is here rather than in the engine is that the application very much does
+    want foreign keys enforced at runtime.
+    """
+    connection.exec_driver_sql("PRAGMA foreign_keys=OFF")
+
+
+def _restore_foreign_keys(connection: Connection) -> None:
+    connection.exec_driver_sql("PRAGMA foreign_keys=ON")
+
+
 def _configure(connection: Connection) -> None:
     context.configure(
         connection=connection,
@@ -51,9 +71,13 @@ def run_migrations_offline() -> None:
 
 
 def _run(connection: Connection) -> None:
+    _disable_foreign_keys(connection)
     _configure(connection)
-    with context.begin_transaction():
-        context.run_migrations()
+    try:
+        with context.begin_transaction():
+            context.run_migrations()
+    finally:
+        _restore_foreign_keys(connection)
 
 
 async def _run_async(engine: AsyncEngine) -> None:

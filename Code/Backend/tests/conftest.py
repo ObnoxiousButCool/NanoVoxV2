@@ -13,9 +13,12 @@ from pathlib import Path
 import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
+from sqlalchemy import create_engine
 
 from frameworks_drivers.main import create_app
 from infrastructure.config.settings import Settings
+from infrastructure.persistence import tables as _tables  # noqa: F401
+from infrastructure.persistence.models import Base
 from tests.support.settings import make_settings
 
 
@@ -32,8 +35,26 @@ def settings(tmp_path: Path) -> Settings:
 
 
 @pytest.fixture
-def app(settings: Settings) -> FastAPI:
-    """An application instance, not yet started."""
+def schema(settings: Settings) -> None:
+    """Create the tables the application expects.
+
+    Built from the ORM metadata rather than by running Alembic: that keeps the
+    suite fast, and `tests/audit/test_schema_matches_migrations.py` separately
+    proves the two agree, so speed here does not cost correctness.
+
+    A synchronous engine is used because the fixture is synchronous; it writes to
+    the same file the application will open.
+    """
+    engine = create_engine(settings.database_url.replace("sqlite+aiosqlite", "sqlite"))
+    try:
+        Base.metadata.create_all(engine)
+    finally:
+        engine.dispose()
+
+
+@pytest.fixture
+def app(settings: Settings, schema: None) -> FastAPI:
+    """An application instance, not yet started, over a database with a schema."""
     return create_app(settings)
 
 

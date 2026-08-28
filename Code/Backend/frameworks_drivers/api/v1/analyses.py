@@ -104,6 +104,7 @@ class ProvenanceResponse(BaseModel):
 
 
 class AnalysisResponse(BaseModel):
+    id: int = Field(description="Database id, for linking straight to the call.")
     reference: str
     title: str
     summary: str
@@ -133,8 +134,9 @@ class AnalysisResponse(BaseModel):
     provenance: ProvenanceResponse
 
 
-def to_response(analysis: CallAnalysis) -> AnalysisResponse:
+def to_response(analysis: CallAnalysis, call_id: int) -> AnalysisResponse:
     return AnalysisResponse(
+        id=call_id,
         reference=analysis.reference,
         title=analysis.title,
         summary=analysis.summary,
@@ -241,9 +243,9 @@ async def analyse(
 ) -> AnalysisResponse:
     provider = container.create_provider(request.provider, request.model)
     try:
-        analysis = await use_case.execute(
+        stored = await use_case.execute(
             AnalyzeTranscriptCommand(transcript=request.transcript), provider
         )
     finally:
         await provider.aclose()
-    return to_response(analysis)
+    return to_response(stored.analysis, stored.call_id)

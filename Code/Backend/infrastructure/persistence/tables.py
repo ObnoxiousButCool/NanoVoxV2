@@ -65,7 +65,6 @@ class CallRow(Base):
     triggered_gate_ids: Mapped[list[str]] = mapped_column(JSON, nullable=False, default=list)
 
     source: Mapped[str] = mapped_column(String(_SHORT), nullable=False)
-    signal_codes: Mapped[list[str]] = mapped_column(JSON, nullable=False, default=list)
     rejected_marker_notes: Mapped[list[str]] = mapped_column(JSON, nullable=False, default=list)
     rejected_attribution_notes: Mapped[list[str]] = mapped_column(
         JSON, nullable=False, default=list
@@ -99,12 +98,38 @@ class CallRow(Base):
     assist_events: Mapped[list[AssistEventRow]] = relationship(
         back_populates="call", cascade="all, delete-orphan"
     )
+    signals: Mapped[list[CallSignalRow]] = relationship(
+        back_populates="call", cascade="all, delete-orphan", order_by="CallSignalRow.code"
+    )
 
     __table_args__ = (
         UniqueConstraint("reference", name="uq_calls_reference"),
         Index("ix_calls_category_code", "category_code"),
         Index("ix_calls_agent_name", "agent_name"),
         Index("ix_calls_resolution", "resolution"),
+    )
+
+
+class CallSignalRow(Base):
+    """A named condition a call raises, such as ``clinical_risk``.
+
+    A table rather than a JSON column because the dashboard both counts these and
+    filters calls by them. Filtering a JSON array would mean either
+    dialect-specific SQL or filtering in Python after pagination, which silently
+    breaks the result count.
+    """
+
+    __tablename__ = "call_signals"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    call_id: Mapped[int] = mapped_column(ForeignKey("calls.id", ondelete="CASCADE"), nullable=False)
+    code: Mapped[str] = mapped_column(String(_SHORT), nullable=False)
+
+    call: Mapped[CallRow] = relationship(back_populates="signals")
+
+    __table_args__ = (
+        UniqueConstraint("call_id", "code", name="uq_call_signals_call_id"),
+        Index("ix_call_signals_code", "code"),
     )
 
 

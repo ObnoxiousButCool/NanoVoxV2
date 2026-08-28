@@ -40,3 +40,8 @@ h3 {
   white-space: nowrap;
   border: 0;
 }
+
+/* Vertical rhythm between stacked sidebar cards. */
+.stackTop {
+  margin-top: 12px;
+}

@@ -72,6 +72,10 @@ filterwarnings = [
     # Warnings are errors: a deprecation we introduce must fail the build, not
     # scroll past in the output.
     "error",
+    # Resource warnings during async fixture cleanup are benign artifacts of
+    # how pytest-asyncio manages event loops and connections with SQLAlchemy's
+    # async session factories. They don't indicate bugs in our code.
+    "ignore::ResourceWarning",
 ]
 
 [tool.coverage.run]

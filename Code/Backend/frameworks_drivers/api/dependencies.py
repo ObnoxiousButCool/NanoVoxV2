@@ -12,10 +12,18 @@ from typing import Annotated
 from fastapi import Depends, Request
 
 from application.use_cases.analyze_transcript import AnalyzeTranscript
+from application.use_cases.get_dashboard import (
+    GetAgentPerformance,
+    GetBrokerScorecard,
+    GetOverview,
+    GetSignalDistribution,
+)
 from application.use_cases.get_health import GetHealth
 from application.use_cases.list_providers import ListProviders
 from frameworks_drivers.container import Container
 from infrastructure.config.settings import Settings
+from infrastructure.persistence.repositories.analysis_repository import SqlAnalysisRepository
+from infrastructure.persistence.repositories.read_models import SqlReadModelRepository
 
 
 def get_container(request: Request) -> Container:
@@ -46,7 +54,37 @@ def get_analyze_transcript_use_case(container: ContainerDep) -> AnalyzeTranscrip
     return container.analyze_transcript()
 
 
+def get_overview_use_case(container: ContainerDep) -> GetOverview:
+    return container.get_overview()
+
+
+def get_agent_performance_use_case(container: ContainerDep) -> GetAgentPerformance:
+    return container.get_agent_performance()
+
+
+def get_broker_scorecard_use_case(container: ContainerDep) -> GetBrokerScorecard:
+    return container.get_broker_scorecard()
+
+
+def get_signal_distribution_use_case(container: ContainerDep) -> GetSignalDistribution:
+    return container.get_signal_distribution()
+
+
+def get_read_models(container: ContainerDep) -> SqlReadModelRepository:
+    return container.read_models()
+
+
+def get_analysis_repository(container: ContainerDep) -> SqlAnalysisRepository:
+    return container.analysis_repository()
+
+
 SettingsDep = Annotated[Settings, Depends(get_settings_dep)]
 GetHealthDep = Annotated[GetHealth, Depends(get_health_use_case)]
 ListProvidersDep = Annotated[ListProviders, Depends(get_list_providers_use_case)]
 AnalyzeTranscriptDep = Annotated[AnalyzeTranscript, Depends(get_analyze_transcript_use_case)]
+OverviewDep = Annotated[GetOverview, Depends(get_overview_use_case)]
+AgentPerformanceDep = Annotated[GetAgentPerformance, Depends(get_agent_performance_use_case)]
+BrokerScorecardDep = Annotated[GetBrokerScorecard, Depends(get_broker_scorecard_use_case)]
+SignalDistributionDep = Annotated[GetSignalDistribution, Depends(get_signal_distribution_use_case)]
+ReadModelsDep = Annotated[SqlReadModelRepository, Depends(get_read_models)]
+AnalysisRepositoryDep = Annotated[SqlAnalysisRepository, Depends(get_analysis_repository)]

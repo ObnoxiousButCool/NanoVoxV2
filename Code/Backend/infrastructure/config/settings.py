@@ -21,6 +21,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 from domain.errors import ConfigurationError
 from infrastructure.config.paths import (
     BACKEND_ROOT,
+    DEFAULT_DASHBOARD_PATH,
     DEFAULT_LOG_DIR,
     DEFAULT_RUBRIC_PATH,
     DEFAULT_TAXONOMY_PATH,
@@ -58,6 +59,7 @@ class Settings(BaseSettings):
     # --- Analysis configuration --------------------------------------------
     taxonomy_path: Path = DEFAULT_TAXONOMY_PATH
     rubric_path: Path = DEFAULT_RUBRIC_PATH
+    dashboard_path: Path = DEFAULT_DASHBOARD_PATH
 
     # --- Model providers ---------------------------------------------------
     llm_provider: str = "ollama"

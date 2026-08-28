@@ -63,6 +63,19 @@ _MAX_TRANSCRIPT_CHARS = 200_000
 
 
 @dataclass(frozen=True)
+class StoredAnalysis:
+    """A completed analysis and the id it was stored under.
+
+    The id is returned because the caller's next move is almost always to open
+    the call it just created; without it the UI would have to search for the
+    record it has in its hand.
+    """
+
+    call_id: int
+    analysis: CallAnalysis
+
+
+@dataclass(frozen=True)
 class AnalyzeTranscriptCommand:
     """A request to analyse one pasted transcript."""
 
@@ -96,7 +109,7 @@ class AnalyzeTranscript:
 
     async def execute(
         self, command: AnalyzeTranscriptCommand, provider: LLMProvider
-    ) -> CallAnalysis:
+    ) -> StoredAnalysis:
         started = self._clock.now()
         transcript = self._prepare(command.transcript)
         rendered = _render_turns(transcript)
@@ -194,8 +207,8 @@ class AnalyzeTranscript:
             ),
         )
 
-        await self._repository.save(analysis)
-        return analysis
+        call_id = await self._repository.save(analysis)
+        return StoredAnalysis(call_id=call_id, analysis=analysis)
 
     # --- pipeline steps ---------------------------------------------------
 

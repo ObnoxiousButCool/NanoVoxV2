@@ -74,8 +74,8 @@ async def analyse(
     taxonomy: Taxonomy, rubric: Rubric, provider: ScriptedLayerProvider
 ) -> tuple[CallAnalysis, InMemoryAnalysisRepository]:
     use_case, store = build(taxonomy, rubric, provider)
-    analysis = await use_case.execute(AnalyzeTranscriptCommand(transcript=CALL_89), provider)
-    return analysis, store
+    stored = await use_case.execute(AnalyzeTranscriptCommand(transcript=CALL_89), provider)
+    return stored.analysis, store
 
 
 class TestCompleteAnalysis:

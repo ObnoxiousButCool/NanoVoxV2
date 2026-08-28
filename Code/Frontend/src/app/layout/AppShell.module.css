@@ -1,0 +1,178 @@
+/* The two-column shell from the prototype: dark rail, light canvas. */
+
+.app {
+  display: grid;
+  grid-template-columns: 210px 1fr;
+  min-height: 100vh;
+}
+
+.app[data-collapsed='true'] {
+  grid-template-columns: 64px 1fr;
+}
+
+/* No transition on grid-template-columns. Transitioning it between values
+   containing `fr` leaves the property stuck at its start value in Chromium — the
+   rail stayed 210px wide while everything else believed it had collapsed, which
+   silently broke the feature. The prototype does not animate the rail either. */
+
+.rail {
+  background: var(--ink);
+  color: #fff;
+  padding: 20px 0;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.brand {
+  padding: 0 20px 22px;
+  border-bottom: 1px solid #23304a;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.brandText b {
+  font-family: var(--font-display);
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  display: block;
+}
+
+.brandText span {
+  font-size: 10px;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: #7c8aa5;
+  font-weight: 500;
+}
+
+.collapsed .brand {
+  padding: 0 0 22px;
+  justify-content: center;
+}
+
+.mark {
+  font-family: var(--font-display);
+  font-size: 19px;
+  font-weight: 700;
+}
+
+.toggle {
+  all: unset;
+  cursor: pointer;
+  color: #a8b2c4;
+  font-family: var(--font-mono);
+  font-size: 15px;
+  line-height: 1;
+  padding: 4px 6px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.toggle:hover {
+  background: #182236;
+  color: #fff;
+}
+
+.toggle:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.collapsedToggle {
+  margin: 0 auto 10px;
+  display: block;
+}
+
+.nav {
+  padding: 14px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.collapsed .nav {
+  padding: 14px 8px;
+  align-items: center;
+}
+
+.link {
+  padding: 9px 12px;
+  border-radius: var(--r);
+  font-size: 13.5px;
+  font-weight: 500;
+  color: #a8b2c4;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  white-space: nowrap;
+}
+
+.link:hover {
+  background: #182236;
+  color: #fff;
+}
+
+.link[aria-current='page'] {
+  background: var(--accent);
+  color: #fff;
+}
+
+.link:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: -2px;
+}
+
+.collapsed .link {
+  justify-content: center;
+  padding: 9px 0;
+  width: 40px;
+}
+
+.glyph {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  width: 16px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.footer {
+  margin-top: auto;
+  padding: 14px 20px;
+  border-top: 1px solid #23304a;
+  font-size: 11px;
+  color: #7c8aa5;
+  line-height: 1.5;
+}
+
+.collapsed .footer {
+  padding: 14px 0;
+  text-align: center;
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #3fbf7f;
+  display: inline-block;
+  margin-right: 6px;
+}
+
+.dotDown {
+  background: var(--sev-hi);
+}
+
+.main {
+  padding: 26px 30px 60px;
+  max-width: 1360px;
+  min-width: 0;
+}

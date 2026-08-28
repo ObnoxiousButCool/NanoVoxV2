@@ -1,0 +1,93 @@
+# How the dashboard is computed.
+#
+# Two things live here: the score histogram's bins, and the rules that decide
+# what reaches the attention queue. Both are policy rather than code — what
+# counts as "needs attention" is a judgement the business owns, and it should be
+# changeable without a developer.
+#
+# Every attention item is produced by counting. Nothing on the queue is written
+# by a model: a book-level claim like "13 of 16 prior auth calls unresolved" is
+# either counted or invented, and only the counted version can be acted on.
+
+version: "1.0.0"
+
+# --- Score histogram -------------------------------------------------------
+# Lower bounds of each bar, ascending. The last bin runs to 100 inclusive.
+# Narrow bins at the top because that is where most calls sit and where the
+# distinction between 90 and 98 actually matters.
+histogram:
+  bin_edges: [0, 20, 30, 40, 50, 60, 70, 80, 90, 95]
+  # Bins entirely below this are marked as the population needing coaching.
+  # Matches the rubric's AVERAGE floor: below it is POOR.
+  coaching_threshold: 60
+
+# --- Attention rules -------------------------------------------------------
+# `title` and `why` accept {subject}, {count}, {unresolved} and {total}.
+#
+# Thresholds are deliberately low for a 100-call corpus. On a real month of
+# several thousand calls they would be raised, which is the reason they are
+# configuration.
+attention_rules:
+  - id: clinical_risk_not_escalated
+    kind: signal_present
+    applies_to: clinical_risk
+    title: Agents are not escalating clinical urgency
+    minimum: 1
+    severity: CRITICAL
+    owner: Quality and Clinical
+    why: >-
+      {count} calls where a member described symptoms or a lapse in essential
+      medication and the agent closed the call as routine. Each one is a patient
+      safety event regardless of outcome.
+
+  - id: compliance_disclosure_missing
+    kind: signal_present
+    applies_to: compliance_disclosure_missing
+    title: Required disclosures are being omitted
+    minimum: 2
+    severity: HIGH
+    owner: Compliance
+    why: >-
+      {count} calls closed without a disclosure the member was entitled to.
+      These are statutory obligations, not service quality.
+
+  - id: language_access_not_provided
+    kind: signal_present
+    applies_to: language_access
+    title: Members are not being offered language support
+    minimum: 1
+    severity: HIGH
+    owner: Member Communications
+    why: >-
+      {count} calls where a member struggled to be understood and no interpreter
+      was offered.
+
+  - id: operational_failure_volume
+    kind: l4_category_volume
+    title: "{subject} is affecting {count} calls"
+    minimum: 3
+    severity: HIGH
+    owner: Operations
+    why: >-
+      {count} of {total} analysed calls raise a {subject} finding. A pattern at
+      this volume is a process problem rather than a run of individual mistakes.
+
+  - id: broker_conduct_pattern
+    kind: broker_negative
+    title: "{subject} — {count} member-reported conduct issues"
+    minimum: 3
+    severity: HIGH
+    owner: Broker Relations
+    why: >-
+      Members named {subject} in {count} calls, each time reporting a failure.
+      Every signal links to the sentence that produced it.
+
+  - id: unresolved_concentration
+    kind: unresolved_in_category
+    title: "Members are not getting resolution on {subject}"
+    minimum: 3
+    severity: MEDIUM
+    owner: Operations
+    why: >-
+      {unresolved} of {count} {subject} calls ended without the member's problem
+      being solved.

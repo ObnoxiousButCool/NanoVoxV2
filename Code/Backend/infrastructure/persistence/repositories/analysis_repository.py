@@ -44,6 +44,7 @@ from infrastructure.persistence.tables import (
     AssistEventRow,
     BrokerSignalRow,
     CallRow,
+    CallSignalRow,
     L4SignalRow,
     LayerRow,
     ScoreMarkerRow,
@@ -61,6 +62,7 @@ _LOAD_OPTIONS = (
     selectinload(CallRow.l4_signals),
     selectinload(CallRow.broker_signals),
     selectinload(CallRow.assist_events),
+    selectinload(CallRow.signals),
 )
 
 
@@ -137,7 +139,7 @@ class SqlAnalysisRepository(AnalysisRepository):
             agent_name=row.agent_name,
             member_context=row.member_context,
             duration_minutes=row.duration_minutes,
-            signal_codes=tuple(row.signal_codes),
+            signal_codes=tuple(signal.code for signal in row.signals),
             accepted_markers=tuple(
                 ScoreMarker(
                     polarity=Polarity(marker.polarity),
@@ -222,7 +224,7 @@ def _to_row(analysis: CallAnalysis) -> CallRow:
         gate_messages=list(score.messages),
         triggered_gate_ids=list(score.triggered_gate_ids),
         source=analysis.source.value,
-        signal_codes=list(analysis.signal_codes),
+        signals=[CallSignalRow(code=code) for code in analysis.signal_codes],
         rejected_marker_notes=list(analysis.rejected_marker_notes),
         rejected_attribution_notes=list(analysis.rejected_attribution_notes),
         provider=analysis.provenance.provider,

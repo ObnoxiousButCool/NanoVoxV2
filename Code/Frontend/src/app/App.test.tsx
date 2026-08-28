@@ -47,9 +47,16 @@ describe('App', () => {
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Diagnostics')
   })
 
-  it('redirects an unknown route rather than showing a blank page', () => {
+  it('lands on Analyze, the only screen a fresh install can act on', () => {
+    // Nothing has been analysed yet, so a dashboard would be an empty room.
     renderAt('/somewhere-that-does-not-exist')
 
-    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Diagnostics')
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Analyze a call')
+  })
+
+  it('renders the navigation rail around every screen', () => {
+    renderAt('/diagnostics')
+
+    expect(screen.getByRole('navigation', { name: 'Main navigation' })).toBeInTheDocument()
   })
 })
