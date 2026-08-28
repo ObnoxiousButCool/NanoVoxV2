@@ -14,7 +14,7 @@ from application.use_cases.list_providers import (
     describe_from_status,
 )
 from domain.errors import ConfigurationError
-from infrastructure.llm.registry import ProviderRegistry
+from infrastructure.llm.registry import ProviderRegistry, is_billable
 
 
 class RegistryProviderProbe(ProviderProbe):
@@ -35,6 +35,7 @@ class RegistryProviderProbe(ProviderProbe):
                 reachable=False,
                 implemented=True,
                 is_default=name == self._default,
+                billable=is_billable(name),
                 detail=exc.message,
             )
 
@@ -43,4 +44,9 @@ class RegistryProviderProbe(ProviderProbe):
         finally:
             await provider.aclose()
 
-        return describe_from_status(status, is_default=name == self._default, configured=True)
+        return describe_from_status(
+            status,
+            is_default=name == self._default,
+            configured=True,
+            billable=is_billable(name),
+        )

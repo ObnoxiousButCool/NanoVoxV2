@@ -13,7 +13,10 @@ that ``taxonomy.yaml`` says is required.
 
 from __future__ import annotations
 
-from sqlalchemy import func, select
+import re
+from collections.abc import Sequence
+
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 from sqlalchemy.orm import selectinload
 
@@ -51,9 +54,21 @@ from infrastructure.persistence.tables import (
     TurnRow,
 )
 
-REFERENCE_PREFIX = "C"
+# Pasted calls and corpus calls occupy separate reference namespaces. They are
+# different kinds of record — one a user submitted, one the authored corpus — and
+# a shared namespace made a corpus run's deterministic ``C0089`` collide with
+# whatever a pasted call happened to be allocated.
+PASTED_REFERENCE_PREFIX = "P"
 _REFERENCE_DIGITS = 4
 UNAVAILABLE_KEY = "unavailable"
+_NUMBER_IN_REFERENCE = re.compile(r"(\d+)")
+
+
+def _reference_number(reference: str) -> int:
+    """The numeric part of a reference, or 0 if it has none."""
+    match = _NUMBER_IN_REFERENCE.search(reference)
+    return int(match.group(1)) if match else 0
+
 
 _LOAD_OPTIONS = (
     selectinload(CallRow.turns),
@@ -95,10 +110,45 @@ class SqlAnalysisRepository(AnalysisRepository):
             return None if row is None else self._to_domain(row)
 
     async def next_reference(self) -> str:
-        """Allocate a sequential, human-facing reference like ``C0001``."""
+        """Allocate the next pasted-call reference, e.g. ``P0001``.
+
+        Highest existing number plus one, not the row count. Counting breaks the
+        moment references are not dense — and they are not: a corpus run writes
+        ``C0001``-``C0100`` in its own namespace, and deleting any call would make
+        a count-based allocator hand out a reference that is already taken.
+        """
         async with self._session_factory() as session:
-            count = await session.scalar(select(func.count()).select_from(CallRow))
-            return f"{REFERENCE_PREFIX}{(count or 0) + 1:0{_REFERENCE_DIGITS}d}"
+            references = await session.scalars(
+                select(CallRow.reference).where(
+                    CallRow.reference.startswith(PASTED_REFERENCE_PREFIX)
+                )
+            )
+            highest = max((_reference_number(value) for value in references), default=0)
+            return f"{PASTED_REFERENCE_PREFIX}{highest + 1:0{_REFERENCE_DIGITS}d}"
+
+    async def existing_references(self, references: Sequence[str]) -> frozenset[str]:
+        """Which of these references are already stored."""
+        if not references:
+            return frozenset()
+        async with self._session_factory() as session:
+            found = await session.scalars(
+                select(CallRow.reference).where(CallRow.reference.in_(list(references)))
+            )
+            return frozenset(found)
+
+    async def delete_by_reference(self, reference: str) -> bool:
+        """Remove a call and everything hanging off it; report whether one went.
+
+        Used only by a forced corpus re-analysis, which must replace a call rather
+        than fail on its unique reference. The ORM delete is used rather than a
+        bulk statement so the configured cascades run for every child table.
+        """
+        async with self._session_factory() as session, session.begin():
+            row = await session.scalar(select(CallRow).where(CallRow.reference == reference))
+            if row is None:
+                return False
+            await session.delete(row)
+            return True
 
     def _to_domain(self, row: CallRow) -> CallAnalysis:
         return CallAnalysis(

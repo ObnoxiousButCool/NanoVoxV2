@@ -21,6 +21,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 from domain.errors import ConfigurationError
 from infrastructure.config.paths import (
     BACKEND_ROOT,
+    DEFAULT_CORPUS_DIR,
     DEFAULT_DASHBOARD_PATH,
     DEFAULT_LOG_DIR,
     DEFAULT_RUBRIC_PATH,
@@ -60,6 +61,14 @@ class Settings(BaseSettings):
     taxonomy_path: Path = DEFAULT_TAXONOMY_PATH
     rubric_path: Path = DEFAULT_RUBRIC_PATH
     dashboard_path: Path = DEFAULT_DASHBOARD_PATH
+
+    # --- Corpus run (DEC-06) -----------------------------------------------
+    corpus_path: Path = DEFAULT_CORPUS_DIR
+    corpus_glob: str = "call_*.md"
+    # Bounded because the local path is the constrained one: Ollama serves a
+    # single model, and issuing more concurrent requests than it can hold makes
+    # every call slower without finishing the run any sooner.
+    corpus_run_concurrency: int = Field(default=2, ge=1, le=16)
 
     # --- Model providers ---------------------------------------------------
     llm_provider: str = "ollama"

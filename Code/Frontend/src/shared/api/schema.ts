@@ -55,6 +55,109 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/corpus": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** How large the corpus is, and how much of it is analysed */
+        get: operations["corpus_status_api_v1_corpus_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/corpus/runs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List recent corpus runs */
+        get: operations["list_runs_api_v1_corpus_runs_get"];
+        put?: never;
+        /** Start a corpus run */
+        post: operations["start_run_api_v1_corpus_runs_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/corpus/runs/{run_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** One corpus run and every call in it */
+        get: operations["get_run_api_v1_corpus_runs__run_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/corpus/runs/{run_id}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Ask a run to stop after the call in flight */
+        post: operations["cancel_run_api_v1_corpus_runs__run_id__cancel_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/corpus/runs/{run_id}/resume": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Continue a run that was cancelled or interrupted */
+        post: operations["resume_run_api_v1_corpus_runs__run_id__resume_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/corpus/runs/{run_id}/stream": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Live progress for a run, as Server-Sent Events */
+        get: operations["stream_run_api_v1_corpus_runs__run_id__stream_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/dashboard/agents": {
         parameters: {
             query?: never;
@@ -194,6 +297,10 @@ export interface components {
             min_score: number;
             /** Note */
             note: string | null;
+            /** Partially Resolved */
+            partially_resolved: number;
+            /** Resolved */
+            resolved: number;
             /**
              * Tier
              * @description Null when the sample is too small to rate the agent fairly.
@@ -432,6 +539,22 @@ export interface components {
          * @enum {string}
          */
         ComponentStatus: "up" | "down";
+        /** CorpusStatusResponse */
+        CorpusStatusResponse: {
+            /** Active Run Id */
+            active_run_id: number | null;
+            /** Analysed Calls */
+            analysed_calls: number;
+            /**
+             * Location
+             * @description Where the corpus is read from.
+             */
+            location: string;
+            /** Outstanding */
+            outstanding: number;
+            /** Total Calls */
+            total_calls: number;
+        };
         /** HTTPValidationError */
         HTTPValidationError: {
             /** Detail */
@@ -572,6 +695,29 @@ export interface components {
             /** Owner */
             owner: string;
         };
+        /** ProgressResponse */
+        ProgressResponse: {
+            /** Cancelled */
+            cancelled: number;
+            /** Completed */
+            completed: number;
+            /** Failed */
+            failed: number;
+            /** Finished */
+            finished: number;
+            /** Pending */
+            pending: number;
+            /** Percent Complete */
+            percent_complete: number;
+            /** Remaining */
+            remaining: number;
+            /** Running */
+            running: number;
+            /** Skipped */
+            skipped: number;
+            /** Total */
+            total: number;
+        };
         /** ProvenanceResponse */
         ProvenanceResponse: {
             /**
@@ -596,6 +742,11 @@ export interface components {
         };
         /** ProviderResponse */
         ProviderResponse: {
+            /**
+             * Billable
+             * @description Whether running against this provider is charged for per token.
+             */
+            billable: boolean;
             /**
              * Configured
              * @description Whether the provider's required settings are present.
@@ -631,6 +782,87 @@ export interface components {
             default: string;
             /** Providers */
             providers: components["schemas"]["ProviderResponse"][];
+        };
+        /** RunItemResponse */
+        RunItemResponse: {
+            /** Call Id */
+            call_id: number | null;
+            /** Duration Ms */
+            duration_ms: number | null;
+            /** Finished At */
+            finished_at: string | null;
+            /** Message */
+            message: string;
+            /** Reference */
+            reference: string;
+            /** Source Id */
+            source_id: string;
+            /** Started At */
+            started_at: string | null;
+            /** Status */
+            status: string;
+            /** Title */
+            title: string;
+        };
+        /** RunResponse */
+        RunResponse: {
+            /** Can Resume */
+            can_resume: boolean;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Finished At */
+            finished_at: string | null;
+            /** Force */
+            force: boolean;
+            /** Id */
+            id: number;
+            /** Is Active */
+            is_active: boolean;
+            /** Items */
+            items: components["schemas"]["RunItemResponse"][];
+            /** Message */
+            message: string;
+            /** Model */
+            model: string;
+            progress: components["schemas"]["ProgressResponse"];
+            /** Provider */
+            provider: string;
+            /** Started At */
+            started_at: string | null;
+            /** Status */
+            status: string;
+        };
+        /** RunSummaryResponse */
+        RunSummaryResponse: {
+            /** Can Resume */
+            can_resume: boolean;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Finished At */
+            finished_at: string | null;
+            /** Force */
+            force: boolean;
+            /** Id */
+            id: number;
+            /** Is Active */
+            is_active: boolean;
+            /** Message */
+            message: string;
+            /** Model */
+            model: string;
+            progress: components["schemas"]["ProgressResponse"];
+            /** Provider */
+            provider: string;
+            /** Started At */
+            started_at: string | null;
+            /** Status */
+            status: string;
         };
         /** ScoreResponse */
         ScoreResponse: {
@@ -680,6 +912,31 @@ export interface components {
             categories: components["schemas"]["SignalEntryResponse"][];
             /** Owners */
             owners: components["schemas"]["OwnerLoadResponse"][];
+        };
+        /** StartRunRequest */
+        StartRunRequest: {
+            /**
+             * Acknowledge Cost
+             * @description Required to run against a provider that charges per token.
+             * @default false
+             */
+            acknowledge_cost: boolean;
+            /**
+             * Force
+             * @description Re-analyse calls that already have an analysis, replacing them.
+             * @default false
+             */
+            force: boolean;
+            /**
+             * Model
+             * @description Model override for this run.
+             */
+            model?: string | null;
+            /**
+             * Provider
+             * @description Provider name. Defaults to the configured provider.
+             */
+            provider?: string | null;
         };
         /** TaxonomyResponse */
         TaxonomyResponse: {
@@ -838,6 +1095,212 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["AnalysisResponse"];
                 };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    corpus_status_api_v1_corpus_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CorpusStatusResponse"];
+                };
+            };
+        };
+    };
+    list_runs_api_v1_corpus_runs_get: {
+        parameters: {
+            query?: {
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RunSummaryResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    start_run_api_v1_corpus_runs_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StartRunRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RunResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_run_api_v1_corpus_runs__run_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                run_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RunResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    cancel_run_api_v1_corpus_runs__run_id__cancel_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                run_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RunResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    resume_run_api_v1_corpus_runs__run_id__resume_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                run_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RunResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    stream_run_api_v1_corpus_runs__run_id__stream_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                run_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description Validation Error */
             422: {

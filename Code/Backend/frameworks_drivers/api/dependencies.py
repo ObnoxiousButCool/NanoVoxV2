@@ -20,6 +20,14 @@ from application.use_cases.get_dashboard import (
 )
 from application.use_cases.get_health import GetHealth
 from application.use_cases.list_providers import ListProviders
+from application.use_cases.run_corpus import (
+    CancelCorpusRun,
+    GetCorpusRun,
+    GetCorpusStatus,
+    ListCorpusRuns,
+    ResumeCorpusRun,
+    StartCorpusRun,
+)
 from frameworks_drivers.container import Container
 from infrastructure.config.settings import Settings
 from infrastructure.persistence.repositories.analysis_repository import SqlAnalysisRepository
@@ -70,6 +78,30 @@ def get_signal_distribution_use_case(container: ContainerDep) -> GetSignalDistri
     return container.get_signal_distribution()
 
 
+def get_start_corpus_run_use_case(container: ContainerDep) -> StartCorpusRun:
+    return container.start_corpus_run()
+
+
+def get_cancel_corpus_run_use_case(container: ContainerDep) -> CancelCorpusRun:
+    return container.cancel_corpus_run()
+
+
+def get_resume_corpus_run_use_case(container: ContainerDep) -> ResumeCorpusRun:
+    return container.resume_corpus_run()
+
+
+def get_corpus_run_use_case(container: ContainerDep) -> GetCorpusRun:
+    return container.get_corpus_run()
+
+
+def get_list_corpus_runs_use_case(container: ContainerDep) -> ListCorpusRuns:
+    return container.list_corpus_runs()
+
+
+def get_corpus_status_use_case(container: ContainerDep) -> GetCorpusStatus:
+    return container.get_corpus_status()
+
+
 def get_read_models(container: ContainerDep) -> SqlReadModelRepository:
     return container.read_models()
 
@@ -86,5 +118,11 @@ OverviewDep = Annotated[GetOverview, Depends(get_overview_use_case)]
 AgentPerformanceDep = Annotated[GetAgentPerformance, Depends(get_agent_performance_use_case)]
 BrokerScorecardDep = Annotated[GetBrokerScorecard, Depends(get_broker_scorecard_use_case)]
 SignalDistributionDep = Annotated[GetSignalDistribution, Depends(get_signal_distribution_use_case)]
+StartCorpusRunDep = Annotated[StartCorpusRun, Depends(get_start_corpus_run_use_case)]
+CancelCorpusRunDep = Annotated[CancelCorpusRun, Depends(get_cancel_corpus_run_use_case)]
+ResumeCorpusRunDep = Annotated[ResumeCorpusRun, Depends(get_resume_corpus_run_use_case)]
+GetCorpusRunDep = Annotated[GetCorpusRun, Depends(get_corpus_run_use_case)]
+ListCorpusRunsDep = Annotated[ListCorpusRuns, Depends(get_list_corpus_runs_use_case)]
+CorpusStatusDep = Annotated[GetCorpusStatus, Depends(get_corpus_status_use_case)]
 ReadModelsDep = Annotated[SqlReadModelRepository, Depends(get_read_models)]
 AnalysisRepositoryDep = Annotated[SqlAnalysisRepository, Depends(get_analysis_repository)]

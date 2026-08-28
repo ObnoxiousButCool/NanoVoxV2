@@ -429,6 +429,11 @@ appears in a `.py` or `.tsx` file.** A CI grep gate checks the common offenders.
 Phases P1–P4 (backend) and P5–P6 (frontend) overlap once the OpenAPI contract is frozen at
 the end of P4.
 
+**Progress.** P0–P7 are complete; each has a record in this folder. P7 built and verified
+the corpus-run mechanism end to end, but the hundred-call run itself has not been executed —
+it is ~5 hours of local compute and overwrites the dashboard's contents, so it is a
+deliberate decision rather than a step to slip in. See `09-p7-corpus-run.md` §7.
+
 ---
 
 ## 11. Quality strategy

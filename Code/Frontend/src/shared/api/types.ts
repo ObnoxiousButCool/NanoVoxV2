@@ -35,6 +35,12 @@ export type AgentPerformance = Schemas['AgentResponse']
 export type BrokerScorecard = Schemas['BrokerResponse']
 export type SignalDistribution = Schemas['SignalsResponse']
 
+export type CorpusStatus = Schemas['CorpusStatusResponse']
+export type CorpusRun = Schemas['RunResponse']
+export type CorpusRunSummary = Schemas['RunSummaryResponse']
+export type CorpusRunItem = Schemas['RunItemResponse']
+export type RunProgress = Schemas['ProgressResponse']
+
 export type Health = Schemas['HealthResponse']
 export type ComponentHealth = Schemas['ComponentHealthResponse']
 export type ComponentStatus = ComponentHealth['status']

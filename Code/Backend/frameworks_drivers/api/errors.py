@@ -20,6 +20,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from domain.errors import (
     ConfigurationError,
+    ConflictError,
     DependencyUnavailableError,
     NanoVoxError,
     NotFoundError,
@@ -49,6 +50,7 @@ class _ErrorPolicy:
 _POLICY_BY_ERROR: dict[type[NanoVoxError], _ErrorPolicy] = {
     ValidationError: _ErrorPolicy(status.HTTP_400_BAD_REQUEST, expose=True),
     NotFoundError: _ErrorPolicy(status.HTTP_404_NOT_FOUND, expose=True),
+    ConflictError: _ErrorPolicy(status.HTTP_409_CONFLICT, expose=True),
     DependencyUnavailableError: _ErrorPolicy(status.HTTP_503_SERVICE_UNAVAILABLE, expose=True),
     ConfigurationError: _ErrorPolicy(status.HTTP_500_INTERNAL_SERVER_ERROR, expose=False),
 }

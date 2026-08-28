@@ -3,9 +3,11 @@
 from __future__ import annotations
 
 from collections.abc import AsyncIterator
+from dataclasses import replace
 from pathlib import Path
 
 import pytest
+from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncEngine
 
 from application.use_cases.analyze_transcript import AnalyzeTranscriptCommand
@@ -164,11 +166,68 @@ class TestReferences:
     async def test_references_are_sequential(
         self, repository: SqlAnalysisRepository, analysis: CallAnalysis
     ) -> None:
-        assert await repository.next_reference() == "C0001"
+        assert await repository.next_reference() == "P0001"
 
         await repository.save(analysis)
 
-        assert await repository.next_reference() == "C0002"
+        assert await repository.next_reference() == "P0002"
+
+    async def test_a_corpus_reference_does_not_consume_a_pasted_one(
+        self, repository: SqlAnalysisRepository, analysis: CallAnalysis
+    ) -> None:
+        # The two namespaces are separate. A corpus run writes C0001-C0100, and
+        # the next pasted call must still be P0001 rather than colliding.
+        await repository.save(replace(analysis, reference="C0042"))
+
+        assert await repository.next_reference() == "P0001"
+
+    async def test_allocation_survives_a_deleted_call(
+        self, repository: SqlAnalysisRepository, analysis: CallAnalysis
+    ) -> None:
+        # Counting rows would hand out P0002 again here, and the unique index
+        # would reject it.
+        await repository.save(replace(analysis, reference="P0001"))
+        await repository.save(replace(analysis, reference="P0002"))
+        await repository.delete_by_reference("P0001")
+
+        assert await repository.next_reference() == "P0003"
+
+
+class TestDeletion:
+    async def test_deleting_a_call_takes_its_evidence_with_it(
+        self, repository: SqlAnalysisRepository, analysis: CallAnalysis, engine: AsyncEngine
+    ) -> None:
+        # A forced re-analysis replaces a call. Leaving orphaned markers behind
+        # would double every count on the dashboard.
+        call_id = await repository.save(analysis)
+
+        assert await repository.delete_by_reference(analysis.reference) is True
+        assert await repository.get(call_id) is None
+
+        async with engine.connect() as connection:
+            remaining = await connection.scalar(
+                text("SELECT COUNT(*) FROM score_markers WHERE call_id = :id"), {"id": call_id}
+            )
+        assert remaining == 0
+
+    async def test_deleting_a_reference_that_is_not_there_reports_so(
+        self, repository: SqlAnalysisRepository
+    ) -> None:
+        assert await repository.delete_by_reference("C9999") is False
+
+    async def test_existing_references_reports_only_what_is_stored(
+        self, repository: SqlAnalysisRepository, analysis: CallAnalysis
+    ) -> None:
+        await repository.save(analysis)
+
+        found = await repository.existing_references([analysis.reference, "C9999"])
+
+        assert found == frozenset({analysis.reference})
+
+    async def test_asking_about_nothing_hits_no_database(
+        self, repository: SqlAnalysisRepository
+    ) -> None:
+        assert await repository.existing_references([]) == frozenset()
 
 
 class TestTaxonomyDrift:

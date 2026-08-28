@@ -18,9 +18,10 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from application.use_cases.run_corpus import INTERRUPTED_REASON
 from frameworks_drivers.api.errors import register_exception_handlers
 from frameworks_drivers.api.v1 import router as api_v1_router
-from frameworks_drivers.container import build_container, dispose_container
+from frameworks_drivers.container import Container, build_container, dispose_container
 from frameworks_drivers.middleware.correlation_id import CorrelationIdMiddleware
 from frameworks_drivers.middleware.request_logging import RequestLoggingMiddleware
 from frameworks_drivers.middleware.unhandled_error import UnhandledErrorMiddleware
@@ -56,11 +57,26 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     )
     try:
         await verify_connection(container.engine)
+        await _release_abandoned_runs(container)
         yield
     finally:
         await dispose_container(container)
         logger.info("Shutdown complete")
         shutdown_logging()
+
+
+async def _release_abandoned_runs(container: Container) -> None:
+    """Close out runs whose worker died with the last process.
+
+    The runner is in-process, so a run still marked active at startup belongs to
+    a worker that no longer exists. Left alone it would show as live forever and
+    block every new run through the single-active-run rule.
+    """
+    abandoned = await container.run_repository().abandon_active(
+        now=container.clock.now(), reason=INTERRUPTED_REASON
+    )
+    if abandoned:
+        logger.warning("Marked %d corpus run(s) as interrupted; they can be resumed.", abandoned)
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:

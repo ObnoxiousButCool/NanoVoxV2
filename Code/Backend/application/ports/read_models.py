@@ -71,8 +71,13 @@ class AgentAggregate:
     average_score: float
     min_score: int
     max_score: int
-    unresolved: int
+    # All four outcomes, because the dashboard draws them as proportions of the
+    # agent's calls. Deriving "resolved" as the remainder would silently absorb
+    # any outcome added later.
+    resolved: int
+    partially_resolved: int
     escalated: int
+    unresolved: int
 
 
 @dataclass(frozen=True)

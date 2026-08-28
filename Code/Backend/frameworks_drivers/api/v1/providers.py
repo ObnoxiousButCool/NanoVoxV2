@@ -24,6 +24,9 @@ class ProviderResponse(BaseModel):
     implemented: bool = Field(description="False for providers registered but not built.")
     selectable: bool = Field(description="Whether an analysis may be run against it.")
     is_default: bool
+    billable: bool = Field(
+        description="Whether running against this provider is charged for per token."
+    )
     detail: str | None = None
 
 
@@ -41,6 +44,7 @@ def _to_response(description: ProviderDescription) -> ProviderResponse:
         implemented=description.implemented,
         selectable=description.selectable,
         is_default=description.is_default,
+        billable=description.billable,
         detail=description.detail,
     )
 

@@ -86,6 +86,28 @@ FACTORIES: Mapping[str, ProviderFactory] = {
 
 PROVIDER_NAMES: tuple[str, ...] = tuple(FACTORIES)
 
+# Whether calling this provider costs money per token. A property of the adapter,
+# not of configuration: Ollama runs on the machine in front of you, and no .env
+# value can make an OpenAI call free. It gates the corpus run's cost guard, which
+# is why it is stated once here rather than inferred from a name at each use.
+BILLABLE_PROVIDERS: frozenset[str] = frozenset(
+    {
+        openai_provider.PROVIDER_NAME,
+        anthropic_provider.PROVIDER_NAME,
+        azure_foundry.PROVIDER_NAME,
+    }
+)
+
+
+def is_billable(name: str) -> bool:
+    """Whether a run against this provider would be charged for.
+
+    An unknown name counts as billable. Guessing "free" for something we do not
+    recognise is the expensive direction to be wrong in.
+    """
+    resolved = name.strip().lower()
+    return resolved not in FACTORIES or resolved in BILLABLE_PROVIDERS
+
 
 class ProviderRegistry:
     """Creates provider adapters by name."""

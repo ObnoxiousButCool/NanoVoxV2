@@ -15,6 +15,7 @@ from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
 
 from application.dto.analysis_schemas import AnalysisSchemas, build_analysis_schemas
 from application.ports.clock import Clock
+from application.ports.corpus_source import CorpusSource
 from application.ports.health_probe import HealthProbe
 from application.ports.llm_provider import LLMProvider
 from application.ports.redaction import NoRedaction, RedactionPort
@@ -27,6 +28,15 @@ from application.use_cases.get_dashboard import (
 )
 from application.use_cases.get_health import GetHealth
 from application.use_cases.list_providers import ListProviders
+from application.use_cases.run_corpus import (
+    CancelCorpusRun,
+    CorpusRunWorker,
+    GetCorpusRun,
+    GetCorpusStatus,
+    ListCorpusRuns,
+    ResumeCorpusRun,
+    StartCorpusRun,
+)
 from domain.scoring.rubric import Rubric
 from domain.scoring.rubric_engine import RubricEngine
 from domain.taxonomy import Taxonomy
@@ -34,15 +44,22 @@ from infrastructure.config.dashboard_loader import DashboardConfig, load_dashboa
 from infrastructure.config.rubric_loader import load_rubric
 from infrastructure.config.settings import Settings
 from infrastructure.config.taxonomy_loader import load_taxonomy
+from infrastructure.corpus.markdown_corpus import MarkdownCorpusSource
 from infrastructure.llm.prompt_source import FilePromptSource
 from infrastructure.llm.prompts import PromptLibrary
 from infrastructure.llm.provider_probe import RegistryProviderProbe
-from infrastructure.llm.registry import ProviderRegistry
+from infrastructure.llm.registry import ProviderRegistry, is_billable
 from infrastructure.logging.llm_audit import LlmAuditLog
 from infrastructure.persistence.engine import create_database_engine, create_session_factory
 from infrastructure.persistence.health_probe import DatabaseHealthProbe
 from infrastructure.persistence.repositories.analysis_repository import SqlAnalysisRepository
+from infrastructure.persistence.repositories.ground_truth_repository import (
+    SqlGroundTruthRepository,
+)
 from infrastructure.persistence.repositories.read_models import SqlReadModelRepository
+from infrastructure.persistence.repositories.run_repository import SqlRunRepository
+from infrastructure.runner.background_runner import BackgroundRunner
+from infrastructure.runner.event_bus import InMemoryRunEventBus
 from infrastructure.system_clock import SystemClock
 
 
@@ -62,6 +79,12 @@ class Container:
     schemas: AnalysisSchemas
     redaction: RedactionPort
     dashboard: DashboardConfig
+    corpus: CorpusSource
+    # One event bus and one runner per process: a subscriber and the worker
+    # publishing to it must be looking at the same object, and a per-request
+    # instance would leave every stream permanently silent.
+    events: InMemoryRunEventBus
+    runner: BackgroundRunner
 
     def get_health(self) -> GetHealth:
         return GetHealth(probes=self.health_probes, clock=self.clock)
@@ -103,6 +126,53 @@ class Container:
     def get_signal_distribution(self) -> GetSignalDistribution:
         return GetSignalDistribution(self.read_models(), self.taxonomy)
 
+    def run_repository(self) -> SqlRunRepository:
+        return SqlRunRepository(self.session_factory)
+
+    def ground_truth_repository(self) -> SqlGroundTruthRepository:
+        return SqlGroundTruthRepository(self.session_factory, self.clock)
+
+    def start_corpus_run(self) -> StartCorpusRun:
+        return StartCorpusRun(
+            corpus=self.corpus,
+            runs=self.run_repository(),
+            ground_truth=self.ground_truth_repository(),
+            clock=self.clock,
+        )
+
+    def cancel_corpus_run(self) -> CancelCorpusRun:
+        return CancelCorpusRun(runs=self.run_repository(), clock=self.clock)
+
+    def resume_corpus_run(self) -> ResumeCorpusRun:
+        return ResumeCorpusRun(runs=self.run_repository(), clock=self.clock)
+
+    def get_corpus_run(self) -> GetCorpusRun:
+        return GetCorpusRun(self.run_repository())
+
+    def list_corpus_runs(self) -> ListCorpusRuns:
+        return ListCorpusRuns(self.run_repository())
+
+    def get_corpus_status(self) -> GetCorpusStatus:
+        return GetCorpusStatus(
+            corpus=self.corpus,
+            analyses=self.analysis_repository(),
+            runs=self.run_repository(),
+        )
+
+    def corpus_run_worker(self) -> CorpusRunWorker:
+        return CorpusRunWorker(
+            corpus=self.corpus,
+            runs=self.run_repository(),
+            analyses=self.analysis_repository(),
+            analyze=self.analyze_transcript(),
+            events=self.events,
+            clock=self.clock,
+            concurrency=self.settings.corpus_run_concurrency,
+        )
+
+    def provider_is_billable(self, name: str | None) -> bool:
+        return is_billable(name or self.settings.llm_provider)
+
     def analyze_transcript(self) -> AnalyzeTranscript:
         return AnalyzeTranscript(
             prompts=FilePromptSource(self.prompts),
@@ -141,9 +211,18 @@ def build_container(settings: Settings) -> Container:
         schemas=build_analysis_schemas(taxonomy, rubric),
         redaction=NoRedaction(),
         dashboard=load_dashboard_config(settings.dashboard_path, taxonomy),
+        corpus=MarkdownCorpusSource(settings.corpus_path, settings.corpus_glob),
+        events=InMemoryRunEventBus(),
+        runner=BackgroundRunner(),
     )
 
 
 async def dispose_container(container: Container) -> None:
-    """Release the resources held by the container."""
+    """Release the resources held by the container.
+
+    Background work is stopped before the engine goes: a worker mid-analysis
+    would otherwise reach for a disposed connection pool and fail with a
+    confusing database error instead of a clean cancellation.
+    """
+    await container.runner.shutdown()
     await container.engine.dispose()

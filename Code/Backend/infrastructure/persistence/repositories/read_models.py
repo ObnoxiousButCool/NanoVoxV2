@@ -119,8 +119,10 @@ class SqlReadModelRepository(ReadModelRepository):
                     func.avg(CallRow.score),
                     func.min(CallRow.score),
                     func.max(CallRow.score),
-                    _count_if(CallRow.resolution == Resolution.UNRESOLVED.value),
+                    _count_if(CallRow.resolution == Resolution.RESOLVED.value),
+                    _count_if(CallRow.resolution == Resolution.PARTIALLY_RESOLVED.value),
                     _count_if(CallRow.resolution == Resolution.ESCALATED.value),
+                    _count_if(CallRow.resolution == Resolution.UNRESOLVED.value),
                 )
                 .where(CallRow.agent_name.is_not(None))
                 .group_by(CallRow.agent_name)
@@ -133,10 +135,22 @@ class SqlReadModelRepository(ReadModelRepository):
                     average_score=round(float(average or 0), 1),
                     min_score=int(lowest or 0),
                     max_score=int(highest or 0),
-                    unresolved=int(unresolved or 0),
+                    resolved=int(resolved or 0),
+                    partially_resolved=int(partial or 0),
                     escalated=int(escalated or 0),
+                    unresolved=int(unresolved or 0),
                 )
-                for name, count, average, lowest, highest, unresolved, escalated in rows
+                for (
+                    name,
+                    count,
+                    average,
+                    lowest,
+                    highest,
+                    resolved,
+                    partial,
+                    escalated,
+                    unresolved,
+                ) in rows
             )
 
     async def broker_aggregates(self) -> tuple[BrokerAggregate, ...]:

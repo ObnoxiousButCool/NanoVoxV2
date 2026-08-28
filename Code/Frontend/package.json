@@ -15,8 +15,9 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "generate:api": "../Backend/.venv/Scripts/python.exe -m frameworks_drivers.cli.openapi ../Frontend/openapi.json && openapi-typescript openapi.json -o src/shared/api/schema.ts",
-    "check:api": "openapi-typescript openapi.json -o src/shared/api/schema.ts"
+    "generate:api": "npm run generate:openapi && npm run generate:types",
+    "generate:openapi": "node -e \"require('child_process').execFileSync('../Backend/.venv/Scripts/python.exe',['-m','frameworks_drivers.cli.openapi','../Frontend/openapi.json'],{cwd:'../Backend',stdio:'inherit'})\"",
+    "generate:types": "openapi-typescript openapi.json -o src/shared/api/schema.ts"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.62.0",

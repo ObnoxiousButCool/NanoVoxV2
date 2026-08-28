@@ -42,6 +42,17 @@ class NotFoundError(NanoVoxError):
     code = "not_found"
 
 
+class ConflictError(NanoVoxError):
+    """The request is valid but the system's current state forbids it.
+
+    Distinct from a validation failure: nothing about the request is wrong, and
+    resending it later may well succeed — which is exactly what a caller needs to
+    know when a second corpus run is refused because one is already working.
+    """
+
+    code = "conflict"
+
+
 class DependencyUnavailableError(NanoVoxError):
     """An external dependency (database, model provider) could not be reached."""
 

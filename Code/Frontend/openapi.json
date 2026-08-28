@@ -38,6 +38,14 @@
             ],
             "title": "Note"
           },
+          "partially_resolved": {
+            "title": "Partially Resolved",
+            "type": "integer"
+          },
+          "resolved": {
+            "title": "Resolved",
+            "type": "integer"
+          },
           "tier": {
             "anyOf": [
               {
@@ -61,8 +69,10 @@
           "average_score",
           "min_score",
           "max_score",
-          "unresolved",
+          "resolved",
+          "partially_resolved",
           "escalated",
+          "unresolved",
           "tier",
           "note"
         ],
@@ -707,6 +717,47 @@
         "title": "ComponentStatus",
         "type": "string"
       },
+      "CorpusStatusResponse": {
+        "properties": {
+          "active_run_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Active Run Id"
+          },
+          "analysed_calls": {
+            "title": "Analysed Calls",
+            "type": "integer"
+          },
+          "location": {
+            "description": "Where the corpus is read from.",
+            "title": "Location",
+            "type": "string"
+          },
+          "outstanding": {
+            "title": "Outstanding",
+            "type": "integer"
+          },
+          "total_calls": {
+            "title": "Total Calls",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "location",
+          "total_calls",
+          "analysed_calls",
+          "outstanding",
+          "active_run_id"
+        ],
+        "title": "CorpusStatusResponse",
+        "type": "object"
+      },
       "HTTPValidationError": {
         "properties": {
           "detail": {
@@ -1055,6 +1106,64 @@
         "title": "OwnerLoadResponse",
         "type": "object"
       },
+      "ProgressResponse": {
+        "properties": {
+          "cancelled": {
+            "title": "Cancelled",
+            "type": "integer"
+          },
+          "completed": {
+            "title": "Completed",
+            "type": "integer"
+          },
+          "failed": {
+            "title": "Failed",
+            "type": "integer"
+          },
+          "finished": {
+            "title": "Finished",
+            "type": "integer"
+          },
+          "pending": {
+            "title": "Pending",
+            "type": "integer"
+          },
+          "percent_complete": {
+            "title": "Percent Complete",
+            "type": "number"
+          },
+          "remaining": {
+            "title": "Remaining",
+            "type": "integer"
+          },
+          "running": {
+            "title": "Running",
+            "type": "integer"
+          },
+          "skipped": {
+            "title": "Skipped",
+            "type": "integer"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "total",
+          "completed",
+          "failed",
+          "skipped",
+          "cancelled",
+          "running",
+          "pending",
+          "finished",
+          "remaining",
+          "percent_complete"
+        ],
+        "title": "ProgressResponse",
+        "type": "object"
+      },
       "ProvenanceResponse": {
         "properties": {
           "analysed_at": {
@@ -1106,6 +1215,11 @@
       },
       "ProviderResponse": {
         "properties": {
+          "billable": {
+            "description": "Whether running against this provider is charged for per token.",
+            "title": "Billable",
+            "type": "boolean"
+          },
           "configured": {
             "description": "Whether the provider's required settings are present.",
             "title": "Configured",
@@ -1157,7 +1271,8 @@
           "reachable",
           "implemented",
           "selectable",
-          "is_default"
+          "is_default",
+          "billable"
         ],
         "title": "ProviderResponse",
         "type": "object"
@@ -1181,6 +1296,265 @@
           "providers"
         ],
         "title": "ProvidersResponse",
+        "type": "object"
+      },
+      "RunItemResponse": {
+        "properties": {
+          "call_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Call Id"
+          },
+          "duration_ms": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Duration Ms"
+          },
+          "finished_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Finished At"
+          },
+          "message": {
+            "title": "Message",
+            "type": "string"
+          },
+          "reference": {
+            "title": "Reference",
+            "type": "string"
+          },
+          "source_id": {
+            "title": "Source Id",
+            "type": "string"
+          },
+          "started_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Started At"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "source_id",
+          "reference",
+          "title",
+          "status",
+          "call_id",
+          "message",
+          "started_at",
+          "finished_at",
+          "duration_ms"
+        ],
+        "title": "RunItemResponse",
+        "type": "object"
+      },
+      "RunResponse": {
+        "properties": {
+          "can_resume": {
+            "title": "Can Resume",
+            "type": "boolean"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "finished_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Finished At"
+          },
+          "force": {
+            "title": "Force",
+            "type": "boolean"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "is_active": {
+            "title": "Is Active",
+            "type": "boolean"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/RunItemResponse"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "message": {
+            "title": "Message",
+            "type": "string"
+          },
+          "model": {
+            "title": "Model",
+            "type": "string"
+          },
+          "progress": {
+            "$ref": "#/components/schemas/ProgressResponse"
+          },
+          "provider": {
+            "title": "Provider",
+            "type": "string"
+          },
+          "started_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Started At"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "provider",
+          "model",
+          "force",
+          "status",
+          "message",
+          "created_at",
+          "started_at",
+          "finished_at",
+          "is_active",
+          "can_resume",
+          "progress",
+          "items"
+        ],
+        "title": "RunResponse",
+        "type": "object"
+      },
+      "RunSummaryResponse": {
+        "properties": {
+          "can_resume": {
+            "title": "Can Resume",
+            "type": "boolean"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "finished_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Finished At"
+          },
+          "force": {
+            "title": "Force",
+            "type": "boolean"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "is_active": {
+            "title": "Is Active",
+            "type": "boolean"
+          },
+          "message": {
+            "title": "Message",
+            "type": "string"
+          },
+          "model": {
+            "title": "Model",
+            "type": "string"
+          },
+          "progress": {
+            "$ref": "#/components/schemas/ProgressResponse"
+          },
+          "provider": {
+            "title": "Provider",
+            "type": "string"
+          },
+          "started_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Started At"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "provider",
+          "model",
+          "force",
+          "status",
+          "message",
+          "created_at",
+          "started_at",
+          "finished_at",
+          "is_active",
+          "can_resume",
+          "progress"
+        ],
+        "title": "RunSummaryResponse",
         "type": "object"
       },
       "ScoreResponse": {
@@ -1308,6 +1682,48 @@
           "owners"
         ],
         "title": "SignalsResponse",
+        "type": "object"
+      },
+      "StartRunRequest": {
+        "properties": {
+          "acknowledge_cost": {
+            "default": false,
+            "description": "Required to run against a provider that charges per token.",
+            "title": "Acknowledge Cost",
+            "type": "boolean"
+          },
+          "force": {
+            "default": false,
+            "description": "Re-analyse calls that already have an analysis, replacing them.",
+            "title": "Force",
+            "type": "boolean"
+          },
+          "model": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Model override for this run.",
+            "title": "Model"
+          },
+          "provider": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Provider name. Defaults to the configured provider.",
+            "title": "Provider"
+          }
+        },
+        "title": "StartRunRequest",
         "type": "object"
       },
       "TaxonomyResponse": {
@@ -1760,6 +2176,276 @@
         "summary": "One call in full",
         "tags": [
           "calls"
+        ]
+      }
+    },
+    "/api/v1/corpus": {
+      "get": {
+        "operationId": "corpus_status_api_v1_corpus_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CorpusStatusResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "How large the corpus is, and how much of it is analysed",
+        "tags": [
+          "corpus"
+        ]
+      }
+    },
+    "/api/v1/corpus/runs": {
+      "get": {
+        "operationId": "list_runs_api_v1_corpus_runs_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 20,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/RunSummaryResponse"
+                  },
+                  "title": "Response List Runs Api V1 Corpus Runs Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List recent corpus runs",
+        "tags": [
+          "corpus"
+        ]
+      },
+      "post": {
+        "operationId": "start_run_api_v1_corpus_runs_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StartRunRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Start a corpus run",
+        "tags": [
+          "corpus"
+        ]
+      }
+    },
+    "/api/v1/corpus/runs/{run_id}": {
+      "get": {
+        "operationId": "get_run_api_v1_corpus_runs__run_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "One corpus run and every call in it",
+        "tags": [
+          "corpus"
+        ]
+      }
+    },
+    "/api/v1/corpus/runs/{run_id}/cancel": {
+      "post": {
+        "operationId": "cancel_run_api_v1_corpus_runs__run_id__cancel_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Ask a run to stop after the call in flight",
+        "tags": [
+          "corpus"
+        ]
+      }
+    },
+    "/api/v1/corpus/runs/{run_id}/resume": {
+      "post": {
+        "operationId": "resume_run_api_v1_corpus_runs__run_id__resume_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Continue a run that was cancelled or interrupted",
+        "tags": [
+          "corpus"
+        ]
+      }
+    },
+    "/api/v1/corpus/runs/{run_id}/stream": {
+      "get": {
+        "operationId": "stream_run_api_v1_corpus_runs__run_id__stream_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Live progress for a run, as Server-Sent Events",
+        "tags": [
+          "corpus"
         ]
       }
     },

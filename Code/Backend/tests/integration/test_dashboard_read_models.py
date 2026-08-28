@@ -241,6 +241,17 @@ class TestAgentPerformance:
         assert sarah.max_score == 95
         assert sarah.escalated == 1
         assert sarah.unresolved == 0
+        assert sarah.resolved == 3  # F0001, F0002, F0005
+        assert sarah.partially_resolved == 1  # F0003
+
+    async def test_the_four_outcomes_account_for_every_call(
+        self, use_case: GetAgentPerformance
+    ) -> None:
+        # The bars are drawn as proportions; if these did not sum to the call
+        # count the chart would silently under-report an outcome.
+        for row in await use_case.execute():
+            total = row.resolved + row.partially_resolved + row.escalated + row.unresolved
+            assert total == row.call_count, row.agent_name
 
     async def test_unresolved_counts_are_attributed_correctly(
         self, use_case: GetAgentPerformance

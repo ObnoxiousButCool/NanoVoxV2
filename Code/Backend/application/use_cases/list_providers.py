@@ -24,6 +24,9 @@ class ProviderDescription:
     reachable: bool
     implemented: bool
     is_default: bool
+    # Whether choosing this provider spends money. The corpus screen needs it to
+    # warn before a hundred calls go to a paid API.
+    billable: bool = False
     detail: str | None = None
 
     @property
@@ -55,7 +58,7 @@ class ListProviders:
 
 
 def describe_from_status(
-    status: ProviderStatus, *, is_default: bool, configured: bool
+    status: ProviderStatus, *, is_default: bool, configured: bool, billable: bool
 ) -> ProviderDescription:
     return ProviderDescription(
         name=status.name,
@@ -64,5 +67,6 @@ def describe_from_status(
         reachable=status.reachable,
         implemented=status.implemented,
         is_default=is_default,
+        billable=billable,
         detail=status.detail,
     )

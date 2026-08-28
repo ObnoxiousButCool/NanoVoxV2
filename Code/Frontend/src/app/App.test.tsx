@@ -15,14 +15,26 @@ const HEALTHY = {
   components: [],
 }
 
+/** A dashboard with nothing in it — enough for Overview to render its shell. */
+const EMPTY_OVERVIEW = {
+  metrics: { total_calls: 0 },
+  histogram: { bins: [], total: 0, below_threshold_count: 0, peak: 0 },
+  categories: [],
+  attention: [],
+}
+
+function json(body: unknown): Response {
+  return new Response(JSON.stringify(body), {
+    status: 200,
+    headers: { 'Content-Type': 'application/json' },
+  })
+}
+
 function renderAt(path: string) {
   vi.stubGlobal(
     'fetch',
-    vi.fn().mockResolvedValue(
-      new Response(JSON.stringify(HEALTHY), {
-        status: 200,
-        headers: { 'Content-Type': 'application/json' },
-      }),
+    vi.fn((url: string) =>
+      Promise.resolve(json(url.includes('/dashboard') ? EMPTY_OVERVIEW : HEALTHY)),
     ),
   )
 
@@ -47,11 +59,14 @@ describe('App', () => {
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Diagnostics')
   })
 
-  it('lands on Analyze, the only screen a fresh install can act on', () => {
-    // Nothing has been analysed yet, so a dashboard would be an empty room.
+  it('lands an unknown route on the Overview', async () => {
+    // Overview itself redirects the eye to Analyze while nothing is analysed,
+    // so a fresh install still gets somewhere it can act — see OverviewPage.test.
     renderAt('/somewhere-that-does-not-exist')
 
-    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Analyze a call')
+    expect(await screen.findByRole('heading', { level: 1 })).toHaveTextContent(
+      'What needs attention',
+    )
   })
 
   it('renders the navigation rail around every screen', () => {

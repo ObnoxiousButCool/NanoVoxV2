@@ -6,11 +6,15 @@
  */
 
 import { getJson, postJson } from '@/shared/api/client'
+import { getConfig } from '@/shared/config/env'
 import type {
   AgentPerformance,
   Analysis,
   BrokerScorecard,
   CallsPage,
+  CorpusRun,
+  CorpusRunSummary,
+  CorpusStatus,
   Health,
   Overview,
   Providers,
@@ -92,4 +96,41 @@ export function fetchSignals(signal?: AbortSignal): Promise<SignalDistribution> 
 
 export function analyzeTranscript(request: AnalyzeRequest): Promise<Analysis> {
   return postJson<Analysis>('/analyses', request)
+}
+
+export interface StartRunRequest {
+  readonly provider?: string | null
+  readonly model?: string | null
+  readonly force?: boolean
+  /** Required by the API for a provider that charges per token. */
+  readonly acknowledge_cost?: boolean
+}
+
+export function fetchCorpusStatus(signal?: AbortSignal): Promise<CorpusStatus> {
+  return getJson<CorpusStatus>('/corpus', signal ? { signal } : {})
+}
+
+export function fetchRuns(signal?: AbortSignal): Promise<CorpusRunSummary[]> {
+  return getJson<CorpusRunSummary[]>('/corpus/runs', signal ? { signal } : {})
+}
+
+export function fetchRun(runId: number, signal?: AbortSignal): Promise<CorpusRun> {
+  return getJson<CorpusRun>(`/corpus/runs/${String(runId)}`, signal ? { signal } : {})
+}
+
+export function startRun(request: StartRunRequest): Promise<CorpusRun> {
+  return postJson<CorpusRun>('/corpus/runs', request)
+}
+
+export function cancelRun(runId: number): Promise<CorpusRun> {
+  return postJson<CorpusRun>(`/corpus/runs/${String(runId)}/cancel`, {})
+}
+
+export function resumeRun(runId: number): Promise<CorpusRun> {
+  return postJson<CorpusRun>(`/corpus/runs/${String(runId)}/resume`, {})
+}
+
+/** Absolute URL of a run's progress stream, for `EventSource`. */
+export function runStreamUrl(runId: number): string {
+  return `${getConfig().apiBaseUrl}/corpus/runs/${String(runId)}/stream`
 }

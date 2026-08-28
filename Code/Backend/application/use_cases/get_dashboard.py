@@ -93,8 +93,10 @@ class AgentPerformance:
     average_score: float
     min_score: int
     max_score: int
-    unresolved: int
+    resolved: int
+    partially_resolved: int
     escalated: int
+    unresolved: int
     rating: AgentRating
 
 
@@ -264,8 +266,10 @@ class GetAgentPerformance:
             average_score=row.average_score,
             min_score=row.min_score,
             max_score=row.max_score,
-            unresolved=row.unresolved,
+            resolved=row.resolved,
+            partially_resolved=row.partially_resolved,
             escalated=row.escalated,
+            unresolved=row.unresolved,
             rating=rate_agent(
                 average_score=Score(round(row.average_score)),
                 call_count=row.call_count,

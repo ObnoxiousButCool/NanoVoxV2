@@ -10,19 +10,26 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
 import {
   analyzeTranscript,
+  cancelRun,
   fetchAgents,
   fetchBrokers,
   fetchCall,
   fetchCalls,
+  fetchCorpusStatus,
   fetchHealth,
   fetchOverview,
   fetchProviders,
+  fetchRun,
+  fetchRuns,
   fetchSignals,
   fetchTaxonomy,
+  resumeRun,
+  startRun,
   type AnalyzeRequest,
   type CallFilters,
+  type StartRunRequest,
 } from '@/shared/api/endpoints'
-import type { Analysis } from '@/shared/api/types'
+import type { Analysis, CorpusRun } from '@/shared/api/types'
 
 const HEALTH_REFETCH_MS = 30_000
 
@@ -36,6 +43,9 @@ export const queryKeys = {
   agents: ['dashboard', 'agents'] as const,
   brokers: ['dashboard', 'brokers'] as const,
   signals: ['dashboard', 'signals'] as const,
+  corpus: ['corpus'] as const,
+  runs: ['corpus', 'runs'] as const,
+  run: (runId: number) => ['corpus', 'run', runId] as const,
 }
 
 export function useHealth() {
@@ -95,6 +105,69 @@ export function useBrokers() {
 
 export function useSignals() {
   return useQuery({ queryKey: queryKeys.signals, queryFn: ({ signal }) => fetchSignals(signal) })
+}
+
+export function useCorpusStatus() {
+  return useQuery({
+    queryKey: queryKeys.corpus,
+    queryFn: ({ signal }) => fetchCorpusStatus(signal),
+  })
+}
+
+export function useRuns() {
+  return useQuery({ queryKey: queryKeys.runs, queryFn: ({ signal }) => fetchRuns(signal) })
+}
+
+export function useRun(runId: number | null) {
+  return useQuery({
+    queryKey: queryKeys.run(runId ?? 0),
+    queryFn: ({ signal }) => fetchRun(runId ?? 0, signal),
+    enabled: runId !== null,
+  })
+}
+
+/**
+ * Everything a run changes, refreshed together.
+ *
+ * A run rewrites the calls it analysed, so every dashboard figure counted from
+ * them is stale the moment it finishes. Invalidating only the run would leave
+ * the Overview showing the numbers from before.
+ */
+function useRunMutation<TVariables>(
+  mutationFn: (variables: TVariables) => Promise<CorpusRun>,
+) {
+  const client = useQueryClient()
+
+  return useMutation<CorpusRun, Error, TVariables>({
+    mutationFn,
+    onSuccess: (run) => {
+      client.setQueryData(queryKeys.run(run.id), run)
+      void client.invalidateQueries({ queryKey: queryKeys.corpus })
+    },
+  })
+}
+
+export function useStartRun() {
+  return useRunMutation<StartRunRequest>(startRun)
+}
+
+export function useCancelRun() {
+  return useRunMutation<number>(cancelRun)
+}
+
+export function useResumeRun() {
+  return useRunMutation<number>(resumeRun)
+}
+
+/** Called when a run finishes: every figure counted from calls is now stale. */
+export function useRefreshAfterRun() {
+  const client = useQueryClient()
+
+  return () => {
+    void client.invalidateQueries({ queryKey: ['calls'] })
+    void client.invalidateQueries({ queryKey: ['dashboard'] })
+    void client.invalidateQueries({ queryKey: queryKeys.corpus })
+  }
 }
 
 export function useAnalyzeTranscript() {

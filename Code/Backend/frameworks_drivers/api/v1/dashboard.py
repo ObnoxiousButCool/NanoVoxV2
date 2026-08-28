@@ -14,7 +14,6 @@ from application.use_cases.get_dashboard import (
     AgentPerformance,
     BrokerScorecardEntry,
     Overview,
-    OwnerLoad,
     SignalDistributionEntry,
 )
 from frameworks_drivers.api.dependencies import (
@@ -96,8 +95,10 @@ class AgentResponse(BaseModel):
     average_score: float
     min_score: int
     max_score: int
-    unresolved: int
+    resolved: int
+    partially_resolved: int
     escalated: int
+    unresolved: int
     tier: str | None = Field(
         description="Null when the sample is too small to rate the agent fairly."
     )
@@ -178,8 +179,10 @@ def _agent_response(agent: AgentPerformance) -> AgentResponse:
         average_score=agent.average_score,
         min_score=agent.min_score,
         max_score=agent.max_score,
-        unresolved=agent.unresolved,
+        resolved=agent.resolved,
+        partially_resolved=agent.partially_resolved,
         escalated=agent.escalated,
+        unresolved=agent.unresolved,
         tier=agent.rating.tier.value if agent.rating.tier else None,
         note=agent.rating.note,
     )
@@ -222,7 +225,3 @@ async def get_signals(use_case: SignalDistributionDep) -> SignalsResponse:
 
 def _signal_entry(entry: SignalDistributionEntry) -> SignalEntryResponse:
     return SignalEntryResponse(**entry.__dict__)
-
-
-def _owner_load(load: OwnerLoad) -> OwnerLoadResponse:
-    return OwnerLoadResponse(owner=load.owner, count=load.count)

@@ -167,7 +167,7 @@ class TestCompleteAnalysis:
         analysis, store = await analyse(taxonomy, rubric, ScriptedLayerProvider())
 
         assert len(store.saved) == 1
-        assert store.saved[0].reference == analysis.reference == "C0001"
+        assert store.saved[0].reference == analysis.reference == "P0001"
 
 
 class TestEvidenceEnforcement:

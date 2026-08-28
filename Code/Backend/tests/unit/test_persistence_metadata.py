@@ -18,11 +18,9 @@ def test_every_constraint_type_is_named() -> None:
     assert set(NAMING_CONVENTION) == {"ix", "uq", "ck", "fk", "pk"}
 
 
-def test_the_expected_tables_are_mapped() -> None:
-    # Replaced the P0 tripwire, which asserted an empty schema and fired the
-    # moment P3 added tables — which is what it was there for.
-    assert set(Base.metadata.tables) == {
-        "calls",
+# The tables that make up one analysis. Deleting the call deletes all of them.
+ANALYSIS_TABLES = frozenset(
+    {
         "turns",
         "analysis_layers",
         "score_markers",
@@ -31,16 +29,49 @@ def test_the_expected_tables_are_mapped() -> None:
         "assist_events",
         "call_signals",
     }
+)
+
+# The corpus run record (P7) and the authored expectations it stores (A3). These
+# are about calls without being part of one.
+RUN_TABLES = frozenset({"analysis_runs", "analysis_run_items", "ground_truth"})
 
 
-def test_every_child_table_cascades_from_its_call() -> None:
+def test_the_expected_tables_are_mapped() -> None:
+    # Replaced the P0 tripwire, which asserted an empty schema and fired the
+    # moment P3 added tables — which is what it was there for.
+    assert set(Base.metadata.tables) == {"calls"} | ANALYSIS_TABLES | RUN_TABLES
+
+
+def test_every_part_of_an_analysis_cascades_from_its_call() -> None:
     # An analysis is one atomic thing; a half-deleted one would be worse than
     # either state.
-    for name, table in Base.metadata.tables.items():
-        if name == "calls":
-            continue
+    for name in ANALYSIS_TABLES:
+        table = Base.metadata.tables[name]
         call_fk = next(fk for fk in table.foreign_keys if fk.column.table.name == "calls")
         assert call_fk.ondelete == "CASCADE", name
+
+
+def test_a_run_item_survives_the_call_it_produced() -> None:
+    # The opposite rule, and deliberately so: deleting a call must not erase the
+    # record that a run once analysed it. The item stays, with nothing to open.
+    table = Base.metadata.tables["analysis_run_items"]
+    call_fk = next(fk for fk in table.foreign_keys if fk.column.table.name == "calls")
+
+    assert call_fk.ondelete == "SET NULL"
+    assert table.c.call_id.nullable
+
+
+def test_run_items_cascade_from_their_run() -> None:
+    table = Base.metadata.tables["analysis_run_items"]
+    run_fk = next(fk for fk in table.foreign_keys if fk.column.table.name == "analysis_runs")
+
+    assert run_fk.ondelete == "CASCADE"
+
+
+def test_ground_truth_stands_apart_from_the_calls_table() -> None:
+    # Plan A3: authored figures are never joined into analysis data. No foreign
+    # key to `calls` is what keeps that accidental join from being easy to write.
+    assert not Base.metadata.tables["ground_truth"].foreign_keys
 
 
 def test_constraints_are_named_by_the_convention() -> None:

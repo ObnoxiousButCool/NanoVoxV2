@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from typing import Any
 
 from pydantic import BaseModel
@@ -209,7 +210,17 @@ class InMemoryAnalysisRepository(AnalysisRepository):
         return None
 
     async def next_reference(self) -> str:
-        return f"C{len(self.saved) + 1:04d}"
+        return f"P{len(self.saved) + 1:04d}"
+
+    async def existing_references(self, references: Sequence[str]) -> frozenset[str]:
+        stored = {analysis.reference for analysis in self.saved}
+        return frozenset(stored.intersection(references))
+
+    async def delete_by_reference(self, reference: str) -> bool:
+        remaining = [item for item in self.saved if item.reference != reference]
+        removed = len(remaining) != len(self.saved)
+        self.saved = remaining
+        return removed
 
 
 class FailingRepository(InMemoryAnalysisRepository):

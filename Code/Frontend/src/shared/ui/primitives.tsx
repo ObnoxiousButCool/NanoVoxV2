@@ -51,11 +51,14 @@ export function PageHeader({
 export function Card({
   title,
   subtitle,
+  actions,
   children,
   className,
 }: {
   title?: string | undefined
   subtitle?: string | undefined
+  /** Controls that act on this card, placed opposite its title. */
+  actions?: ReactNode
   children: ReactNode
   className?: string | undefined
 }) {
@@ -63,8 +66,11 @@ export function Card({
     <section className={cx(styles.card, className)}>
       {title ? (
         <div className={styles.cardHeader}>
-          <h3>{title}</h3>
-          {subtitle ? <p>{subtitle}</p> : null}
+          <div>
+            <h3>{title}</h3>
+            {subtitle ? <p>{subtitle}</p> : null}
+          </div>
+          {actions}
         </div>
       ) : null}
       <div className={styles.pad}>{children}</div>

@@ -238,3 +238,93 @@ class AssistEventRow(Base):
     call: Mapped[CallRow] = relationship(back_populates="assist_events")
 
     __table_args__ = (Index("ix_assist_events_outcome", "outcome"),)
+
+
+class RunRow(Base):
+    """One pass over the corpus (plan §7.4).
+
+    The run and its items are the only durable record of the work. An in-process
+    worker cannot survive a restart, so anything held solely in its memory is lost
+    exactly when a resumable record is most needed.
+    """
+
+    __tablename__ = "analysis_runs"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    provider: Mapped[str] = mapped_column(String(_SHORT), nullable=False)
+    model: Mapped[str] = mapped_column(String(_NAME), nullable=False)
+    force: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    status: Mapped[str] = mapped_column(String(_SHORT), nullable=False)
+    message: Mapped[str] = mapped_column(Text, nullable=False, default="")
+
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+    items: Mapped[list[RunItemRow]] = relationship(
+        back_populates="run", cascade="all, delete-orphan", order_by="RunItemRow.sequence"
+    )
+
+    __table_args__ = (Index("ix_analysis_runs_status", "status"),)
+
+
+class RunItemRow(Base):
+    """One corpus call's place in a run."""
+
+    __tablename__ = "analysis_run_items"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    run_id: Mapped[int] = mapped_column(
+        ForeignKey("analysis_runs.id", ondelete="CASCADE"), nullable=False
+    )
+    sequence: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    source_id: Mapped[str] = mapped_column(String(_NAME), nullable=False)
+    reference: Mapped[str] = mapped_column(String(_REF), nullable=False)
+    title: Mapped[str] = mapped_column(String(_LABEL), nullable=False, default="")
+    status: Mapped[str] = mapped_column(String(_SHORT), nullable=False)
+    message: Mapped[str] = mapped_column(Text, nullable=False, default="")
+
+    # SET NULL, not CASCADE: deleting a call must not erase the record that it was
+    # once analysed. The item stays, saying so, with nothing to open.
+    call_id: Mapped[int | None] = mapped_column(ForeignKey("calls.id", ondelete="SET NULL"))
+
+    started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    duration_ms: Mapped[float | None] = mapped_column(Float)
+
+    run: Mapped[RunRow] = relationship(back_populates="items")
+
+    __table_args__ = (
+        UniqueConstraint("run_id", "source_id", name="uq_run_items_run_source"),
+        Index("ix_analysis_run_items_status", "status"),
+    )
+
+
+class GroundTruthRow(Base):
+    """What a human author wrote about a corpus call (plan A3).
+
+    A separate table, never joined into a dashboard query. These are authored
+    figures; presenting one as a measured result would be the single most
+    misleading thing this system could do.
+    """
+
+    __tablename__ = "ground_truth"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    reference: Mapped[str] = mapped_column(String(_REF), nullable=False)
+    source_id: Mapped[str] = mapped_column(String(_NAME), nullable=False)
+    title: Mapped[str] = mapped_column(String(_LABEL), nullable=False, default="")
+
+    agent_name: Mapped[str | None] = mapped_column(String(_NAME))
+    tier: Mapped[str | None] = mapped_column(String(_SHORT))
+    score: Mapped[int | None] = mapped_column(Integer)
+    resolution: Mapped[str | None] = mapped_column(String(_SHORT))
+    sentiment_start: Mapped[str | None] = mapped_column(String(_SHORT))
+    sentiment_end: Mapped[str | None] = mapped_column(String(_SHORT))
+    topics: Mapped[list[str]] = mapped_column(JSON, nullable=False, default=list)
+    broker_names: Mapped[list[str]] = mapped_column(JSON, nullable=False, default=list)
+    member_context: Mapped[str | None] = mapped_column(Text)
+    panel_text: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    recorded_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+    __table_args__ = (UniqueConstraint("reference", name="uq_ground_truth_reference"),)
