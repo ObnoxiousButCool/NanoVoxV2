@@ -1,0 +1,525 @@
+<meta charset="utf-8">
+<title>NanoVox — Call Intelligence</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0E1420; --ink-2:#1A2333; --slate:#5A6478; --slate-2:#8A93A3;
+  --canvas:#F6F7F9; --panel:#fff; --rule:#E4E8EF;
+  --accent:#14514F; --accent-soft:#E6F0EF;
+  --sev-hi:#C8322B; --sev-hi-bg:#FCEEED;
+  --sev-md:#B26A00; --sev-md-bg:#FDF4E7;
+  --sev-lo:#1F7A4D; --sev-lo-bg:#EAF5EF;
+  --brk:#6B3FA0; --brk-bg:#F2ECF9;
+  --r:6px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font:400 14px/1.55 Inter,system-ui,sans-serif;color:var(--ink);background:var(--canvas);-webkit-font-smoothing:antialiased}
+h1,h2,h3,.dsp{font-family:Archivo,sans-serif;letter-spacing:-.015em}
+.mono{font-family:'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums}
+
+/* ---- shell ---- */
+.app{display:grid;grid-template-columns:210px 1fr;min-height:100vh}
+.rail{background:var(--ink);color:#fff;padding:20px 0;position:sticky;top:0;height:100vh;display:flex;flex-direction:column}
+.brand{padding:0 20px 22px;border-bottom:1px solid #23304a}
+.brand b{font-family:Archivo;font-size:19px;font-weight:700;letter-spacing:-.02em;display:block}
+.brand span{font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:#7C8AA5;font-weight:500}
+.nav{padding:14px 12px;display:flex;flex-direction:column;gap:2px}
+.nav button{all:unset;cursor:pointer;padding:9px 12px;border-radius:var(--r);font-size:13.5px;font-weight:500;color:#A8B2C4;display:flex;justify-content:space-between;align-items:center}
+.nav button:hover{background:#182236;color:#fff}
+.nav button[aria-current=true]{background:var(--accent);color:#fff}
+.nav .ct{font:500 11px/1 'IBM Plex Mono',monospace;opacity:.65}
+.rail footer{margin-top:auto;padding:14px 20px;border-top:1px solid #23304a;font-size:11px;color:#7C8AA5;line-height:1.5}
+.dot{width:6px;height:6px;border-radius:50%;background:#3FBF7F;display:inline-block;margin-right:6px}
+
+.main{padding:26px 30px 60px;max-width:1360px}
+.ph{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;margin-bottom:20px}
+.ph h1{font-size:23px;font-weight:600}
+.ph p{color:var(--slate);font-size:13px;margin-top:3px}
+.btn{all:unset;cursor:pointer;border:1px solid var(--rule);background:#fff;padding:7px 13px;border-radius:var(--r);font-size:12.5px;font-weight:500}
+.btn:hover{border-color:var(--slate-2)}
+.btn.pri{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+/* ---- primitives ---- */
+.card{background:var(--panel);border:1px solid var(--rule);border-radius:var(--r)}
+.card>header{padding:13px 16px;border-bottom:1px solid var(--rule)}
+.card>header h3{font-size:14px;font-weight:600}
+.card>header p{font-size:11.5px;color:var(--slate-2);margin-top:1px}
+.pad{padding:16px}
+.grid{display:grid;gap:14px}
+.eyebrow{font:600 10px/1 Inter;letter-spacing:.11em;text-transform:uppercase;color:var(--slate-2);margin-bottom:9px}
+.chip{display:inline-block;font:500 10.5px/1 'IBM Plex Mono',monospace;padding:3px 7px;border-radius:3px;border:1px solid var(--rule);color:var(--slate);background:#fff}
+.chip.hi{background:var(--sev-hi-bg);color:var(--sev-hi);border-color:#F2C9C6}
+.chip.md{background:var(--sev-md-bg);color:var(--sev-md);border-color:#EFD9B4}
+.chip.lo{background:var(--sev-lo-bg);color:var(--sev-lo);border-color:#BFE0CD}
+.chip.brk{background:var(--brk-bg);color:var(--brk);border-color:#DDCCF0}
+.hide{display:none}
+
+/* ---- attention queue (hero) ---- */
+.q{display:flex;flex-direction:column;gap:9px}
+.qi{background:#fff;border:1px solid var(--rule);border-left:4px solid var(--slate-2);border-radius:var(--r);padding:13px 16px;display:grid;grid-template-columns:1fr auto;gap:16px;align-items:start}
+.qi.hi{border-left-color:var(--sev-hi)} .qi.md{border-left-color:var(--sev-md)} .qi.brk{border-left-color:var(--brk)}
+.qi h4{font:600 14.5px/1.35 Archivo;margin-bottom:3px}
+.qi .why{color:var(--slate);font-size:12.8px;margin-bottom:8px}
+.qi .meta{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.qi .num{text-align:right;min-width:104px}
+.qi .num b{font:600 25px/1 'IBM Plex Mono',monospace;display:block}
+.qi .num span{font-size:10.5px;color:var(--slate-2);letter-spacing:.04em}
+.owner{font:500 11px/1 Inter;color:var(--accent);background:var(--accent-soft);padding:3px 8px;border-radius:3px}
+
+/* ---- metric strip ---- */
+.mets{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+.met{background:#fff;border:1px solid var(--rule);border-radius:var(--r);padding:13px 15px}
+.met .k{font:600 10px/1 Inter;letter-spacing:.09em;text-transform:uppercase;color:var(--slate-2)}
+.met .v{font:600 27px/1.1 'IBM Plex Mono',monospace;margin:7px 0 2px}
+.met .s{font-size:11.5px;color:var(--slate)}
+.met .s b{font-weight:600}
+
+/* ---- bars ---- */
+.rows{display:flex;flex-direction:column;gap:9px}
+.row{display:grid;grid-template-columns:132px 1fr 46px;gap:11px;align-items:center;font-size:12.5px}
+.row .lbl{color:var(--slate);text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.track{height:16px;background:var(--canvas);border-radius:3px;overflow:hidden;display:flex}
+.track i{display:block;height:100%}
+.row .val{font:500 12px/1 'IBM Plex Mono',monospace;color:var(--slate)}
+.legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:12px;font-size:11.5px;color:var(--slate)}
+.legend b{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:5px;vertical-align:middle}
+
+/* ---- histogram ---- */
+.hist{display:flex;align-items:flex-end;gap:5px;height:120px;padding-top:6px}
+.hist div{flex:1;background:var(--accent);border-radius:2px 2px 0 0;position:relative;min-height:2px}
+.hist div.warn{background:var(--sev-hi)}
+.hist div span{position:absolute;top:-17px;left:0;right:0;text-align:center;font:500 10.5px 'IBM Plex Mono',monospace;color:var(--slate)}
+.histx{display:flex;gap:5px;margin-top:6px}
+.histx span{flex:1;text-align:center;font:400 10px 'IBM Plex Mono',monospace;color:var(--slate-2)}
+
+/* ---- table ---- */
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{font:600 10px/1 Inter;letter-spacing:.09em;text-transform:uppercase;color:var(--slate-2);text-align:left;padding:9px 14px;border-bottom:1px solid var(--rule)}
+td{padding:11px 14px;border-bottom:1px solid #EEF1F5;vertical-align:middle}
+tbody tr:hover{background:#FAFBFC;cursor:pointer}
+tbody tr:last-child td{border-bottom:0}
+.score{font:600 13px 'IBM Plex Mono',monospace;padding:2px 8px;border-radius:3px;display:inline-block;min-width:36px;text-align:center}
+.s-hi{background:var(--sev-lo-bg);color:var(--sev-lo)}
+.s-md{background:var(--sev-md-bg);color:var(--sev-md)}
+.s-lo{background:var(--sev-hi-bg);color:var(--sev-hi)}
+.tiny{font-size:10.5px;color:var(--slate-2)}
+
+/* ---- call detail ---- */
+.det{display:grid;grid-template-columns:1fr 316px;gap:16px;align-items:start}
+.hero{background:#fff;border:1px solid var(--rule);border-radius:var(--r);padding:18px 20px;margin-bottom:14px;display:grid;grid-template-columns:auto 1fr;gap:18px}
+.ring{width:64px;height:64px;border-radius:50%;display:grid;place-items:center;font:600 21px 'IBM Plex Mono',monospace;border:3px solid}
+.hero h2{font-size:18px;font-weight:600;margin-bottom:5px}
+.hero p{color:var(--slate);font-size:13px}
+.lay{border-left:2px solid var(--rule);margin-left:13px;padding-left:20px;position:relative;padding-bottom:18px}
+.lay:last-child{padding-bottom:0}
+.lay>.bdg{position:absolute;left:-14px;top:0;width:26px;height:26px;border-radius:50%;color:#fff;display:grid;place-items:center;font:600 10px 'IBM Plex Mono',monospace}
+.lay h3{font-size:14.5px;font-weight:600;margin-bottom:1px}
+.lay .sub{font:600 9.5px/1 Inter;letter-spacing:.11em;text-transform:uppercase;color:var(--slate-2);margin-bottom:10px}
+.box{background:#fff;border:1px solid var(--rule);border-radius:var(--r);padding:14px 16px}
+.mk{display:flex;gap:8px;font-size:12.8px;padding:5px 0;align-items:flex-start}
+.mk i{font-style:normal;font-weight:600;flex-shrink:0}
+.mk.p i{color:var(--sev-lo)} .mk.n i{color:var(--sev-hi)}
+.tr{display:grid;grid-template-columns:86px 1fr;gap:14px;padding:9px 0;border-bottom:1px solid #F1F3F7;font-size:13px}
+.tr:last-child{border:0}
+.tr .who{font:600 9.5px/1.5 Inter;letter-spacing:.08em;text-transform:uppercase;color:var(--slate-2);text-align:right}
+.tr.m .who{color:var(--brk)}
+.tr mark{background:#FDF4C9;padding:1px 2px;border-radius:2px}
+aside .card{margin-bottom:12px}
+.kv{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px solid #F1F3F7;font-size:12.5px}
+.kv:last-child{border:0}
+.kv span{color:var(--slate)}
+.kv b{font:500 12.5px 'IBM Plex Mono',monospace}
+.alert{border-radius:var(--r);padding:12px 14px;font-size:12.8px;line-height:1.5}
+.alert.hi{background:var(--sev-hi-bg);border:1px solid #F2C9C6;color:#7E1D18}
+.alert.brk{background:var(--brk-bg);border:1px solid #DDCCF0;color:#4A2A70}
+.alert b{display:block;font-weight:600;margin-bottom:3px}
+.miss{border:1px dashed #F2C9C6;background:#FEF9F8;border-radius:var(--r);padding:12px 14px;font-size:12.8px;color:#7E1D18}
+textarea{width:100%;min-height:190px;border:1px solid var(--rule);border-radius:var(--r);padding:13px;font:400 12.5px/1.65 'IBM Plex Mono',monospace;resize:vertical}
+textarea:focus{outline:2px solid var(--accent);outline-offset:-1px}
+.note{font-size:11.5px;color:var(--slate-2);margin-top:7px}
+@media(max-width:1080px){.det{grid-template-columns:1fr}.mets{grid-template-columns:repeat(2,1fr)}.app{grid-template-columns:1fr}.rail{position:static;height:auto}}
+@media(prefers-reduced-motion:no-preference){.qi,.met{transition:border-color .15s}}
+</style>
+
+<div class="app">
+<nav class="rail">
+  <div class="brand"><b>NanoVox</b><span>Call Intelligence</span></div>
+  <div class="nav">
+    <button aria-current="true" onclick="go('dash',this)">Overview <em class="ct">100</em></button>
+    <button onclick="go('calls',this)">Calls <em class="ct">100</em></button>
+    <button onclick="go('brokers',this)">Brokers <em class="ct">22</em></button>
+    <button onclick="go('detail',this)">Call detail</button>
+    <button onclick="go('new',this)">Analyze new</button>
+  </div>
+  <footer><span class="dot"></span>Local model · on-prem<br>Nothing leaves this environment</footer>
+</nav>
+
+<main class="main">
+
+<!-- ============ OVERVIEW ============ -->
+<section id="dash">
+  <div class="ph">
+    <div><h1>What needs attention</h1><p>Ranked by calls affected × severity. Every item has an owner.</p></div>
+    <div><button class="btn">Last 30 days</button> <button class="btn pri">Export</button></div>
+  </div>
+
+  <div class="q" style="margin-bottom:22px">
+    <div class="qi hi">
+      <div>
+        <h4>Prior authorization denials are failing on documentation, not clinical grounds</h4>
+        <p class="why">13 of 16 prior auth calls unresolved. In each, the denial issued because a provider omitted a required document — no callback was made to request it. Members discover the gap at the point of care.</p>
+        <div class="meta"><span class="owner">Claims Operations</span><span class="chip hi">Process breakdown</span><span class="chip">↑ from 62% last month</span></div>
+      </div>
+      <div class="num"><b>16</b><span>CALLS · 81% OPEN</span></div>
+    </div>
+
+    <div class="qi brk">
+      <div>
+        <h4>Marcus Trent — five member-reported conduct issues</h4>
+        <p class="why">Unauthorized spouse enrollment, a signature a member does not recognise on her own form, an HDHP sold on premium alone to a member with a chronic condition, and an active broker-of-record departure request.</p>
+        <div class="meta"><span class="owner">Broker Relations · Compliance</span><span class="chip brk">Broker attribution</span><span class="chip mono">#55 #57 #66 #75 #100</span></div>
+      </div>
+      <div class="num"><b>5</b><span>SIGNALS · 0 POSITIVE</span></div>
+    </div>
+
+    <div class="qi hi">
+      <div>
+        <h4>Agents are not escalating clinical urgency</h4>
+        <p class="why">Three calls where a member described symptoms or a lapse in life-sustaining medication and the agent closed the call as routine. One member described chest pressure and was steered to urgent care on cost.</p>
+        <div class="meta"><span class="owner">Call Centre Training · Quality</span><span class="chip hi">Compliance &amp; risk</span><span class="chip mono">#67 #89 #96</span></div>
+      </div>
+      <div class="num"><b>3</b><span>CALLS · SEVERE</span></div>
+    </div>
+
+    <div class="qi md">
+      <div>
+        <h4>HMO referral requirement is not reaching members before they book</h4>
+        <p class="why">Members search the directory, see “in-network”, and book specialty care directly. The referral rule surfaces only at claim denial. Appears across three different brokers — this is a system issue, not one broker's.</p>
+        <div class="meta"><span class="owner">Member Communications</span><span class="chip md">Communication gap</span><span class="chip mono">#9 #53 #79</span></div>
+      </div>
+      <div class="num"><b>9</b><span>CALLS</span></div>
+    </div>
+
+    <div class="qi md">
+      <div>
+        <h4>Four agents account for every unresolved call in the sample</h4>
+        <p class="why">Brad, Tiffany, Ryan and Kayla average 47.5 against a team median of 96. Shared pattern: closing calls without escalation, and answering from memory rather than verifying.</p>
+        <div class="meta"><span class="owner">Call Centre Management</span><span class="chip md">Agent coaching</span><span class="chip">n=4 each · below significance</span></div>
+      </div>
+      <div class="num"><b>11</b><span>UNRESOLVED</span></div>
+    </div>
+  </div>
+
+  <div class="eyebrow">Volume and outcomes</div>
+  <div class="mets" style="margin-bottom:22px">
+    <div class="met"><div class="k">Calls analyzed</div><div class="v">100</div><div class="s">Synthetic corpus</div></div>
+    <div class="met"><div class="k">Median agent score</div><div class="v">96</div><div class="s">Mean <b>90.6</b> — distribution is split</div></div>
+    <div class="met"><div class="k">First-contact resolution</div><div class="v">42%</div><div class="s">Industry range <b>65–75%</b></div></div>
+    <div class="met"><div class="k">Escalation rate</div><div class="v">16%</div><div class="s">Industry range <b>8–12%</b></div></div>
+    <div class="met"><div class="k">Broker-attributed</div><div class="v">22</div><div class="s">Across <b>4</b> named brokers</div></div>
+  </div>
+
+  <div class="grid" style="grid-template-columns:1fr 1fr;margin-bottom:14px">
+    <div class="card">
+      <header><h3>Agent scores are bimodal</h3><p>Two populations, not one. The mean sits in a gap where no agent actually falls.</p></header>
+      <div class="pad">
+        <div class="hist">
+          <div class="warn" style="height:14%"><span>2</span></div>
+          <div class="warn" style="height:28%"><span>4</span></div>
+          <div class="warn" style="height:35%"><span>5</span></div>
+          <div style="height:7%"><span>1</span></div>
+          <div style="height:7%"><span>1</span></div>
+          <div style="height:14%"><span>2</span></div>
+          <div style="height:21%"><span>3</span></div>
+          <div style="height:56%"><span>8</span></div>
+          <div style="height:100%"><span>14</span></div>
+          <div style="height:85%"><span>12</span></div>
+        </div>
+        <div class="histx"><span>20s</span><span>30s</span><span>40s</span><span>50s</span><span>60s</span><span>70s</span><span>80s</span><span>90</span><span>95</span><span>100</span></div>
+        <p class="note">Reporting a single average would hide the 11 calls scoring under 50. Coach on the left cluster; the right cluster needs no intervention.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <header><h3>Resolution by agent</h3><p>Proportional, so volume does not distort the picture. Call counts shown separately.</p></header>
+      <div class="pad">
+        <div class="rows">
+          <div class="row"><span class="lbl">Danielle · 10</span><span class="track"><i style="width:80%;background:#1F7A4D"></i><i style="width:20%;background:#B26A00"></i></span><span class="val">100</span></div>
+          <div class="row"><span class="lbl">Sarah · 17</span><span class="track"><i style="width:59%;background:#1F7A4D"></i><i style="width:29%;background:#B26A00"></i><i style="width:12%;background:#E08A5D"></i></span><span class="val">99</span></div>
+          <div class="row"><span class="lbl">Carlos · 10</span><span class="track"><i style="width:70%;background:#1F7A4D"></i><i style="width:30%;background:#B26A00"></i></span><span class="val">100</span></div>
+          <div class="row"><span class="lbl">Linda · 12</span><span class="track"><i style="width:58%;background:#1F7A4D"></i><i style="width:33%;background:#B26A00"></i><i style="width:9%;background:#E08A5D"></i></span><span class="val">99</span></div>
+          <div class="row"><span class="lbl">Michael · 12</span><span class="track"><i style="width:67%;background:#1F7A4D"></i><i style="width:25%;background:#B26A00"></i><i style="width:8%;background:#E08A5D"></i></span><span class="val">99</span></div>
+          <div class="row"><span class="lbl">James · 11</span><span class="track"><i style="width:36%;background:#1F7A4D"></i><i style="width:37%;background:#B26A00"></i><i style="width:27%;background:#E08A5D"></i></span><span class="val">99</span></div>
+          <div class="row"><span class="lbl">Brad · 4</span><span class="track"><i style="width:25%;background:#1F7A4D"></i><i style="width:25%;background:#E08A5D"></i><i style="width:50%;background:#C8322B"></i></span><span class="val">54</span></div>
+          <div class="row"><span class="lbl">Tiffany · 4</span><span class="track"><i style="width:25%;background:#1F7A4D"></i><i style="width:25%;background:#B26A00"></i><i style="width:50%;background:#C8322B"></i></span><span class="val">51</span></div>
+          <div class="row"><span class="lbl">Ryan · 4</span><span class="track"><i style="width:25%;background:#B26A00"></i><i style="width:75%;background:#C8322B"></i></span><span class="val">45</span></div>
+          <div class="row"><span class="lbl">Kayla · 4</span><span class="track"><i style="width:100%;background:#C8322B"></i></span><span class="val">41</span></div>
+        </div>
+        <div class="legend"><span><b style="background:#1F7A4D"></b>Resolved</span><span><b style="background:#B26A00"></b>Partial</span><span><b style="background:#E08A5D"></b>Escalated</span><span><b style="background:#C8322B"></b>Unresolved</span></div>
+        <p class="note">Agents with fewer than 5 calls are shown but not tier-rated — the sample is too small to be fair.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid" style="grid-template-columns:1fr 1fr">
+    <div class="card">
+      <header><h3>What members call about</h3><p>Six categories cover 97 of 100 calls. Uncategorised shown honestly.</p></header>
+      <div class="pad">
+        <div class="rows">
+          <div class="row"><span class="lbl">Coverage &amp; benefits</span><span class="track"><i style="width:100%;background:#14514F"></i></span><span class="val">31</span></div>
+          <div class="row"><span class="lbl">Claims &amp; EOB</span><span class="track"><i style="width:87%;background:#1E6F6C"></i></span><span class="val">27</span></div>
+          <div class="row"><span class="lbl">Enrollment &amp; ID</span><span class="track"><i style="width:48%;background:#2C8B87"></i></span><span class="val">15</span></div>
+          <div class="row"><span class="lbl">Provider network</span><span class="track"><i style="width:26%;background:#4BA6A2"></i></span><span class="val">8</span></div>
+          <div class="row"><span class="lbl">Billing &amp; premium</span><span class="track"><i style="width:26%;background:#6FBFBB"></i></span><span class="val">8</span></div>
+          <div class="row"><span class="lbl">Pharmacy</span><span class="track"><i style="width:19%;background:#9AD4D1"></i></span><span class="val">6</span></div>
+          <div class="row"><span class="lbl">Uncategorised</span><span class="track"><i style="width:10%;background:#C9CFD9"></i></span><span class="val">3</span></div>
+        </div>
+        <p class="note">Taxonomy coverage <b>97%</b>. If this drops below 90% the categories need revising, not the chart.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <header><h3>Signals by owner</h3><p>A call can raise more than one signal, so these do not total 100.</p></header>
+      <div class="pad">
+        <div class="rows">
+          <div class="row"><span class="lbl">Member comms</span><span class="track"><i style="width:100%;background:#B26A00"></i></span><span class="val">55</span></div>
+          <div class="row"><span class="lbl">Operations</span><span class="track"><i style="width:96%;background:#C8322B"></i></span><span class="val">53</span></div>
+          <div class="row"><span class="lbl">Call centre mgmt</span><span class="track"><i style="width:42%;background:#B26A00"></i></span><span class="val">23</span></div>
+          <div class="row"><span class="lbl">Broker relations</span><span class="track"><i style="width:33%;background:#6B3FA0"></i></span><span class="val">18</span></div>
+          <div class="row"><span class="lbl">Compliance</span><span class="track"><i style="width:20%;background:#C8322B"></i></span><span class="val">11</span></div>
+          <div class="row"><span class="lbl">Provider relations</span><span class="track"><i style="width:0%"></i></span><span class="val">—</span></div>
+        </div>
+        <p class="note">Provider relations has no signals in this sample. Shown so the absence is visible rather than implied.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CALLS ============ -->
+<section id="calls" class="hide">
+  <div class="ph">
+    <div><h1>Calls</h1><p>100 analyzed. Filter by outcome, score band, or broker signal.</p></div>
+    <div><button class="btn">Unresolved only</button> <button class="btn">Score under 65</button> <button class="btn">Broker signal</button></div>
+  </div>
+  <div class="card">
+    <table>
+      <thead><tr><th style="width:56px">Call</th><th>Member issue</th><th style="width:112px">Category</th><th style="width:88px">Agent</th><th style="width:112px">Outcome</th><th style="width:62px">Score</th><th style="width:132px">Signals</th></tr></thead>
+      <tbody>
+        <tr onclick="go('detail')"><td class="mono">#89</td><td><b>Asked about ER cost while describing chest pressure</b><div class="tiny">Agent steered to urgent care on price. No escalation.</div></td><td>Coverage</td><td>Brad</td><td><span class="chip hi">Unresolved</span></td><td><span class="score s-lo">36</span></td><td><span class="chip hi">Clinical risk</span></td></tr>
+        <tr onclick="go('detail')"><td class="mono">#60</td><td><b>Newborn never enrolled — broker missed the window</b><div class="tiny">Infant uninsured 47 days. No exception offered.</div></td><td>Enrollment</td><td>Ryan</td><td><span class="chip hi">Unresolved</span></td><td><span class="score s-lo">22</span></td><td><span class="chip brk">Whitfield</span></td></tr>
+        <tr onclick="go('detail')"><td class="mono">#75</td><td><b>Signature on enrollment form is not the member's</b><div class="tiny">Escalated to Special Investigations.</div></td><td>Enrollment</td><td>Sarah</td><td><span class="chip md">Escalated</span></td><td><span class="score s-hi">94</span></td><td><span class="chip brk">Trent</span></td></tr>
+        <tr onclick="go('detail')"><td class="mono">#67</td><td><b>Two doses of anticoagulant left, prior auth expired</b><div class="tiny">Emergency bridge auth exists. Not used.</div></td><td>Pharmacy</td><td>Kayla</td><td><span class="chip hi">Unresolved</span></td><td><span class="score s-lo">35</span></td><td><span class="chip hi">Clinical risk</span></td></tr>
+        <tr onclick="go('detail')"><td class="mono">#98</td><td><b>Fifth call about the same refund</b><div class="tiny">Two prior requests closed without action.</div></td><td>Billing</td><td>Sarah</td><td><span class="chip lo">Resolved</span></td><td><span class="score s-hi">95</span></td><td><span class="chip md">Repeat contact</span></td></tr>
+        <tr onclick="go('detail')"><td class="mono">#94</td><td><b>Second appeal denied — external review never mentioned</b><div class="tiny">Statutory disclosure omitted.</div></td><td>Claims</td><td>Tiffany</td><td><span class="chip hi">Unresolved</span></td><td><span class="score s-lo">42</span></td><td><span class="chip hi">Compliance</span></td></tr>
+        <tr onclick="go('detail')"><td class="mono">#13</td><td><b>First EOB — thought it was a bill</b><div class="tiny">Broker never explained plan paperwork.</div></td><td>Claims</td><td>Sarah</td><td><span class="chip lo">Resolved</span></td><td><span class="score s-hi">90</span></td><td><span class="chip brk">Salerno</span></td></tr>
+        <tr onclick="go('detail')"><td class="mono">#91</td><td><b>Member asked agent to slow down — no interpreter offered</b><div class="tiny">Told to call back with an English speaker.</div></td><td>Coverage</td><td>Ryan</td><td><span class="chip hi">Unresolved</span></td><td><span class="score s-lo">33</span></td><td><span class="chip hi">Language access</span></td></tr>
+        <tr onclick="go('detail')"><td class="mono">#92</td><td><b>Removing a spouse after a death</b><div class="tiny">Bereavement handled well. Account annotated.</div></td><td>Enrollment</td><td>Danielle</td><td><span class="chip lo">Resolved</span></td><td><span class="score s-hi">97</span></td><td><span class="chip lo">Exemplar</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="note">Showing 9 of 100. Sorted by severity, not date — the calls that need action surface first.</p>
+</section>
+
+<!-- ============ BROKERS ============ -->
+<section id="brokers" class="hide">
+  <div class="ph">
+    <div><h1>Brokers</h1><p>Conduct signals members named aloud during calls. 22 signals across 4 brokers.</p></div>
+    <div><button class="btn">Export for broker relations</button></div>
+  </div>
+
+  <div class="alert brk" style="margin-bottom:16px">
+    <b>How attribution works</b>
+    A signal is recorded only when the member names the broker in the call, or the member ID resolves to a broker of record. Nothing is inferred. Every signal below links to the sentence that produced it.
+  </div>
+
+  <div class="q">
+    <div class="qi brk">
+      <div><h4>Marcus Trent</h4>
+        <p class="why">Failures escalate in seriousness: prior auth misinformation, an HDHP sold on premium alone, an unauthorized spouse enrollment, a disputed signature, and a member now trying to leave. The signature case is with Special Investigations.</p>
+        <div class="meta"><span class="chip hi">Conduct review</span><span class="chip mono">#55 #57 #66 #75 #100</span><span class="owner">Audit full book</span></div></div>
+      <div class="num"><b>5</b><span>0 POSITIVE</span></div>
+    </div>
+    <div class="qi brk">
+      <div><h4>Denise Whitfield</h4>
+        <p class="why">Execution failures at enrollment. Two separate cases left children without coverage — a newborn never enrolled, and a family of four enrolled as employee-only for eight months. Also network and premium misrepresentation.</p>
+        <div class="meta"><span class="chip hi">Enrollment audit</span><span class="chip mono">#44 #53 #54 #60 #82 #97</span><span class="owner">Tier accuracy review</span></div></div>
+      <div class="num"><b>6</b><span>0 POSITIVE</span></div>
+    </div>
+    <div class="qi brk">
+      <div><h4>Anthony Salerno</h4>
+        <p class="why">Data entry and explanation. Two numeric transpositions — a date of birth and a Social Security number — each blocking claims until a member called. Also unresponsive across nine member contact attempts.</p>
+        <div class="meta"><span class="chip md">Coaching</span><span class="chip mono">#9 #13 #51 #52 #62 #79 #90</span><span class="owner">Data quality review</span></div></div>
+      <div class="num"><b>7</b><span>0 POSITIVE</span></div>
+    </div>
+    <div class="qi" style="border-left-color:var(--sev-lo)">
+      <div><h4>Patricia Nunez</h4>
+        <p class="why">Net positive. Her members arrive with accurate comparisons and call to verify rather than complain. One minor effective-date error. Her pre-enrollment materials are worth copying across the network.</p>
+        <div class="meta"><span class="chip lo">Best practice</span><span class="chip mono">#48 #59 #70 #86</span><span class="owner">Replicate template</span></div></div>
+      <div class="num"><b>4</b><span>3 POSITIVE</span></div>
+    </div>
+  </div>
+  <p class="note">Scoring is net, not cumulative. A broker with one error against strong overall performance is a coaching signal — treating it as conduct would make the system unusable.</p>
+</section>
+
+<!-- ============ CALL DETAIL ============ -->
+<section id="detail" class="hide">
+  <div class="ph">
+    <div><h1>Call #89</h1><p>Coverage &amp; benefits · 6 min · 2 speakers · 14 turns</p></div>
+    <div><button class="btn">← Back to calls</button> <button class="btn pri">Flag for review</button></div>
+  </div>
+
+  <div class="alert hi" style="margin-bottom:14px">
+    <b>Clinical escalation missed</b>
+    A member aged 68 described chest pressure persisting overnight with radiating arm pain. The agent quoted copays and directed her toward the cheaper care setting. This call closed normally and would appear in any handle-time report as an efficient benefits inquiry.
+  </div>
+
+  <div class="det">
+    <div>
+      <div class="hero">
+        <div class="ring" style="border-color:var(--sev-hi);color:var(--sev-hi)">36</div>
+        <div><h2>ER copay question that was a cardiac presentation</h2>
+        <p>Member called to compare emergency room and urgent care costs, then disclosed symptoms mid-call. The agent did not change course.</p>
+        <div style="margin-top:9px"><span class="chip hi">Unresolved</span> <span class="chip hi">Clinical risk</span> <span class="chip">Agent: Brad</span></div></div>
+      </div>
+
+      <div class="lay"><div class="bdg" style="background:var(--ink)">L1</div>
+        <h3>Transcription &amp; understanding</h3><div class="sub">The foundation</div>
+        <div class="box">
+          <div class="kv"><span>Member tone</span><b>Worried → dismissed</b></div>
+          <div class="kv"><span>Agent tone</span><b>Transactional</b></div>
+          <div class="kv"><span>Symptom language detected</span><b style="color:var(--sev-hi)">Yes — 2:30</b></div>
+          <div style="margin-top:10px"><span class="chip hi">chest pressure</span> <span class="chip hi">arm ache</span> <span class="chip md">age 68</span> <span class="chip">cost sensitivity</span></div>
+        </div>
+      </div>
+
+      <div class="lay"><div class="bdg" style="background:#2C5FAD">L2</div>
+        <h3>What happened</h3><div class="sub">Call insights</div>
+        <div class="box">
+          <p style="font-size:13px;color:var(--slate);margin-bottom:11px">Member asked which setting cost less. After the copays were quoted she disclosed overnight chest pressure and arm ache. The agent recommended urgent care as the cheaper option and ended the call.</p>
+          <div class="eyebrow">Key moments</div>
+          <div class="mk"><i>1</i><span>Member opens with a cost question, not a clinical one.</span></div>
+          <div class="mk"><i>2</i><span>Agent quotes $250 ER against $50 urgent care.</span></div>
+          <div class="mk n"><i>3</i><span><b>Member discloses chest pressure since the previous night and an aching arm.</b></span></div>
+          <div class="mk n"><i>4</i><span>Agent repeats the cheaper option and names a nearby urgent care.</span></div>
+          <div class="mk n"><i>5</i><span>Call closes with no escalation, no nurse line, no 911 guidance.</span></div>
+        </div>
+      </div>
+
+      <div class="lay"><div class="bdg" style="background:#6B3FA0">L3</div>
+        <h3>How well it was handled</h3><div class="sub">Agent quality</div>
+        <div class="box">
+          <div class="mk p"><i>✓</i><span>Copay figures and the admission waiver were factually correct.</span></div>
+          <div class="mk n"><i>✕</i><span>Did not recognise chest pressure with radiating arm pain in a 68-year-old as an emergency.</span></div>
+          <div class="mk n"><i>✕</i><span>Steered toward a lower level of care on cost grounds <em>after</em> symptoms were disclosed.</span></div>
+          <div class="mk n"><i>✕</i><span>No nurse line transfer, no advice to call 911.</span></div>
+          <div class="mk n"><i>✕</i><span>Closed a patient-safety call as routine.</span></div>
+          <div class="alert hi" style="margin-top:12px"><b>Score withheld pending clinical review</b>The rubric score of 36 is provisional. Calls involving unrecognised clinical urgency are reviewed by a clinician before a score is confirmed.</div>
+        </div>
+      </div>
+
+      <div class="lay"><div class="bdg" style="background:var(--sev-md)">L4</div>
+        <h3>What to do about it</h3><div class="sub">Operational BI · this call</div>
+        <div class="box">
+          <div class="alert hi"><b>Compliance &amp; risk · Owner: Quality and Clinical</b>Cost information was used to influence a care-setting decision after symptoms were disclosed. Contact this member for a welfare check. Review all of this agent's calls.</div>
+          <div style="margin-top:11px" class="alert" style="background:var(--sev-md-bg);border:1px solid #EFD9B4;color:#6E4200"><b>Agent coaching · Owner: Call Centre Management</b>Third call in this corpus where an agent did not escalate clinical urgency. Symptom recognition is a team-level training gap, not an individual lapse.</div>
+          <p class="note">This call contributes to <b>2</b> book-level patterns. <a href="#" style="color:var(--accent)">See both on the overview →</a></p>
+        </div>
+      </div>
+
+      <div class="lay"><div class="bdg" style="background:var(--accent)">L5</div>
+        <h3>Real-time assist</h3><div class="sub">Replay — what would have fired</div>
+        <div class="box">
+          <div class="miss"><b>Did not fire · 2:30</b><br>Symptom keywords with member age 68 should have triggered a mandatory nurse-line transfer, suppressed the cost comparison, and prompted 911 guidance. No rule was configured for symptom disclosure during a benefits call.</div>
+          <p class="note">Nothing fired on this call. Shown as a gap rather than an empty state, because the absence is the finding.</p>
+        </div>
+      </div>
+
+      <div class="lay" style="border:0"><div class="bdg" style="background:var(--slate)">TR</div>
+        <h3>Transcript</h3><div class="sub">14 turns · speaker separated</div>
+        <div class="box">
+          <div class="tr"><span class="who">Brad</span><span>Choice Administrators, Brad.</span></div>
+          <div class="tr m"><span class="who">Member</span><span>Hello. I wanted to ask what my emergency room copay is. Member ID CHM-2208814.</span></div>
+          <div class="tr"><span class="who">Brad</span><span>ER copay is $250, waived if you're admitted.</span></div>
+          <div class="tr m"><span class="who">Member</span><span>Two hundred and fifty. That's a lot. I was hoping it would be less.</span></div>
+          <div class="tr"><span class="who">Brad</span><span>That's the plan rate.</span></div>
+          <div class="tr m"><span class="who">Member</span><span>I see. Well. <mark>I've had this pressure in my chest since last night</mark> and my daughter thinks I should go in, but I told her I'd check the cost first.</span></div>
+          <div class="tr"><span class="who">Brad</span><span>Yeah, urgent care is cheaper if you want to go that route. That's $50.</span></div>
+          <div class="tr m"><span class="who">Member</span><span>Urgent care might be better then. It's just the pressure and <mark>my arm has been aching</mark>.</span></div>
+          <div class="tr"><span class="who">Brad</span><span>Urgent care can handle most things. There's one on Ridgeway if you're nearby.</span></div>
+          <div class="tr m"><span class="who">Member</span><span>Alright. Maybe I'll try that. Thank you.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <aside>
+      <div class="card"><header><h3>Member</h3></header><div class="pad">
+        <div class="kv"><span>ID</span><b>CHM-2208814</b></div>
+        <div class="kv"><span>Age</span><b>68</b></div>
+        <div class="kv"><span>Plan</span><b>CalChoice HMO</b></div>
+        <div class="kv"><span>Prior contacts</span><b>0</b></div>
+        <div class="kv"><span>Broker of record</span><b>—</b></div>
+      </div></div>
+
+      <div class="card"><header><h3>Why this call matters</h3></header><div class="pad">
+        <p style="font-size:12.8px;color:var(--slate)">Six minutes. Closed normally. No transfer, no escalation, no repeat contact. Every operational metric Choice tracks today would score this call as efficient.</p>
+        <p style="font-size:12.8px;color:var(--slate);margin-top:9px">The only record that something went wrong is what the member said out loud.</p>
+      </div></div>
+
+      <div class="card"><header><h3>Similar calls</h3></header><div class="pad">
+        <div class="kv"><span class="mono">#67</span><span>Anticoagulant lapse</span></div>
+        <div class="kv"><span class="mono">#96</span><span>Dialysis transport</span></div>
+        <div class="kv"><span class="mono">#30</span><span>Insulin rationing</span></div>
+      </div></div>
+    </aside>
+  </div>
+</section>
+
+<!-- ============ NEW CALL ============ -->
+<section id="new" class="hide">
+  <div class="ph">
+    <div><h1>Analyze a call</h1><p>Paste a transcript or upload audio. Processing runs locally.</p></div>
+    <div><button class="btn">Load sample</button></div>
+  </div>
+  <div class="grid" style="grid-template-columns:1fr 306px">
+    <div class="card">
+      <header><h3>Transcript</h3><p>One speaker turn per line, formatted as <span class="mono">Speaker: text</span></p></header>
+      <div class="pad">
+        <textarea placeholder="Agent Sarah: Choice Administrators member services, this is Sarah.
+Member: Hi, I have a question about a claim I received..."></textarea>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:11px">
+          <span class="note" id="cnt">0 turns detected</span>
+          <div><button class="btn">Clear</button> <button class="btn pri">Analyze</button></div>
+        </div>
+        <p class="note" style="margin-top:9px">Turns are detected from the speaker prefix. If everything lands on one line, the prefixes are missing — the parser needs them to separate speakers.</p>
+      </div>
+    </div>
+    <aside>
+      <div class="card"><header><h3>What runs</h3></header><div class="pad">
+        <div class="kv"><span class="mono">L1</span><span>Speakers, tone, flags</span></div>
+        <div class="kv"><span class="mono">L2</span><span>Summary, topics, outcome</span></div>
+        <div class="kv"><span class="mono">L3</span><span>Agent scoring</span></div>
+        <div class="kv"><span class="mono">L4</span><span>Action signals</span></div>
+        <div class="kv"><span class="mono">L5</span><span>Assist replay</span></div>
+      </div></div>
+      <div class="card"><header><h3>Privacy</h3></header><div class="pad">
+        <p style="font-size:12.8px;color:var(--slate)">Inference runs on a local model inside this environment. Transcripts are not sent to any external service. PHI is redacted before analysis.</p>
+      </div></div>
+    </aside>
+  </div>
+</section>
+
+</main>
+</div>
+
+<script>
+function go(id,btn){
+  document.querySelectorAll('main>section').forEach(s=>s.classList.toggle('hide',s.id!==id));
+  document.querySelectorAll('.nav button').forEach(b=>b.setAttribute('aria-current','false'));
+  if(btn)btn.setAttribute('aria-current','true');
+  window.scrollTo(0,0);
+}
+document.querySelector('textarea').addEventListener('input',e=>{
+  const n=e.target.value.split('\n').filter(l=>/^[^:]{1,40}:/.test(l.trim())).length;
+  document.getElementById('cnt').textContent=n+' turn'+(n===1?'':'s')+' detected';
+});
+</script>

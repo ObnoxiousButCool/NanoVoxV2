@@ -1,0 +1,97 @@
+# NanoVox agent scoring rubric.
+#
+# This file is the whole scoring policy. The model never returns a score — it
+# returns evidence-anchored markers, and this rubric turns them into a number
+# (DEC-03). Two consequences worth stating plainly:
+#
+#   * The same transcript always produces the same score, on any provider.
+#   * Changing what a failure costs is a change to this file, reviewable by
+#     someone who does not read Python.
+#
+# CALIBRATION STATUS: the weights below are a defensible starting point derived
+# from the marker patterns in Samples/, not a fit to the hand-written scores in
+# those files. Those scores were authored, not computed, so matching them exactly
+# would be false precision. The P8 fidelity report measures the gap against the
+# corpus and is the intended basis for tuning these numbers.
+
+version: "1.0.0"
+
+# 100 means "nothing went wrong". Markers only ever move the score down from here.
+base_score: 100
+
+# The most that positive markers may offset accumulated penalties, in total.
+# Good handling can soften a bad call; it cannot cancel a compliance failure, and
+# it can never lift a call above base_score.
+max_positive_offset: 15
+
+# --- Dimensions ------------------------------------------------------------
+# `positive` / `negative` are magnitudes for a single marker; the engine applies
+# the sign. `max_positive` / `max_negative` cap the total from one dimension, so
+# a model that phrases the same criticism five ways cannot sink a call on one
+# issue.
+dimensions:
+  empathy:
+    label: Empathy and acknowledgement
+    positive: 3
+    negative: 8
+    max_positive: 9
+    max_negative: 24
+
+  accuracy:
+    label: Factual and procedural accuracy
+    positive: 2
+    negative: 12
+    max_positive: 6
+    max_negative: 36
+
+  proactivity:
+    label: Proactive help beyond the question asked
+    positive: 3
+    negative: 6
+    max_positive: 9
+    max_negative: 18
+
+  compliance_disclosure:
+    label: Required disclosures and compliant conduct
+    positive: 2
+    negative: 15
+    max_positive: 6
+    max_negative: 45
+
+  resolution_ownership:
+    label: Ownership of the member's outcome
+    positive: 2
+    negative: 10
+    max_positive: 6
+    max_negative: 30
+
+  escalation_appropriateness:
+    label: Recognising and acting on urgency
+    positive: 3
+    negative: 20
+    max_positive: 9
+    max_negative: 40
+
+# --- Tiers -----------------------------------------------------------------
+# Lower bounds, inclusive. Derived from the corpus: Carlos averages 91.2 (GOOD)
+# while Linda 85.4 and Michael 85.2 are AVERAGE, so the boundary sits between
+# 85.4 and 91.2 — 86 is the defensible cut.
+tiers:
+  good: 86
+  average: 60
+
+# --- Significance ----------------------------------------------------------
+# Agents below this many calls are shown but not tier-rated. Four agents in the
+# corpus have four calls each; rating them would be unfair and misleading.
+min_calls_for_tier_rating: 5
+
+# --- Gates -----------------------------------------------------------------
+# Applied after the arithmetic, able to override its conclusion. A gate is a
+# policy, not a penalty: expressing "a clinician must look at this" as a
+# subtraction would be the wrong shape.
+gates:
+  - id: clinical_urgency_unrecognised
+    condition: signal_present
+    argument: clinical_risk
+    effect: suspend_score
+    message: Score withheld pending clinical review.

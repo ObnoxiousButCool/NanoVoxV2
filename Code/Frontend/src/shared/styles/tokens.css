@@ -1,0 +1,44 @@
+/*
+ * Design tokens.
+ *
+ * Copied verbatim from Documents/nanovox_ui_v3.html so the built application and
+ * the approved prototype cannot drift apart. Component styles reference these
+ * variables only — no component declares a raw colour.
+ */
+
+:root {
+  /* Ink and text */
+  --ink: #0e1420;
+  --ink-2: #1a2333;
+  --slate: #5a6478;
+  --slate-2: #8a93a3;
+
+  /* Surfaces */
+  --canvas: #f6f7f9;
+  --panel: #fff;
+  --rule: #e4e8ef;
+
+  /* Brand */
+  --accent: #14514f;
+  --accent-soft: #e6f0ef;
+
+  /* Severity */
+  --sev-hi: #c8322b;
+  --sev-hi-bg: #fceeed;
+  --sev-md: #b26a00;
+  --sev-md-bg: #fdf4e7;
+  --sev-lo: #1f7a4d;
+  --sev-lo-bg: #eaf5ef;
+
+  /* Broker attribution */
+  --brk: #6b3fa0;
+  --brk-bg: #f2ecf9;
+
+  /* Geometry */
+  --r: 6px;
+
+  /* Typography */
+  --font-body: Inter, system-ui, sans-serif;
+  --font-display: Archivo, sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+}

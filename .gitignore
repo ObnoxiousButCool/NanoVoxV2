@@ -1,0 +1,37 @@
+# --- Secrets and local configuration ---------------------------------------
+# .env.example is committed; .env never is.
+.env
+.env.local
+.env.*.local
+
+# --- Runtime output ---------------------------------------------------------
+Logs/
+Data/
+*.db
+*.db-wal
+*.db-shm
+
+# --- Python -----------------------------------------------------------------
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.import_linter_cache/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+
+# --- Node -------------------------------------------------------------------
+node_modules/
+dist/
+coverage/
+*.tsbuildinfo
+
+# --- Editors and OS ---------------------------------------------------------
+.idea/
+.vscode/
+Thumbs.db
+Desktop.ini

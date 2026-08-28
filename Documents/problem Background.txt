@@ -1,0 +1,19 @@
+problem Background
+
+Their member call center handles several thousand calls a month. Agents are speaking with enrolled members about plan issues, billing disputes, claims, provider questions — and Choice has zero insight into what's happening in those calls. 
+No call scoring, no sentiment signals, no visibility into whether agents are resolving issues or contributing to silent member churn.
+Their email channel (Outlook) has the same blind spot — roughly 7,000 emails a month with no parsing or pattern detection.
+
+Challenge
+We've been trying to get sample call recordings from Choice for two months to build a demo. It hasn't moved — they're navigating PHI/HIPAA concerns and internal bandwidth constraints.
+
+What I've done to unblock this
+Rather than keep waiting, I've generated 50 synthetic call scripts written specifically in the context of their business — member calls covering benefits disputes, claim denials, provider issues, pharmacy, billing, enrollment. 
+Each script includes an AI insights panel mapped to our 5-layer NanoVox architecture (transcription, call insights, agent scoring, operational BI, real-time assist).
+
+This gives the team real, contextually accurate input data to build and demo the solution without needing actual client recordings.
+The presentation we shared with Rebekah in June is in the email chain below.
+
+Ask
+Can we get a small team assigned to take these 50 scripts and build a working POC that demonstrates what NanoVox would output for Choice? 
+The goal is to come back to Rebekah with something she can show her leadership — not a slide deck, a real output.

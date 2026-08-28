@@ -1,0 +1,125 @@
+# NanoVox controlled vocabularies.
+#
+# Everything the analysis is allowed to classify a call as. The model is
+# constrained to these values, which is what makes the dashboard able to group
+# and count them — free text produces a category of one.
+#
+# Changing this file changes classification. Adding a category also requires
+# re-running the corpus so existing calls are re-classified against it.
+
+version: "1.0.0"
+
+# --- Call categories -------------------------------------------------------
+# The seven categories from Documents/call_corpus_v3_index.xlsx (DEC-02).
+#
+# Note on "Broker-Attributed": it is kept here because it is a category in the
+# source index, but it overlaps the others by nature — a broker call is also an
+# Enrollment or Coverage call. Broker involvement is additionally recorded as a
+# broker signal, which is what the Broker Scorecard counts. The category is the
+# member's topic; the signal is the attribution.
+categories:
+  - code: coverage_benefits
+    label: Coverage & Benefits
+    description: Plan design, what is covered, cost sharing, prior authorisation.
+  - code: claims_eob
+    label: Claims & EOB
+    description: Claim status, denials, explanations of benefits, appeals.
+  - code: provider_network
+    label: Provider Network
+    description: In-network status, referrals, directory accuracy, access.
+  - code: billing_premium
+    label: Billing & Premium
+    description: Invoices, premium changes, payments, refunds.
+  - code: enrollment_id_cards
+    label: Enrollment & ID Cards
+    description: Enrolment, life events, tier changes, member identification.
+  - code: pharmacy
+    label: Pharmacy
+    description: Formulary, pharmacy prior authorisation, refills, cost.
+  - code: broker_attributed
+    label: Broker-Attributed
+    description: The member's issue originates with broker conduct or advice.
+
+# --- L4 operational BI categories ------------------------------------------
+# Each L4 insight is written against exactly one of these, with a named owner.
+# Distribution across the corpus: process breakdown 25, broker attribution 19,
+# member communication gap 11, compliance & risk 9, agent coaching 8,
+# provider performance 2.
+l4_categories:
+  - code: process_breakdown
+    label: Process Breakdown
+    owner: { code: operations, name: Operations }
+    default_severity: HIGH
+  - code: broker_attribution
+    label: Broker Attribution
+    owner: { code: broker_relations, name: Broker Relations }
+    default_severity: HIGH
+  - code: member_communication_gap
+    label: Member Communication Gap
+    owner: { code: member_communications, name: Member Communications }
+    default_severity: MEDIUM
+  - code: compliance_risk
+    label: Compliance & Risk
+    owner: { code: compliance, name: Compliance }
+    default_severity: CRITICAL
+  - code: agent_coaching
+    label: Agent Coaching
+    owner: { code: call_centre_management, name: Call Centre Management }
+    default_severity: MEDIUM
+  - code: provider_performance
+    label: Provider Performance
+    owner: { code: provider_relations, name: Provider Relations }
+    default_severity: MEDIUM
+
+# --- Signal types ----------------------------------------------------------
+# Named conditions a call can raise. `clinical_risk` is referenced by a rubric
+# gate; the loader checks that every gate argument names a signal defined here,
+# so a rename cannot silently disable the safety rule.
+signal_types:
+  - code: clinical_risk
+    label: Unrecognised clinical urgency
+    severity: CRITICAL
+  - code: compliance_disclosure_missing
+    label: Required disclosure omitted
+    severity: HIGH
+  - code: language_access
+    label: Language access not provided
+    severity: HIGH
+  - code: repeat_contact
+    label: Repeat contact on an unresolved issue
+    severity: MEDIUM
+  - code: broker_conduct
+    label: Broker conduct concern
+    severity: HIGH
+  - code: exemplar
+    label: Exemplary handling worth replicating
+    severity: LOW
+
+# --- Sentiment vocabulary --------------------------------------------------
+# The corpus contains 44 distinct arcs built from these states. Constraining both
+# ends to this list is what allows arcs to be grouped on the dashboard.
+sentiment_states:
+  - NEUTRAL
+  - CURIOUS
+  - CONFUSED
+  - WORRIED
+  - ANXIOUS
+  - FRUSTRATED
+  - ANGRY
+  - DISTRESSED
+  - PANICKED
+  - INFORMED
+  - SATISFIED
+  - REASSURED
+  - RELIEVED
+  - CALMED
+  - POSITIVE
+  - PARTIALLY_SATISFIED
+  - PARTIALLY_HELPED
+  - PARTIALLY_REASSURED
+  - PARTIALLY_CALMED
+  - RESIGNED
+  - DISMISSED
+  - ABANDONED
+  - ESCALATED
+  - ALARMED
