@@ -112,6 +112,13 @@ class BrokerResponse(BaseModel):
     positive: int
     is_net_positive: bool
     call_references: list[str]
+    discarded: int = Field(
+        default=0,
+        description=(
+            "Attributions naming this broker that failed evidence checking and "
+            "were never recorded. Not included in the signal counts."
+        ),
+    )
 
 
 class SignalEntryResponse(BaseModel):
@@ -195,6 +202,7 @@ def _broker_response(broker: BrokerScorecardEntry) -> BrokerResponse:
         negative=broker.negative,
         positive=broker.positive,
         is_net_positive=broker.is_net_positive,
+        discarded=broker.discarded,
         call_references=list(broker.call_references),
     )
 

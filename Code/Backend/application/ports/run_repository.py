@@ -88,6 +88,10 @@ class RunRepository(ABC):
         """Return unfinished items to pending for a resume, and report how many."""
 
     @abstractmethod
+    async def delete_all(self) -> int:
+        """Remove every run and its items, returning how many runs went."""
+
+    @abstractmethod
     async def abandon_active(self, *, now: datetime, reason: str) -> int:
         """Mark runs left active by a dead process as interrupted.
 

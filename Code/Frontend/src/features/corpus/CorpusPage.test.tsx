@@ -138,6 +138,9 @@ interface World {
   posted: { url: string; body: unknown }[]
   startStatus: number
   startBody: unknown
+  deleted: string[]
+  clearStatus: number
+  clearBody: unknown
 }
 
 function setup(world: Partial<World> = {}) {
@@ -150,12 +153,19 @@ function setup(world: Partial<World> = {}) {
     posted: [],
     startStatus: 201,
     startBody: run(),
+    deleted: [],
+    clearStatus: 200,
+    clearBody: { calls: 40, runs: 2, ground_truth_kept: true },
     ...world,
   }
 
   vi.stubGlobal(
     'fetch',
     vi.fn((url: string, init?: RequestInit) => {
+      if (init?.method === 'DELETE') {
+        state.deleted.push(url)
+        return Promise.resolve(json(state.clearBody, state.clearStatus))
+      }
       if (init?.method === 'POST') {
         state.posted.push({ url, body: JSON.parse(String(init.body)) })
         return Promise.resolve(json(state.startBody, state.startStatus))
@@ -452,5 +462,87 @@ describe('run history', () => {
     )
 
     expect(await screen.findByText(/Could not load the corpus/)).toBeInTheDocument()
+  })
+
+  describe('clearing the corpus', () => {
+    it('does not delete on the first press', async () => {
+      // The first press only arms the action; a stray click must not empty the
+      // corpus.
+      const state = setup({ runs: [] })
+
+      await userEvent.click(await screen.findByRole('button', { name: 'Clear analyses' }))
+
+      expect(state.deleted).toEqual([])
+      expect(
+        screen.getByRole('button', { name: 'Yes, delete every analysis' }),
+      ).toBeInTheDocument()
+    })
+
+    it('says what will be lost and what will be kept before confirming', async () => {
+      setup({ runs: [] })
+
+      await userEvent.click(await screen.findByRole('button', { name: 'Clear analyses' }))
+
+      expect(screen.getByText(/This deletes every analysed call/)).toBeInTheDocument()
+      expect(screen.getByText(/Ground truth is kept/)).toBeInTheDocument()
+    })
+
+    it('deletes only once confirmed', async () => {
+      const state = setup({ runs: [] })
+
+      await userEvent.click(await screen.findByRole('button', { name: 'Clear analyses' }))
+      await userEvent.click(screen.getByRole('button', { name: 'Yes, delete every analysis' }))
+
+      await waitFor(() => {
+        expect(state.deleted).toHaveLength(1)
+      })
+      expect(state.deleted[0]).toContain('/corpus/analyses')
+    })
+
+    it('can be backed out of without deleting anything', async () => {
+      const state = setup({ runs: [] })
+
+      await userEvent.click(await screen.findByRole('button', { name: 'Clear analyses' }))
+      await userEvent.click(screen.getByRole('button', { name: 'Cancel' }))
+
+      expect(state.deleted).toEqual([])
+      expect(screen.getByRole('button', { name: 'Clear analyses' })).toBeInTheDocument()
+    })
+
+    it('reports what was removed', async () => {
+      setup({ runs: [] })
+
+      await userEvent.click(await screen.findByRole('button', { name: 'Clear analyses' }))
+      await userEvent.click(screen.getByRole('button', { name: 'Yes, delete every analysis' }))
+
+      expect(await screen.findByText(/Ground truth was kept/)).toBeInTheDocument()
+    })
+
+    it('surfaces a refusal from the API rather than looking like it worked', async () => {
+      // The API refuses with 409 while a run is working.
+      const state = setup({
+        runs: [],
+        clearStatus: 409,
+        clearBody: {
+          type: 'about:blank',
+          title: 'A corpus run is in progress, so the corpus cannot be cleared.',
+          status: 409,
+          code: 'conflict',
+          detail: 'Run 3 is still working. Cancel it and wait for it to stop, then clear.',
+          correlation_id: null,
+        },
+      })
+
+      await userEvent.click(await screen.findByRole('button', { name: 'Clear analyses' }))
+      await userEvent.click(screen.getByRole('button', { name: 'Yes, delete every analysis' }))
+
+      await waitFor(() => {
+        expect(state.deleted).toHaveLength(1)
+      })
+      const alert = await screen.findByText('The corpus was not cleared')
+      // The API's reason is shown, not just that something went wrong: the user
+      // needs to know a run is why, so they can cancel it.
+      expect(alert.parentElement?.textContent).toContain('Run 3 is still working.')
+    })
   })
 })

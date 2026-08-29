@@ -11,6 +11,7 @@ that the API rejects the schema outright.
 
 from __future__ import annotations
 
+import re
 from typing import Any
 
 import openai
@@ -88,7 +89,9 @@ class OpenAIProvider(StructuredProvider):
             )
         except openai.APIStatusError as exc:
             raise ProviderUnavailableError(
-                f"OpenAI returned HTTP {exc.status_code}.", detail=str(exc)
+                f"OpenAI returned HTTP {exc.status_code}.",
+                detail=str(exc),
+                retry_after=_retry_after_of(exc),
             ) from exc
         except openai.APIConnectionError as exc:
             raise ProviderUnavailableError(
@@ -122,6 +125,47 @@ class OpenAIProvider(StructuredProvider):
 
     async def aclose(self) -> None:
         await self._client.close()
+
+
+def _retry_after_of(error: openai.APIStatusError) -> float | None:
+    """When OpenAI says to come back, in seconds.
+
+    On a 429 the useful number is the token bucket's reset, not ``retry-after``:
+    the request-per-minute ceiling is rarely what a five-layer analysis hits, and
+    the two buckets refill on different clocks. Both are read, the longer wins,
+    and an unparseable value is simply ignored in favour of blind backoff.
+    """
+    headers = getattr(getattr(error, "response", None), "headers", None)
+    if headers is None:
+        return None
+
+    waits = [
+        parsed
+        for name in ("retry-after", "x-ratelimit-reset-tokens", "x-ratelimit-reset-requests")
+        if (parsed := _duration(headers.get(name))) is not None
+    ]
+    return max(waits) if waits else None
+
+
+def _duration(value: str | None) -> float | None:
+    """Parse a header that is either bare seconds or OpenAI's ``1m30.5s`` form."""
+    if not value:
+        return None
+    text = value.strip()
+    try:
+        return float(text)
+    except ValueError:
+        pass
+
+    match = re.fullmatch(r"(?:(\d+(?:\.\d+)?)m)?(?:(\d+(?:\.\d+)?)s)?|(\d+(?:\.\d+)?)ms", text)
+    if match is None:
+        return None
+    if match.group(3) is not None:
+        return float(match.group(3)) / 1000.0
+    minutes, seconds = match.group(1), match.group(2)
+    if minutes is None and seconds is None:
+        return None
+    return float(minutes or 0) * 60.0 + float(seconds or 0)
 
 
 def _strict_schema(schema: dict[str, Any]) -> dict[str, Any]:

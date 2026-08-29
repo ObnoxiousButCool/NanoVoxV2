@@ -8,12 +8,12 @@ the reported total is the number of matching calls rather than the size of a pag
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Annotated
+from typing import Annotated, Literal
 
 from fastapi import APIRouter, Query
 from pydantic import BaseModel, Field
 
-from application.ports.read_models import CallFilters, CallSummary, Page
+from application.ports.read_models import CallFilters, CallSort, CallSummary, Page
 from domain.errors import NotFoundError
 from frameworks_drivers.api.dependencies import AnalysisRepositoryDep, ReadModelsDep
 from frameworks_drivers.api.v1.analyses import AnalysisResponse, to_response
@@ -87,8 +87,14 @@ async def list_calls(
     max_score: Annotated[int | None, Query(ge=0, le=100)] = None,
     min_score: Annotated[int | None, Query(ge=0, le=100)] = None,
     has_broker_signal: Annotated[bool | None, Query()] = None,
+    broker: Annotated[str | None, Query(description="Broker name attributed on the call.")] = None,
     signal: Annotated[str | None, Query(description="Signal code, e.g. clinical_risk.")] = None,
     search: Annotated[str | None, Query(description="Matches title, summary or reference.")] = None,
+    sort: Annotated[
+        CallSort,
+        Query(description="Column to order by. 'severity' is what needs action first."),
+    ] = CallSort.SEVERITY,
+    direction: Annotated[Literal["asc", "desc"], Query()] = "asc",
     limit: Annotated[int, Query(ge=1, le=MAX_LIMIT)] = DEFAULT_LIMIT,
     offset: Annotated[int, Query(ge=0)] = 0,
 ) -> CallsPageResponse:
@@ -99,10 +105,19 @@ async def list_calls(
         max_score=max_score,
         min_score=min_score,
         has_broker_signal=has_broker_signal,
+        broker_name=broker,
         signal_code=signal,
         search=search,
     )
-    return _page(await repository.list_calls(filters, limit=limit, offset=offset))
+    return _page(
+        await repository.list_calls(
+            filters,
+            limit=limit,
+            offset=offset,
+            sort=sort,
+            descending=direction == "desc",
+        )
+    )
 
 
 @router.get("/calls/{call_id}", response_model=AnalysisResponse, summary="One call in full")

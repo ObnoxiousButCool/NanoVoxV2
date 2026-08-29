@@ -143,3 +143,25 @@ def test_error_responses_still_carry_cors_headers(error_client: TestClient) -> N
     assert response.status_code == 500
     assert response.headers["access-control-allow-origin"] == "http://127.0.0.1:5173"
     assert CORRELATION_ID_HEADER in response.headers["access-control-expose-headers"]
+
+
+def test_every_method_the_api_exposes_survives_a_cors_preflight(
+    error_client: TestClient,
+) -> None:
+    """A method missing from the CORS allowlist fails only in a real browser.
+
+    TestClient does not preflight, so a route can pass every server-side test and
+    still be unreachable from the app — the browser blocks it after the preflight
+    and the user sees a network error for a server that was never contacted.
+    """
+    for method in ("GET", "POST", "DELETE"):
+        response = error_client.options(
+            "/api/v1/corpus/analyses",
+            headers={
+                "Origin": "http://127.0.0.1:5173",
+                "Access-Control-Request-Method": method,
+            },
+        )
+
+        allowed = response.headers.get("access-control-allow-methods", "")
+        assert method in allowed, f"{method} is not allowed through CORS: {allowed!r}"

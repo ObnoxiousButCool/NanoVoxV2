@@ -20,6 +20,7 @@ from application.ports.health_probe import HealthProbe
 from application.ports.llm_provider import LLMProvider
 from application.ports.redaction import NoRedaction, RedactionPort
 from application.use_cases.analyze_transcript import AnalyzeTranscript
+from application.use_cases.clear_corpus import ClearCorpus
 from application.use_cases.get_dashboard import (
     GetAgentPerformance,
     GetBrokerScorecard,
@@ -95,7 +96,9 @@ class Container:
     def list_providers(self) -> ListProviders:
         default = self.settings.llm_provider
         return ListProviders(
-            probe=RegistryProviderProbe(self.provider_registry, default),
+            probe=RegistryProviderProbe(
+                self.provider_registry, default, self.settings.llm_probe_timeout_seconds
+            ),
             names=self.provider_registry.names,
             default_name=default,
         )
@@ -142,6 +145,9 @@ class Container:
 
     def cancel_corpus_run(self) -> CancelCorpusRun:
         return CancelCorpusRun(runs=self.run_repository(), clock=self.clock)
+
+    def clear_corpus(self) -> ClearCorpus:
+        return ClearCorpus(analyses=self.analysis_repository(), runs=self.run_repository())
 
     def resume_corpus_run(self) -> ResumeCorpusRun:
         return ResumeCorpusRun(runs=self.run_repository(), clock=self.clock)

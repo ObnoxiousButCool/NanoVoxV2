@@ -6,9 +6,12 @@ must produce a complete, evidence-anchored L1-L5 analysis.
 
 from __future__ import annotations
 
+from typing import Any
+
 import pytest
 
 from application.dto.analysis_schemas import build_analysis_schemas
+from application.ports.llm_provider import LlmRequest, StructuredResult, TModel
 from application.ports.redaction import NoRedaction
 from application.use_cases.analyze_transcript import (
     REASON_KEY,
@@ -404,3 +407,107 @@ class TestAttributionEvidence:
 
         assert len(analysis.broker_signals) == 1
         assert analysis.rejected_attribution_notes == ()
+
+
+class _RetryingProvider(ScriptedLayerProvider):
+    """Answers L4 differently the second time it is asked.
+
+    The repair only means anything if the model can say something new; a provider
+    that repeats itself would prove the retry happened but not that it works.
+    """
+
+    def __init__(self, first: dict[str, Any], second: dict[str, Any] | None) -> None:
+        payloads = dict(PAYLOADS_BY_PROMPT)
+        payloads["l4_operational_bi"] = first
+        super().__init__(payloads)
+        self._second = second
+        self.l4_calls = 0
+        self.corrections: list[str] = []
+
+    async def complete(self, request: LlmRequest[TModel]) -> StructuredResult[TModel]:
+        if request.prompt_id == "l4_operational_bi":
+            self.l4_calls += 1
+            if self.l4_calls > 1:
+                self.corrections.append(request.prompt)
+                if self._second is not None:
+                    self._payloads["l4_operational_bi"] = self._second
+        return await super().complete(request)
+
+
+# Turn 1 reads: "Hello. I wanted to ask what my emergency room copay is. Member
+# ID CHM-2208814." The elided quote below joins its first and last sentences —
+# every word is real, but the run is not continuous, which is exactly how a real
+# attribution was lost.
+ELIDED_QUOTE = "Hello. Member ID CHM-2208814."
+CONTIGUOUS_QUOTE = "I wanted to ask what my emergency room copay is."
+
+
+def _attribution(quote: str) -> dict[str, Any]:
+    return {
+        "signals": [],
+        "broker_signals": [
+            {
+                "broker_name": "Marcus Trent",
+                "polarity": "NEGATIVE",
+                "issue": "Told the member no prior authorization was needed.",
+                "evidence_turn_seq": 1,
+                "quote": quote,
+            }
+        ],
+    }
+
+
+class TestAttributionRepair:
+    async def test_an_elided_quote_is_re_asked_and_recovered(
+        self, taxonomy: Taxonomy, rubric: Rubric
+    ) -> None:
+        provider = _RetryingProvider(
+            _attribution(ELIDED_QUOTE), _attribution(CONTIGUOUS_QUOTE)
+        )
+
+        analysis, _ = await analyse(taxonomy, rubric, provider)
+
+        assert provider.l4_calls == 2
+        assert len(analysis.broker_signals) == 1
+        assert analysis.broker_signals[0].quote == CONTIGUOUS_QUOTE
+        assert analysis.rejected_attribution_notes == ()
+
+    async def test_the_retry_is_told_what_failed_and_shown_the_turn(
+        self, taxonomy: Taxonomy, rubric: Rubric
+    ) -> None:
+        # Without the turn's text the model has nothing new to copy from, and the
+        # second answer is as likely to be wrong as the first.
+        provider = _RetryingProvider(
+            _attribution(ELIDED_QUOTE), _attribution(CONTIGUOUS_QUOTE)
+        )
+
+        await analyse(taxonomy, rubric, provider)
+
+        correction = provider.corrections[0]
+        assert "CORRECTION" in correction
+        assert "Marcus Trent" in correction
+        assert "I wanted to ask what my emergency room copay is" in correction
+
+    async def test_a_repair_that_fails_again_leaves_the_attribution_rejected(
+        self, taxonomy: Taxonomy, rubric: Rubric
+    ) -> None:
+        # The rule is not relaxed by asking twice: a quote that never matches is
+        # still not evidence.
+        provider = _RetryingProvider(_attribution(ELIDED_QUOTE), None)
+
+        analysis, _ = await analyse(taxonomy, rubric, provider)
+
+        assert provider.l4_calls == 2
+        assert analysis.broker_signals == ()
+        assert len(analysis.rejected_attribution_notes) == 1
+
+    async def test_a_clean_first_answer_is_not_re_asked(
+        self, taxonomy: Taxonomy, rubric: Rubric
+    ) -> None:
+        # The repair costs a model call, so it must only run when one is needed.
+        provider = _RetryingProvider(_attribution(CONTIGUOUS_QUOTE), None)
+
+        analysis, _ = await analyse(taxonomy, rubric, provider)
+
+        assert provider.l4_calls == 1
+        assert len(analysis.broker_signals) == 1

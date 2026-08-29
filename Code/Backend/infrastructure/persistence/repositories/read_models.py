@@ -24,11 +24,13 @@ from application.ports.read_models import (
     AgentAggregate,
     BrokerAggregate,
     CallFilters,
+    CallSort,
     CallSummary,
     KeyCount,
     Page,
     ReadModelRepository,
 )
+from domain.attribution_notes import broker_name_in
 from domain.value_objects.polarity import Polarity
 from domain.value_objects.resolution import Resolution
 from domain.value_objects.score import ScoreStatus
@@ -47,6 +49,41 @@ _SEVERITY_ORDER = (
     CallRow.score.asc(),
     CallRow.analysed_at.desc(),
 )
+
+# Which column each sortable name maps to. Values arrive from a query string, so
+# ordering is chosen from this table rather than built from the caller's text.
+_SORT_COLUMNS: dict[CallSort, Any] = {
+    CallSort.REFERENCE: CallRow.reference,
+    CallSort.CATEGORY: CallRow.category_code,
+    CallSort.AGENT: CallRow.agent_name,
+    CallSort.RESOLUTION: CallRow.resolution,
+    CallSort.SCORE: CallRow.score,
+    CallSort.ANALYSED_AT: CallRow.analysed_at,
+}
+
+
+def _order_clauses(sort: CallSort, *, descending: bool) -> list[Any]:
+    """The ORDER BY for one sort choice.
+
+    Every ordering ends with the call id. Without a unique final key, rows that
+    tie on every other column have no defined order between them, and SQLite is
+    free to return them differently for each page — which shows up as a row
+    appearing twice while another never appears at all.
+    """
+    if sort is CallSort.SEVERITY:
+        clauses = [
+            clause.reverse_sort() if descending else clause for clause in _SEVERITY_ORDER
+        ]
+        return [*clauses, CallRow.id.asc()]
+
+    column = _SORT_COLUMNS[sort]
+    clauses = []
+    if sort is CallSort.AGENT:
+        # The only nullable sortable column. A block of dashes at the top is not
+        # what "sort by agent" means, so absent names go last either way.
+        clauses.append(case((CallRow.agent_name.is_(None), 1), else_=0).asc())
+    clauses.append(column.desc() if descending else column.asc())
+    return [*clauses, CallRow.id.asc()]
 
 
 def _count_if(condition: Any) -> Any:
@@ -167,6 +204,7 @@ class SqlReadModelRepository(ReadModelRepository):
                 .group_by(BrokerSignalRow.broker_name)
                 .order_by(func.count().desc())
             )
+            discarded = await self._discarded_attributions(session)
             return tuple(
                 BrokerAggregate(
                     broker_name=str(name),
@@ -174,9 +212,32 @@ class SqlReadModelRepository(ReadModelRepository):
                     negative=int(negative or 0),
                     positive=int(positive or 0),
                     call_references=_split(references),
+                    discarded=discarded.get(str(name), 0),
                 )
                 for name, count, negative, positive, references in rows
             )
+
+    @staticmethod
+    async def _discarded_attributions(session: AsyncSession) -> dict[str, int]:
+        """How many attributions were refused, per broker named in them.
+
+        Read in Python rather than SQL because the notes are a JSON array of
+        sentences; SQLite's JSON functions could unnest them but not parse the
+        name back out, which is the part that has to stay next to the code that
+        writes it.
+        """
+        counts: dict[str, int] = {}
+        rows = await session.scalars(
+            select(CallRow.rejected_attribution_notes).where(
+                CallRow.rejected_attribution_notes.is_not(None)
+            )
+        )
+        for notes in rows:
+            for note in notes or ():
+                name = broker_name_in(note)
+                if name:
+                    counts[name] = counts.get(name, 0) + 1
+        return counts
 
     async def l4_category_counts(self) -> tuple[KeyCount, ...]:
         calls = func.count(distinct(L4SignalRow.call_id))
@@ -221,7 +282,13 @@ class SqlReadModelRepository(ReadModelRepository):
             )
 
     async def list_calls(
-        self, filters: CallFilters, *, limit: int, offset: int, order_by_severity: bool = True
+        self,
+        filters: CallFilters,
+        *,
+        limit: int,
+        offset: int,
+        sort: CallSort = CallSort.SEVERITY,
+        descending: bool = False,
     ) -> Page:
         async with self._session_factory() as session:
             total = int(
@@ -230,9 +297,7 @@ class SqlReadModelRepository(ReadModelRepository):
             )
 
             statement = _apply(select(CallRow), filters)
-            statement = statement.order_by(
-                *(_SEVERITY_ORDER if order_by_severity else (CallRow.analysed_at.desc(),))
-            )
+            statement = statement.order_by(*_order_clauses(sort, descending=descending))
             rows = (await session.scalars(statement.limit(limit).offset(offset))).all()
             call_ids = tuple(row.id for row in rows)
 
@@ -333,6 +398,16 @@ def _apply(statement: Select[Any], filters: CallFilters) -> Select[Any]:
     if filters.has_broker_signal is not None:
         having = CallRow.id.in_(select(BrokerSignalRow.call_id))
         statement = statement.where(having if filters.has_broker_signal else ~having)
+    if filters.broker_name:
+        # A call is matched by the brokers named on it, not by a column of its
+        # own: one call can attribute several brokers.
+        statement = statement.where(
+            CallRow.id.in_(
+                select(BrokerSignalRow.call_id).where(
+                    BrokerSignalRow.broker_name == filters.broker_name
+                )
+            )
+        )
     if filters.signal_code:
         statement = statement.where(
             CallRow.id.in_(

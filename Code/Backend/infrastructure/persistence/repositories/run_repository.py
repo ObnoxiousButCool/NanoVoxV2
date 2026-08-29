@@ -179,6 +179,14 @@ class SqlRunRepository(RunRepository):
             await session.commit()
             return len(item_ids)
 
+    async def delete_all(self) -> int:
+        """Remove every run. Items go with them through the run_id cascade."""
+        async with self._session_factory() as session, session.begin():
+            rows = (await session.scalars(select(RunRow))).all()
+            for row in rows:
+                await session.delete(row)
+            return len(rows)
+
     async def abandon_active(self, *, now: datetime, reason: str) -> int:
         async with self._session_factory() as session:
             runs = await session.scalars(

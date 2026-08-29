@@ -222,6 +222,11 @@ class InMemoryAnalysisRepository(AnalysisRepository):
         self.saved = remaining
         return removed
 
+    async def delete_all(self) -> int:
+        removed = len(self.saved)
+        self.saved = []
+        return removed
+
 
 class FailingRepository(InMemoryAnalysisRepository):
     """A repository whose writes fail."""

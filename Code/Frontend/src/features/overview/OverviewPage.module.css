@@ -99,3 +99,27 @@
 .reference {
   font-family: var(--font-mono);
 }
+
+/* A card heading that navigates (the broker scorecard). Inherits the heading's
+   weight and colour; underlined on hover so the affordance is discoverable
+   without turning every heading into a blue link. */
+.nameLink {
+  color: inherit;
+  text-decoration: none;
+}
+
+.nameLink:hover,
+.nameLink:focus-visible {
+  text-decoration: underline;
+}
+
+/* A discarded-attribution notice on a broker card. Muted but not hidden: it
+   qualifies the count beside it rather than competing with it. */
+.discarded {
+  margin: 6px 0 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--slate);
+  border-left: 2px solid var(--line, #d8dee4);
+  padding-left: 8px;
+}

@@ -15,6 +15,7 @@ from infrastructure.llm.base import (
     OUTCOME_INVALID_SCHEMA,
     OUTCOME_OK,
     OUTCOME_UNAVAILABLE,
+    StructuredProvider,
 )
 from infrastructure.logging.llm_audit import LLM_AUDIT_LOGGER_NAME, LlmAuditLog
 from tests.support.llm import VALID_JSON, ScriptedProvider, Sentiment
@@ -39,7 +40,9 @@ WRONG_SHAPE = '{"sentiment": "NEGATIVE", "confidence": 5.0}'
 @pytest.fixture(autouse=True)
 def _no_backoff_delay(monkeypatch: pytest.MonkeyPatch) -> None:
     """Retries are exercised for behaviour, not for wall-clock backoff."""
-    monkeypatch.setattr(ScriptedProvider, "_backoff", staticmethod(lambda attempt: 0.0))
+    monkeypatch.setattr(
+        ScriptedProvider, "_backoff", staticmethod(lambda attempt, retry_after=None: 0.0)
+    )
 
 
 class TestSuccess:
@@ -211,3 +214,52 @@ class TestAuditLog:
         await provider.complete(REQUEST)
 
         assert field(audit_records[-1], "usage_reported") is False
+
+
+    async def test_the_providers_own_reason_reaches_the_audit_record(
+        self, audit_records: list[logging.LogRecord]
+    ) -> None:
+        """A 429 meaning "out of credit" must be tellable from one meaning "slow down"."""
+        provider = ScriptedProvider(
+            [
+                ProviderUnavailableError(
+                    "OpenAI returned HTTP 429.",
+                    detail="rate_limit_exceeded: tokens per min (TPM): Limit 30000",
+                ),
+                VALID_JSON,
+            ]
+        )
+
+        await provider.complete(REQUEST)
+
+        unavailable = [
+            record for record in audit_records if field(record, "outcome") == OUTCOME_UNAVAILABLE
+        ]
+        assert len(unavailable) == 1
+        detail = field(unavailable[0], "detail")
+        assert "429" in detail
+        assert "Limit 30000" in detail
+
+
+class TestBackoffSchedule:
+    """The wait between transport attempts.
+
+    Measured on :class:`StructuredProvider` itself: the autouse fixture above
+    stubs the delay out on ``ScriptedProvider``, which is what every other test
+    in this file wants and what this one must avoid.
+    """
+
+    def test_blind_backoff_grows_and_is_capped(self) -> None:
+        backoff = StructuredProvider._backoff
+        assert [backoff(n) for n in (1, 2, 3, 4, 5, 6)] == [0.5, 1.0, 2.0, 4.0, 8.0, 8.0]
+
+    def test_a_providers_retry_after_overrides_a_shorter_schedule(self) -> None:
+        # A token bucket needing 18s is not served by waiting 0.5s and failing again.
+        assert StructuredProvider._backoff(1, 17.931) == pytest.approx(17.931)
+
+    def test_a_retry_after_shorter_than_the_schedule_does_not_shorten_it(self) -> None:
+        assert StructuredProvider._backoff(3, 0.1) == 2.0
+
+    def test_an_absurd_retry_after_is_capped(self) -> None:
+        # Better to fail the run and resume later than hold a worker for an hour.
+        assert StructuredProvider._backoff(1, 3600.0) == 60.0

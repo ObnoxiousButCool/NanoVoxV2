@@ -38,7 +38,9 @@ export function Bar({
   value,
   title,
 }: {
-  label: string
+  // A node, not just a string, so a caller can make the label a link without
+  // this module having to know about routing.
+  label: ReactNode
   segments: readonly BarSegment[]
   value: ReactNode
   title?: string | undefined
@@ -47,7 +49,10 @@ export function Bar({
 
   return (
     <div className={styles.row}>
-      <span className={styles.label} title={title ?? label}>
+      <span
+        className={styles.label}
+        title={title ?? (typeof label === 'string' ? label : undefined)}
+      >
         {label}
       </span>
       <span className={styles.track}>

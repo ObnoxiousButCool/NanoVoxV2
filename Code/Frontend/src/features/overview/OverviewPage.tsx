@@ -98,13 +98,33 @@ function ResolutionByAgent({ agents }: { agents: readonly AgentPerformance[] }) 
     return <Note>No agents have been named in an analysed call yet.</Note>
   }
 
+  // Ordered by the figure each row actually shows. An agent below the
+  // significance threshold has no score to sort on — a dash cannot be ranked
+  // against a number — so those fall to the bottom ordered by call count, which
+  // puts the ones closest to earning a rating first. Sorting a copy: the query
+  // cache's array must not be mutated.
+  const ranked = [...agents].sort((a, b) => {
+    if (a.tier && b.tier) {
+      return b.average_score - a.average_score || a.agent_name.localeCompare(b.agent_name)
+    }
+    if (a.tier) return -1
+    if (b.tier) return 1
+    return b.call_count - a.call_count || a.agent_name.localeCompare(b.agent_name)
+  })
+
   return (
     <>
       <BarRows>
-        {agents.map((agent) => (
+        {ranked.map((agent) => (
           <Bar
             key={agent.agent_name}
-            label={`${agent.agent_name} · ${String(agent.call_count)}`}
+            label={
+              // Straight to this agent's calls: the bar shows that something is
+              // wrong, and the next question is always "which calls?".
+              <Link to={`/calls?agent=${encodeURIComponent(agent.agent_name)}`}>
+                {agent.agent_name} · {agent.call_count}
+              </Link>
+            }
             title={
               agent.tier
                 ? `${agent.agent_name}: ${agent.tier}`

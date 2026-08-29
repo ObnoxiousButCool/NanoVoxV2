@@ -8,6 +8,7 @@ unavailable *before* someone pastes a transcript and waits.
 
 from __future__ import annotations
 
+import asyncio
 from collections.abc import Sequence
 from dataclasses import dataclass
 
@@ -50,7 +51,15 @@ class ListProviders:
         self._default = default_name
 
     async def execute(self) -> tuple[ProviderDescription, ...]:
-        return tuple([await self._probe.describe(name) for name in self._names])
+        """Describe every provider, probing them at the same time.
+
+        Serially, the screen waits for the sum of every probe, so one
+        unreachable host makes the whole picker unusable rather than making one
+        row unavailable. Concurrently it waits for the slowest.
+        """
+        return tuple(
+            await asyncio.gather(*(self._probe.describe(name) for name in self._names))
+        )
 
     @property
     def default_name(self) -> str:

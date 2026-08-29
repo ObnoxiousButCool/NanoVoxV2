@@ -24,12 +24,28 @@ function BrokerCard({ broker }: { broker: BrokerScorecard }) {
   return (
     <article className={cx(styles.item, netPositive ? styles.itemLow : styles.itemBroker)}>
       <div>
-        <h4>{broker.broker_name}</h4>
+        <h4>
+          {/* Straight to the calls this broker was named on — the scorecard says
+              what happened, the calls say where. */}
+          <Link className={styles.nameLink} to={`/calls?broker=${encodeURIComponent(broker.broker_name)}`}>
+            {broker.broker_name}
+          </Link>
+        </h4>
         <p className={styles.why}>
           {netPositive
             ? `Net positive: ${String(broker.positive)} of ${String(broker.signals)} signals reflect well on this broker.`
             : `${String(broker.negative)} of ${String(broker.signals)} signals record a failure members reported themselves.`}
         </p>
+        {broker.discarded > 0 ? (
+          // Named on more calls than the count reflects. Said plainly, because a
+          // conduct case that silently under-reports is the worst kind of wrong.
+          <p className={styles.discarded}>
+            {broker.discarded} further attribution{broker.discarded === 1 ? '' : 's'} naming this
+            broker {broker.discarded === 1 ? 'was' : 'were'} discarded because the quoted evidence
+            did not match the transcript, and {broker.discarded === 1 ? 'is' : 'are'} not counted
+            above. Open the call to see the wording that failed.
+          </p>
+        ) : null}
         <div className={styles.meta}>
           <Chip tone={netPositive ? 'low' : 'broker'}>
             {netPositive ? 'Best practice' : 'Conduct review'}
@@ -55,6 +71,7 @@ export function BrokersPage() {
   const { data, isPending, error } = useBrokers()
 
   const totalSignals = data?.reduce((sum, broker) => sum + broker.signals, 0) ?? 0
+  const totalDiscarded = data?.reduce((sum, broker) => sum + broker.discarded, 0) ?? 0
 
   return (
     <>
@@ -72,6 +89,16 @@ export function BrokersPage() {
           A signal is recorded only when the member names the broker in the call, or the member ID
           resolves to a broker of record. Nothing is inferred, and an attribution whose quoted
           evidence does not appear in the transcript is discarded rather than stored.
+          {totalDiscarded > 0 ? (
+            <>
+              {' '}
+              <b>
+                {totalDiscarded} attribution{totalDiscarded === 1 ? '' : 's'} naming a broker below
+                {totalDiscarded === 1 ? ' was' : ' were'} discarded on that rule
+              </b>{' '}
+              and {totalDiscarded === 1 ? 'is' : 'are'} not in any figure on this page.
+            </>
+          ) : null}
         </Alert>
       </div>
 

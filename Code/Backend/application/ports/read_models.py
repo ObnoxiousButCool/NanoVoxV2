@@ -12,6 +12,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from datetime import datetime
+from enum import Enum
 
 
 @dataclass(frozen=True)
@@ -48,6 +49,22 @@ class Page:
         return self.offset + len(self.items) < self.total
 
 
+class CallSort(str, Enum):
+    """A column the calls list may be ordered by.
+
+    An allowlist, not a column name passed through: the value arrives from a
+    query string, and mapping it to a column here is what stops it reaching SQL.
+    """
+
+    SEVERITY = "severity"
+    REFERENCE = "reference"
+    CATEGORY = "category"
+    AGENT = "agent"
+    RESOLUTION = "resolution"
+    SCORE = "score"
+    ANALYSED_AT = "analysed_at"
+
+
 @dataclass(frozen=True)
 class CallFilters:
     """Filters the calls list accepts. All are optional and combine with AND."""
@@ -58,6 +75,7 @@ class CallFilters:
     max_score: int | None = None
     min_score: int | None = None
     has_broker_signal: bool | None = None
+    broker_name: str | None = None
     signal_code: str | None = None
     search: str | None = None
 
@@ -89,6 +107,9 @@ class BrokerAggregate:
     negative: int
     positive: int
     call_references: tuple[str, ...] = field(default_factory=tuple)
+    # Attributions naming this broker that failed evidence checking and were
+    # never stored. Counted so the scorecard can say what it is not showing.
+    discarded: int = 0
 
 
 @dataclass(frozen=True)
@@ -142,7 +163,13 @@ class ReadModelRepository(ABC):
 
     @abstractmethod
     async def list_calls(
-        self, filters: CallFilters, *, limit: int, offset: int, order_by_severity: bool = True
+        self,
+        filters: CallFilters,
+        *,
+        limit: int,
+        offset: int,
+        sort: CallSort = CallSort.SEVERITY,
+        descending: bool = False,
     ) -> Page: ...
 
     @abstractmethod

@@ -4,6 +4,11 @@
  * Unusable providers are listed with the reason rather than hidden (D3): a user
  * whose choice has silently vanished has no idea why, whereas "OPENAI_API_KEY is
  * not set" tells them exactly what to do.
+ *
+ * The provider is chosen here; the model is not. It is shown read-only because it
+ * is a property of the provider's configuration — an editable box invites a typo
+ * that the API would accept as a genuine model name, and on the corpus screen
+ * that mistake is only visible a hundred calls later.
  */
 
 import { useProviders } from '@/shared/api/queries'
@@ -66,26 +71,24 @@ export function ProviderPicker({
       </div>
 
       <div className={styles.field}>
-        <label className={styles.label} htmlFor="model">
+        <span className={styles.label} id="model-label">
           Model
-        </label>
-        <input
-          id="model"
-          className={styles.select}
-          type="text"
-          disabled={disabled}
-          placeholder={active?.model ?? ''}
-          value={selection.model ?? ''}
-          onChange={(event) => {
-            onChange({ provider: chosen, model: event.target.value || null })
-          }}
-        />
+        </span>
+        {/* Shown, not offered. The model belongs to the provider's configuration,
+            and a typo here would reach the API as a real model name — on the
+            corpus screen, a hundred calls after the mistake was made. */}
+        <p className={styles.readOnlyValue} aria-labelledby="model-label">
+          {active?.model ?? '—'}
+        </p>
       </div>
 
       {active && !active.selectable ? (
         <p className={styles.unavailable}>{active.detail ?? 'This provider cannot be used.'}</p>
       ) : (
-        <Note>Leave the model blank to use the provider&rsquo;s configured default.</Note>
+        <Note>
+          The model is set per provider in the backend configuration, so a run cannot be sent to
+          one that was mistyped here.
+        </Note>
       )}
     </>
   )

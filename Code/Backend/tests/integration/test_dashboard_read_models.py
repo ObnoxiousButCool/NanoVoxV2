@@ -13,15 +13,17 @@ from itertools import pairwise
 from pathlib import Path
 
 import pytest
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
 
-from application.ports.read_models import CallFilters
+from application.ports.read_models import CallFilters, CallSort
 from application.use_cases.get_dashboard import (
     GetAgentPerformance,
     GetBrokerScorecard,
     GetOverview,
     GetSignalDistribution,
 )
+from domain.attribution_notes import quote_not_found_note
 from domain.scoring.rubric import Rubric
 from domain.taxonomy import Taxonomy
 from domain.value_objects.resolution import Resolution
@@ -39,6 +41,7 @@ from infrastructure.persistence.engine import create_database_engine, create_ses
 from infrastructure.persistence.models import Base
 from infrastructure.persistence.repositories.analysis_repository import SqlAnalysisRepository
 from infrastructure.persistence.repositories.read_models import SqlReadModelRepository
+from infrastructure.persistence.tables import CallRow
 from tests.support.corpus import (
     ESCALATED_COUNT,
     RESOLVED_COUNT,
@@ -289,6 +292,31 @@ class TestBrokerScorecard:
     def use_case(self, read_models: SqlReadModelRepository) -> GetBrokerScorecard:
         return GetBrokerScorecard(read_models)
 
+    async def test_a_discarded_attribution_is_counted_but_not_scored(
+        self,
+        use_case: GetBrokerScorecard,
+        session_factory: async_sessionmaker[AsyncSession],
+    ) -> None:
+        """The scorecard must admit what it is not showing.
+
+        A rejected attribution never becomes a signal, so without this the
+        broker's record silently under-reports and reads as complete.
+        """
+        async with session_factory() as session:
+            call = await session.scalar(select(CallRow).limit(1))
+            assert call is not None
+            call.rejected_attribution_notes = [
+                quote_not_found_note("Marcus Trent", 1, "words that were never said")
+            ]
+            await session.commit()
+
+        brokers = {row.broker_name: row for row in await use_case.execute()}
+
+        assert brokers["Marcus Trent"].discarded == 1
+        # The count itself must be untouched: a discard is not a signal.
+        assert brokers["Marcus Trent"].signals == 3
+        assert brokers["Patricia Nunez"].discarded == 0
+
     async def test_signals_are_counted_per_broker(self, use_case: GetBrokerScorecard) -> None:
         brokers = {row.broker_name: row for row in await use_case.execute()}
 
@@ -416,6 +444,77 @@ class TestCallsList:
         )
 
         assert page.total == TOTAL_CALLS - 5
+
+    async def test_sorting_by_reference(self, read_models: SqlReadModelRepository) -> None:
+        page = await read_models.list_calls(
+            CallFilters(), limit=50, offset=0, sort=CallSort.REFERENCE
+        )
+
+        references = [item.reference for item in page.items]
+        assert references == sorted(references)
+
+    async def test_sorting_descending_reverses_it(
+        self, read_models: SqlReadModelRepository
+    ) -> None:
+        page = await read_models.list_calls(
+            CallFilters(), limit=50, offset=0, sort=CallSort.REFERENCE, descending=True
+        )
+
+        references = [item.reference for item in page.items]
+        assert references == sorted(references, reverse=True)
+
+    async def test_sorting_by_score(self, read_models: SqlReadModelRepository) -> None:
+        page = await read_models.list_calls(CallFilters(), limit=50, offset=0, sort=CallSort.SCORE)
+
+        scores = [item.score for item in page.items]
+        assert scores == sorted(scores)
+
+    async def test_paging_never_repeats_or_drops_a_call(
+        self, read_models: SqlReadModelRepository
+    ) -> None:
+        """The reason ordering ends with the call id.
+
+        Rows tying on every sort column have no defined order between them, so
+        without a unique final key a row can land on two pages while another
+        lands on none. Sorting by resolution maximises the ties.
+        """
+        seen: list[str] = []
+        for offset in range(0, TOTAL_CALLS, 4):
+            page = await read_models.list_calls(
+                CallFilters(), limit=4, offset=offset, sort=CallSort.RESOLUTION
+            )
+            seen.extend(item.reference for item in page.items)
+
+        assert len(seen) == TOTAL_CALLS
+        assert len(set(seen)) == TOTAL_CALLS
+
+    async def test_calls_without_an_agent_sort_last_by_agent(
+        self, read_models: SqlReadModelRepository
+    ) -> None:
+        # A block of dashes at the top is not what "sort by agent" means.
+        page = await read_models.list_calls(CallFilters(), limit=50, offset=0, sort=CallSort.AGENT)
+
+        named = [item.agent_name for item in page.items]
+        assert named == sorted(named, key=lambda name: (name is None, name or ""))
+
+    async def test_filter_by_broker_name(self, read_models: SqlReadModelRepository) -> None:
+        # Marcus Trent is named on three calls; Patricia Nunez on the other two.
+        page = await read_models.list_calls(
+            CallFilters(broker_name="Marcus Trent"), limit=50, offset=0
+        )
+
+        assert page.total == 3
+        assert all("Marcus Trent" in item.broker_names for item in page.items)
+
+    async def test_an_unknown_broker_name_matches_nothing(
+        self, read_models: SqlReadModelRepository
+    ) -> None:
+        # Not "every call": an unmatched filter must narrow to zero, not be ignored.
+        page = await read_models.list_calls(
+            CallFilters(broker_name="Nobody At All"), limit=50, offset=0
+        )
+
+        assert page.total == 0
 
     async def test_filters_combine(self, read_models: SqlReadModelRepository) -> None:
         page = await read_models.list_calls(

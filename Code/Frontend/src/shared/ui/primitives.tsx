@@ -109,11 +109,18 @@ export function Button({
   variant = 'default',
   className,
   ...props
-}: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: 'default' | 'primary' }) {
+}: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: 'default' | 'primary' | 'danger' }) {
   return (
     <button
       type="button"
-      className={cx(styles.button, variant === 'primary' && styles.buttonPrimary, className)}
+      className={cx(
+        styles.button,
+        variant === 'primary' && styles.buttonPrimary,
+        // 'danger' is for the second press of a destructive action, never the
+        // first: it should look different from the button that armed it.
+        variant === 'danger' && styles.buttonDanger,
+        className,
+      )}
       {...props}
     />
   )

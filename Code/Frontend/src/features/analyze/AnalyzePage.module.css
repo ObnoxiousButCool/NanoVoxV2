@@ -70,6 +70,19 @@
   color: var(--ink);
 }
 
+/* A field that is shown but not offered. Deliberately not a disabled input: a
+   greyed-out box reads as "temporarily unavailable", when this value is simply
+   not the user's to set. */
+.readOnlyValue {
+  margin: 0;
+  padding: 7px 9px;
+  font-size: 12.5px;
+  color: var(--slate);
+  border: 1px dashed var(--rule);
+  border-radius: var(--r);
+  background: var(--canvas, #f6f7f8);
+}
+
 .select:focus {
   outline: 2px solid var(--accent);
   outline-offset: -1px;

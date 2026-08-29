@@ -4,6 +4,49 @@
   flex-wrap: wrap;
 }
 
+/* A filter dropdown in the header row. */
+.dropdown {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font: 600 10px/1 var(--font-body);
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--slate-2);
+}
+
+.dropdown select {
+  font: 400 12.5px/1.2 var(--font-body);
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--ink);
+  padding: 6px 8px;
+  border: 1px solid var(--rule);
+  border-radius: var(--r);
+  background: #fff;
+}
+
+/* A sortable column heading. Styled as the heading it replaces, not as a button:
+   a row of seven buttons would out-shout the data underneath. */
+.sortButton {
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+.sortButton:hover {
+  color: var(--ink);
+}
+
+.sortActive {
+  color: var(--ink);
+}
+
 .active {
   background: var(--accent);
   color: #fff;

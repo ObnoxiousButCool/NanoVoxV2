@@ -150,6 +150,19 @@ class SqlAnalysisRepository(AnalysisRepository):
             await session.delete(row)
             return True
 
+    async def delete_all(self) -> int:
+        """Remove every call. Ground truth is deliberately left alone.
+
+        Rows are deleted through the ORM rather than by a bulk statement so the
+        configured cascades run for every child table, exactly as the
+        single-reference delete above does.
+        """
+        async with self._session_factory() as session, session.begin():
+            rows = (await session.scalars(select(CallRow))).all()
+            for row in rows:
+                await session.delete(row)
+            return len(rows)
+
     def _to_domain(self, row: CallRow) -> CallAnalysis:
         return CallAnalysis(
             reference=row.reference,

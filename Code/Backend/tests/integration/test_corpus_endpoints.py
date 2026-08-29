@@ -28,6 +28,7 @@ from tests.support.settings import make_settings
 CORPUS_SIZE = 3
 CORPUS = "/api/v1/corpus"
 RUNS = f"{CORPUS}/runs"
+ANALYSES = f"{CORPUS}/analyses"
 
 TRANSCRIPT = (
     "Agent Brad: Choice Administrators, Brad.\n"
@@ -306,6 +307,50 @@ class TestCancelAndResume:
 
     def test_cancelling_a_run_that_does_not_exist_is_a_404(self, client: TestClient) -> None:
         assert client.post(f"{RUNS}/4242/cancel").status_code == 404
+
+
+class TestClearingTheCorpus:
+    def test_it_removes_every_analysed_call_and_run(self, client: TestClient) -> None:
+        run_id = start(client)["id"]
+        wait_for_finish(client, run_id)
+        assert client.get(CORPUS).json()["analysed_calls"] == CORPUS_SIZE
+
+        response = client.delete(ANALYSES)
+
+        assert response.status_code == 200
+        assert response.json()["calls"] == CORPUS_SIZE
+        assert response.json()["runs"] == 1
+        assert client.get(CORPUS).json()["analysed_calls"] == 0
+        assert client.get(RUNS).json() == []
+
+    def test_the_corpus_itself_is_untouched(self, client: TestClient) -> None:
+        # Clearing empties the database, not the folder of transcripts.
+        run_id = start(client)["id"]
+        wait_for_finish(client, run_id)
+
+        client.delete(ANALYSES)
+
+        body = client.get(CORPUS).json()
+        assert body["total_calls"] == CORPUS_SIZE
+        assert body["outstanding"] == CORPUS_SIZE
+
+    def test_it_is_refused_while_a_run_is_working(self, client: TestClient) -> None:
+        # The worker is mid-write; deleting under it would race.
+        GatedProvider.gate.clear()
+        run_id = start(client)["id"]
+
+        response = client.delete(ANALYSES)
+
+        assert response.status_code == 409
+        GatedProvider.gate.set()
+        wait_for_finish(client, run_id)
+
+    def test_clearing_an_empty_corpus_is_not_an_error(self, client: TestClient) -> None:
+        # The button must not punish a second press.
+        response = client.delete(ANALYSES)
+
+        assert response.status_code == 200
+        assert response.json() == {"calls": 0, "runs": 0, "ground_truth_kept": True}
 
 
 class TestReadingRuns:

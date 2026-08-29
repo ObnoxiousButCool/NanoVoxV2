@@ -133,6 +133,11 @@ export async function postJson<T>(
   )
 }
 
+/** Issue a DELETE against the API and parse the JSON response. */
+export async function deleteJson<T>(path: string, options: RequestOptions = {}): Promise<T> {
+  return request<T>(path, { method: 'DELETE', headers: { Accept: 'application/json' } }, options)
+}
+
 /** Issue a GET against the API and parse the JSON response. */
 export async function getJson<T>(path: string, options: RequestOptions = {}): Promise<T> {
   return request<T>(path, { method: 'GET', headers: { Accept: 'application/json' } }, options)

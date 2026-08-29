@@ -19,6 +19,7 @@ same reason the L5 panel shows a missing trigger as a finding.
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 from typing import Any
 
@@ -28,6 +29,11 @@ from application.ports.clock import Clock
 from application.ports.llm_provider import LLMProvider, LlmRequest, StructuredResult, TokenUsage
 from application.ports.prompts import PromptSource
 from application.ports.redaction import RedactionPort
+from domain.attribution_notes import (
+    broker_name_in,
+    missing_turn_note,
+    quote_not_found_note,
+)
 from domain.entities.analysis import (
     AnalysisLayer,
     AnalysisSource,
@@ -157,6 +163,7 @@ class AnalyzeTranscript:
             transcript=rendered,
             context=context,
             l4_categories=self._describe_l4_categories(),
+            correction="",
         )
         layers.append(_layer(Layer.L4, l4) if l4 else _unavailable(Layer.L4, l4_error))
 
@@ -170,6 +177,10 @@ class AnalyzeTranscript:
         # present is not enough: a model that has no broker to report will fill it
         # with a plausible-looking placeholder.
         attributions = _validated_attributions(_broker_signals(l4), transcript)
+        if attributions.rejected and l4 is not None:
+            attributions = await self._repair_attributions(
+                provider, attributions, transcript, usage, rendered, context
+            )
 
         finished = self._clock.now()
         analysis = CallAnalysis(
@@ -240,6 +251,56 @@ class AnalyzeTranscript:
         usage.add(result.usage)
         payload = result.value.model_dump()
         return dict(payload)
+
+    async def _repair_attributions(
+        self,
+        provider: LLMProvider,
+        first: _Attributions,
+        transcript: Transcript,
+        usage: _UsageTally,
+        rendered: str,
+        context: str,
+    ) -> _Attributions:
+        """Ask once more for attributions whose quote did not match.
+
+        The evidence rule is not relaxed here — the second answer is validated
+        exactly as the first. What changes is that the model is told which quote
+        failed and shown the turn it was supposed to be copying, which is the
+        difference between a model that elided a few words and a model that
+        invented them. Only the first is recoverable, and only by asking again.
+
+        A failure to repair is not a failure of the call: the original rejections
+        stand and the analysis continues.
+        """
+        l4, _ = await self._try_run(
+            provider,
+            L4_PROMPT,
+            self._schemas.l4,
+            usage,
+            transcript=rendered,
+            context=context,
+            l4_categories=self._describe_l4_categories(),
+            correction=_attribution_correction(first.rejected, transcript),
+        )
+        if l4 is None:
+            return first
+
+        second = _validated_attributions(_broker_signals(l4), transcript)
+
+        # Union, not replacement: the retry must not cost us an attribution the
+        # first pass had already evidenced properly.
+        accepted = list(first.accepted)
+        seen = {_attribution_key(signal) for signal in accepted}
+        for signal in second.accepted:
+            if _attribution_key(signal) not in seen:
+                accepted.append(signal)
+                seen.add(_attribution_key(signal))
+
+        recovered = {signal.broker_name for signal in second.accepted}
+        rejected = tuple(
+            note for note in first.rejected if (broker_name_in(note) or "") not in recovered
+        )
+        return _Attributions(accepted=tuple(accepted), rejected=rejected)
 
     async def _try_run(
         self,
@@ -408,19 +469,56 @@ def _validated_attributions(
     for signal in signals:
         turn = transcript.turn(signal.evidence_turn_seq)
         if turn is None:
-            rejected.append(
-                f"Attribution to {signal.broker_name!r} cites turn "
-                f"{signal.evidence_turn_seq}, which does not exist."
-            )
+            rejected.append(missing_turn_note(signal.broker_name, signal.evidence_turn_seq))
         elif not turn.contains(signal.quote):
             rejected.append(
-                f"Attribution to {signal.broker_name!r} quotes text that does not appear "
-                f"in turn {signal.evidence_turn_seq}: {signal.quote!r}"
+                quote_not_found_note(signal.broker_name, signal.evidence_turn_seq, signal.quote)
             )
         else:
             accepted.append(signal)
 
     return _Attributions(accepted=tuple(accepted), rejected=tuple(rejected))
+
+
+def _attribution_key(signal: BrokerSignal) -> tuple[str, int, str]:
+    return (signal.broker_name, signal.evidence_turn_seq, signal.quote)
+
+
+def _attribution_correction(rejected: tuple[str, ...], transcript: Transcript) -> str:
+    """Tell the model exactly which quote failed, and show it the turn to copy."""
+    lines = [
+        "",
+        "CORRECTION — your previous broker_signals were rejected because their",
+        "quotes did not appear verbatim in the turn they cited:",
+        "",
+    ]
+    lines.extend(f"- {note}" for note in rejected)
+    lines.extend(
+        [
+            "",
+            "The exact text of those turns is:",
+            "",
+        ]
+    )
+    for seq in sorted(set(_cited_turns(rejected))):
+        turn = transcript.turn(seq)
+        if turn is not None:
+            lines.append(f"  turn {seq}: {turn.text}")
+    lines.extend(
+        [
+            "",
+            "Re-issue every broker signal you still believe is supported, quoting one",
+            "unbroken run of characters copied from the turn above — no words skipped",
+            "from the middle, no punctuation changed at either end. If no continuous",
+            "span supports the attribution, omit that broker entirely.",
+        ]
+    )
+    return "\n".join(lines)
+
+
+def _cited_turns(rejected: tuple[str, ...]) -> tuple[int, ...]:
+    """The turn numbers named in rejection notes, which this module wrote."""
+    return tuple(int(match) for note in rejected for match in re.findall(r"turn (\d+)", note))
 
 
 def _broker_signals(payload: dict[str, Any] | None) -> tuple[BrokerSignal, ...]:

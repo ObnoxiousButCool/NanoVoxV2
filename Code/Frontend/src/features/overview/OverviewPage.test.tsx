@@ -194,6 +194,18 @@ describe('OverviewPage', () => {
     expect(screen.getByText('81')).toBeInTheDocument()
   })
 
+  it('ranks rated agents by score, and unrated ones by call count below them', async () => {
+    // Sarah is rated (81) so she leads; Priya shows a dash and cannot be ranked
+    // against a number, so she falls below regardless of her higher average.
+    renderOverview()
+
+    await screen.findByText('Sarah · 5')
+    const labels = screen
+      .getAllByText(/^(Priya|Sarah) · \d+$/)
+      .map((node) => node.textContent)
+    expect(labels).toEqual(['Sarah · 5', 'Priya · 1'])
+  })
+
   it('shows an owner carrying no signals as a dash', async () => {
     renderOverview()
 

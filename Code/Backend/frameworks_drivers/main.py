@@ -109,7 +109,11 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         CORSMiddleware,
         allow_origins=resolved.cors_origin_list,
         allow_credentials=False,
-        allow_methods=["GET", "POST", "OPTIONS"],
+        # DELETE is here for clearing the corpus. It is not a CORS-safelisted
+        # method, so omitting it does not fail at the server: the browser blocks
+        # the request after the preflight and the caller sees a network error
+        # for a server it never actually reached.
+        allow_methods=["GET", "POST", "DELETE", "OPTIONS"],
         allow_headers=["*"],
         expose_headers=[CORRELATION_ID_HEADER],
     )

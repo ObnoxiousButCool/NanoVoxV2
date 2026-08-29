@@ -41,6 +41,10 @@ DETERMINISTIC_TEMPERATURE = 0.0
 
 _BACKOFF_BASE_SECONDS = 0.5
 _BACKOFF_CAP_SECONDS = 8.0
+# A provider-supplied Retry-After may exceed the blind-backoff ceiling; a token
+# bucket that refills in 20s is normal. Capped separately so honouring the
+# provider cannot stall a worker indefinitely on an absurd value.
+_RETRY_AFTER_CAP_SECONDS = 60.0
 
 OUTCOME_OK = "ok"
 OUTCOME_INVALID_SCHEMA = "invalid_schema"
@@ -110,11 +114,11 @@ class StructuredProvider(LLMProvider):
                     OUTCOME_UNAVAILABLE,
                     started,
                     TokenUsage.unreported(),
-                    exc.message,
+                    _detail_of(exc),
                 )
                 if attempts > self._max_retries:
                     raise
-                await asyncio.sleep(self._backoff(attempts))
+                await asyncio.sleep(self._backoff(attempts, exc.retry_after))
                 continue
 
             try:
@@ -183,11 +187,33 @@ class StructuredProvider(LLMProvider):
         )
 
     @staticmethod
-    def _backoff(attempt: int) -> float:
-        return float(min(_BACKOFF_BASE_SECONDS * 2.0 ** (attempt - 1), _BACKOFF_CAP_SECONDS))
+    def _backoff(attempt: int, retry_after: float | None = None) -> float:
+        """How long to wait before the next transport attempt.
+
+        A provider that told us when to come back is believed over the local
+        schedule, because it is the only party that knows when its bucket
+        refills. Its figure is still capped: a wait longer than the ceiling means
+        the run should fail and be resumed later rather than hold a worker idle.
+        """
+        scheduled = min(_BACKOFF_BASE_SECONDS * 2.0 ** (attempt - 1), _BACKOFF_CAP_SECONDS)
+        if retry_after is None:
+            return float(scheduled)
+        return float(max(scheduled, min(retry_after, _RETRY_AFTER_CAP_SECONDS)))
 
     def output_token_budget(self, request: LlmRequest[TModel]) -> int:
         return request.max_output_tokens or self._max_output_tokens
+
+
+def _detail_of(error: ProviderUnavailableError) -> str:
+    """The audit record's detail line for a transport failure.
+
+    The message alone says only that a request failed; the provider's body says
+    *why*, and a 429 that means "out of credit" needs a different response from
+    one that means "slow down". Both are kept.
+    """
+    if error.detail and error.detail != error.message:
+        return f"{error.message} {error.detail}"
+    return error.message
 
 
 def _summarise(error: PydanticValidationError) -> str:

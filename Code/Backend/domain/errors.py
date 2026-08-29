@@ -64,9 +64,24 @@ class ProviderUnavailableError(DependencyUnavailableError):
 
     Distinct from a bad response: the request never produced an answer, so
     retrying it is meaningful.
+
+    ``retry_after`` carries the provider's own instruction, in seconds, when it
+    sent one. A rate limiter knows when its bucket refills and blind backoff does
+    not, so honouring it is the difference between waiting once and burning every
+    remaining attempt against a window that was never going to open in time.
     """
 
     code = "provider_unavailable"
+
+    def __init__(
+        self,
+        message: str,
+        *,
+        detail: str | None = None,
+        retry_after: float | None = None,
+    ) -> None:
+        super().__init__(message, detail=detail)
+        self.retry_after = retry_after
 
 
 class ProviderResponseError(NanoVoxError):

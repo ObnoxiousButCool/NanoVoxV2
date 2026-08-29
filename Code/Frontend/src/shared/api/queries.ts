@@ -11,6 +11,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   analyzeTranscript,
   cancelRun,
+  clearCorpus,
   fetchAgents,
   fetchBrokers,
   fetchCall,
@@ -157,6 +158,26 @@ export function useCancelRun() {
 
 export function useResumeRun() {
   return useRunMutation<number>(resumeRun)
+}
+
+/**
+ * Discard every analysed call.
+ *
+ * Invalidates the same keys a finished run does, and for the same reason: the
+ * calls are gone, so every dashboard figure counted from them is now wrong.
+ */
+export function useClearCorpus() {
+  const client = useQueryClient()
+
+  return useMutation({
+    mutationFn: clearCorpus,
+    onSuccess: () => {
+      client.removeQueries({ queryKey: queryKeys.corpus })
+      void client.invalidateQueries({ queryKey: ['calls'] })
+      void client.invalidateQueries({ queryKey: ['dashboard'] })
+      void client.invalidateQueries({ queryKey: queryKeys.corpus })
+    },
+  })
 }
 
 /** Called when a run finishes: every figure counted from calls is now stale. */

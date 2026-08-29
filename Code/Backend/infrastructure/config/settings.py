@@ -73,6 +73,11 @@ class Settings(BaseSettings):
     # --- Model providers ---------------------------------------------------
     llm_provider: str = "ollama"
     llm_timeout_seconds: float = Field(default=120.0, gt=0)
+    # Deliberately not llm_timeout_seconds. That budget is for generating a
+    # five-layer analysis; asking whether a provider is alive must answer in the
+    # time a person will wait for a dropdown, and an unreachable host must not
+    # hold the picker hostage for two minutes.
+    llm_probe_timeout_seconds: float = Field(default=5.0, gt=0, le=60)
     llm_max_retries: int = Field(default=2, ge=0, le=10)
     llm_max_output_tokens: int = Field(default=4096, ge=256, le=128_000)
 

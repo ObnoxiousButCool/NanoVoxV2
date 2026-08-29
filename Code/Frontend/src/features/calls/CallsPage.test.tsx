@@ -1,5 +1,5 @@
 import { QueryClient } from '@tanstack/react-query'
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
@@ -44,6 +44,20 @@ function json(body: unknown): Response {
   })
 }
 
+/** What the filter dropdowns are populated from. */
+const TAXONOMY = {
+  categories: [{ code: 'billing', label: 'Billing', description: null }],
+  l4_categories: [],
+  signal_types: [{ code: 'clinical_risk', label: 'Clinical Risk', severity: 'CRITICAL' }],
+  sentiment_states: [],
+  resolutions: ['RESOLVED', 'UNRESOLVED'],
+  severities: [],
+  tiers: { good: 85, average: 70, min_calls_for_tier_rating: 5 },
+  rubric_version: '1.0.0',
+}
+const AGENT_OPTIONS = [{ agent_name: 'Sarah', call_count: 5 }]
+const BROKER_OPTIONS = [{ broker_name: 'Marcus Trent', signals: 4 }]
+
 /** Records every requested URL so filters can be asserted on the query itself. */
 function stubCalls(body: unknown) {
   const urls: string[] = []
@@ -51,6 +65,11 @@ function stubCalls(body: unknown) {
     'fetch',
     vi.fn((url: string) => {
       urls.push(url)
+      // The dropdowns are populated from live data, so the page fetches these
+      // alongside the calls themselves.
+      if (url.includes('/taxonomy')) return Promise.resolve(json(TAXONOMY))
+      if (url.includes('/dashboard/agents')) return Promise.resolve(json(AGENT_OPTIONS))
+      if (url.includes('/dashboard/brokers')) return Promise.resolve(json(BROKER_OPTIONS))
       return Promise.resolve(json(body))
     }),
   )
@@ -78,10 +97,12 @@ describe('CallsPage', () => {
     renderCalls()
 
     expect(await screen.findByText('F0006')).toBeInTheDocument()
-    expect(screen.getByText('Brad')).toBeInTheDocument()
-    expect(screen.getByText('UNRESOLVED')).toBeInTheDocument()
-    expect(screen.getByText('30')).toBeInTheDocument()
-    expect(screen.getByText('clinical risk')).toBeInTheDocument()
+    // Scoped to the table: 'UNRESOLVED' is also an option in the Outcome filter.
+    const rows = within(screen.getAllByRole('rowgroup')[1] as HTMLElement)
+    expect(rows.getByText('Brad')).toBeInTheDocument()
+    expect(rows.getByText('UNRESOLVED')).toBeInTheDocument()
+    expect(rows.getByText('30')).toBeInTheDocument()
+    expect(rows.getByText('clinical risk')).toBeInTheDocument()
   })
 
   it('marks a withheld score rather than printing it as fact', async () => {
@@ -199,5 +220,132 @@ describe('CallsPage', () => {
     renderCalls()
 
     expect(await screen.findByText(/Could not load the call list/)).toBeInTheDocument()
+  })
+
+  /** Presses a column heading. Scoped to the header: the quick-filter button
+   *  'Score under 65' also starts with 'Score'. */
+  async function sortBy(label: string) {
+    const header = screen.getByRole('columnheader', { name: new RegExp(`^${label}`) })
+    await userEvent.click(within(header).getByRole('button'))
+  }
+
+  describe('sorting', () => {
+    it('asks the API to sort when a column heading is pressed', async () => {
+      const urls = stubCalls(page([call()]))
+      renderCalls()
+      await screen.findByText('F0006')
+
+      await sortBy('Score')
+
+      await waitFor(() => {
+        expect(urls.some((url) => url.includes('sort=score'))).toBe(true)
+      })
+      expect(urls.at(-1)).toContain('direction=asc')
+    })
+
+    it('flips direction when the active column is pressed again', async () => {
+      const urls = stubCalls(page([call()]))
+      renderCalls()
+      await screen.findByText('F0006')
+
+      await sortBy('Score')
+      await waitFor(() => {
+        expect(urls.some((url) => url.includes('sort=score'))).toBe(true)
+      })
+      await sortBy('Score')
+
+      await waitFor(() => {
+        expect(urls.at(-1)).toContain('direction=desc')
+      })
+    })
+
+    it('starts a newly chosen column ascending rather than inheriting a direction', async () => {
+      // Carrying 'desc' over from an unrelated column reads as a broken sort.
+      const urls = stubCalls(page([call()]))
+      renderCalls()
+      await screen.findByText('F0006')
+
+      await sortBy('Score')
+      await sortBy('Score')
+      await waitFor(() => {
+        expect(urls.at(-1)).toContain('direction=desc')
+      })
+      await sortBy('Agent')
+
+      await waitFor(() => {
+        expect(urls.at(-1)).toContain('sort=agent')
+      })
+      expect(urls.at(-1)).toContain('direction=asc')
+    })
+
+    it('tells assistive technology which column is sorted', async () => {
+      stubCalls(page([call()]))
+      renderCalls()
+      await screen.findByText('F0006')
+
+      await sortBy('Score')
+
+      await waitFor(() => {
+        expect(screen.getByRole('columnheader', { name: /^Score/ })).toHaveAttribute(
+          'aria-sort',
+          'ascending',
+        )
+      })
+    })
+  })
+
+  describe('filter dropdowns', () => {
+    it('narrows the query by category', async () => {
+      const urls = stubCalls(page([call()]))
+      renderCalls()
+      await screen.findByText('F0006')
+
+      await userEvent.selectOptions(screen.getByLabelText('Category'), 'billing')
+
+      await waitFor(() => {
+        expect(urls.at(-1)).toContain('category=billing')
+      })
+    })
+
+    it('narrows the query by signal type', async () => {
+      const urls = stubCalls(page([call()]))
+      renderCalls()
+      await screen.findByText('F0006')
+
+      await userEvent.selectOptions(screen.getByLabelText('Signal'), 'clinical_risk')
+
+      await waitFor(() => {
+        expect(urls.at(-1)).toContain('signal=clinical_risk')
+      })
+    })
+
+    it('narrows the query by broker', async () => {
+      const urls = stubCalls(page([call()]))
+      renderCalls()
+      await screen.findByText('F0006')
+
+      await userEvent.selectOptions(screen.getByLabelText('Broker'), 'Marcus Trent')
+
+      await waitFor(() => {
+        expect(urls.at(-1)).toContain('broker=Marcus')
+      })
+    })
+
+    it('drops the parameter entirely when set back to All', async () => {
+      // An empty value must not be sent as `category=`, which filters on nothing.
+      const urls = stubCalls(page([call()]))
+      renderCalls()
+      await screen.findByText('F0006')
+
+      await userEvent.selectOptions(screen.getByLabelText('Category'), 'billing')
+      await waitFor(() => {
+        expect(urls.at(-1)).toContain('category=billing')
+      })
+      await userEvent.selectOptions(screen.getByLabelText('Category'), '')
+
+      await waitFor(() => {
+        expect(urls.at(-1)).not.toContain('category')
+      })
+    })
   })
 })

@@ -75,7 +75,9 @@ class AnthropicProvider(StructuredProvider):
             )
         except anthropic.APIStatusError as exc:
             raise ProviderUnavailableError(
-                f"Anthropic returned HTTP {exc.status_code}.", detail=str(exc)
+                f"Anthropic returned HTTP {exc.status_code}.",
+                detail=str(exc),
+                retry_after=_retry_after_of(exc),
             ) from exc
         except anthropic.APIConnectionError as exc:
             raise ProviderUnavailableError(
@@ -132,3 +134,18 @@ def _usage_of(response: object) -> TokenUsage:
     if isinstance(input_tokens, int) and isinstance(output_tokens, int):
         return TokenUsage(input_tokens=input_tokens, output_tokens=output_tokens)
     return TokenUsage.unreported()
+
+
+def _retry_after_of(error: anthropic.APIStatusError) -> float | None:
+    """When Anthropic says to come back, in seconds.
+
+    Anthropic sends a plain integer ``retry-after`` on a 429, so unlike OpenAI
+    there is no duration grammar to parse.
+    """
+    headers = getattr(getattr(error, "response", None), "headers", None)
+    if headers is None:
+        return None
+    try:
+        return float(headers.get("retry-after"))
+    except (TypeError, ValueError):
+        return None

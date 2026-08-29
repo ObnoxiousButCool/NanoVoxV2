@@ -30,6 +30,17 @@ const PROVIDERS = {
       is_default: false,
       detail: "Provider 'openai' was selected but OPENAI_API_KEY is not set.",
     },
+    {
+      // A second *usable* provider, so switching between them is testable.
+      name: 'anthropic',
+      model: 'claude-opus-5',
+      configured: true,
+      reachable: true,
+      implemented: true,
+      selectable: true,
+      is_default: false,
+      detail: null,
+    },
   ],
 }
 
@@ -137,14 +148,16 @@ describe('AnalyzePage', () => {
     expect(await screen.findByRole('heading', { name: 'Call detail' })).toBeInTheDocument()
   })
 
-  it('sends the chosen provider and model', async () => {
+  it('sends the chosen provider and no model override', async () => {
+    // The model belongs to the provider's configuration, so the request names
+    // the provider and leaves the model to the backend.
     const user = userEvent.setup()
     const fetchFn = stubApi(() => Promise.resolve(json({ id: 7 }, 201)))
     renderPage()
 
     await user.type(screen.getByLabelText('Transcript'), TRANSCRIPT)
     await screen.findByRole('option', { name: /ollama/ })
-    await user.type(screen.getByLabelText('Model'), 'llama3.1:latest')
+    await user.selectOptions(screen.getByLabelText('Provider'), 'ollama')
     await user.click(screen.getByRole('button', { name: 'Analyze' }))
 
     await waitFor(() => {
@@ -156,8 +169,28 @@ describe('AnalyzePage', () => {
         unknown
       >
       expect(body['provider']).toBe('ollama')
-      expect(body['model']).toBe('llama3.1:latest')
+      expect(body['model']).toBeNull()
     })
+  })
+
+  it('shows the model but offers no way to type one', async () => {
+    // A typo here would reach the API as a real model name.
+    renderPage()
+
+    await screen.findByRole('option', { name: /ollama/ })
+
+    expect(screen.getByText('qwen2.5:7b-instruct')).toBeInTheDocument()
+    expect(screen.queryByRole('textbox', { name: 'Model' })).not.toBeInTheDocument()
+  })
+
+  it('shows the model of whichever provider is chosen', async () => {
+    const user = userEvent.setup()
+    renderPage()
+
+    await screen.findByRole('option', { name: /ollama/ })
+    await user.selectOptions(screen.getByLabelText('Provider'), 'anthropic')
+
+    expect(await screen.findByText('claude-opus-5')).toBeInTheDocument()
   })
 
   it('explains a failed analysis with its correlation id', async () => {

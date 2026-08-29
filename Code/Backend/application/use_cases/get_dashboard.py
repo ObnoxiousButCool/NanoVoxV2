@@ -109,6 +109,7 @@ class BrokerScorecardEntry:
     negative: int
     positive: int
     call_references: tuple[str, ...]
+    discarded: int = 0
 
     @property
     def is_net_positive(self) -> bool:
@@ -296,6 +297,7 @@ class GetBrokerScorecard:
             negative=row.negative,
             positive=row.positive,
             call_references=row.call_references,
+            discarded=row.discarded,
         )
 
 

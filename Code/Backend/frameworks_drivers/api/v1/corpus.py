@@ -25,6 +25,7 @@ from domain.aggregation.run_progress import RunProgress
 from domain.entities.corpus_run import CorpusRun, CorpusRunItem
 from frameworks_drivers.api.dependencies import (
     CancelCorpusRunDep,
+    ClearCorpusDep,
     ContainerDep,
     CorpusStatusDep,
     GetCorpusRunDep,
@@ -180,6 +181,33 @@ def _status_response(status_: CorpusStatus) -> CorpusStatusResponse:
 )
 async def corpus_status(use_case: CorpusStatusDep) -> CorpusStatusResponse:
     return _status_response(await use_case.execute())
+
+
+class ClearedCorpusResponse(BaseModel):
+    calls: int = Field(description="Analysed calls removed.")
+    runs: int = Field(description="Corpus run records removed, with their items.")
+    ground_truth_kept: bool = Field(
+        default=True,
+        description=(
+            "Always true. Ground truth is hand-labelled and cannot be regenerated "
+            "by re-analysis, so it is never part of a clear."
+        ),
+    )
+
+
+@router.delete(
+    "/corpus/analyses",
+    response_model=ClearedCorpusResponse,
+    summary="Discard every analysed call, keeping ground truth",
+)
+async def clear_corpus(use_case: ClearCorpusDep) -> ClearedCorpusResponse:
+    """Empty the corpus so it can be re-analysed from nothing.
+
+    Refused with a 409 while a run is working: the worker would be writing to
+    rows this is deleting.
+    """
+    cleared = await use_case.execute()
+    return ClearedCorpusResponse(calls=cleared.calls, runs=cleared.runs)
 
 
 @router.post(

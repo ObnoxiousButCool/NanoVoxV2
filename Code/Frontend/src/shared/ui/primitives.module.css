@@ -124,6 +124,18 @@
   border-color: var(--accent);
 }
 
+/* The confirming press of a destructive action. Deliberately unlike the primary
+   button: this one does not start work, it destroys it. */
+.buttonDanger {
+  background: var(--danger, #b3261e);
+  color: #fff;
+  border-color: var(--danger, #b3261e);
+}
+
+.buttonDanger:disabled {
+  opacity: 0.65;
+}
+
 .alert {
   border-radius: var(--r);
   padding: 12px 14px;

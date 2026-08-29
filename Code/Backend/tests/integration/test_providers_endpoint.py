@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import asyncio
+import time
 from typing import Any
 
 import httpx2 as httpx
@@ -126,3 +128,43 @@ def test_listing_providers_survives_an_unreachable_ollama(
     ollama = next(entry for entry in body["providers"] if entry["name"] == "ollama")
     assert ollama["reachable"] is False
     assert ollama["selectable"] is False
+
+
+class _SlowProbe(ProviderProbe):
+    """One provider that never answers, the rest instant."""
+
+    def __init__(self, slow: str, delay: float) -> None:
+        self._slow = slow
+        self._delay = delay
+        self.started: list[str] = []
+
+    async def describe(self, name: str) -> ProviderDescription:
+        self.started.append(name)
+        if name == self._slow:
+            await asyncio.sleep(self._delay)
+        return _description(name)
+
+
+async def test_providers_are_probed_at_the_same_time_not_one_after_another() -> None:
+    """One unreachable host must cost one probe's wait, not the sum of all of them.
+
+    Serially, an unreachable Ollama held the whole list until its socket gave up,
+    and the picker showed "Checking which providers…" the entire time — which is
+    indistinguishable from a broken screen.
+    """
+    delay = 0.3
+    probe = _SlowProbe("ollama", delay)
+    use_case = ListProviders(
+        probe=probe, names=("ollama", "openai", "anthropic"), default_name="openai"
+    )
+
+    started = time.perf_counter()
+    result = await use_case.execute()
+    elapsed = time.perf_counter() - started
+
+    assert len(result) == 3
+    # Serial would be at least the delay plus the others; concurrent is one delay.
+    assert elapsed < delay * 2
+    # Order is still the registry's, not completion order: the picker must not
+    # reshuffle itself depending on which host answered first.
+    assert [item.name for item in result] == ["ollama", "openai", "anthropic"]

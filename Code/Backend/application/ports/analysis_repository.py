@@ -35,3 +35,12 @@ class AnalysisRepository(ABC):
     @abstractmethod
     async def delete_by_reference(self, reference: str) -> bool:
         """Remove a stored call by reference; report whether one was there."""
+
+    @abstractmethod
+    async def delete_all(self) -> int:
+        """Remove every stored call, returning how many went.
+
+        Ground truth is untouched: it is hand-labelled reference data that no
+        re-analysis can regenerate, and it is keyed by reference rather than by
+        a foreign key, so nothing cascades into it.
+        """

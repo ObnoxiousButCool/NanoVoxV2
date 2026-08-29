@@ -5,7 +5,7 @@
  * the response type are decided once, together.
  */
 
-import { getJson, postJson } from '@/shared/api/client'
+import { deleteJson, getJson, postJson } from '@/shared/api/client'
 import { getConfig } from '@/shared/config/env'
 import type {
   AgentPerformance,
@@ -32,11 +32,26 @@ export interface CallFilters {
   readonly max_score?: number
   readonly min_score?: number
   readonly has_broker_signal?: boolean
+  readonly broker?: string
   readonly signal?: string
   readonly search?: string
   readonly limit?: number
   readonly offset?: number
+  readonly sort?: CallSortKey
+  readonly direction?: 'asc' | 'desc'
 }
+
+/** Columns the API will order the calls list by. */
+export const CALL_SORTS = [
+  'severity',
+  'reference',
+  'category',
+  'agent',
+  'resolution',
+  'score',
+  'analysed_at',
+] as const
+export type CallSortKey = (typeof CALL_SORTS)[number]
 
 export interface AnalyzeRequest {
   readonly transcript: string
@@ -128,6 +143,18 @@ export function cancelRun(runId: number): Promise<CorpusRun> {
 
 export function resumeRun(runId: number): Promise<CorpusRun> {
   return postJson<CorpusRun>(`/corpus/runs/${String(runId)}/resume`, {})
+}
+
+export interface ClearedCorpus {
+  readonly calls: number
+  readonly runs: number
+  readonly ground_truth_kept: boolean
+}
+
+/** Discard every analysed call. Ground truth is kept; the API refuses with 409
+ *  while a run is working. */
+export function clearCorpus(): Promise<ClearedCorpus> {
+  return deleteJson<ClearedCorpus>('/corpus/analyses')
 }
 
 /** Absolute URL of a run's progress stream, for `EventSource`. */

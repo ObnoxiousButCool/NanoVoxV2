@@ -16,6 +16,7 @@ import { Link } from 'react-router-dom'
 
 import { ProviderPicker, type ProviderSelection } from '@/features/analyze/ProviderPicker'
 import { useRunStream } from '@/features/corpus/useRunStream'
+import { ApiError } from '@/shared/api/client'
 import {
   useCancelRun,
   useCorpusStatus,
@@ -24,6 +25,7 @@ import {
   useResumeRun,
   useRun,
   useRuns,
+  useClearCorpus,
   useStartRun,
 } from '@/shared/api/queries'
 import type { CorpusRun, CorpusRunItem, RunProgress } from '@/shared/api/types'
@@ -198,6 +200,7 @@ export function CorpusPage() {
   const runs = useRuns()
   const providers = useProviders()
   const start = useStartRun()
+  const clear = useClearCorpus()
   const resume = useResumeRun()
   const refreshAfterRun = useRefreshAfterRun()
 
@@ -205,6 +208,10 @@ export function CorpusPage() {
   const [force, setForce] = useState(false)
   const [acknowledged, setAcknowledged] = useState(false)
   const [watchedId, setWatchedId] = useState<number | null>(null)
+  // Clearing is irreversible and cannot be undone from this screen, so the
+  // button arms first and acts second. One stray click must not empty the
+  // corpus.
+  const [confirmingClear, setConfirmingClear] = useState(false)
 
   const activeId = status.data?.active_run_id ?? null
   const shownId = watchedId ?? activeId ?? runs.data?.[0]?.id ?? null
@@ -310,6 +317,41 @@ export function CorpusPage() {
               {start.isPending ? 'Starting…' : 'Analyse the corpus'}
             </Button>
             {activeId !== null ? <Note>A run is already in progress.</Note> : null}
+            {confirmingClear ? (
+              <>
+                <Button
+                  variant="danger"
+                  disabled={clear.isPending}
+                  onClick={() => {
+                    clear.mutate(undefined, {
+                      onSuccess: () => {
+                        setConfirmingClear(false)
+                        setWatchedId(null)
+                      },
+                    })
+                  }}
+                >
+                  {clear.isPending ? 'Clearing…' : 'Yes, delete every analysis'}
+                </Button>
+                <Button
+                  disabled={clear.isPending}
+                  onClick={() => {
+                    setConfirmingClear(false)
+                  }}
+                >
+                  Cancel
+                </Button>
+              </>
+            ) : (
+              <Button
+                disabled={activeId !== null || status.data.analysed_calls === 0}
+                onClick={() => {
+                  setConfirmingClear(true)
+                }}
+              >
+                Clear analyses
+              </Button>
+            )}
             {!force && outstanding === 0 && total > 0 && activeId === null ? (
               <Note>
                 Every call is already analysed. Tick the box above to replace them.
@@ -317,6 +359,31 @@ export function CorpusPage() {
             ) : null}
           </div>
 
+          {confirmingClear ? (
+            <Alert tone="broker" title="This deletes every analysed call">
+              All {status.data.analysed_calls} analysed call
+              {status.data.analysed_calls === 1 ? '' : 's'} and their layers, signals, scores and
+              run history will be removed. The transcripts in the corpus folder are untouched, so
+              they can be analysed again. <b>Ground truth is kept</b> — it is hand-labelled and
+              re-analysis cannot regenerate it. This cannot be undone.
+            </Alert>
+          ) : null}
+          {clear.isSuccess && !confirmingClear ? (
+            <Note>
+              Cleared {clear.data.calls} call{clear.data.calls === 1 ? '' : 's'} and{' '}
+              {clear.data.runs} run{clear.data.runs === 1 ? '' : 's'}. Ground truth was kept.
+            </Note>
+          ) : null}
+          {clear.error ? (
+            // Not <Failure>: that says "Could not load", which is the wrong verb
+            // for a delete and would read as though nothing had been attempted.
+            <Alert tone="high" title="The corpus was not cleared">
+              {clear.error.message}
+              {clear.error instanceof ApiError && clear.error.detail
+                ? ` ${clear.error.detail}`
+                : null}
+            </Alert>
+          ) : null}
           {start.error ? <Failure error={start.error} what="the run" /> : null}
         </Card>
       ) : null}

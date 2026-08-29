@@ -12,6 +12,7 @@ from typing import Annotated
 from fastapi import Depends, Request
 
 from application.use_cases.analyze_transcript import AnalyzeTranscript
+from application.use_cases.clear_corpus import ClearCorpus
 from application.use_cases.get_dashboard import (
     GetAgentPerformance,
     GetBrokerScorecard,
@@ -86,6 +87,10 @@ def get_cancel_corpus_run_use_case(container: ContainerDep) -> CancelCorpusRun:
     return container.cancel_corpus_run()
 
 
+def get_clear_corpus_use_case(container: ContainerDep) -> ClearCorpus:
+    return container.clear_corpus()
+
+
 def get_resume_corpus_run_use_case(container: ContainerDep) -> ResumeCorpusRun:
     return container.resume_corpus_run()
 
@@ -124,5 +129,6 @@ ResumeCorpusRunDep = Annotated[ResumeCorpusRun, Depends(get_resume_corpus_run_us
 GetCorpusRunDep = Annotated[GetCorpusRun, Depends(get_corpus_run_use_case)]
 ListCorpusRunsDep = Annotated[ListCorpusRuns, Depends(get_list_corpus_runs_use_case)]
 CorpusStatusDep = Annotated[GetCorpusStatus, Depends(get_corpus_status_use_case)]
+ClearCorpusDep = Annotated[ClearCorpus, Depends(get_clear_corpus_use_case)]
 ReadModelsDep = Annotated[SqlReadModelRepository, Depends(get_read_models)]
 AnalysisRepositoryDep = Annotated[SqlAnalysisRepository, Depends(get_analysis_repository)]
