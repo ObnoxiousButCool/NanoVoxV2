@@ -37,7 +37,7 @@ const OVERVIEW = {
     },
     {
       code: 'broker_attributed',
-      label: 'Broker-Attributed',
+      label: 'Broker Conduct',
       count: 0,
       unresolved: 0,
       percentage_of_total: 0,
@@ -182,7 +182,7 @@ describe('OverviewPage', () => {
     renderOverview()
 
     await screen.findByText('Coverage & Benefits')
-    expect(screen.getByText('Broker-Attributed')).toBeInTheDocument()
+    expect(screen.getByText('Broker Conduct')).toBeInTheDocument()
   })
 
   it('shows an unrated agent without a score', async () => {

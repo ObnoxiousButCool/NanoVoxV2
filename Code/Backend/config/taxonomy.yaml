@@ -12,7 +12,8 @@ version: "1.0.0"
 # --- Call categories -------------------------------------------------------
 # The seven categories from Documents/call_corpus_v3_index.xlsx (DEC-02).
 #
-# Note on "Broker-Attributed": it is kept here because it is a category in the
+# Note on "Broker Conduct" (code: broker_attributed): it is kept here because it
+# is a category in the
 # source index, but it overlaps the others by nature — a broker call is also an
 # Enrollment or Coverage call. Broker involvement is additionally recorded as a
 # broker signal, which is what the Broker Scorecard counts. The category is the
@@ -36,8 +37,12 @@ categories:
   - code: pharmacy
     label: Pharmacy
     description: Formulary, pharmacy prior authorisation, refills, cost.
+  # The code stays 'broker_attributed': it is stored on every call, so changing
+  # it would orphan them. Only the label a person reads is renamed — "Attributed"
+  # read as "a broker was named", which is the far larger broker-signal count,
+  # not what this category counts.
   - code: broker_attributed
-    label: Broker-Attributed
+    label: Broker Conduct
     description: The member's issue originates with broker conduct or advice.
 
 # --- L4 operational BI categories ------------------------------------------
