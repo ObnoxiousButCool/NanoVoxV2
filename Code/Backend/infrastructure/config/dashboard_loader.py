@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from domain.aggregation.attention import AttentionRule, RuleKind
+from domain.aggregation.resolution_time import DurationBandSettings
 from domain.aggregation.statistics import HistogramSettings
 from domain.errors import ConfigurationError, ValidationError
 from domain.taxonomy import Taxonomy
@@ -13,6 +14,9 @@ from domain.value_objects.severity import Severity
 from infrastructure.config.yaml_support import YamlReader, load_yaml_mapping
 
 DESCRIPTION = "Dashboard configuration"
+# Used when the file predates the duration_bands key. Matches the shipped
+# config, so an upgraded install behaves the same as a fresh one.
+DEFAULT_DURATION_BANDS = DurationBandSettings(lower_bounds=(0, 10, 20))
 _SEVERITIES = ", ".join(member.value for member in Severity)
 _KINDS = ", ".join(member.value for member in RuleKind)
 
@@ -23,6 +27,7 @@ class DashboardConfig:
 
     version: str
     histogram: HistogramSettings
+    duration_bands: DurationBandSettings
     attention_rules: tuple[AttentionRule, ...]
 
 
@@ -39,6 +44,18 @@ def load_dashboard_config(path: Path, taxonomy: Taxonomy | None = None) -> Dashb
             bin_edges=edges,
             coaching_threshold=histogram_reader.integer("coaching_threshold"),
         )
+        # Optional: a dashboard.yaml written before this key existed must keep
+        # loading after an upgrade. A missing section is an older file, not a
+        # broken one, so it takes the default rather than failing startup.
+        duration_bands = (
+            DurationBandSettings(
+                lower_bounds=tuple(
+                    _int_list(reader.mapping("duration_bands"), "lower_bounds", path)
+                )
+            )
+            if reader.has("duration_bands")
+            else DEFAULT_DURATION_BANDS
+        )
         rules = tuple(_rules(reader))
     except ValidationError as exc:
         raise ConfigurationError(
@@ -54,7 +71,12 @@ def load_dashboard_config(path: Path, taxonomy: Taxonomy | None = None) -> Dashb
     if taxonomy is not None:
         _check_rule_subjects(rules, taxonomy, path)
 
-    return DashboardConfig(version=version, histogram=histogram, attention_rules=rules)
+    return DashboardConfig(
+        version=version,
+        histogram=histogram,
+        duration_bands=duration_bands,
+        attention_rules=rules,
+    )
 
 
 def _check_rule_subjects(rules: tuple[AttentionRule, ...], taxonomy: Taxonomy, path: Path) -> None:

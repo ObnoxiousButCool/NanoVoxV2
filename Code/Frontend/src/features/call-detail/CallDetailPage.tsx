@@ -7,7 +7,7 @@
  * * A withheld score is shown **with** its number and the reason, not hidden. A
  *   reviewer needs to know how bad the call looks while it waits for sign-off.
  * * A layer that found nothing and a layer that could not run are drawn
- *   differently. "Nothing fired" is a finding; "L5 unavailable" is a fault, and
+ *   differently. "Nothing triggered" is a finding; "L5 unavailable" is a fault, and
  *   presenting the second as the first would hide a broken pipeline.
  */
 
@@ -410,12 +410,12 @@ export function CallDetailPage() {
                     {event.is_gap ? (
                       <div className={styles.miss}>
                         <strong>
-                          Did not fire{event.timestamp_label ? ` · ${event.timestamp_label}` : ''}
+                          {`Did not trigger${event.timestamp_label ? ` · ${event.timestamp_label}` : ''}`}
                         </strong>
                         {event.trigger}. {event.recommendation}
                       </div>
                     ) : (
-                      <Alert tone="low" title={`Fired · ${event.trigger}`}>
+                      <Alert tone="low" title={`Triggered · ${event.trigger}`}>
                         {event.recommendation}
                       </Alert>
                     )}

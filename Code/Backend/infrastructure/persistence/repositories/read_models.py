@@ -15,6 +15,8 @@ Three counting rules are enforced in SQL and are each easy to get subtly wrong:
 
 from __future__ import annotations
 
+from collections.abc import Mapping
+
 from typing import Any
 
 from sqlalchemy import Select, case, distinct, func, or_, select
@@ -32,6 +34,7 @@ from application.ports.read_models import (
 )
 from domain.aggregation.member_risk import UNHAPPY_ENDINGS, MemberCalls
 from domain.aggregation.signal_attribution import L4Finding
+from domain.aggregation.time_value import CallTime
 from domain.attribution_notes import broker_name_in
 from domain.value_objects.polarity import Polarity
 from domain.value_objects.resolution import Resolution
@@ -298,6 +301,40 @@ class SqlReadModelRepository(ReadModelRepository):
                 )
                 for code, count, open_count, references in rows
             )
+
+    async def call_times(self) -> tuple[CallTime, ...]:
+        """Every timed call, reduced to what the minute ledger needs."""
+        async with self._session_factory() as session:
+            rows = await session.execute(
+                select(
+                    CallRow.category_code,
+                    CallRow.resolution,
+                    CallRow.duration_minutes,
+                    CallRow.score,
+                ).where(CallRow.duration_minutes.is_not(None))
+            )
+            return tuple(
+                CallTime(
+                    category_code=str(code),
+                    resolution=str(resolution),
+                    duration_minutes=int(minutes),
+                    score=int(score),
+                )
+                for code, resolution, minutes, score in rows
+            )
+
+    async def resolved_durations_by_category(self) -> Mapping[str, tuple[int, ...]]:
+        """Resolved calls' durations, per category."""
+        async with self._session_factory() as session:
+            rows = await session.execute(
+                select(CallRow.category_code, CallRow.duration_minutes)
+                .where(CallRow.resolution == Resolution.RESOLVED.value)
+                .where(CallRow.duration_minutes.is_not(None))
+            )
+            grouped: dict[str, list[int]] = {}
+            for code, minutes in rows:
+                grouped.setdefault(str(code), []).append(int(minutes))
+            return {code: tuple(values) for code, values in grouped.items()}
 
     async def call_durations(self) -> tuple[int, ...]:
         async with self._session_factory() as session:

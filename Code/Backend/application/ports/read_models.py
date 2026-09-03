@@ -10,12 +10,14 @@ one place where each figure is defined.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from collections.abc import Mapping
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
 
 from domain.aggregation.member_risk import MemberCalls
 from domain.aggregation.signal_attribution import L4Finding
+from domain.aggregation.time_value import CallTime
 
 
 @dataclass(frozen=True)
@@ -178,6 +180,25 @@ class ReadModelRepository(ABC):
     @abstractmethod
     async def signal_counts(self) -> tuple[KeyCount, ...]:
         """Calls raising each signal type."""
+
+    @abstractmethod
+    async def call_times(self) -> tuple[CallTime, ...]:
+        """Category, outcome, duration and score for every timed call.
+
+        Rows rather than aggregates: the minute ledger has to split failures by
+        how they compare with a typical *successful* call, which no per-category
+        SUM can answer. Calls with no recorded duration are excluded here so the
+        minutes cannot be understated by counting a call as zero.
+        """
+
+    @abstractmethod
+    async def resolved_durations_by_category(self) -> Mapping[str, tuple[int, ...]]:
+        """Durations of resolved calls, grouped by category code.
+
+        Resolved only, because the figure this feeds is time *to an answer*. The
+        quickest way to end a call is to solve nothing, so including unresolved
+        calls would reward exactly the behaviour the dashboard exists to catch.
+        """
 
     @abstractmethod
     async def call_durations(self) -> tuple[int, ...]:

@@ -24,6 +24,8 @@ import {
   fetchRuns,
   fetchEffort,
   fetchMembersAtRisk,
+  fetchResolutionTime,
+  fetchTimeValue,
   fetchSignals,
   fetchTaxonomy,
   resumeRun,
@@ -47,6 +49,8 @@ export const queryKeys = {
   brokers: ['dashboard', 'brokers'] as const,
   signals: ['dashboard', 'signals'] as const,
   effort: ['dashboard', 'effort'] as const,
+  resolutionTime: ['dashboard', 'resolution-time'] as const,
+  timeValue: ['dashboard', 'time-value'] as const,
   membersAtRisk: ['dashboard', 'members-at-risk'] as const,
   corpus: ['corpus'] as const,
   runs: ['corpus', 'runs'] as const,
@@ -110,6 +114,20 @@ export function useBrokers() {
 
 export function useEffort() {
   return useQuery({ queryKey: queryKeys.effort, queryFn: ({ signal }) => fetchEffort(signal) })
+}
+
+export function useResolutionTime() {
+  return useQuery({
+    queryKey: queryKeys.resolutionTime,
+    queryFn: ({ signal }) => fetchResolutionTime(signal),
+  })
+}
+
+export function useTimeValue() {
+  return useQuery({
+    queryKey: queryKeys.timeValue,
+    queryFn: ({ signal }) => fetchTimeValue(signal),
+  })
 }
 
 export function useMembersAtRisk() {

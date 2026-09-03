@@ -21,6 +21,17 @@ histogram:
   # Matches the rubric's AVERAGE floor: below it is POOR.
   coaching_threshold: 60
 
+# --- Resolution time -------------------------------------------------------
+# Lower bounds of the duration bands, ascending, in minutes. The last one is
+# open-ended, so [0, 10, 20] draws 0-10, 10-20 and 20+.
+#
+# Half-open like the score bins: "10-20" holds 10 up to 19, and a 20-minute call
+# sits in the band above rather than in both.
+#
+# Policy, not code: what counts as a long resolution differs by line of business.
+duration_bands:
+  lower_bounds: [0, 10, 20]
+
 # --- Attention rules -------------------------------------------------------
 # `title` and `why` accept {subject}, {count}, {unresolved} and {total}.
 #

@@ -20,6 +20,8 @@ import type {
   MembersAtRisk,
   Overview,
   Providers,
+  ResolutionTime,
+  TimeValue,
   SignalDistribution,
   Taxonomy,
 } from '@/shared/api/types'
@@ -111,6 +113,14 @@ export function fetchBrokers(signal?: AbortSignal): Promise<BrokerScorecard[]> {
 
 export function fetchEffort(signal?: AbortSignal): Promise<Effort> {
   return getJson<Effort>('/dashboard/effort', signal ? { signal } : {})
+}
+
+export function fetchResolutionTime(signal?: AbortSignal): Promise<ResolutionTime> {
+  return getJson<ResolutionTime>('/dashboard/resolution-time', signal ? { signal } : {})
+}
+
+export function fetchTimeValue(signal?: AbortSignal): Promise<TimeValue> {
+  return getJson<TimeValue>('/dashboard/time-value', signal ? { signal } : {})
 }
 
 export function fetchMembersAtRisk(signal?: AbortSignal): Promise<MembersAtRisk> {

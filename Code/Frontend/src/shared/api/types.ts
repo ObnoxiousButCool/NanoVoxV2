@@ -35,6 +35,8 @@ export type AgentPerformance = Schemas['AgentResponse']
 export type BrokerScorecard = Schemas['BrokerResponse']
 export type SignalDistribution = Schemas['SignalsResponse']
 export type Effort = Schemas['EffortResponse']
+export type ResolutionTime = Schemas['ResolutionTimeResponse']
+export type TimeValue = Schemas['TimeValueResponse']
 export type MembersAtRisk = Schemas['MembersAtRiskResponse']
 export type MemberAtRisk = Schemas['MemberAtRiskResponse']
 
@@ -58,5 +60,5 @@ export const LAYER_META: Record<LayerId, { title: string; subtitle: string }> = 
   L2: { title: 'What happened', subtitle: 'Call insights' },
   L3: { title: 'How well it was handled', subtitle: 'Agent quality' },
   L4: { title: 'What to do about it', subtitle: 'Operational BI · this call' },
-  L5: { title: 'Real-time assist', subtitle: 'Replay — what would have fired' },
+  L5: { title: 'Real-time assist', subtitle: 'Replay — what would have triggered' },
 }

@@ -34,8 +34,14 @@ from domain.aggregation.attention import (
 )
 from domain.aggregation.effort import EffortMetrics, effort_metrics
 from domain.aggregation.member_risk import MemberAtRisk, members_at_risk
+from domain.aggregation.resolution_time import (
+    DurationBandSettings,
+    ResolutionTime,
+    resolution_time,
+)
 from domain.aggregation.signal_attribution import primary_category_by_call
 from domain.aggregation.significance import AgentRating, rate_agent
+from domain.aggregation.time_value import TimeValue, time_value
 from domain.aggregation.statistics import (
     Histogram,
     HistogramSettings,
@@ -325,6 +331,54 @@ class GetEffortMetrics:
             calls_by_repeat_members=sum(member.call_count for member in repeat),
             minutes_to_answer=tuple(member.total_minutes for member in answered),
             members_without_answer=len(members) - len(answered),
+        )
+
+
+class GetResolutionTime:
+    """How long it takes to resolve a member's problem, split by category.
+
+    Resolved calls only. Handle time over every call rewards ending the call,
+    not solving the problem, and the two figures are easy to confuse once they
+    are on the same screen.
+    """
+
+    def __init__(
+        self,
+        repository: ReadModelRepository,
+        taxonomy: Taxonomy,
+        bands: DurationBandSettings,
+    ) -> None:
+        self._repository = repository
+        self._taxonomy = taxonomy
+        self._bands = bands
+
+    async def execute(self) -> ResolutionTime:
+        return resolution_time(
+            await self._repository.resolved_durations_by_category(),
+            # Every configured category, so one that never reaches a resolution
+            # is visible as a zero rather than missing from the list.
+            labels={category.code: category.label for category in self._taxonomy.categories},
+            total_calls=await self._repository.total_calls(),
+            settings=self._bands,
+        )
+
+
+class GetTimeValue:
+    """What the time on calls bought (the minute ledger).
+
+    Counts minutes rather than calls: "how long is a call" is an operations
+    question, "how many of our hours produced an answer" is the one a manager
+    answers for.
+    """
+
+    def __init__(self, repository: ReadModelRepository, taxonomy: Taxonomy) -> None:
+        self._repository = repository
+        self._taxonomy = taxonomy
+
+    async def execute(self) -> TimeValue:
+        return time_value(
+            await self._repository.call_times(),
+            labels={category.code: category.label for category in self._taxonomy.categories},
         )
 
 

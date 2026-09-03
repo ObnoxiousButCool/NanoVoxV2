@@ -1,5 +1,5 @@
 import { QueryClient } from '@tanstack/react-query'
-import { render, screen } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
@@ -107,20 +107,81 @@ const SIGNALS = {
   ],
 }
 
-const EFFORT = {
-  calls_with_duration: 12,
-  median_minutes: 10,
-  mean_minutes: 10.8,
-  longest_minutes: 20,
-  long_call_count: 4,
-  long_call_threshold: 20,
-  identified_members: 10,
-  repeat_members: 2,
-  calls_by_repeat_members: 5,
-  repeat_contact_rate: 20,
-  median_minutes_to_answer: 25,
-  members_with_answer: 6,
-  members_without_answer: 4,
+
+const RESOLUTION = {
+  resolved_calls: 6,
+  total_calls: 12,
+  median_minutes: 12,
+  longest_minutes: 25,
+  bands: [
+    { label: '0-10', lower: 0, upper: 10, count: 2 },
+    { label: '10-20', lower: 10, upper: 20, count: 3 },
+    { label: '20+', lower: 20, upper: null, count: 1 },
+  ],
+  categories: [
+    {
+      code: 'coverage_benefits',
+      label: 'Coverage & Benefits',
+      resolved_calls: 4,
+      median_minutes: 18,
+      longest_minutes: 25,
+    },
+    {
+      code: 'pharmacy',
+      label: 'Pharmacy',
+      resolved_calls: 2,
+      median_minutes: 8,
+      longest_minutes: 9,
+    },
+    // Configured but has resolved nothing: shown, so the absence is visible.
+    {
+      code: 'claims_eob',
+      label: 'Claims & EOB',
+      resolved_calls: 0,
+      median_minutes: 0,
+      longest_minutes: 0,
+    },
+  ],
+}
+
+const TIME_VALUE = {
+  total_minutes: 600,
+  resolved_minutes: 150,
+  unproductive_minutes: 450,
+  productive_share: 25,
+  resolved_median_minutes: 10,
+  fast_fail: { calls: 3, minutes: 15, average_score: 48 },
+  slow_fail: { calls: 9, minutes: 435, average_score: 79 },
+  categories: [
+    {
+      code: 'claims_eob',
+      label: 'Claims & EOB',
+      total_minutes: 400,
+      resolved_minutes: 50,
+      unproductive_minutes: 350,
+      unproductive_share: 87.5,
+      by_outcome: [
+        { resolution: 'RESOLVED', minutes: 50 },
+        { resolution: 'PARTIALLY RESOLVED', minutes: 300 },
+        { resolution: 'ESCALATED', minutes: 40 },
+        { resolution: 'UNRESOLVED', minutes: 10 },
+      ],
+    },
+    {
+      code: 'pharmacy',
+      label: 'Pharmacy',
+      total_minutes: 200,
+      resolved_minutes: 100,
+      unproductive_minutes: 100,
+      unproductive_share: 50,
+      by_outcome: [
+        { resolution: 'RESOLVED', minutes: 100 },
+        { resolution: 'PARTIALLY RESOLVED', minutes: 100 },
+        { resolution: 'ESCALATED', minutes: 0 },
+        { resolution: 'UNRESOLVED', minutes: 0 },
+      ],
+    },
+  ],
 }
 
 const MEMBERS = {
@@ -158,7 +219,11 @@ function json(body: unknown): Response {
 
 function renderOverview(
   overview: unknown = OVERVIEW,
-  { effort = EFFORT, members = MEMBERS }: { effort?: unknown; members?: unknown } = {},
+  {
+    resolution = RESOLUTION,
+    members = MEMBERS,
+    timeValue = TIME_VALUE,
+  }: { resolution?: unknown; members?: unknown; timeValue?: unknown } = {},
 ) {
   vi.stubGlobal(
     'fetch',
@@ -166,7 +231,8 @@ function renderOverview(
       if (url.includes('/dashboard/overview')) return Promise.resolve(json(overview))
       if (url.includes('/dashboard/agents')) return Promise.resolve(json(AGENTS))
       if (url.includes('/dashboard/signals')) return Promise.resolve(json(SIGNALS))
-      if (url.includes('/dashboard/effort')) return Promise.resolve(json(effort))
+      if (url.includes('/dashboard/resolution-time')) return Promise.resolve(json(resolution))
+      if (url.includes('/dashboard/time-value')) return Promise.resolve(json(timeValue))
       if (url.includes('/dashboard/members-at-risk')) return Promise.resolve(json(members))
       return Promise.resolve(json({}))
     }),
@@ -184,6 +250,29 @@ function renderOverview(
 afterEach(() => {
   vi.unstubAllGlobals()
 })
+
+/**
+ * The resolution-time card, scoped.
+ *
+ * Several of its figures — a bare "12", a category label, a dash — also appear
+ * elsewhere on this page, so an unscoped query can match another card's content
+ * and pass while this one is still loading.
+ */
+async function resolutionCard(): Promise<HTMLElement> {
+  const heading = await screen.findByText('How long an answer takes')
+  const card = heading.closest('section')
+  if (!card) throw new Error('resolution card has no containing section')
+  await within(card).findByText('MEDIAN MINUTES TO RESOLVE')
+  return card
+}
+
+async function timeCard(): Promise<HTMLElement> {
+  const heading = await screen.findByText('Productive and unproductive minutes')
+  const card = heading.closest('section')
+  if (!card) throw new Error('time card has no containing section')
+  await within(card).findByText('TOTAL TIME ON CALLS')
+  return card
+}
 
 describe('OverviewPage', () => {
   it('ranks the attention queue with the most severe first', async () => {
@@ -356,45 +445,110 @@ describe('OverviewPage', () => {
     })
   })
 
-  describe('effort', () => {
-    it('shows what an answer costs a member', async () => {
+  describe('resolution time', () => {
+    it('reports the time to resolve, not the time on the phone', async () => {
+      // Handle time over every call rewards ending the call rather than solving
+      // the problem, so the headline is measured over resolved calls only.
       renderOverview()
+      const card = await resolutionCard()
 
-      expect(await screen.findByText('20%')).toBeInTheDocument()
-      expect(screen.getByText('CALLED MORE THAN ONCE')).toBeInTheDocument()
-      expect(screen.getByText(/called back/)).toBeInTheDocument()
+      expect(within(card).getByText('12')).toBeInTheDocument()
+      expect(within(card).getByText('OF 12 CALLS RESOLVED')).toBeInTheDocument()
     })
 
-    it('measures time to an answer per member, over those who got one', async () => {
+    it('draws the duration bands', async () => {
       renderOverview()
+      const card = await resolutionCard()
 
-      // 25 minutes across the 6 members who reached a resolution — not the
-      // 10-minute median call, which is a different question.
-      expect(await screen.findByText('25')).toBeInTheDocument()
-      expect(screen.getByText('MEDIAN MINUTES TO AN ANSWER')).toBeInTheDocument()
-      expect(screen.getByText(/Measured over the/)).toHaveTextContent(
-        '6 of 10 identified members who reached a resolution',
-      )
+      expect(within(card).getByText('0-10 MIN')).toBeInTheDocument()
+      expect(within(card).getByText('10-20 MIN')).toBeInTheDocument()
+      expect(within(card).getByText('20+ MIN')).toBeInTheDocument()
     })
 
-    it('counts members still waiting rather than averaging them in as zero', async () => {
-      // Their clock has not stopped. Folding them in would make the reported
-      // time to an answer fall the longer they are left waiting.
+    it('breaks the time down by category, slowest first', async () => {
+      // A single median across a pharmacy query and a coverage appeal describes
+      // neither, and moves when the call mix changes rather than the handling.
       renderOverview()
+      const card = await resolutionCard()
 
-      expect(await screen.findByText('STILL WITHOUT ONE')).toBeInTheDocument()
-      expect(screen.getByText(/still without an answer are left out/)).toBeInTheDocument()
+      expect(within(card).getByText('18 min')).toBeInTheDocument()
+      expect(within(card).getByText('8 min')).toBeInTheDocument()
     })
 
-    it('explains a zero repeat rate rather than implying nobody struggles', async () => {
-      // On a corpus where every member called once, zero is a property of the
-      // sample, not evidence that effort is low.
+    it('shows a category that has resolved nothing as a dash, not a zero', async () => {
+      // No time was measured, which is not the same as a fast one.
+      renderOverview()
+      const card = await resolutionCard()
+
+      expect(within(card).getByText('Claims & EOB')).toBeInTheDocument()
+      expect(within(card).getByText('—')).toBeInTheDocument()
+    })
+
+    it('says so plainly when nothing has been resolved at all', async () => {
       renderOverview(OVERVIEW, {
-        effort: { ...EFFORT, repeat_members: 0, calls_by_repeat_members: 0, repeat_contact_rate: 0 },
+        resolution: { ...RESOLUTION, resolved_calls: 0, bands: [], categories: [] },
       })
 
       expect(
-        await screen.findByText(/the measure is in place, the calls to find are not/i),
+        await screen.findByText(/No call in this corpus reached a resolution/),
+      ).toBeInTheDocument()
+    })
+  })
+
+  describe('what the time bought', () => {
+    it('reports the share of minutes, not the share of calls', async () => {
+      // Half the calls resolving is not the same as half the time being well
+      // spent, and the minutes are the number a manager answers for.
+      renderOverview()
+      const card = await timeCard()
+
+      expect(within(card).getByText('10.0h')).toBeInTheDocument()
+      expect(within(card).getByText('25%')).toBeInTheDocument()
+      expect(within(card).getByText('BOUGHT A RESOLUTION')).toBeInTheDocument()
+      expect(within(card).getByText('7.5h')).toBeInTheDocument()
+    })
+
+    it('lays the categories out by the time they claim', async () => {
+      renderOverview()
+      const card = await timeCard()
+
+      expect(within(card).getByText('400 min')).toBeInTheDocument()
+      const labels = within(card)
+        .getAllByTitle(/bought no resolution/)
+        .map((element) => element.textContent)
+      expect(labels).toEqual(['Claims & EOB', 'Pharmacy'])
+    })
+
+    it('separates the two failure modes, which need opposite responses', async () => {
+      // Reported as one "12 unresolved calls", the nine agents who did the work
+      // against a system with no answer get coached for the other three's
+      // problem.
+      renderOverview()
+      const card = await timeCard()
+
+      expect(within(card).getByText('Ended early, unresolved')).toBeInTheDocument()
+      expect(within(card).getByText(/brushed off/)).toBeInTheDocument()
+      expect(within(card).getByText('Ran long, still unresolved')).toBeInTheDocument()
+      expect(within(card).getByText(/no answer existed/)).toBeInTheDocument()
+      expect(within(card).getByText(/CALLS · 435 MIN · AVG SCORE 79/)).toBeInTheDocument()
+    })
+
+    it('says where the dividing line came from', async () => {
+      // A reader has to be able to tell a derived threshold from an invented one.
+      renderOverview()
+      const card = await timeCard()
+
+      expect(within(card).getByText(/median length of a call that did resolve/)).toBeInTheDocument()
+      expect(within(card).getByText('10 minutes')).toBeInTheDocument()
+    })
+
+    it('says so plainly when no call has a duration', async () => {
+      renderOverview(OVERVIEW, {
+        timeValue: { ...TIME_VALUE, total_minutes: 0, categories: [] },
+      })
+
+      expect(
+        await screen.findByText(/no minutes to account for/),
       ).toBeInTheDocument()
     })
   })

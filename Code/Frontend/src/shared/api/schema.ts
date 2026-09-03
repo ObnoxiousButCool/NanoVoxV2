@@ -266,6 +266,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/dashboard/resolution-time": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** How long it takes to resolve a member's problem, by category */
+        get: operations["get_resolution_time_api_v1_dashboard_resolution_time_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/dashboard/signals": {
         parameters: {
             query?: never;
@@ -275,6 +292,23 @@ export interface paths {
         };
         /** L4 signal distribution */
         get: operations["get_signals_api_v1_dashboard_signals_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/dashboard/time-value": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** What the time on calls bought, in minutes */
+        get: operations["get_time_value_api_v1_dashboard_time_value_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -588,6 +622,39 @@ export interface components {
             /** Label */
             label: string;
         };
+        /** CategoryMinutesResponse */
+        CategoryMinutesResponse: {
+            /**
+             * By Outcome
+             * @description Always in the same order, worst last, so a category's segments do not shuffle when its mix changes. Zero-minute outcomes are kept.
+             */
+            by_outcome: components["schemas"]["OutcomeMinutesResponse"][];
+            /** Code */
+            code: string;
+            /** Label */
+            label: string;
+            /** Resolved Minutes */
+            resolved_minutes: number;
+            /** Total Minutes */
+            total_minutes: number;
+            /** Unproductive Minutes */
+            unproductive_minutes: number;
+            /** Unproductive Share */
+            unproductive_share: number;
+        };
+        /** CategoryResolutionTimeResponse */
+        CategoryResolutionTimeResponse: {
+            /** Code */
+            code: string;
+            /** Label */
+            label: string;
+            /** Longest Minutes */
+            longest_minutes: number;
+            /** Median Minutes */
+            median_minutes: number;
+            /** Resolved Calls */
+            resolved_calls: number;
+        };
         /** CategoryResponse */
         CategoryResponse: {
             /** Code */
@@ -650,6 +717,20 @@ export interface components {
             /** Total Calls */
             total_calls: number;
         };
+        /** DurationBandResponse */
+        DurationBandResponse: {
+            /** Count */
+            count: number;
+            /** Label */
+            label: string;
+            /** Lower */
+            lower: number;
+            /**
+             * Upper
+             * @description Exclusive upper bound in minutes; null for the final open-ended band. Half-open like the score bins, so '10-20' holds 10 up to 19.
+             */
+            upper?: number | null;
+        };
         /** EffortResponse */
         EffortResponse: {
             /** Calls By Repeat Members */
@@ -696,6 +777,15 @@ export interface components {
             repeat_contact_rate: number;
             /** Repeat Members */
             repeat_members: number;
+        };
+        /** FailureModeResponse */
+        FailureModeResponse: {
+            /** Average Score */
+            average_score: number;
+            /** Calls */
+            calls: number;
+            /** Minutes */
+            minutes: number;
         };
         /** HTTPValidationError */
         HTTPValidationError: {
@@ -852,6 +942,13 @@ export interface components {
             /** Unresolved Rate */
             unresolved_rate: number;
         };
+        /** OutcomeMinutesResponse */
+        OutcomeMinutesResponse: {
+            /** Minutes */
+            minutes: number;
+            /** Resolution */
+            resolution: string;
+        };
         /** OverviewResponse */
         OverviewResponse: {
             /** Attention */
@@ -966,6 +1063,27 @@ export interface components {
             default: string;
             /** Providers */
             providers: components["schemas"]["ProviderResponse"][];
+        };
+        /** ResolutionTimeResponse */
+        ResolutionTimeResponse: {
+            /** Bands */
+            bands: components["schemas"]["DurationBandResponse"][];
+            /**
+             * Categories
+             * @description Slowest first. Every configured category appears, including those that have resolved nothing.
+             */
+            categories: components["schemas"]["CategoryResolutionTimeResponse"][];
+            /** Longest Minutes */
+            longest_minutes: number;
+            /** Median Minutes */
+            median_minutes: number;
+            /**
+             * Resolved Calls
+             * @description Calls that reached a resolution. Every figure here is measured over these only — handle time across all calls rewards ending the call, not solving it.
+             */
+            resolved_calls: number;
+            /** Total Calls */
+            total_calls: number;
         };
         /** RunItemResponse */
         RunItemResponse: {
@@ -1148,6 +1266,34 @@ export interface components {
             good: number;
             /** Min Calls For Tier Rating */
             min_calls_for_tier_rating: number;
+        };
+        /** TimeValueResponse */
+        TimeValueResponse: {
+            /**
+             * Categories
+             * @description Most time first. Categories with no timed calls are omitted.
+             */
+            categories: components["schemas"]["CategoryMinutesResponse"][];
+            /** @description Ended without an answer in less time than a typical successful call — a member brushed off. A coaching signal. */
+            fast_fail: components["schemas"]["FailureModeResponse"];
+            /**
+             * Productive Share
+             * @description Share of all minutes spent on calls that reached a resolution.
+             */
+            productive_share: number;
+            /**
+             * Resolved Median Minutes
+             * @description Median duration of a resolved call, and the line dividing the two failure modes. Derived from the corpus, not configured.
+             */
+            resolved_median_minutes: number;
+            /** Resolved Minutes */
+            resolved_minutes: number;
+            /** @description Ended without an answer having taken at least as long as a typical successful call — the work was done and the system had no answer. A process signal, and coaching these agents would be the wrong response. */
+            slow_fail: components["schemas"]["FailureModeResponse"];
+            /** Total Minutes */
+            total_minutes: number;
+            /** Unproductive Minutes */
+            unproductive_minutes: number;
         };
         /** TurnResponse */
         TurnResponse: {
@@ -1624,6 +1770,26 @@ export interface operations {
             };
         };
     };
+    get_resolution_time_api_v1_dashboard_resolution_time_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResolutionTimeResponse"];
+                };
+            };
+        };
+    };
     get_signals_api_v1_dashboard_signals_get: {
         parameters: {
             query?: never;
@@ -1640,6 +1806,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SignalsResponse"];
+                };
+            };
+        };
+    };
+    get_time_value_api_v1_dashboard_time_value_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TimeValueResponse"];
                 };
             };
         };

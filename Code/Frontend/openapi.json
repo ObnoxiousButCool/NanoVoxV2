@@ -689,6 +689,86 @@
         "title": "CategoryEntry",
         "type": "object"
       },
+      "CategoryMinutesResponse": {
+        "properties": {
+          "by_outcome": {
+            "description": "Always in the same order, worst last, so a category's segments do not shuffle when its mix changes. Zero-minute outcomes are kept.",
+            "items": {
+              "$ref": "#/components/schemas/OutcomeMinutesResponse"
+            },
+            "title": "By Outcome",
+            "type": "array"
+          },
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "resolved_minutes": {
+            "title": "Resolved Minutes",
+            "type": "integer"
+          },
+          "total_minutes": {
+            "title": "Total Minutes",
+            "type": "integer"
+          },
+          "unproductive_minutes": {
+            "title": "Unproductive Minutes",
+            "type": "integer"
+          },
+          "unproductive_share": {
+            "title": "Unproductive Share",
+            "type": "number"
+          }
+        },
+        "required": [
+          "code",
+          "label",
+          "total_minutes",
+          "resolved_minutes",
+          "unproductive_minutes",
+          "unproductive_share",
+          "by_outcome"
+        ],
+        "title": "CategoryMinutesResponse",
+        "type": "object"
+      },
+      "CategoryResolutionTimeResponse": {
+        "properties": {
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "longest_minutes": {
+            "title": "Longest Minutes",
+            "type": "integer"
+          },
+          "median_minutes": {
+            "title": "Median Minutes",
+            "type": "number"
+          },
+          "resolved_calls": {
+            "title": "Resolved Calls",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "code",
+          "label",
+          "resolved_calls",
+          "median_minutes",
+          "longest_minutes"
+        ],
+        "title": "CategoryResolutionTimeResponse",
+        "type": "object"
+      },
       "CategoryResponse": {
         "properties": {
           "code": {
@@ -826,6 +906,41 @@
         "title": "CorpusStatusResponse",
         "type": "object"
       },
+      "DurationBandResponse": {
+        "properties": {
+          "count": {
+            "title": "Count",
+            "type": "integer"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "lower": {
+            "title": "Lower",
+            "type": "integer"
+          },
+          "upper": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Exclusive upper bound in minutes; null for the final open-ended band. Half-open like the score bins, so '10-20' holds 10 up to 19.",
+            "title": "Upper"
+          }
+        },
+        "required": [
+          "label",
+          "lower",
+          "count"
+        ],
+        "title": "DurationBandResponse",
+        "type": "object"
+      },
       "EffortResponse": {
         "properties": {
           "calls_by_repeat_members": {
@@ -903,6 +1018,29 @@
           "members_without_answer"
         ],
         "title": "EffortResponse",
+        "type": "object"
+      },
+      "FailureModeResponse": {
+        "properties": {
+          "average_score": {
+            "title": "Average Score",
+            "type": "number"
+          },
+          "calls": {
+            "title": "Calls",
+            "type": "integer"
+          },
+          "minutes": {
+            "title": "Minutes",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "calls",
+          "minutes",
+          "average_score"
+        ],
+        "title": "FailureModeResponse",
         "type": "object"
       },
       "HTTPValidationError": {
@@ -1284,6 +1422,24 @@
         "title": "MetricsResponse",
         "type": "object"
       },
+      "OutcomeMinutesResponse": {
+        "properties": {
+          "minutes": {
+            "title": "Minutes",
+            "type": "integer"
+          },
+          "resolution": {
+            "title": "Resolution",
+            "type": "string"
+          }
+        },
+        "required": [
+          "resolution",
+          "minutes"
+        ],
+        "title": "OutcomeMinutesResponse",
+        "type": "object"
+      },
       "OverviewResponse": {
         "properties": {
           "attention": {
@@ -1536,6 +1692,52 @@
           "providers"
         ],
         "title": "ProvidersResponse",
+        "type": "object"
+      },
+      "ResolutionTimeResponse": {
+        "properties": {
+          "bands": {
+            "items": {
+              "$ref": "#/components/schemas/DurationBandResponse"
+            },
+            "title": "Bands",
+            "type": "array"
+          },
+          "categories": {
+            "description": "Slowest first. Every configured category appears, including those that have resolved nothing.",
+            "items": {
+              "$ref": "#/components/schemas/CategoryResolutionTimeResponse"
+            },
+            "title": "Categories",
+            "type": "array"
+          },
+          "longest_minutes": {
+            "title": "Longest Minutes",
+            "type": "integer"
+          },
+          "median_minutes": {
+            "title": "Median Minutes",
+            "type": "number"
+          },
+          "resolved_calls": {
+            "description": "Calls that reached a resolution. Every figure here is measured over these only \u2014 handle time across all calls rewards ending the call, not solving it.",
+            "title": "Resolved Calls",
+            "type": "integer"
+          },
+          "total_calls": {
+            "title": "Total Calls",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "resolved_calls",
+          "total_calls",
+          "median_minutes",
+          "longest_minutes",
+          "bands",
+          "categories"
+        ],
+        "title": "ResolutionTimeResponse",
         "type": "object"
       },
       "RunItemResponse": {
@@ -2052,6 +2254,60 @@
           "min_calls_for_tier_rating"
         ],
         "title": "TierThresholdsEntry",
+        "type": "object"
+      },
+      "TimeValueResponse": {
+        "properties": {
+          "categories": {
+            "description": "Most time first. Categories with no timed calls are omitted.",
+            "items": {
+              "$ref": "#/components/schemas/CategoryMinutesResponse"
+            },
+            "title": "Categories",
+            "type": "array"
+          },
+          "fast_fail": {
+            "$ref": "#/components/schemas/FailureModeResponse",
+            "description": "Ended without an answer in less time than a typical successful call \u2014 a member brushed off. A coaching signal."
+          },
+          "productive_share": {
+            "description": "Share of all minutes spent on calls that reached a resolution.",
+            "title": "Productive Share",
+            "type": "number"
+          },
+          "resolved_median_minutes": {
+            "description": "Median duration of a resolved call, and the line dividing the two failure modes. Derived from the corpus, not configured.",
+            "title": "Resolved Median Minutes",
+            "type": "number"
+          },
+          "resolved_minutes": {
+            "title": "Resolved Minutes",
+            "type": "integer"
+          },
+          "slow_fail": {
+            "$ref": "#/components/schemas/FailureModeResponse",
+            "description": "Ended without an answer having taken at least as long as a typical successful call \u2014 the work was done and the system had no answer. A process signal, and coaching these agents would be the wrong response."
+          },
+          "total_minutes": {
+            "title": "Total Minutes",
+            "type": "integer"
+          },
+          "unproductive_minutes": {
+            "title": "Unproductive Minutes",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "total_minutes",
+          "resolved_minutes",
+          "unproductive_minutes",
+          "productive_share",
+          "resolved_median_minutes",
+          "fast_fail",
+          "slow_fail",
+          "categories"
+        ],
+        "title": "TimeValueResponse",
         "type": "object"
       },
       "TurnResponse": {
@@ -2885,6 +3141,27 @@
         ]
       }
     },
+    "/api/v1/dashboard/resolution-time": {
+      "get": {
+        "operationId": "get_resolution_time_api_v1_dashboard_resolution_time_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResolutionTimeResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "How long it takes to resolve a member's problem, by category",
+        "tags": [
+          "dashboard"
+        ]
+      }
+    },
     "/api/v1/dashboard/signals": {
       "get": {
         "operationId": "get_signals_api_v1_dashboard_signals_get",
@@ -2901,6 +3178,27 @@
           }
         },
         "summary": "L4 signal distribution",
+        "tags": [
+          "dashboard"
+        ]
+      }
+    },
+    "/api/v1/dashboard/time-value": {
+      "get": {
+        "operationId": "get_time_value_api_v1_dashboard_time_value_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TimeValueResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "What the time on calls bought, in minutes",
         "tags": [
           "dashboard"
         ]

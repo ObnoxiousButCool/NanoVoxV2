@@ -27,6 +27,8 @@ from application.use_cases.get_dashboard import (
     GetBrokerScorecard,
     GetEffortMetrics,
     GetMembersAtRisk,
+    GetResolutionTime,
+    GetTimeValue,
     GetOverview,
     GetSignalDistribution,
 )
@@ -137,6 +139,12 @@ class Container:
 
     def get_effort_metrics(self) -> GetEffortMetrics:
         return GetEffortMetrics(self.read_models())
+
+    def get_resolution_time(self) -> GetResolutionTime:
+        return GetResolutionTime(self.read_models(), self.taxonomy, self.dashboard.duration_bands)
+
+    def get_time_value(self) -> GetTimeValue:
+        return GetTimeValue(self.read_models(), self.taxonomy)
 
     def get_members_at_risk(self) -> GetMembersAtRisk:
         return GetMembersAtRisk(self.read_models(), self.dashboard.histogram)

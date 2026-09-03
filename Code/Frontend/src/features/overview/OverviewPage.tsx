@@ -17,9 +17,10 @@ import { Link, useNavigate } from 'react-router-dom'
 
 import {
   useAgents,
-  useEffort,
   useMembersAtRisk,
   useOverview,
+  useResolutionTime,
+  useTimeValue,
   useSignals,
 } from '@/shared/api/queries'
 import type { AgentPerformance, Overview } from '@/shared/api/types'
@@ -35,6 +36,34 @@ const OUTCOME_COLOURS = {
   escalated: '#E08A5D',
   unresolved: '#C8322B',
 } as const
+
+/**
+ * The outcome a stretch of time bought, worst last.
+ *
+ * Same four colours as the agent bars, so a reader who has learnt them on one
+ * chart does not have to relearn them on another.
+ */
+const OUTCOME_LEGEND = [
+  { resolution: 'RESOLVED', label: 'Resolved', color: OUTCOME_COLOURS.resolved },
+  { resolution: 'PARTIALLY RESOLVED', label: 'Partially resolved', color: OUTCOME_COLOURS.partial },
+  { resolution: 'ESCALATED', label: 'Escalated', color: OUTCOME_COLOURS.escalated },
+  { resolution: 'UNRESOLVED', label: 'Unresolved', color: OUTCOME_COLOURS.unresolved },
+] as const
+
+function outcomeLabel(resolution: string): string {
+  // Falls back to the stored value so a new outcome is still named, just not
+  // prettified — better than an empty tooltip.
+  return OUTCOME_LEGEND.find((entry) => entry.resolution === resolution)?.label ?? resolution
+}
+
+function outcomeColour(resolution: string): string {
+  return (
+    OUTCOME_LEGEND.find((entry) => entry.resolution === resolution)?.color ??
+    // An outcome the taxonomy gains later still gets a segment, so the bar keeps
+    // summing to the total printed beside it.
+    '#8A93A3'
+  )
+}
 
 /** The category bars fade from the brand colour outward. */
 const CATEGORY_SHADES = [
@@ -134,54 +163,194 @@ function AttentionQueue({ items }: { items: Overview['attention'] }) {
  * alongside the quality figures because it answers a different question about
  * the same calls.
  */
-function EffortCard() {
-  const effort = useEffort()
+function ResolutionTimeCard() {
+  const resolution = useResolutionTime()
 
-  if (effort.isPending) return <Loading what="effort" />
-  if (effort.error) return <Failure error={effort.error} what="effort" />
+  if (resolution.isPending) return <Loading what="resolution time" />
+  if (resolution.error) return <Failure error={resolution.error} what="resolution time" />
 
-  const data = effort.data
-  const noRepeats = data.repeat_members === 0
+  const data = resolution.data
+
+  if (data.resolved_calls === 0) {
+    return (
+      <Note>
+        No call in this corpus reached a resolution, so there is no time to report. The measure is
+        in place; the calls to measure are not.
+      </Note>
+    )
+  }
+
+  const busiest = Math.max(...data.bands.map((band) => band.count), 1)
 
   return (
     <>
       <div className={styles.effortRow}>
         <div className={styles.effortStat}>
-          {/* Per member, not per call: a member who rang three times spent all
-              three calls getting their answer, and the per-call figure would
-              report the shortest of them. */}
-          <b>{data.median_minutes_to_answer}</b>
-          <span>MEDIAN MINUTES TO AN ANSWER</span>
+          <b>{data.median_minutes}</b>
+          <span>MEDIAN MINUTES TO RESOLVE</span>
         </div>
         <div className={styles.effortStat}>
-          <b>{data.members_without_answer}</b>
-          <span>STILL WITHOUT ONE</span>
+          <b>{data.resolved_calls}</b>
+          <span>OF {data.total_calls} CALLS RESOLVED</span>
         </div>
         <div className={styles.effortStat}>
-          <b>{data.repeat_contact_rate}%</b>
-          <span>CALLED MORE THAN ONCE</span>
+          <b>{data.longest_minutes}</b>
+          <span>LONGEST</span>
         </div>
       </div>
+
+      <div className={styles.bandRow}>
+        {data.bands.map((band) => (
+          <div key={band.label} className={styles.band}>
+            <div className={styles.bandTrack}>
+              {/* A zero band keeps its bar stub. An absent bar reads as "this
+                  does not happen" rather than "this did not happen here". */}
+              <i style={{ height: `${String(Math.max((band.count * 100) / busiest, 3))}%` }} />
+            </div>
+            <b>{band.count}</b>
+            <span>{band.label} MIN</span>
+          </div>
+        ))}
+      </div>
+
+      <BarRows>
+        {data.categories.map((category) => (
+          <Bar
+            key={category.code}
+            label={category.label}
+            title={`${category.label}: ${String(category.resolved_calls)} resolved, longest ${String(category.longest_minutes)} min`}
+            segments={[
+              {
+                value: category.median_minutes,
+                color: OWNER_COLOUR,
+                label: category.label,
+              },
+              {
+                // Scaled against the slowest category so the bars are
+                // comparable rather than each filling its own row.
+                value: Math.max(data.longest_minutes - category.median_minutes, 0),
+                color: 'transparent',
+                label: 'Remainder',
+              },
+            ]}
+            value={category.resolved_calls === 0 ? '—' : `${String(category.median_minutes)} min`}
+          />
+        ))}
+      </BarRows>
       <Note>
-        Measured over the <b>{data.members_with_answer}</b> of{' '}
-        <b>{data.identified_members}</b> identified members who reached a resolution — every
-        minute of every call they made, not just the one that ended it. The{' '}
-        <b>{data.members_without_answer}</b> still without an answer are left out rather than
-        counted as zero: their clock has not stopped, and averaging an unfinished wait in
-        alongside finished ones would make the figure fall the longer people are left waiting.
-        {noRepeats ? (
-          <>
-            {' '}
-            No member here has called twice, so repeat contact reads zero — the measure is in
-            place, the calls to find are not.
-          </>
-        ) : (
-          <>
-            {' '}
-            <b>{data.repeat_members}</b> of them called back, accounting for{' '}
-            <b>{data.calls_by_repeat_members}</b> calls.
-          </>
-        )}
+        Median minutes to resolve, slowest first, over the <b>{data.resolved_calls}</b> calls that
+        reached a resolution. A category that has resolved nothing shows a dash rather than a zero,
+        because no time was measured — not a fast one.
+      </Note>
+    </>
+  )
+}
+
+/**
+ * What the time on calls bought.
+ *
+ * The only panel here that counts minutes rather than calls. "How long is a
+ * call" is an operations question; "how many of our hours produced an answer"
+ * is the one a manager answers for, and it is a different number.
+ */
+function TimeValueCard() {
+  const time = useTimeValue()
+
+  if (time.isPending) return <Loading what="the time ledger" />
+  if (time.error) return <Failure error={time.error} what="the time ledger" />
+
+  const data = time.data
+
+  if (data.total_minutes === 0) {
+    return (
+      <Note>
+        No call in this corpus has a recorded duration, so there are no minutes to account for.
+      </Note>
+    )
+  }
+
+  const hours = (data.total_minutes / 60).toFixed(1)
+  const widest = Math.max(...data.categories.map((entry) => entry.total_minutes), 1)
+
+  return (
+    <>
+      <div className={styles.effortRow}>
+        <div className={styles.effortStat}>
+          <b>{hours}h</b>
+          <span>TOTAL TIME ON CALLS</span>
+        </div>
+        <div className={styles.effortStat}>
+          <b>{data.productive_share}%</b>
+          <span>BOUGHT A RESOLUTION</span>
+        </div>
+        <div className={styles.effortStat}>
+          <b>{(data.unproductive_minutes / 60).toFixed(1)}h</b>
+          <span>BOUGHT NOTHING</span>
+        </div>
+      </div>
+
+      <Legend
+        items={OUTCOME_LEGEND.map((entry) => ({ label: entry.label, color: entry.color }))}
+      />
+      <BarRows>
+        {data.categories.map((category) => (
+          <Bar
+            key={category.code}
+            label={category.label}
+            title={`${category.label}: ${String(category.total_minutes)} min, ${String(category.unproductive_share)}% bought no resolution`}
+            segments={[
+              ...category.by_outcome.map((outcome) => ({
+                value: outcome.minutes,
+                color: outcomeColour(outcome.resolution),
+                // Bar appends the value, so the label is the name alone.
+                label: outcomeLabel(outcome.resolution),
+              })),
+              {
+                // Scaled against the biggest claim on the centre's time, so the
+                // bars compare as absolute minutes rather than each filling its
+                // own row and hiding which work costs most.
+                value: Math.max(widest - category.total_minutes, 0),
+                color: 'transparent',
+                label: 'Remainder',
+              },
+            ]}
+            value={`${String(category.total_minutes)} min`}
+          />
+        ))}
+      </BarRows>
+
+      <div className={styles.failureModes}>
+        {[
+          {
+            key: 'fast',
+            title: 'Ended early, unresolved',
+            mode: data.fast_fail,
+            reading: 'Shorter than a call that works — the member was brushed off. Coaching.',
+          },
+          {
+            key: 'slow',
+            title: 'Ran long, still unresolved',
+            mode: data.slow_fail,
+            reading:
+              'The work was done and no answer existed. A process problem — coaching these agents would be the wrong response.',
+          },
+        ].map((entry) => (
+          <div key={entry.key} className={styles.failureMode}>
+            <h5>{entry.title}</h5>
+            <div className={styles.failureFigures}>
+              <b>{entry.mode.calls}</b>
+              <span>
+                CALLS · {entry.mode.minutes} MIN · AVG SCORE {entry.mode.average_score}
+              </span>
+            </div>
+            <p>{entry.reading}</p>
+          </div>
+        ))}
+      </div>
+      <Note>
+        Split at <b>{data.resolved_median_minutes} minutes</b>, the median length of a call that
+        did resolve — derived from this corpus rather than configured, so it stays comparable as
+        the mix of work changes.
       </Note>
     </>
   )
@@ -367,10 +536,10 @@ export function OverviewPage() {
         </Card>
 
         <Card
-          title="What an answer costs a member"
-          subtitle="Effort predicts leaving better than satisfaction does."
+          title="How long an answer takes"
+          subtitle="Resolved calls only — the quickest way to end a call is to solve nothing."
         >
-          <EffortCard />
+          <ResolutionTimeCard />
         </Card>
       </div>
 
@@ -529,6 +698,14 @@ export function OverviewPage() {
           ) : null}
         </Card>
       </div>
+
+      <div className={styles.eyebrow}>What the time bought</div>
+      <Card
+        title="Productive and unproductive minutes"
+        subtitle="Counted in minutes, not calls — the hours a resolution cost, and the hours that bought none."
+      >
+        <TimeValueCard />
+      </Card>
     </>
   )
 }

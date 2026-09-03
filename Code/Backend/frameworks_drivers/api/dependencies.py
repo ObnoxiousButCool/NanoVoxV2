@@ -18,6 +18,8 @@ from application.use_cases.get_dashboard import (
     GetBrokerScorecard,
     GetEffortMetrics,
     GetMembersAtRisk,
+    GetResolutionTime,
+    GetTimeValue,
     GetOverview,
     GetSignalDistribution,
 )
@@ -81,6 +83,14 @@ def get_effort_metrics_use_case(container: ContainerDep) -> GetEffortMetrics:
     return container.get_effort_metrics()
 
 
+def get_resolution_time_use_case(container: ContainerDep) -> GetResolutionTime:
+    return container.get_resolution_time()
+
+
+def get_time_value_use_case(container: ContainerDep) -> GetTimeValue:
+    return container.get_time_value()
+
+
 def get_members_at_risk_use_case(container: ContainerDep) -> GetMembersAtRisk:
     return container.get_members_at_risk()
 
@@ -134,6 +144,8 @@ AgentPerformanceDep = Annotated[GetAgentPerformance, Depends(get_agent_performan
 BrokerScorecardDep = Annotated[GetBrokerScorecard, Depends(get_broker_scorecard_use_case)]
 SignalDistributionDep = Annotated[GetSignalDistribution, Depends(get_signal_distribution_use_case)]
 EffortMetricsDep = Annotated[GetEffortMetrics, Depends(get_effort_metrics_use_case)]
+ResolutionTimeDep = Annotated[GetResolutionTime, Depends(get_resolution_time_use_case)]
+TimeValueDep = Annotated[GetTimeValue, Depends(get_time_value_use_case)]
 MembersAtRiskDep = Annotated[GetMembersAtRisk, Depends(get_members_at_risk_use_case)]
 StartCorpusRunDep = Annotated[StartCorpusRun, Depends(get_start_corpus_run_use_case)]
 CancelCorpusRunDep = Annotated[CancelCorpusRun, Depends(get_cancel_corpus_run_use_case)]

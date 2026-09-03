@@ -178,7 +178,7 @@ describe('CallDetailPage', () => {
     renderCall()
 
     await screen.findByText('27')
-    expect(screen.getByText(/Did not fire · 2:30/)).toBeInTheDocument()
+    expect(screen.getByText(/Did not trigger · 2:30/)).toBeInTheDocument()
     expect(screen.getByText(/the absence is the finding/)).toBeInTheDocument()
   })
 
@@ -197,7 +197,7 @@ describe('CallDetailPage', () => {
   })
 
   it('distinguishes a layer that failed from one that found nothing', async () => {
-    // "L5 unavailable" is a fault; "nothing fired" is a finding. Drawing them
+    // "L5 unavailable" is a fault; "nothing triggered" is a finding. Drawing them
     // the same way would hide a broken pipeline.
     renderCall({
       ...CALL_89,

@@ -22,7 +22,9 @@ from frameworks_drivers.api.dependencies import (
     EffortMetricsDep,
     MembersAtRiskDep,
     OverviewDep,
+    ResolutionTimeDep,
     SignalDistributionDep,
+    TimeValueDep,
 )
 
 router = APIRouter(prefix="/dashboard", tags=["dashboard"])
@@ -176,6 +178,89 @@ class EffortResponse(BaseModel):
     )
 
 
+class DurationBandResponse(BaseModel):
+    label: str
+    lower: int
+    upper: int | None = Field(
+        default=None,
+        description="Exclusive upper bound in minutes; null for the final open-ended band. "
+        "Half-open like the score bins, so '10-20' holds 10 up to 19.",
+    )
+    count: int
+
+
+class CategoryResolutionTimeResponse(BaseModel):
+    code: str
+    label: str
+    resolved_calls: int
+    median_minutes: float
+    longest_minutes: int
+
+
+class ResolutionTimeResponse(BaseModel):
+    resolved_calls: int = Field(
+        description="Calls that reached a resolution. Every figure here is measured over "
+        "these only — handle time across all calls rewards ending the call, not solving it."
+    )
+    total_calls: int
+    median_minutes: float
+    longest_minutes: int
+    bands: list[DurationBandResponse]
+    categories: list[CategoryResolutionTimeResponse] = Field(
+        description="Slowest first. Every configured category appears, including those "
+        "that have resolved nothing."
+    )
+
+
+class OutcomeMinutesResponse(BaseModel):
+    resolution: str
+    minutes: int
+
+
+class CategoryMinutesResponse(BaseModel):
+    code: str
+    label: str
+    total_minutes: int
+    resolved_minutes: int
+    unproductive_minutes: int
+    unproductive_share: float
+    by_outcome: list[OutcomeMinutesResponse] = Field(
+        description="Always in the same order, worst last, so a category's segments do not "
+        "shuffle when its mix changes. Zero-minute outcomes are kept."
+    )
+
+
+class FailureModeResponse(BaseModel):
+    calls: int
+    minutes: int
+    average_score: float
+
+
+class TimeValueResponse(BaseModel):
+    total_minutes: int
+    resolved_minutes: int
+    unproductive_minutes: int
+    productive_share: float = Field(
+        description="Share of all minutes spent on calls that reached a resolution."
+    )
+    resolved_median_minutes: float = Field(
+        description="Median duration of a resolved call, and the line dividing the two "
+        "failure modes. Derived from the corpus, not configured."
+    )
+    fast_fail: FailureModeResponse = Field(
+        description="Ended without an answer in less time than a typical successful call — "
+        "a member brushed off. A coaching signal."
+    )
+    slow_fail: FailureModeResponse = Field(
+        description="Ended without an answer having taken at least as long as a typical "
+        "successful call — the work was done and the system had no answer. A process signal, "
+        "and coaching these agents would be the wrong response."
+    )
+    categories: list[CategoryMinutesResponse] = Field(
+        description="Most time first. Categories with no timed calls are omitted."
+    )
+
+
 class MemberAtRiskResponse(BaseModel):
     member_id: str
     member_name: str | None = Field(
@@ -286,6 +371,57 @@ async def get_agents(use_case: AgentPerformanceDep) -> list[AgentResponse]:
 @router.get("/brokers", response_model=list[BrokerResponse], summary="Broker scorecard")
 async def get_brokers(use_case: BrokerScorecardDep) -> list[BrokerResponse]:
     return [_broker_response(broker) for broker in await use_case.execute()]
+
+
+@router.get(
+    "/time-value",
+    response_model=TimeValueResponse,
+    summary="What the time on calls bought, in minutes",
+)
+async def get_time_value(use_case: TimeValueDep) -> TimeValueResponse:
+    result = await use_case.execute()
+    return TimeValueResponse(
+        total_minutes=result.total_minutes,
+        resolved_minutes=result.resolved_minutes,
+        unproductive_minutes=result.unproductive_minutes,
+        productive_share=result.productive_share,
+        resolved_median_minutes=result.resolved_median_minutes,
+        fast_fail=FailureModeResponse(**result.fast_fail.__dict__),
+        slow_fail=FailureModeResponse(**result.slow_fail.__dict__),
+        categories=[
+            CategoryMinutesResponse(
+                code=entry.code,
+                label=entry.label,
+                total_minutes=entry.total_minutes,
+                resolved_minutes=entry.resolved_minutes,
+                unproductive_minutes=entry.unproductive_minutes,
+                unproductive_share=entry.unproductive_share,
+                by_outcome=[
+                    OutcomeMinutesResponse(**outcome.__dict__) for outcome in entry.by_outcome
+                ],
+            )
+            for entry in result.categories
+        ],
+    )
+
+
+@router.get(
+    "/resolution-time",
+    response_model=ResolutionTimeResponse,
+    summary="How long it takes to resolve a member's problem, by category",
+)
+async def get_resolution_time(use_case: ResolutionTimeDep) -> ResolutionTimeResponse:
+    result = await use_case.execute()
+    return ResolutionTimeResponse(
+        resolved_calls=result.resolved_calls,
+        total_calls=result.total_calls,
+        median_minutes=result.median_minutes,
+        longest_minutes=result.longest_minutes,
+        bands=[DurationBandResponse(**band.__dict__) for band in result.bands],
+        categories=[
+            CategoryResolutionTimeResponse(**entry.__dict__) for entry in result.categories
+        ],
+    )
 
 
 @router.get(
