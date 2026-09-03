@@ -61,14 +61,19 @@ class CallSpec:
     signals: tuple[str, ...] = ()
     l4: tuple[str, ...] = ()
     broker: tuple[str, Polarity] | None = None
+    # Defaults to one member per call. Set it explicitly to give two calls the
+    # same member, which is what makes repeat contact testable.
+    member_id: str | None = None
 
 
 # Sarah: 5 calls, scores 90/95/88/70/60 -> avg 80.6, tier-rated.
 # Brad:  5 calls, scores 30/40/25/55/50 -> avg 40.0, tier-rated, 3 unresolved.
 # Priya: 1 call,  score 96              -> below threshold, NOT tier-rated.
 SPECS: tuple[CallSpec, ...] = (
-    CallSpec("F0001", "Sarah", "coverage_benefits", RESOLVED, 90),
-    CallSpec("F0002", "Sarah", "claims_eob", RESOLVED, 95),
+    # F0001 and F0002 share a member: the corpus needs one repeat contact for
+    # member-level aggregation to be testable at all.
+    CallSpec("F0001", "Sarah", "coverage_benefits", RESOLVED, 90, member_id="CHM-REPEAT"),
+    CallSpec("F0002", "Sarah", "claims_eob", RESOLVED, 95, member_id="CHM-REPEAT"),
     CallSpec("F0003", "Sarah", "coverage_benefits", PARTIAL, 88),
     CallSpec(
         "F0004",
@@ -166,6 +171,9 @@ def build_analysis(spec: CallSpec, taxonomy: Taxonomy, index: int) -> CallAnalys
         category=taxonomy.category(spec.category),
         resolution=spec.resolution,
         sentiment=taxonomy.sentiment_arc("NEUTRAL", "SATISFIED"),
+        # A distinct member per call unless the spec says otherwise, mirroring a
+        # real corpus where most members appear once.
+        member_id=spec.member_id or f"CHM{spec.reference}",
         transcript=_transcript(spec.reference),
         score=ScoreResult(
             score=score,

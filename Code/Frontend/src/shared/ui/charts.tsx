@@ -91,6 +91,10 @@ export interface HistogramBar {
   readonly label: string
   readonly count: number
   readonly isBelowThreshold: boolean
+  /** Makes the bar selectable. Omitted, it is drawn as a plain bar. */
+  readonly onSelect?: () => void
+  /** What selecting it does, for anything that cannot see the chart. */
+  readonly selectLabel?: string
 }
 
 /**
@@ -106,16 +110,37 @@ export function Histogram({ bars, peak }: { bars: readonly HistogramBar[]; peak:
   return (
     <>
       <div className={styles.hist}>
-        {bars.map((bar) => (
-          <div
-            key={bar.label}
-            className={cx(styles.bar, bar.isBelowThreshold && styles.barWarn)}
-            style={{ height: `${String(Math.max((bar.count * 100) / tallest, 2))}%` }}
-            title={`${bar.label}: ${String(bar.count)}`}
-          >
-            {bar.count > 0 ? <span className={styles.barCount}>{bar.count}</span> : null}
-          </div>
-        ))}
+        {bars.map((bar) => {
+          const height = `${String(Math.max((bar.count * 100) / tallest, 2))}%`
+          const className = cx(styles.bar, bar.isBelowThreshold && styles.barWarn)
+          const title = `${bar.label}: ${String(bar.count)}`
+          const body = bar.count > 0 ? <span className={styles.barCount}>{bar.count}</span> : null
+
+          // A button rather than a clickable div: a bar that does something has
+          // to be reachable by keyboard and announce what it does. An empty bar
+          // stays inert — there is nothing to show.
+          if (bar.onSelect && bar.count > 0) {
+            return (
+              <button
+                key={bar.label}
+                type="button"
+                className={cx(className, styles.barButton)}
+                style={{ height }}
+                title={title}
+                aria-label={bar.selectLabel ?? title}
+                onClick={bar.onSelect}
+              >
+                {body}
+              </button>
+            )
+          }
+
+          return (
+            <div key={bar.label} className={className} style={{ height }} title={title}>
+              {body}
+            </div>
+          )
+        })}
       </div>
       <div className={styles.histAxis}>
         {bars.map((bar) => (

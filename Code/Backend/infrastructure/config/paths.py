@@ -22,6 +22,9 @@ DEFAULT_DATA_DIR: Path = PROJECT_ROOT / "Data"
 DEFAULT_DATABASE_FILE: Path = DEFAULT_DATA_DIR / "nanovox.db"
 DEFAULT_CORPUS_DIR: Path = PROJECT_ROOT / "Samples"
 DEFAULT_CONFIG_DIR: Path = BACKEND_ROOT / "config"
+# The built frontend, served by the API process so a deployment is one
+# process on one port. Absent during development, where Vite serves it.
+DEFAULT_FRONTEND_DIST: Path = PROJECT_ROOT / "Code" / "Frontend" / "dist"
 DEFAULT_TAXONOMY_PATH: Path = DEFAULT_CONFIG_DIR / "taxonomy.yaml"
 DEFAULT_RUBRIC_PATH: Path = DEFAULT_CONFIG_DIR / "rubric.yaml"
 DEFAULT_DASHBOARD_PATH: Path = DEFAULT_CONFIG_DIR / "dashboard.yaml"

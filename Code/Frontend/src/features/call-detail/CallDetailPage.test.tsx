@@ -1,7 +1,8 @@
 import { QueryClient } from '@tanstack/react-query'
 import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { AppProviders } from '@/app/providers'
 import { CallDetailPage } from '@/features/call-detail/CallDetailPage'
@@ -113,6 +114,10 @@ function renderCall(analysis: Analysis = CALL_89) {
     </AppProviders>,
   )
 }
+
+beforeEach(() => {
+  window.localStorage.clear()
+})
 
 afterEach(() => {
   vi.unstubAllGlobals()
@@ -230,5 +235,98 @@ describe('CallDetailPage', () => {
     )
 
     expect(await screen.findByText(/Could not load this call/)).toBeInTheDocument()
+  })
+
+  describe('collapsible layers', () => {
+    it('starts every layer open', async () => {
+      // A collapsed default would hide the analysis behind a click on first
+      // sight, and the evidence being readable is the point of the page.
+      renderCall()
+
+      await screen.findByRole('button', { name: /Transcription & understanding/ })
+      for (const title of [
+        'Transcription & understanding',
+        'What happened',
+        'How well it was handled',
+        'What to do about it',
+        'Real-time assist',
+      ]) {
+        expect(screen.getByRole('button', { name: new RegExp(title) })).toHaveAttribute(
+          'aria-expanded',
+          'true',
+        )
+      }
+    })
+
+    it('gives the transcript a toggle too', async () => {
+      // It had none: it was a hand-rolled copy of the layer markup, so the
+      // toggle added to LayerBlock never reached it.
+      renderCall()
+
+      // "Transcript" alone also matches "Transcription & understanding".
+      const transcript = await screen.findByRole('button', {
+        name: /turns · speaker separated/,
+      })
+      expect(transcript).toHaveAttribute('aria-expanded', 'true')
+
+      await userEvent.click(transcript)
+
+      expect(transcript).toHaveAttribute('aria-expanded', 'false')
+      expect(screen.queryByText(/turns · speaker separated/)).toBeInTheDocument()
+    })
+
+    it('closes one layer without touching the others', async () => {
+      renderCall()
+
+      const l1 = await screen.findByRole('button', { name: /Transcription & understanding/ })
+      await userEvent.click(l1)
+
+      expect(l1).toHaveAttribute('aria-expanded', 'false')
+      expect(
+        screen.getByRole('button', { name: /How well it was handled/ }),
+      ).toHaveAttribute('aria-expanded', 'true')
+    })
+
+    it('opens again when pressed a second time', async () => {
+      renderCall()
+
+      const l2 = await screen.findByRole('button', { name: /What happened/ })
+      await userEvent.click(l2)
+      await userEvent.click(l2)
+
+      expect(l2).toHaveAttribute('aria-expanded', 'true')
+    })
+
+    it('remembers what was collapsed on the next call opened', async () => {
+      // The layer someone reads is a habit, not a property of one call.
+      const first = renderCall()
+      await userEvent.click(
+        await screen.findByRole('button', { name: /Real-time assist/ }),
+      )
+      first.unmount()
+
+      renderCall()
+
+      expect(
+        await screen.findByRole('button', { name: /Real-time assist/ }),
+      ).toHaveAttribute('aria-expanded', 'false')
+    })
+  })
+
+  describe('getting back to the list', () => {
+    it('offers a way back', async () => {
+      renderCall()
+
+      expect(await screen.findByText(/Back to calls/)).toBeInTheDocument()
+    })
+
+    it('links straight to the list when the call was opened directly', async () => {
+      // A bookmark or a pasted URL: there is no history to return through, so a
+      // plain link is the only thing that can work.
+      renderCall()
+
+      const back = await screen.findByRole('link', { name: /Back to calls/ })
+      expect(back).toHaveAttribute('href', '/calls')
+    })
   })
 })

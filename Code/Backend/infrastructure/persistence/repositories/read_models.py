@@ -30,10 +30,13 @@ from application.ports.read_models import (
     Page,
     ReadModelRepository,
 )
+from domain.aggregation.member_risk import UNHAPPY_ENDINGS, MemberCalls
+from domain.aggregation.signal_attribution import L4Finding
 from domain.attribution_notes import broker_name_in
 from domain.value_objects.polarity import Polarity
 from domain.value_objects.resolution import Resolution
 from domain.value_objects.score import ScoreStatus
+from domain.value_objects.severity import Severity
 from infrastructure.persistence.tables import (
     BrokerSignalRow,
     CallRow,
@@ -257,6 +260,21 @@ class SqlReadModelRepository(ReadModelRepository):
                 for code, count, references in rows
             )
 
+    async def l4_findings(self) -> tuple[L4Finding, ...]:
+        """Every L4 finding as a row, for attribution that needs the severities."""
+        async with self._session_factory() as session:
+            rows = await session.execute(
+                select(L4SignalRow.call_id, L4SignalRow.category_code, L4SignalRow.severity)
+            )
+            return tuple(
+                L4Finding(
+                    call_id=int(call_id),
+                    category_code=str(code),
+                    severity=Severity(str(severity)),
+                )
+                for call_id, code, severity in rows
+            )
+
     async def signal_counts(self) -> tuple[KeyCount, ...]:
         unresolved = _count_if(CallRow.resolution == Resolution.UNRESOLVED.value)
         async with self._session_factory() as session:
@@ -280,6 +298,71 @@ class SqlReadModelRepository(ReadModelRepository):
                 )
                 for code, count, open_count, references in rows
             )
+
+    async def call_durations(self) -> tuple[int, ...]:
+        async with self._session_factory() as session:
+            rows = await session.scalars(
+                select(CallRow.duration_minutes).where(CallRow.duration_minutes.is_not(None))
+            )
+            # The None check is redundant against the WHERE, but the column is
+            # nullable and the type says so.
+            return tuple(int(value) for value in rows if value is not None)
+
+    async def member_call_counts(self) -> tuple[MemberCalls, ...]:
+        """Per-member totals, counted in SQL.
+
+        Calls with no member identifier are excluded, not grouped: they are
+        different unknown people, and folding them together would invent one
+        member with a hundred calls.
+        """
+        unhappy = _count_if(CallRow.sentiment_end.in_(tuple(UNHAPPY_ENDINGS)))
+        async with self._session_factory() as session:
+            rows = await session.execute(
+                select(
+                    CallRow.member_id,
+                    func.count(),
+                    func.coalesce(func.sum(CallRow.duration_minutes), 0),
+                    _count_if(CallRow.resolution == Resolution.RESOLVED.value),
+                    _count_if(CallRow.resolution == Resolution.UNRESOLVED.value),
+                    _count_if(CallRow.resolution == Resolution.ESCALATED.value),
+                    unhappy,
+                    func.min(CallRow.score),
+                    func.group_concat(CallRow.reference),
+                )
+                .where(CallRow.member_id.is_not(None))
+                .group_by(CallRow.member_id)
+            )
+            members = []
+            for (
+                member_id,
+                count,
+                minutes,
+                resolved,
+                unresolved,
+                escalated,
+                ended_unhappy,
+                lowest,
+                refs,
+            ) in rows:
+                references = _split(refs)
+                members.append(
+                    MemberCalls(
+                        member_id=str(member_id),
+                        call_count=int(count),
+                        total_minutes=int(minutes or 0),
+                        resolved=int(resolved or 0),
+                        unresolved=int(unresolved or 0),
+                        escalated=int(escalated or 0),
+                        ended_unhappy=int(ended_unhappy or 0),
+                        lowest_score=int(lowest or 0),
+                        # Newest last in the concatenation is not guaranteed, so
+                        # the reference that sorts highest stands in for "latest":
+                        # references are allocated in order.
+                        latest_reference=max(references) if references else "",
+                        references=references,
+                    )
+                )
+            return tuple(members)
 
     async def list_calls(
         self,
@@ -372,6 +455,7 @@ def _to_summary(
         summary=row.summary,
         category_code=row.category_code,
         agent_name=row.agent_name,
+        member_id=row.member_id,
         resolution=row.resolution,
         score=row.score,
         score_status=row.score_status,
@@ -408,6 +492,8 @@ def _apply(statement: Select[Any], filters: CallFilters) -> Select[Any]:
                 )
             )
         )
+    if filters.member_id:
+        statement = statement.where(CallRow.member_id == filters.member_id)
     if filters.signal_code:
         statement = statement.where(
             CallRow.id.in_(

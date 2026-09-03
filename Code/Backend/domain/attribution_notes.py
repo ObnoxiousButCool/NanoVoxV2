@@ -33,6 +33,22 @@ def quote_not_found_note(broker_name: str, turn_seq: int, quote: str) -> str:
     )
 
 
+def not_a_broker_note(broker_name: str, quote: str) -> str:
+    """The quote is genuine, but does not show a broker relationship."""
+    return (
+        f"{_PREFIX}{broker_name!r} is not supported by its quote, which does not "
+        f"name a broker relationship: {quote!r}"
+    )
+
+
+def is_the_agent_note(broker_name: str) -> str:
+    """The attribution names the agent who handled the call."""
+    return (
+        f"{_PREFIX}{broker_name!r} names the agent who handled the call, "
+        f"not a broker the member identified."
+    )
+
+
 def broker_name_in(note: str) -> str | None:
     """The broker a note refers to, or ``None`` if it is not one of ours.
 

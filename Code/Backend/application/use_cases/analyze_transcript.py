@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
+from re import Pattern
 from typing import Any
 
 from application.dto.analysis_schemas import NO_TURN, AnalysisSchemas
@@ -31,9 +32,12 @@ from application.ports.prompts import PromptSource
 from application.ports.redaction import RedactionPort
 from domain.attribution_notes import (
     broker_name_in,
+    is_the_agent_note,
     missing_turn_note,
+    not_a_broker_note,
     quote_not_found_note,
 )
+from domain.broker_evidence import is_the_agent, quote_names_a_broker
 from domain.entities.analysis import (
     AnalysisLayer,
     AnalysisSource,
@@ -47,6 +51,7 @@ from domain.entities.l4_signal import L4Signal
 from domain.entities.score_marker import ScoreMarker
 from domain.entities.transcript import Transcript
 from domain.errors import NanoVoxError, ValidationError
+from domain.member_id import find_member_id
 from domain.parsing import parse_transcript
 from domain.scoring.marker_validation import MarkerValidator
 from domain.scoring.rubric import Rubric
@@ -103,6 +108,8 @@ class AnalyzeTranscript:
         redaction: RedactionPort,
         repository: AnalysisRepository,
         clock: Clock,
+        member_id_pattern: Pattern[str] | None = None,
+        broker_terms: Pattern[str] | None = None,
     ) -> None:
         self._prompts = prompts
         self._schemas = schemas
@@ -112,6 +119,12 @@ class AnalyzeTranscript:
         self._redaction = redaction
         self._repository = repository
         self._clock = clock
+        # Optional: a deployment that does not issue member identifiers, or has
+        # not configured their shape, simply stores none.
+        self._member_id_pattern = member_id_pattern
+        # The words that make a quote evidence of a broker relationship. None
+        # disables the check rather than rejecting everything.
+        self._broker_terms = broker_terms
 
     async def execute(
         self, command: AnalyzeTranscriptCommand, provider: LLMProvider
@@ -152,6 +165,10 @@ class AnalyzeTranscript:
         validation = MarkerValidator(self._rubric, transcript).validate(_markers(l3))
         score = self._engine.score(validation.accepted, signal_codes=signal_codes)
 
+        # Resolved before the attributions are checked, which needs it: an
+        # attribution naming the agent on the call is not a member naming a broker.
+        agent_name = _text(l3, "agent_name") or _agent_from(transcript)
+
         context = _summarise_context(l1, l2, score.score.value)
 
         # --- Additive layers: a failure degrades the layer, not the call. ----
@@ -176,10 +193,15 @@ class AnalyzeTranscript:
         # the transcript exactly as a score marker's is. Requiring the field to be
         # present is not enough: a model that has no broker to report will fill it
         # with a plausible-looking placeholder.
-        attributions = _validated_attributions(_broker_signals(l4), transcript)
+        attributions = _validated_attributions(
+            _broker_signals(l4),
+            transcript,
+            agent_name=agent_name,
+            broker_terms=self._broker_terms,
+        )
         if attributions.rejected and l4 is not None:
             attributions = await self._repair_attributions(
-                provider, attributions, transcript, usage, rendered, context
+                provider, attributions, transcript, usage, rendered, context, agent_name
             )
 
         finished = self._clock.now()
@@ -195,7 +217,10 @@ class AnalyzeTranscript:
             transcript=transcript,
             score=score,
             source=command.source,
-            agent_name=_text(l3, "agent_name") or _agent_from(transcript),
+            agent_name=agent_name,
+            member_id=find_member_id(transcript, self._member_id_pattern)
+            if self._member_id_pattern
+            else None,
             member_context=_text(l1, "member_context") or None,
             duration_minutes=_positive_int(l2, "duration_minutes"),
             signal_codes=signal_codes,
@@ -260,6 +285,7 @@ class AnalyzeTranscript:
         usage: _UsageTally,
         rendered: str,
         context: str,
+        agent_name: str | None,
     ) -> _Attributions:
         """Ask once more for attributions whose quote did not match.
 
@@ -285,7 +311,12 @@ class AnalyzeTranscript:
         if l4 is None:
             return first
 
-        second = _validated_attributions(_broker_signals(l4), transcript)
+        second = _validated_attributions(
+            _broker_signals(l4),
+            transcript,
+            agent_name=agent_name,
+            broker_terms=self._broker_terms,
+        )
 
         # Union, not replacement: the retry must not cost us an attribution the
         # first pass had already evidenced properly.
@@ -460,9 +491,24 @@ class _Attributions:
 
 
 def _validated_attributions(
-    signals: tuple[BrokerSignal, ...], transcript: Transcript
+    signals: tuple[BrokerSignal, ...],
+    transcript: Transcript,
+    *,
+    agent_name: str | None = None,
+    broker_terms: Pattern[str] | None = None,
 ) -> _Attributions:
-    """Keep only attributions whose quote genuinely appears in the turn they cite."""
+    """Keep only attributions the transcript genuinely supports.
+
+    Three questions, in order of how cheaply they can be answered wrong:
+
+    1. Does the cited turn exist?
+    2. Were the quoted words actually said in it?
+    3. Do those words say what the attribution claims — that this person is the
+       member's *broker*, and is not the agent who answered the call?
+
+    The third was missing, and its absence is why surgeons, pharmacies and the
+    agents themselves reached a screen that names people for Compliance review.
+    """
     accepted: list[BrokerSignal] = []
     rejected: list[str] = []
 
@@ -474,6 +520,10 @@ def _validated_attributions(
             rejected.append(
                 quote_not_found_note(signal.broker_name, signal.evidence_turn_seq, signal.quote)
             )
+        elif is_the_agent(signal.broker_name, agent_name):
+            rejected.append(is_the_agent_note(signal.broker_name))
+        elif not quote_names_a_broker(signal.quote, broker_terms):
+            rejected.append(not_a_broker_note(signal.broker_name, signal.quote))
         else:
             accepted.append(signal)
 

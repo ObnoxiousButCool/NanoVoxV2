@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import dataclasses
 from collections.abc import AsyncIterator
 from dataclasses import replace
 from pathlib import Path
@@ -73,6 +74,30 @@ class TestRoundTrip:
         assert loaded.category.code == "coverage_benefits"
         assert loaded.resolution is Resolution.UNRESOLVED
         assert str(loaded.sentiment) == "WORRIED → DISMISSED"
+
+    async def test_the_member_identifier_survives(
+        self, repository: SqlAnalysisRepository, analysis: CallAnalysis
+    ) -> None:
+        # The column exists so a member's calls can be grouped. That only works
+        # if the identifier makes it back out of the database.
+        call_id = await repository.save(dataclasses.replace(analysis, member_id="CHM6672290"))
+
+        loaded = await repository.get(call_id)
+
+        assert loaded is not None
+        assert loaded.member_id == "CHM6672290"
+
+    async def test_a_call_without_an_identifier_round_trips_as_none(
+        self, repository: SqlAnalysisRepository, analysis: CallAnalysis
+    ) -> None:
+        # A real corpus call never states one. Absence must survive as absence
+        # rather than becoming an empty string that groups all of them together.
+        call_id = await repository.save(dataclasses.replace(analysis, member_id=None))
+
+        loaded = await repository.get(call_id)
+
+        assert loaded is not None
+        assert loaded.member_id is None
 
     async def test_the_score_and_its_suspension_survive(
         self, repository: SqlAnalysisRepository, analysis: CallAnalysis

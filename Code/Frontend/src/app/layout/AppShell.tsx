@@ -9,22 +9,38 @@
 import type { ReactNode } from 'react'
 import { NavLink } from 'react-router-dom'
 
-import { NAVIGATION } from '@/app/layout/navigation'
-import { useHealth } from '@/shared/api/queries'
+import { VISIBLE_NAVIGATION } from '@/app/layout/navigation'
+import {
+  SHOW_PROVIDER_STATUS,
+  SHOW_RAIL_STATUS,
+  providerStatus,
+} from '@/app/layout/providerStatus'
+import { useHealth, useProviders } from '@/shared/api/queries'
 import { useCollapsibleRail } from '@/shared/hooks/useCollapsibleRail'
 import { cx } from '@/shared/ui/cx'
 import styles from './AppShell.module.css'
 
 function RailStatus({ collapsed }: { collapsed: boolean }) {
   const { data, isError } = useHealth()
+  const providers = useProviders()
   const down = isError || data?.status === 'down'
+  const status = providerStatus(providers.data)
+
+  // Hidden, not removed. The health and provider queries above still run — they
+  // are shared with the rest of the app and cost nothing extra — so flipping the
+  // switch brings the block straight back with no other change.
+  if (!SHOW_RAIL_STATUS) {
+    return null
+  }
 
   if (collapsed) {
+    const healthy = SHOW_PROVIDER_STATUS ? `Backend healthy — ${status.detail}` : 'Backend healthy'
+    const label = down ? 'Backend unreachable' : healthy
     return (
       <span
         className={cx(styles.dot, down && styles.dotDown)}
-        title={down ? 'Backend unreachable' : 'Backend healthy'}
-        aria-label={down ? 'Backend unreachable' : 'Backend healthy'}
+        title={label}
+        aria-label={label}
         role="img"
       />
     )
@@ -33,9 +49,17 @@ function RailStatus({ collapsed }: { collapsed: boolean }) {
   return (
     <>
       <span className={cx(styles.dot, down && styles.dotDown)} aria-hidden="true" />
-      {down ? 'Backend unreachable' : 'Local model · on-prem'}
-      <br />
-      {down ? 'Check that the API is running' : 'Nothing leaves this environment'}
+      {/* Each line is its own element rather than text either side of a <br>:
+          the second is a privacy statement, and it should be addressable on its
+          own by anything reading the page. */}
+      <span className={styles.statusHeadline}>
+        {down ? 'Backend unreachable' : 'Backend healthy'}
+      </span>
+      {down ? (
+        <span className={styles.statusDetail}>Check that the API is running</span>
+      ) : SHOW_PROVIDER_STATUS ? (
+        <span className={styles.statusDetail}>{status.detail}</span>
+      ) : null}
     </>
   )
 }
@@ -90,7 +114,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         )}
 
         <div className={styles.nav}>
-          {NAVIGATION.map((item) => (
+          {VISIBLE_NAVIGATION.map((item) => (
             <NavLink
               key={item.to}
               to={item.to}

@@ -107,6 +107,46 @@ const SIGNALS = {
   ],
 }
 
+const EFFORT = {
+  calls_with_duration: 12,
+  median_minutes: 10,
+  mean_minutes: 10.8,
+  longest_minutes: 20,
+  long_call_count: 4,
+  long_call_threshold: 20,
+  identified_members: 10,
+  repeat_members: 2,
+  calls_by_repeat_members: 5,
+  repeat_contact_rate: 20,
+  median_minutes_to_answer: 25,
+  members_with_answer: 6,
+  members_without_answer: 4,
+}
+
+const MEMBERS = {
+  basis: 'Observed warning signs, not a prediction.',
+  members: [
+    {
+      member_id: 'CHM5519074',
+      call_count: 3,
+      factors: ['unresolved', 'ended_unhappy', 'repeat_contact'],
+      factor_labels: ['Issue unresolved', 'Ended the call unhappy', 'Has called more than once'],
+      lowest_score: 29,
+      latest_reference: 'F0006',
+      references: ['F0006', 'C0001'],
+    },
+    {
+      member_id: 'CHM8817740',
+      call_count: 1,
+      factors: ['low_score'],
+      factor_labels: ['Poorly handled'],
+      lowest_score: 46,
+      latest_reference: 'C0002',
+      references: ['C0002'],
+    },
+  ],
+}
+
 function json(body: unknown): Response {
   return new Response(JSON.stringify(body), {
     status: 200,
@@ -114,13 +154,18 @@ function json(body: unknown): Response {
   })
 }
 
-function renderOverview(overview: unknown = OVERVIEW) {
+function renderOverview(
+  overview: unknown = OVERVIEW,
+  { effort = EFFORT, members = MEMBERS }: { effort?: unknown; members?: unknown } = {},
+) {
   vi.stubGlobal(
     'fetch',
     vi.fn((url: string) => {
       if (url.includes('/dashboard/overview')) return Promise.resolve(json(overview))
       if (url.includes('/dashboard/agents')) return Promise.resolve(json(AGENTS))
       if (url.includes('/dashboard/signals')) return Promise.resolve(json(SIGNALS))
+      if (url.includes('/dashboard/effort')) return Promise.resolve(json(effort))
+      if (url.includes('/dashboard/members-at-risk')) return Promise.resolve(json(members))
       return Promise.resolve(json({}))
     }),
   )
@@ -152,6 +197,17 @@ describe('OverviewPage', () => {
     await screen.findByText('Agents are not escalating clinical urgency')
     expect(screen.getByText('Quality and Clinical')).toBeInTheDocument()
     expect(screen.getByText('C0001 F0006')).toBeInTheDocument()
+  })
+
+  it('says how many calls the owner bars account for', async () => {
+    // The bars total flagged calls, not findings, so the card states the figure
+    // rather than leaving the reader to wonder why it is under the call count.
+    // 4 + 0 owner counts against a 12-call corpus.
+    renderOverview()
+
+    const note = await screen.findByText(/raise at least one signal/)
+    expect(note).toHaveTextContent('4 of 12 calls raise at least one signal')
+    expect(note).toHaveTextContent('counted for the team owning the more serious one')
   })
 
   it('shows the median and the mean together', async () => {
@@ -241,5 +297,140 @@ describe('OverviewPage', () => {
     )
 
     expect(await screen.findByText(/Could not load the dashboard/)).toBeInTheDocument()
+  })
+
+  describe('members at risk', () => {
+    it('names the warning signs rather than scoring them', async () => {
+      // A percentage would be indistinguishable from a measured one while being
+      // invented, and would be acted on as though it were fact.
+      renderOverview()
+
+      expect(await screen.findByText('CHM5519074')).toBeInTheDocument()
+      expect(screen.getByText('Issue unresolved')).toBeInTheDocument()
+      expect(screen.getByText('Ended the call unhappy')).toBeInTheDocument()
+      expect(screen.getByText('Has called more than once')).toBeInTheDocument()
+    })
+
+    it('says plainly that it is not a prediction', async () => {
+      renderOverview()
+
+      await screen.findByText('CHM5519074')
+      expect(screen.getByText(/not.*a predicted probability/i)).toBeInTheDocument()
+    })
+
+    it('links a member to all of their calls, not to one reference', async () => {
+      // Searching for the latest reference finds a single call. The row exists
+      // because the member has a history; the link has to open that history.
+      renderOverview()
+
+      const link = await screen.findByRole('link', { name: 'CHM5519074' })
+      expect(link).toHaveAttribute('href', '/calls?member=CHM5519074')
+    })
+
+    it('reports an empty list as a result, not an omission', async () => {
+      renderOverview(OVERVIEW, { members: { basis: 'x', members: [] } })
+
+      expect(await screen.findByText(/No member is showing a warning sign/)).toBeInTheDocument()
+    })
+  })
+
+  describe('effort', () => {
+    it('shows what an answer costs a member', async () => {
+      renderOverview()
+
+      expect(await screen.findByText('20%')).toBeInTheDocument()
+      expect(screen.getByText('CALLED MORE THAN ONCE')).toBeInTheDocument()
+      expect(screen.getByText(/called back/)).toBeInTheDocument()
+    })
+
+    it('measures time to an answer per member, over those who got one', async () => {
+      renderOverview()
+
+      // 25 minutes across the 6 members who reached a resolution — not the
+      // 10-minute median call, which is a different question.
+      expect(await screen.findByText('25')).toBeInTheDocument()
+      expect(screen.getByText('MEDIAN MINUTES TO AN ANSWER')).toBeInTheDocument()
+      expect(screen.getByText(/Measured over the/)).toHaveTextContent(
+        '6 of 10 identified members who reached a resolution',
+      )
+    })
+
+    it('counts members still waiting rather than averaging them in as zero', async () => {
+      // Their clock has not stopped. Folding them in would make the reported
+      // time to an answer fall the longer they are left waiting.
+      renderOverview()
+
+      expect(await screen.findByText('STILL WITHOUT ONE')).toBeInTheDocument()
+      expect(screen.getByText(/still without an answer are left out/)).toBeInTheDocument()
+    })
+
+    it('explains a zero repeat rate rather than implying nobody struggles', async () => {
+      // On a corpus where every member called once, zero is a property of the
+      // sample, not evidence that effort is low.
+      renderOverview(OVERVIEW, {
+        effort: { ...EFFORT, repeat_members: 0, calls_by_repeat_members: 0, repeat_contact_rate: 0 },
+      })
+
+      expect(
+        await screen.findByText(/the measure is in place, the calls to find are not/i),
+      ).toBeInTheDocument()
+    })
+  })
+
+  describe('the score distribution', () => {
+    it('offers each populated bar as a way into those calls', async () => {
+      renderOverview()
+
+      await screen.findByText('Coverage & Benefits')
+      expect(
+        screen.getByRole('button', { name: 'Show the 5 calls scoring 0 to 59' }),
+      ).toBeInTheDocument()
+    })
+
+    it('runs the last bin to 100 rather than 99', async () => {
+      // Bins are half-open except the last, which has to hold a perfect score.
+      // Off by one here and no call scoring 100 would ever be reachable.
+      renderOverview()
+
+      await screen.findByText('Coverage & Benefits')
+      expect(
+        screen.getByRole('button', { name: 'Show the 7 calls scoring 60 to 100' }),
+      ).toBeInTheDocument()
+    })
+
+    it('says "1 call" rather than "1 calls"', async () => {
+      renderOverview({
+        ...OVERVIEW,
+        histogram: {
+          ...OVERVIEW.histogram,
+          bins: [
+            { label: '0-60', lower: 0, upper: 60, count: 1, is_below_threshold: true },
+            { label: '60-100', lower: 60, upper: 100, count: 7, is_below_threshold: false },
+          ],
+        },
+      })
+
+      await screen.findByText('Coverage & Benefits')
+      expect(
+        screen.getByRole('button', { name: 'Show the 1 call scoring 0 to 59' }),
+      ).toBeInTheDocument()
+    })
+
+    it('leaves an empty bar inert', async () => {
+      // Nothing to show, so nothing to press.
+      renderOverview({
+        ...OVERVIEW,
+        histogram: {
+          ...OVERVIEW.histogram,
+          bins: [
+            { label: '0-60', lower: 0, upper: 60, count: 0, is_below_threshold: true },
+            { label: '60-100', lower: 60, upper: 100, count: 7, is_below_threshold: false },
+          ],
+        },
+      })
+
+      await screen.findByText('Coverage & Benefits')
+      expect(screen.queryByRole('button', { name: /scoring 0 to 59/ })).not.toBeInTheDocument()
+    })
   })
 })

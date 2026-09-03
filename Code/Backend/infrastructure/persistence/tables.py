@@ -52,6 +52,7 @@ class CallRow(Base):
     sentiment_end: Mapped[str] = mapped_column(String(_SHORT), nullable=False)
 
     agent_name: Mapped[str | None] = mapped_column(String(_NAME))
+    member_id: Mapped[str | None] = mapped_column(String(_SHORT))
     member_context: Mapped[str | None] = mapped_column(Text)
     duration_minutes: Mapped[int | None] = mapped_column(Integer)
 
@@ -106,6 +107,8 @@ class CallRow(Base):
         UniqueConstraint("reference", name="uq_calls_reference"),
         Index("ix_calls_category_code", "category_code"),
         Index("ix_calls_agent_name", "agent_name"),
+        # Every member-level question groups by this column.
+        Index("ix_calls_member_id", "member_id"),
         Index("ix_calls_resolution", "resolution"),
     )
 

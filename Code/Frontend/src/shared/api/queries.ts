@@ -22,6 +22,8 @@ import {
   fetchProviders,
   fetchRun,
   fetchRuns,
+  fetchEffort,
+  fetchMembersAtRisk,
   fetchSignals,
   fetchTaxonomy,
   resumeRun,
@@ -44,6 +46,8 @@ export const queryKeys = {
   agents: ['dashboard', 'agents'] as const,
   brokers: ['dashboard', 'brokers'] as const,
   signals: ['dashboard', 'signals'] as const,
+  effort: ['dashboard', 'effort'] as const,
+  membersAtRisk: ['dashboard', 'members-at-risk'] as const,
   corpus: ['corpus'] as const,
   runs: ['corpus', 'runs'] as const,
   run: (runId: number) => ['corpus', 'run', runId] as const,
@@ -102,6 +106,17 @@ export function useAgents() {
 
 export function useBrokers() {
   return useQuery({ queryKey: queryKeys.brokers, queryFn: ({ signal }) => fetchBrokers(signal) })
+}
+
+export function useEffort() {
+  return useQuery({ queryKey: queryKeys.effort, queryFn: ({ signal }) => fetchEffort(signal) })
+}
+
+export function useMembersAtRisk() {
+  return useQuery({
+    queryKey: queryKeys.membersAtRisk,
+    queryFn: ({ signal }) => fetchMembersAtRisk(signal),
+  })
 }
 
 export function useSignals() {

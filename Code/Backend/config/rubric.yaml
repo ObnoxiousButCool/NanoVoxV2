@@ -16,12 +16,17 @@
 
 version: "1.0.0"
 
-# 100 means "nothing went wrong". Markers only ever move the score down from here.
+# 100 means "nothing detracted from the call". Markers only ever move the score
+# down from here.
 base_score: 100
 
-# The most that positive markers may offset accumulated penalties, in total.
-# Good handling can soften a bad call; it cannot cancel a compliance failure, and
-# it can never lift a call above base_score.
+# The most that positive markers may offset accumulated deductions, in total.
+# Strong handling can soften a poor outcome; it cannot cancel a compliance
+# failure, and it can never lift a call above base_score.
+#
+# Note on wording throughout this file: deductions describe the handling, never
+# the agent. The engine's own vocabulary is POSITIVE / NEGATIVE rather than
+# good / bad for the same reason — an agent reads these numbers.
 max_positive_offset: 15
 
 # --- Dimensions ------------------------------------------------------------

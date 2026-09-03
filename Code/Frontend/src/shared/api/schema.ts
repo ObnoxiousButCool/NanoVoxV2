@@ -215,6 +215,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/dashboard/effort": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** What getting an answer costs a member */
+        get: operations["get_effort_api_v1_dashboard_effort_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/dashboard/members-at-risk": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Members showing signs of leaving, with the evidence */
+        get: operations["get_members_at_risk_api_v1_dashboard_members_at_risk_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/dashboard/overview": {
         parameters: {
             query?: never;
@@ -506,6 +540,8 @@ export interface components {
             category: string;
             /** Id */
             id: number;
+            /** Member Id */
+            member_id?: string | null;
             /** Reference */
             reference: string;
             /** Resolution */
@@ -612,6 +648,53 @@ export interface components {
             /** Total Calls */
             total_calls: number;
         };
+        /** EffortResponse */
+        EffortResponse: {
+            /** Calls By Repeat Members */
+            calls_by_repeat_members: number;
+            /** Calls With Duration */
+            calls_with_duration: number;
+            /**
+             * Identified Members
+             * @description Members whose identifier was stated in the call. Calls without one are excluded rather than grouped, since unknown members are different people.
+             */
+            identified_members: number;
+            /**
+             * Long Call Count
+             * @description Calls at or beyond twice the median, which is where 'long' starts.
+             */
+            long_call_count: number;
+            /** Long Call Threshold */
+            long_call_threshold: number;
+            /** Longest Minutes */
+            longest_minutes: number;
+            /** Mean Minutes */
+            mean_minutes: number;
+            /** Median Minutes */
+            median_minutes: number;
+            /**
+             * Median Minutes To Answer
+             * @description Median minutes a member spent across all their calls before one of them resolved their issue. Members still waiting are excluded, not counted as zero.
+             */
+            median_minutes_to_answer: number;
+            /**
+             * Members With Answer
+             * @description Identified members who reached a resolution. The population the time-to-answer figure is measured over.
+             */
+            members_with_answer: number;
+            /**
+             * Members Without Answer
+             * @description Identified members with no resolved call. Their clock has not stopped, so folding them in would shorten the reported time the longer they are left waiting.
+             */
+            members_without_answer: number;
+            /**
+             * Repeat Contact Rate
+             * @description Share of identified members who called more than once, as a percentage.
+             */
+            repeat_contact_rate: number;
+            /** Repeat Members */
+            repeat_members: number;
+        };
         /** HTTPValidationError */
         HTTPValidationError: {
             /** Detail */
@@ -703,6 +786,37 @@ export interface components {
             polarity: string;
             /** Quote */
             quote: string;
+        };
+        /** MemberAtRiskResponse */
+        MemberAtRiskResponse: {
+            /** Call Count */
+            call_count: number;
+            /** Factor Labels */
+            factor_labels: string[];
+            /**
+             * Factors
+             * @description Machine-readable risk factor codes observed for this member.
+             */
+            factors: string[];
+            /** Latest Reference */
+            latest_reference: string;
+            /** Lowest Score */
+            lowest_score: number;
+            /** Member Id */
+            member_id: string;
+            /** References */
+            references: string[];
+        };
+        /** MembersAtRiskResponse */
+        MembersAtRiskResponse: {
+            /**
+             * Basis
+             * @description What this list is. Stated on the response because a client must not present it as a prediction: no factor here has been measured against an actual departure.
+             * @default Observed warning signs, not a prediction. Ranked by how many signs a member shows. No weighting has been validated against real churn.
+             */
+            basis: string;
+            /** Members */
+            members: components["schemas"]["MemberAtRiskResponse"][];
         };
         /** MetricsResponse */
         MetricsResponse: {
@@ -818,6 +932,12 @@ export interface components {
             implemented: boolean;
             /** Is Default */
             is_default: boolean;
+            /**
+             * Local
+             * @description Whether transcripts stay inside this environment. False means calls are sent to a third party, which is a statement about member health conversations rather than about cost.
+             * @default false
+             */
+            local: boolean;
             /** Model */
             model: string;
             /** Name */
@@ -1102,6 +1222,8 @@ export interface operations {
                 has_broker_signal?: boolean | null;
                 /** @description Broker name attributed on the call. */
                 broker?: string | null;
+                /** @description Member identifier, as stated in the call. */
+                member?: string | null;
                 /** @description Signal code, e.g. clinical_risk. */
                 signal?: string | null;
                 /** @description Matches title, summary or reference. */
@@ -1431,6 +1553,46 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["BrokerResponse"][];
+                };
+            };
+        };
+    };
+    get_effort_api_v1_dashboard_effort_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EffortResponse"];
+                };
+            };
+        };
+    };
+    get_members_at_risk_api_v1_dashboard_members_at_risk_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MembersAtRiskResponse"];
                 };
             };
         };

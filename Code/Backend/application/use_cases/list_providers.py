@@ -28,6 +28,10 @@ class ProviderDescription:
     # Whether choosing this provider spends money. The corpus screen needs it to
     # warn before a hundred calls go to a paid API.
     billable: bool = False
+    # Whether transcripts stay inside this environment. Surfaced because the UI
+    # states a privacy guarantee, and a guarantee must follow the configuration
+    # rather than being written into the page.
+    local: bool = False
     detail: str | None = None
 
     @property
@@ -67,7 +71,12 @@ class ListProviders:
 
 
 def describe_from_status(
-    status: ProviderStatus, *, is_default: bool, configured: bool, billable: bool
+    status: ProviderStatus,
+    *,
+    is_default: bool,
+    configured: bool,
+    billable: bool,
+    local: bool,
 ) -> ProviderDescription:
     return ProviderDescription(
         name=status.name,
@@ -77,5 +86,6 @@ def describe_from_status(
         implemented=status.implemented,
         is_default=is_default,
         billable=billable,
+        local=local,
         detail=status.detail,
     )

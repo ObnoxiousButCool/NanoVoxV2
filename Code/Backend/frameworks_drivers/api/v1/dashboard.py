@@ -19,6 +19,8 @@ from application.use_cases.get_dashboard import (
 from frameworks_drivers.api.dependencies import (
     AgentPerformanceDep,
     BrokerScorecardDep,
+    EffortMetricsDep,
+    MembersAtRiskDep,
     OverviewDep,
     SignalDistributionDep,
 )
@@ -142,6 +144,65 @@ class SignalsResponse(BaseModel):
     owners: list[OwnerLoadResponse]
 
 
+class EffortResponse(BaseModel):
+    calls_with_duration: int
+    median_minutes: float
+    mean_minutes: float
+    longest_minutes: int
+    long_call_count: int = Field(
+        description="Calls at or beyond twice the median, which is where 'long' starts."
+    )
+    long_call_threshold: int
+    identified_members: int = Field(
+        description="Members whose identifier was stated in the call. Calls without "
+        "one are excluded rather than grouped, since unknown members are different people."
+    )
+    repeat_members: int
+    calls_by_repeat_members: int
+    repeat_contact_rate: float = Field(
+        description="Share of identified members who called more than once, as a percentage."
+    )
+    median_minutes_to_answer: float = Field(
+        description="Median minutes a member spent across all their calls before one of "
+        "them resolved their issue. Members still waiting are excluded, not counted as zero."
+    )
+    members_with_answer: int = Field(
+        description="Identified members who reached a resolution. The population the "
+        "time-to-answer figure is measured over."
+    )
+    members_without_answer: int = Field(
+        description="Identified members with no resolved call. Their clock has not stopped, "
+        "so folding them in would shorten the reported time the longer they are left waiting."
+    )
+
+
+class MemberAtRiskResponse(BaseModel):
+    member_id: str
+    call_count: int
+    factors: list[str] = Field(
+        description="Machine-readable risk factor codes observed for this member."
+    )
+    factor_labels: list[str]
+    lowest_score: int
+    latest_reference: str
+    references: list[str]
+
+
+class MembersAtRiskResponse(BaseModel):
+    members: list[MemberAtRiskResponse]
+    basis: str = Field(
+        description=(
+            "What this list is. Stated on the response because a client must not "
+            "present it as a prediction: no factor here has been measured against "
+            "an actual departure."
+        ),
+        default=(
+            "Observed warning signs, not a prediction. Ranked by how many signs a "
+            "member shows. No weighting has been validated against real churn."
+        ),
+    )
+
+
 def _overview_response(overview: Overview) -> OverviewResponse:
     return OverviewResponse(
         metrics=MetricsResponse(**overview.metrics.__dict__),
@@ -220,6 +281,53 @@ async def get_agents(use_case: AgentPerformanceDep) -> list[AgentResponse]:
 @router.get("/brokers", response_model=list[BrokerResponse], summary="Broker scorecard")
 async def get_brokers(use_case: BrokerScorecardDep) -> list[BrokerResponse]:
     return [_broker_response(broker) for broker in await use_case.execute()]
+
+
+@router.get(
+    "/effort",
+    response_model=EffortResponse,
+    summary="What getting an answer costs a member",
+)
+async def get_effort(use_case: EffortMetricsDep) -> EffortResponse:
+    metrics = await use_case.execute()
+    return EffortResponse(
+        calls_with_duration=metrics.calls_with_duration,
+        median_minutes=metrics.median_minutes,
+        mean_minutes=metrics.mean_minutes,
+        longest_minutes=metrics.longest_minutes,
+        long_call_count=metrics.long_call_count,
+        long_call_threshold=metrics.long_call_threshold,
+        identified_members=metrics.identified_members,
+        repeat_members=metrics.repeat_members,
+        calls_by_repeat_members=metrics.calls_by_repeat_members,
+        repeat_contact_rate=metrics.repeat_contact_rate,
+        median_minutes_to_answer=metrics.median_minutes_to_answer,
+        members_with_answer=metrics.members_with_answer,
+        members_without_answer=metrics.members_without_answer,
+    )
+
+
+@router.get(
+    "/members-at-risk",
+    response_model=MembersAtRiskResponse,
+    summary="Members showing signs of leaving, with the evidence",
+)
+async def get_members_at_risk(use_case: MembersAtRiskDep) -> MembersAtRiskResponse:
+    members = await use_case.execute()
+    return MembersAtRiskResponse(
+        members=[
+            MemberAtRiskResponse(
+                member_id=member.member_id,
+                call_count=member.call_count,
+                factors=[factor.value for factor in member.factors],
+                factor_labels=[factor.label for factor in member.factors],
+                lowest_score=member.lowest_score,
+                latest_reference=member.latest_reference,
+                references=list(member.references),
+            )
+            for member in members
+        ]
+    )
 
 
 @router.get("/signals", response_model=SignalsResponse, summary="L4 signal distribution")

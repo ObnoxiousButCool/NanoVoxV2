@@ -56,7 +56,11 @@ SEED_CHILDREN = (
     "VALUES (1, 'compliance_risk', 'CRITICAL', 'Cost steering.')",
     "INSERT INTO broker_signals "
     "(call_id, broker_name, polarity, basis, issue, evidence_turn_seq, quote) "
-    "VALUES (1, 'Marcus Trent', 'NEGATIVE', 'NAMED_IN_CALL', 'Bad advice.', 1, 'chest pressure')",
+    # The quote has to name a broker relationship, or the evidence rule removes
+    # this row legitimately and the cascade this test guards would be masked by a
+    # deletion that was supposed to happen.
+    "VALUES (1, 'Marcus Trent', 'NEGATIVE', 'NAMED_IN_CALL', 'Bad advice.', 1, "
+    "'My broker, Marcus Trent, gave bad advice')",
     "INSERT INTO assist_events (call_id, outcome, trigger, recommendation, severity) "
     "VALUES (1, 'SHOULD_HAVE_FIRED', 'symptoms', 'Nurse line.', 'CRITICAL')",
 )

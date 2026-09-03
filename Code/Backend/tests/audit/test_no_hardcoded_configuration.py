@@ -60,27 +60,33 @@ def test_no_configuration_literals_outside_the_config_package(pattern: re.Patter
     )
 
 
-def test_every_setting_is_documented_in_env_example() -> None:
+# A setting entry in the template, whether active or commented out. A setting
+# whose default is correct almost everywhere is documented as a commented
+# example rather than a live value: the rule is that nobody should have to read
+# the source to discover a setting exists, not that every setting must be set.
+#
+# The distinction matters. Requiring a live value put absolute paths from one
+# developer's machine into the template, and every fresh checkout then failed at
+# startup looking for a directory that only existed on that machine.
+_SETTING_ENTRY = re.compile(r"^\s*#*\s*([A-Z][A-Z0-9_]*)\s*=")
+
+
+def _documented_settings() -> set[str]:
     example = BACKEND_ROOT / ".env.example"
-    documented = {
-        line.split("=", 1)[0].strip().lower()
+    return {
+        match.group(1).lower()
         for line in example.read_text(encoding="utf-8").splitlines()
-        if "=" in line and not line.lstrip().startswith("#")
+        if (match := _SETTING_ENTRY.match(line))
     }
 
-    undocumented = sorted(set(Settings.model_fields) - documented)
+
+def test_every_setting_is_documented_in_env_example() -> None:
+    undocumented = sorted(set(Settings.model_fields) - _documented_settings())
 
     assert not undocumented, f".env.example is missing: {', '.join(undocumented)}"
 
 
 def test_env_example_documents_no_settings_that_do_not_exist() -> None:
-    example = BACKEND_ROOT / ".env.example"
-    documented = {
-        line.split("=", 1)[0].strip().lower()
-        for line in example.read_text(encoding="utf-8").splitlines()
-        if "=" in line and not line.lstrip().startswith("#")
-    }
-
-    stale = sorted(documented - set(Settings.model_fields))
+    stale = sorted(_documented_settings() - set(Settings.model_fields))
 
     assert not stale, f".env.example documents settings that no longer exist: {', '.join(stale)}"

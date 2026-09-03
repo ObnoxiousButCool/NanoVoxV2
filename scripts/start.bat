@@ -45,6 +45,21 @@ if not exist "%BACKEND%\.env" (
     echo Creating backend\.env from .env.example - the defaults work for a local run.
     copy "%BACKEND%\.env.example" "%BACKEND%\.env" >nul
 )
+
+rem --- Database schema ---
+rem SQLite creates the file on first connect but not the tables in it, so
+rem without this a fresh clone starts and dies on "no such table:
+rem analysis_runs". Re-running is a no-op once the schema is current.
+echo Applying database migrations...
+pushd "%BACKEND%"
+python -m alembic upgrade head
+if errorlevel 1 (
+    echo ERROR: database migration failed. See output above.
+    popd
+    exit /b 1
+)
+popd
+
 call "%BACKEND%\.venv\Scripts\deactivate.bat"
 
 rem --- Frontend: dependencies ---

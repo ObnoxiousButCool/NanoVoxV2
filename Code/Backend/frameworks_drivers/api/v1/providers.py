@@ -27,6 +27,14 @@ class ProviderResponse(BaseModel):
     billable: bool = Field(
         description="Whether running against this provider is charged for per token."
     )
+    local: bool = Field(
+        default=False,
+        description=(
+            "Whether transcripts stay inside this environment. False means calls are "
+            "sent to a third party, which is a statement about member health "
+            "conversations rather than about cost."
+        ),
+    )
     detail: str | None = None
 
 
@@ -45,6 +53,7 @@ def _to_response(description: ProviderDescription) -> ProviderResponse:
         selectable=description.selectable,
         is_default=description.is_default,
         billable=description.billable,
+        local=description.local,
         detail=description.detail,
     )
 

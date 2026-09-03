@@ -14,6 +14,9 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
 
+from domain.aggregation.member_risk import MemberCalls
+from domain.aggregation.signal_attribution import L4Finding
+
 
 @dataclass(frozen=True)
 class CallSummary:
@@ -25,6 +28,7 @@ class CallSummary:
     summary: str
     category_code: str
     agent_name: str | None
+    member_id: str | None
     resolution: str
     score: int
     score_status: str
@@ -77,6 +81,9 @@ class CallFilters:
     has_broker_signal: bool | None = None
     broker_name: str | None = None
     signal_code: str | None = None
+    # One member's calls. The at-risk list is member-level, so opening it must
+    # narrow to that member exactly rather than searching for a reference.
+    member_id: str | None = None
     search: str | None = None
 
 
@@ -158,8 +165,30 @@ class ReadModelRepository(ABC):
         """Calls flagged per L4 category. A call raising two signals of one category counts once."""
 
     @abstractmethod
+    async def l4_findings(self) -> tuple[L4Finding, ...]:
+        """Every operational finding, with the call it is on and its severity.
+
+        Rows rather than counts, because the owner rollup has to attribute each
+        call to one team, and that cannot be derived from per-category totals:
+        it needs to know which findings share a call and which of them is the
+        most serious.
+        """
+
+    @abstractmethod
     async def signal_counts(self) -> tuple[KeyCount, ...]:
         """Calls raising each signal type."""
+
+    @abstractmethod
+    async def call_durations(self) -> tuple[int, ...]:
+        """Every recorded call duration, in minutes."""
+
+    @abstractmethod
+    async def member_call_counts(self) -> tuple[MemberCalls, ...]:
+        """Per-member totals, for members whose identifier is known.
+
+        Calls with no identifier are excluded rather than grouped together: an
+        unknown member is not a member who called many times.
+        """
 
     @abstractmethod
     async def list_calls(

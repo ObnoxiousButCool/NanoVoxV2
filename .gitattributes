@@ -1,0 +1,8 @@
+# Shell scripts must have LF endings whatever the checkout platform. A CRLF
+# script fails on macOS and Linux before it runs a single line, with the
+# famously opaque "bad interpreter: /usr/bin/env bash^M".
+*.sh text eol=lf
+
+# Batch and PowerShell are the Windows counterparts and want CRLF.
+*.bat text eol=crlf
+*.ps1 text eol=crlf

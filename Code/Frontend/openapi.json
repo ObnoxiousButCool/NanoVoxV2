@@ -541,6 +541,17 @@
             "title": "Id",
             "type": "integer"
           },
+          "member_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Member Id"
+          },
           "reference": {
             "title": "Reference",
             "type": "string"
@@ -804,6 +815,85 @@
         "title": "CorpusStatusResponse",
         "type": "object"
       },
+      "EffortResponse": {
+        "properties": {
+          "calls_by_repeat_members": {
+            "title": "Calls By Repeat Members",
+            "type": "integer"
+          },
+          "calls_with_duration": {
+            "title": "Calls With Duration",
+            "type": "integer"
+          },
+          "identified_members": {
+            "description": "Members whose identifier was stated in the call. Calls without one are excluded rather than grouped, since unknown members are different people.",
+            "title": "Identified Members",
+            "type": "integer"
+          },
+          "long_call_count": {
+            "description": "Calls at or beyond twice the median, which is where 'long' starts.",
+            "title": "Long Call Count",
+            "type": "integer"
+          },
+          "long_call_threshold": {
+            "title": "Long Call Threshold",
+            "type": "integer"
+          },
+          "longest_minutes": {
+            "title": "Longest Minutes",
+            "type": "integer"
+          },
+          "mean_minutes": {
+            "title": "Mean Minutes",
+            "type": "number"
+          },
+          "median_minutes": {
+            "title": "Median Minutes",
+            "type": "number"
+          },
+          "median_minutes_to_answer": {
+            "description": "Median minutes a member spent across all their calls before one of them resolved their issue. Members still waiting are excluded, not counted as zero.",
+            "title": "Median Minutes To Answer",
+            "type": "number"
+          },
+          "members_with_answer": {
+            "description": "Identified members who reached a resolution. The population the time-to-answer figure is measured over.",
+            "title": "Members With Answer",
+            "type": "integer"
+          },
+          "members_without_answer": {
+            "description": "Identified members with no resolved call. Their clock has not stopped, so folding them in would shorten the reported time the longer they are left waiting.",
+            "title": "Members Without Answer",
+            "type": "integer"
+          },
+          "repeat_contact_rate": {
+            "description": "Share of identified members who called more than once, as a percentage.",
+            "title": "Repeat Contact Rate",
+            "type": "number"
+          },
+          "repeat_members": {
+            "title": "Repeat Members",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "calls_with_duration",
+          "median_minutes",
+          "mean_minutes",
+          "longest_minutes",
+          "long_call_count",
+          "long_call_threshold",
+          "identified_members",
+          "repeat_members",
+          "calls_by_repeat_members",
+          "repeat_contact_rate",
+          "median_minutes_to_answer",
+          "members_with_answer",
+          "members_without_answer"
+        ],
+        "title": "EffortResponse",
+        "type": "object"
+      },
       "HTTPValidationError": {
         "properties": {
           "detail": {
@@ -1039,6 +1129,81 @@
           "quote"
         ],
         "title": "MarkerResponse",
+        "type": "object"
+      },
+      "MemberAtRiskResponse": {
+        "properties": {
+          "call_count": {
+            "title": "Call Count",
+            "type": "integer"
+          },
+          "factor_labels": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Factor Labels",
+            "type": "array"
+          },
+          "factors": {
+            "description": "Machine-readable risk factor codes observed for this member.",
+            "items": {
+              "type": "string"
+            },
+            "title": "Factors",
+            "type": "array"
+          },
+          "latest_reference": {
+            "title": "Latest Reference",
+            "type": "string"
+          },
+          "lowest_score": {
+            "title": "Lowest Score",
+            "type": "integer"
+          },
+          "member_id": {
+            "title": "Member Id",
+            "type": "string"
+          },
+          "references": {
+            "items": {
+              "type": "string"
+            },
+            "title": "References",
+            "type": "array"
+          }
+        },
+        "required": [
+          "member_id",
+          "call_count",
+          "factors",
+          "factor_labels",
+          "lowest_score",
+          "latest_reference",
+          "references"
+        ],
+        "title": "MemberAtRiskResponse",
+        "type": "object"
+      },
+      "MembersAtRiskResponse": {
+        "properties": {
+          "basis": {
+            "default": "Observed warning signs, not a prediction. Ranked by how many signs a member shows. No weighting has been validated against real churn.",
+            "description": "What this list is. Stated on the response because a client must not present it as a prediction: no factor here has been measured against an actual departure.",
+            "title": "Basis",
+            "type": "string"
+          },
+          "members": {
+            "items": {
+              "$ref": "#/components/schemas/MemberAtRiskResponse"
+            },
+            "title": "Members",
+            "type": "array"
+          }
+        },
+        "required": [
+          "members"
+        ],
+        "title": "MembersAtRiskResponse",
         "type": "object"
       },
       "MetricsResponse": {
@@ -1289,6 +1454,12 @@
           },
           "is_default": {
             "title": "Is Default",
+            "type": "boolean"
+          },
+          "local": {
+            "default": false,
+            "description": "Whether transcripts stay inside this environment. False means calls are sent to a third party, which is a statement about member health conversations rather than about cost.",
+            "title": "Local",
             "type": "boolean"
           },
           "model": {
@@ -2114,6 +2285,24 @@
             }
           },
           {
+            "description": "Member identifier, as stated in the call.",
+            "in": "query",
+            "name": "member",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Member identifier, as stated in the call.",
+              "title": "Member"
+            }
+          },
+          {
             "description": "Signal code, e.g. clinical_risk.",
             "in": "query",
             "name": "signal",
@@ -2605,6 +2794,48 @@
           }
         },
         "summary": "Broker scorecard",
+        "tags": [
+          "dashboard"
+        ]
+      }
+    },
+    "/api/v1/dashboard/effort": {
+      "get": {
+        "operationId": "get_effort_api_v1_dashboard_effort_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EffortResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "What getting an answer costs a member",
+        "tags": [
+          "dashboard"
+        ]
+      }
+    },
+    "/api/v1/dashboard/members-at-risk": {
+      "get": {
+        "operationId": "get_members_at_risk_api_v1_dashboard_members_at_risk_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MembersAtRiskResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Members showing signs of leaving, with the evidence",
         "tags": [
           "dashboard"
         ]

@@ -16,6 +16,8 @@ from application.use_cases.clear_corpus import ClearCorpus
 from application.use_cases.get_dashboard import (
     GetAgentPerformance,
     GetBrokerScorecard,
+    GetEffortMetrics,
+    GetMembersAtRisk,
     GetOverview,
     GetSignalDistribution,
 )
@@ -75,6 +77,14 @@ def get_broker_scorecard_use_case(container: ContainerDep) -> GetBrokerScorecard
     return container.get_broker_scorecard()
 
 
+def get_effort_metrics_use_case(container: ContainerDep) -> GetEffortMetrics:
+    return container.get_effort_metrics()
+
+
+def get_members_at_risk_use_case(container: ContainerDep) -> GetMembersAtRisk:
+    return container.get_members_at_risk()
+
+
 def get_signal_distribution_use_case(container: ContainerDep) -> GetSignalDistribution:
     return container.get_signal_distribution()
 
@@ -123,6 +133,8 @@ OverviewDep = Annotated[GetOverview, Depends(get_overview_use_case)]
 AgentPerformanceDep = Annotated[GetAgentPerformance, Depends(get_agent_performance_use_case)]
 BrokerScorecardDep = Annotated[GetBrokerScorecard, Depends(get_broker_scorecard_use_case)]
 SignalDistributionDep = Annotated[GetSignalDistribution, Depends(get_signal_distribution_use_case)]
+EffortMetricsDep = Annotated[GetEffortMetrics, Depends(get_effort_metrics_use_case)]
+MembersAtRiskDep = Annotated[GetMembersAtRisk, Depends(get_members_at_risk_use_case)]
 StartCorpusRunDep = Annotated[StartCorpusRun, Depends(get_start_corpus_run_use_case)]
 CancelCorpusRunDep = Annotated[CancelCorpusRun, Depends(get_cancel_corpus_run_use_case)]
 ResumeCorpusRunDep = Annotated[ResumeCorpusRun, Depends(get_resume_corpus_run_use_case)]

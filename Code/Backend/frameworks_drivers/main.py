@@ -25,6 +25,7 @@ from frameworks_drivers.container import Container, build_container, dispose_con
 from frameworks_drivers.middleware.correlation_id import CorrelationIdMiddleware
 from frameworks_drivers.middleware.request_logging import RequestLoggingMiddleware
 from frameworks_drivers.middleware.unhandled_error import UnhandledErrorMiddleware
+from frameworks_drivers.spa import mount_frontend
 from infrastructure.config.settings import Settings, get_settings
 from infrastructure.logging.correlation import CORRELATION_ID_HEADER
 from infrastructure.logging.setup import configure_logging, shutdown_logging
@@ -120,6 +121,11 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     register_exception_handlers(app)
     app.include_router(api_v1_router, prefix=resolved.api_prefix)
+
+    # Last, so every API route is matched before the catch-all. When a build is
+    # present this process serves the whole application on one port, which is
+    # why CORS is a development concern rather than a deployment one.
+    mount_frontend(app, resolved.frontend_dist_path, api_prefix=resolved.api_prefix)
     return app
 
 

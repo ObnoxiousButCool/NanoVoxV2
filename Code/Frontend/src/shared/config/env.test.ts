@@ -39,7 +39,21 @@ describe('readConfig', () => {
   it('rejects a malformed URL', () => {
     expect(() =>
       readConfig({ VITE_API_BASE_URL: 'not-a-url', VITE_APP_NAME: 'NanoVox' }),
-    ).toThrow(/not a valid URL/)
+    ).toThrow(/must be an absolute URL or a root-relative path/)
+  })
+
+  it('accepts a root-relative path', () => {
+    // The deployed form: the API is served by the same origin as this bundle,
+    // so one build works on any host.
+    expect(
+      readConfig({ VITE_API_BASE_URL: '/api/v1', VITE_APP_NAME: 'NanoVox' }).apiBaseUrl,
+    ).toBe('/api/v1')
+  })
+
+  it('strips a trailing slash from a relative path too', () => {
+    expect(
+      readConfig({ VITE_API_BASE_URL: '/api/v1/', VITE_APP_NAME: 'NanoVox' }).apiBaseUrl,
+    ).toBe('/api/v1')
   })
 })
 

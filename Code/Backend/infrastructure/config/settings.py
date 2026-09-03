@@ -23,6 +23,7 @@ from infrastructure.config.paths import (
     BACKEND_ROOT,
     DEFAULT_CORPUS_DIR,
     DEFAULT_DASHBOARD_PATH,
+    DEFAULT_FRONTEND_DIST,
     DEFAULT_LOG_DIR,
     DEFAULT_RUBRIC_PATH,
     DEFAULT_TAXONOMY_PATH,
@@ -61,10 +62,24 @@ class Settings(BaseSettings):
     taxonomy_path: Path = DEFAULT_TAXONOMY_PATH
     rubric_path: Path = DEFAULT_RUBRIC_PATH
     dashboard_path: Path = DEFAULT_DASHBOARD_PATH
+    # Serving this from the API is what makes a deployment one process and
+    # one origin. Left absent in development: Vite serves the frontend.
+    frontend_dist_path: Path = DEFAULT_FRONTEND_DIST
 
     # --- Corpus run (DEC-06) -----------------------------------------------
     corpus_path: Path = DEFAULT_CORPUS_DIR
     corpus_glob: str = "call_*.md"
+
+    # How a member identifier looks when spoken in a call. Configuration, not
+    # code: a different plan administrator issues a different format, and that
+    # must not require a release. A blank value disables extraction.
+    member_id_pattern: str = r"\bCHM[-\s]?\d{6,}\b"
+
+    # The words that make a quote evidence of a broker relationship. An
+    # attribution whose quote contains none of them is describing somebody
+    # else — a surgeon, a pharmacy, the agent on the call — and is refused.
+    # Comma separated; blank disables the check.
+    broker_evidence_terms: str = "broker,broker of record,BOR"
     # Bounded because the local path is the constrained one: Ollama serves a
     # single model, and issuing more concurrent requests than it can hold makes
     # every call slower without finishing the run any sooner.

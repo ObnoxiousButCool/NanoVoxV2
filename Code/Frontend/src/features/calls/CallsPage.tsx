@@ -17,7 +17,7 @@ import { Link, useSearchParams } from 'react-router-dom'
 
 import { useAgents, useBrokers, useCalls, useTaxonomy } from '@/shared/api/queries'
 import type { CallFilters, CallSortKey } from '@/shared/api/endpoints'
-import type { CallSummary } from '@/shared/api/types'
+import type { CallSummary, Taxonomy } from '@/shared/api/types'
 import { Button, Card, Chip, Empty, Failure, Loading, Note, PageHeader } from '@/shared/ui/primitives'
 import { toneForResolution } from '@/shared/ui/tone'
 import { cx } from '@/shared/ui/cx'
@@ -51,6 +51,9 @@ const COLUMNS: readonly { readonly label: string; readonly sort: CallSortKey | n
   { label: 'Member issue', sort: null },
   { label: 'Category', sort: 'category' },
   { label: 'Agent', sort: 'agent' },
+  // Not sortable: the API sorts by the columns it has an index for, and a
+  // member identifier is something you filter to, not order by.
+  { label: 'Member', sort: null },
   { label: 'Outcome', sort: 'resolution' },
   { label: 'Score', sort: 'score' },
   { label: 'Signals', sort: null },
@@ -120,7 +123,29 @@ function Dropdown({
   )
 }
 
-function CallRow({ call }: { call: CallSummary }) {
+/**
+ * The human label for a category code.
+ *
+ * The API sends the code — `claims_eob` — because the label is a property of the
+ * taxonomy rather than of the call, and the taxonomy can be relabelled without
+ * touching stored data. The Overview resolves it server-side; this page already
+ * loads the taxonomy for its filter dropdown, so it resolves it here from the
+ * same source rather than shipping a second copy on every row.
+ *
+ * Falls back to the code itself. An unknown code means the taxonomy changed
+ * under stored calls, and showing `claims_eob` is more use than showing nothing.
+ */
+function categoryLabel(code: string, categories: Taxonomy['categories'] | undefined): string {
+  return categories?.find((entry) => entry.code === code)?.label ?? code
+}
+
+function CallRow({
+  call,
+  categories,
+}: {
+  call: CallSummary
+  categories: Taxonomy['categories'] | undefined
+}) {
   return (
     <tr>
       <td className={styles.reference}>
@@ -134,8 +159,17 @@ function CallRow({ call }: { call: CallSummary }) {
           <div className={styles.tiny}>{call.summary}</div>
         </Link>
       </td>
-      <td>{call.category}</td>
+      <td>{categoryLabel(call.category, categories)}</td>
       <td>{call.agent_name ?? '—'}</td>
+      <td className={styles.member}>
+        {call.member_id ? (
+          <Link className={styles.rowLink} to={`/calls?member=${encodeURIComponent(call.member_id)}`}>
+            {call.member_id}
+          </Link>
+        ) : (
+          '—'
+        )}
+      </td>
       <td>
         <Chip tone={toneForResolution(call.resolution)}>{call.resolution}</Chip>
       </td>
@@ -182,7 +216,17 @@ export function CallsPage() {
   const category = searchParams.get('category')
   const resolution = searchParams.get('resolution')
   const signal = searchParams.get('signal')
-  const sort = (searchParams.get('sort') ?? 'severity') as CallSortKey
+  // One member's calls, arrived at from the at-risk list.
+  const member = searchParams.get('member')
+  // A score band, arrived at from the histogram. Read as text and passed
+  // through: the API validates the range, and inventing a number here to
+  // recover from a malformed one would filter on something nobody asked for.
+  const minScore = searchParams.get('min_score')
+  const maxScore = searchParams.get('max_score')
+  // Call reference on load, so the list reads in corpus order and a call is
+  // where it was last time. Severity remains one press of the Score column away,
+  // and any sort survives in the URL — this is only what an unsorted visit gets.
+  const sort = (searchParams.get('sort') ?? 'reference') as CallSortKey
   const descending = searchParams.get('direction') === 'desc'
 
   const filters: CallFilters = QUICK_FILTERS.filter((filter) =>
@@ -197,6 +241,9 @@ export function CallsPage() {
     ...(category ? { category } : {}),
     ...(resolution ? { resolution } : {}),
     ...(signal ? { signal } : {}),
+    ...(member ? { member } : {}),
+    ...(minScore ? { min_score: Number(minScore) } : {}),
+    ...(maxScore ? { max_score: Number(maxScore) } : {}),
   })
 
   const setParam = (name: string, value: string) => {
@@ -224,8 +271,11 @@ export function CallsPage() {
     setSearchParams(next, { replace: true })
   }
 
+  const scoreBand = minScore ?? maxScore ? `${minScore ?? '0'}–${maxScore ?? '100'}` : null
+
   const narrowed =
-    activeFilters.length > 0 || Boolean(agent || broker || category || resolution || signal)
+    activeFilters.length > 0 ||
+    Boolean(agent || broker || category || resolution || signal || member || scoreBand)
 
   const { data, isPending, error } = useCalls(filters)
 
@@ -240,7 +290,7 @@ export function CallsPage() {
     <>
       <PageHeader
         title="Calls"
-        subtitle="Severity first by default — the calls that need action surface without looking. Press a column to sort by it instead."
+        subtitle="In call order by default. Press a column to sort by it — Score surfaces the calls that need action first."
         actions={
           <div className={styles.filters}>
             <Dropdown
@@ -308,6 +358,28 @@ export function CallsPage() {
                 Broker: {broker} &times;
               </Button>
             ) : null}
+            {member ? (
+              <Button className={styles.active} aria-pressed onClick={clearParam('member')}>
+                Member: {member} &times;
+              </Button>
+            ) : null}
+            {scoreBand ? (
+              <Button
+                className={styles.active}
+                aria-pressed
+                onClick={() => {
+                  // Both halves of a band clear together: half a range is not a
+                  // filter anyone chose.
+                  setOffset(0)
+                  const next = new URLSearchParams(searchParams)
+                  next.delete('min_score')
+                  next.delete('max_score')
+                  setSearchParams(next, { replace: true })
+                }}
+              >
+                Score: {scoreBand} &times;
+              </Button>
+            ) : null}
             {QUICK_FILTERS.map((filter) => (
               <Button
                 key={filter.id}
@@ -354,7 +426,11 @@ export function CallsPage() {
                 </thead>
                 <tbody>
                   {data.items.map((call) => (
-                    <CallRow key={call.id} call={call} />
+                    <CallRow
+                      key={call.id}
+                      call={call}
+                      categories={taxonomy.data?.categories}
+                    />
                   ))}
                 </tbody>
               </table>

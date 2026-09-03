@@ -176,3 +176,10 @@
   max-width: 1360px;
   min-width: 0;
 }
+
+/* The two status lines. Block so they stack without a <br>, which let the text
+   sit as bare nodes that nothing could address individually. */
+.statusHeadline,
+.statusDetail {
+  display: block;
+}

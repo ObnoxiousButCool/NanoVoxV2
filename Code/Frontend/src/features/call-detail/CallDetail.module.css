@@ -121,11 +121,102 @@
 }
 
 .layerSub {
+  /* Block because it is a span inside the toggle button now, not a div. */
+  display: block;
   font: 600 9.5px/1 var(--font-body);
   letter-spacing: 0.11em;
   text-transform: uppercase;
   color: var(--slate-2);
   margin-bottom: 10px;
+}
+
+/* The layer heading, which is also the control that opens and closes it. Reset
+   to look exactly like the heading it replaces: the affordance is the chevron
+   and the cursor, not a button-shaped box in the middle of a document. */
+.layerToggle {
+  display: flex;
+  /* Aligned to the top, not centred: centring puts the chevron between the
+     title and its subtitle, level with neither, while the badge beside it sits
+     on the title. The eye reads the mismatch before it reads the heading. */
+  align-items: flex-start;
+  gap: 10px;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.layerToggle:hover h3 {
+  text-decoration: underline;
+}
+
+.layerToggle:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: var(--r);
+}
+
+/* The chevron sits in a bordered circle so it reads as a control at a glance.
+   A bare 10px glyph in the body colour was invisible until you looked for it,
+   which is no use on a section someone has to discover they can close. */
+.layerChevron {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  /* Stronger than the hairline --rule used for passive dividers: this is a
+     control, and at 22px a 1px near-white border disappears entirely. */
+  border: 1px solid var(--slate-2);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 11px;
+  line-height: 1;
+  color: var(--ink);
+  background: var(--canvas, #f6f7f8);
+  /* Rotated rather than swapped for a different glyph: the movement is what
+     says the two states are the same control. */
+  transform: rotate(0deg);
+  transition: transform 120ms ease, border-color 120ms ease, background 120ms ease;
+}
+
+/* Both classes in the selector so this wins on specificity rather than on
+   source order: the bundler is free to reorder single-class rules, and a
+   chevron that does not turn is worse than one that never moved. */
+.layerChevron.layerChevronClosed {
+  transform: rotate(-90deg);
+}
+
+.layerToggle:hover .layerChevron {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: #fff;
+}
+
+/* The heading text, so the chevron and the Show/Hide hint sit either side. */
+.layerHeading {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Says in words what the chevron says in a shape. Appears on hover and on
+   keyboard focus, so it never competes with the title while reading. */
+.layerHint {
+  flex: none;
+  font: 600 9.5px/1 var(--font-body);
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--accent);
+  opacity: 0;
+  transition: opacity 120ms ease;
+}
+
+.layerToggle:hover .layerHint,
+.layerToggle:focus-visible .layerHint {
+  opacity: 1;
 }
 
 .box {
@@ -251,4 +342,27 @@
 
 .sidebarCard + .sidebarCard {
   margin-top: 12px;
+}
+
+/* The way back to the list. Rendered as either a link or a button depending on
+   whether there is history to return to, so both are styled here — the reader
+   should not be able to tell which one they got. */
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 10px;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: 600 12px/1 var(--font-body);
+  color: var(--slate);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.back:hover,
+.back:focus-visible {
+  color: var(--accent);
+  text-decoration: underline;
 }

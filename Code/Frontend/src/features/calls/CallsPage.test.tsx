@@ -13,8 +13,9 @@ function call(overrides: Record<string, unknown> = {}) {
     reference: 'F0006',
     title: 'Fixture call F0006',
     summary: 'A coverage_benefits call that ended UNRESOLVED.',
-    category: 'coverage_benefits',
+    category: 'claims_eob',
     agent_name: 'Brad',
+    member_id: 'CHM6672290',
     resolution: 'UNRESOLVED',
     score: 30,
     tier: 'POOR',
@@ -46,7 +47,10 @@ function json(body: unknown): Response {
 
 /** What the filter dropdowns are populated from. */
 const TAXONOMY = {
-  categories: [{ code: 'billing', label: 'Billing', description: null }],
+  categories: [
+    { code: 'billing', label: 'Billing', description: null },
+    { code: 'claims_eob', label: 'Claims & EOB', description: null },
+  ],
   l4_categories: [],
   signal_types: [{ code: 'clinical_risk', label: 'Clinical Risk', severity: 'CRITICAL' }],
   sentiment_states: [],
@@ -76,11 +80,12 @@ function stubCalls(body: unknown) {
   return urls
 }
 
-function renderCalls() {
+/** Renders at `entry`, so the URL-driven filters are exercisable. */
+function renderCalls(entry = '/calls') {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } })
   return render(
     <AppProviders client={client}>
-      <MemoryRouter>
+      <MemoryRouter initialEntries={[entry]}>
         <CallsPage />
       </MemoryRouter>
     </AppProviders>,
@@ -212,7 +217,30 @@ describe('CallsPage', () => {
     stubCalls(page([call({ agent_name: null })]))
     renderCalls()
 
-    expect(await screen.findByText('—')).toBeInTheDocument()
+    await screen.findByText('F0006')
+    // Scoped to the agent cell: the member cell shows a dash of its own when a
+    // call never states an identifier.
+    const row = screen.getAllByRole('row')[1] as HTMLElement
+    expect(within(row).getAllByText('—')).toHaveLength(1)
+  })
+
+  it('shows a dash where the call never stated a member', async () => {
+    // A real corpus call: the agent asks for the member ID and never gets it.
+    // Absence is a fact about the call, not a gap to fill.
+    stubCalls(page([call({ member_id: null })]))
+    renderCalls()
+
+    await screen.findByText('F0006')
+    const row = screen.getAllByRole('row')[1] as HTMLElement
+    expect(within(row).getAllByText('—')).toHaveLength(1)
+  })
+
+  it('links a member to the rest of their calls', async () => {
+    stubCalls(page([call()]))
+    renderCalls()
+
+    const link = await screen.findByRole('link', { name: 'CHM6672290' })
+    expect(link).toHaveAttribute('href', '/calls?member=CHM6672290')
   })
 
   it('explains a load failure rather than showing an empty table', async () => {
@@ -346,6 +374,126 @@ describe('CallsPage', () => {
       await waitFor(() => {
         expect(urls.at(-1)).not.toContain('category')
       })
+    })
+  })
+
+  describe('filtering to one member', () => {
+    it('sends the member to the API', async () => {
+      const urls = stubCalls(page([call()]))
+      renderCalls('/calls?member=CHM6672290')
+      await screen.findByText('F0006')
+
+      await waitFor(() => {
+        expect(urls.some((url) => url.includes('member=CHM6672290'))).toBe(true)
+      })
+    })
+
+    it('shows the member as a clearable filter', async () => {
+      stubCalls(page([call()]))
+      renderCalls('/calls?member=CHM6672290')
+
+      const chip = await screen.findByRole('button', { name: /Member: CHM6672290/ })
+      await userEvent.click(chip)
+
+      expect(screen.queryByRole('button', { name: /Member:/ })).not.toBeInTheDocument()
+    })
+
+    it('reports a narrowed count rather than the whole corpus', async () => {
+      stubCalls(page([call()], { total: 1 }))
+      renderCalls('/calls?member=CHM6672290')
+
+      expect(await screen.findByText(/1 matching call/)).toBeInTheDocument()
+    })
+  })
+
+  describe('the category column', () => {
+    it('shows the human label, not the stored code', async () => {
+      // The API sends `claims_eob` because the label belongs to the taxonomy,
+      // which can be relabelled without touching stored calls.
+      stubCalls(page([call()]))
+      renderCalls()
+
+      await screen.findByText('F0006')
+      expect(screen.getByRole('cell', { name: 'Claims & EOB' })).toBeInTheDocument()
+      expect(screen.queryByRole('cell', { name: 'claims_eob' })).not.toBeInTheDocument()
+    })
+
+    it('falls back to the code when the taxonomy does not know it', async () => {
+      // A code stored before the taxonomy changed. Showing the raw code is more
+      // use than showing an empty cell.
+      stubCalls(page([call({ category: 'retired_category' })]))
+      renderCalls()
+
+      await screen.findByText('F0006')
+      expect(screen.getByRole('cell', { name: 'retired_category' })).toBeInTheDocument()
+    })
+  })
+
+  describe('the default order', () => {
+    it('loads in call order without being asked', async () => {
+      const urls = stubCalls(page([call()]))
+      renderCalls()
+      await screen.findByText('F0006')
+
+      await waitFor(() => {
+        const listing = urls.find((url) => url.includes('/calls?'))
+        expect(listing).toContain('sort=reference')
+        expect(listing).toContain('direction=asc')
+      })
+    })
+
+    it('keeps a sort chosen in the URL rather than resetting it', async () => {
+      // The default applies to an unsorted visit only; a shared link must open
+      // on the sort it names.
+      const urls = stubCalls(page([call()]))
+      renderCalls('/calls?sort=score&direction=desc')
+      await screen.findByText('F0006')
+
+      await waitFor(() => {
+        expect(urls.at(-1)).toContain('sort=score')
+      })
+      expect(urls.at(-1)).toContain('direction=desc')
+    })
+  })
+
+  describe('a score band', () => {
+    it('sends both bounds to the API', async () => {
+      const urls = stubCalls(page([call()]))
+      renderCalls('/calls?min_score=70&max_score=79')
+      await screen.findByText('F0006')
+
+      await waitFor(() => {
+        const listing = urls.at(-1)
+        expect(listing).toContain('min_score=70')
+        expect(listing).toContain('max_score=79')
+      })
+    })
+
+    it('shows the band as one filter', async () => {
+      stubCalls(page([call()]))
+      renderCalls('/calls?min_score=70&max_score=79')
+
+      expect(await screen.findByRole('button', { name: /Score: 70–79/ })).toBeInTheDocument()
+    })
+
+    it('clears both bounds together', async () => {
+      // Half a range is not a filter anyone chose.
+      const urls = stubCalls(page([call()]))
+      renderCalls('/calls?min_score=70&max_score=79')
+
+      await userEvent.click(await screen.findByRole('button', { name: /Score: 70–79/ }))
+
+      await waitFor(() => {
+        expect(urls.at(-1)).not.toContain('min_score')
+      })
+      expect(urls.at(-1)).not.toContain('max_score')
+    })
+
+    it('counts the band as a narrowing filter', async () => {
+      stubCalls(page([call()], { total: 30 }))
+      renderCalls('/calls?min_score=70&max_score=79')
+
+      expect(await screen.findByText(/30 matching calls/)).toBeInTheDocument()
     })
   })
 })

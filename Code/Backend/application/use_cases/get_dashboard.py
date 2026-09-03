@@ -32,6 +32,9 @@ from domain.aggregation.attention import (
     GroupCount,
     evaluate_rules,
 )
+from domain.aggregation.effort import EffortMetrics, effort_metrics
+from domain.aggregation.member_risk import MemberAtRisk, members_at_risk
+from domain.aggregation.signal_attribution import primary_category_by_call
 from domain.aggregation.significance import AgentRating, rate_agent
 from domain.aggregation.statistics import (
     Histogram,
@@ -301,6 +304,48 @@ class GetBrokerScorecard:
         )
 
 
+class GetEffortMetrics:
+    """What getting an answer costs a member (plan §4.2)."""
+
+    def __init__(self, repository: ReadModelRepository) -> None:
+        self._repository = repository
+
+    async def execute(self) -> EffortMetrics:
+        durations = await self._repository.call_durations()
+        members = await self._repository.member_call_counts()
+        repeat = tuple(member for member in members if member.call_count > 1)
+        # A member's time to an answer is every minute they spent, not just the
+        # call that happened to end in a resolution — ringing back is part of
+        # what the answer cost them.
+        answered = tuple(member for member in members if member.resolved > 0)
+        return effort_metrics(
+            durations,
+            identified_members=len(members),
+            repeat_members=len(repeat),
+            calls_by_repeat_members=sum(member.call_count for member in repeat),
+            minutes_to_answer=tuple(member.total_minutes for member in answered),
+            members_without_answer=len(members) - len(answered),
+        )
+
+
+class GetMembersAtRisk:
+    """Members showing signs of leaving, ranked by how many (plan §4.3).
+
+    Deliberately not a prediction. Nothing here has been measured against a real
+    departure, so the use case reports the signs a member is carrying and leaves
+    the judgement to whoever reads it.
+    """
+
+    def __init__(self, repository: ReadModelRepository, dashboard: HistogramSettings) -> None:
+        self._repository = repository
+        self._dashboard = dashboard
+
+    async def execute(self, limit: int = 25) -> tuple[MemberAtRisk, ...]:
+        members = await self._repository.member_call_counts()
+        ranked = members_at_risk(members, coaching_threshold=self._dashboard.coaching_threshold)
+        return ranked[:limit]
+
+
 class GetSignalDistribution:
     """Builds the L4 signal distribution and the per-owner load."""
 
@@ -326,9 +371,23 @@ class GetSignalDistribution:
             for category in self._taxonomy.l4_categories
         )
 
-        by_owner: dict[str, int] = {}
-        for entry in entries:
-            by_owner[entry.owner] = by_owner.get(entry.owner, 0) + entry.count
+        # Each call counts for exactly one team: the owner of its most serious
+        # finding. Summing per-category counts instead would put a call with two
+        # findings on two teams' bars, and both managers would read it as theirs.
+        # The category figures above still count both findings, which is true of
+        # the call; this rollup answers "how many calls are mine", so it has to
+        # total the number of flagged calls.
+        primary = primary_category_by_call(
+            await self._repository.l4_findings(), self._taxonomy.l4_categories
+        )
+        owner_of = {
+            category.code: category.owner.name for category in self._taxonomy.l4_categories
+        }
+        # Seeded with every owner at zero, so a team with no findings keeps its
+        # row rather than vanishing from the chart.
+        by_owner = {category.owner.name: 0 for category in self._taxonomy.l4_categories}
+        for code in primary.values():
+            by_owner[owner_of[code]] += 1
 
         loads = tuple(
             OwnerLoad(owner=owner, count=count)

@@ -30,12 +30,43 @@ function json(body: unknown): Response {
   })
 }
 
+const PROVIDERS = {
+  default: 'ollama',
+  providers: [
+    {
+      name: 'ollama',
+      model: 'qwen2.5:7b-instruct',
+      configured: true,
+      reachable: true,
+      implemented: true,
+      selectable: true,
+      is_default: true,
+      billable: false,
+      local: true,
+      detail: null,
+    },
+    {
+      name: 'openai',
+      model: 'gpt-4o-mini',
+      configured: true,
+      reachable: true,
+      implemented: true,
+      selectable: true,
+      is_default: false,
+      billable: true,
+      local: false,
+      detail: null,
+    },
+  ],
+}
+
 function renderAt(path: string) {
   vi.stubGlobal(
     'fetch',
-    vi.fn((url: string) =>
-      Promise.resolve(json(url.includes('/dashboard') ? EMPTY_OVERVIEW : HEALTHY)),
-    ),
+    vi.fn((url: string) => {
+      if (url.includes('/providers')) return Promise.resolve(json(PROVIDERS))
+      return Promise.resolve(json(url.includes('/dashboard') ? EMPTY_OVERVIEW : HEALTHY))
+    }),
   )
 
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } })

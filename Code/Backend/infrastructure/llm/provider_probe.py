@@ -16,7 +16,7 @@ from application.use_cases.list_providers import (
     describe_from_status,
 )
 from domain.errors import ConfigurationError
-from infrastructure.llm.registry import ProviderRegistry, is_billable
+from infrastructure.llm.registry import ProviderRegistry, is_billable, is_local
 
 
 class RegistryProviderProbe(ProviderProbe):
@@ -41,6 +41,7 @@ class RegistryProviderProbe(ProviderProbe):
                 implemented=True,
                 is_default=name == self._default,
                 billable=is_billable(name),
+            local=is_local(name),
                 detail=exc.message,
             )
 
@@ -60,6 +61,7 @@ class RegistryProviderProbe(ProviderProbe):
                 implemented=True,
                 is_default=name == self._default,
                 billable=is_billable(name),
+            local=is_local(name),
                 detail=f"{name} did not answer within {self._timeout:g}s.",
             )
         finally:
@@ -70,4 +72,5 @@ class RegistryProviderProbe(ProviderProbe):
             is_default=name == self._default,
             configured=True,
             billable=is_billable(name),
+            local=is_local(name),
         )

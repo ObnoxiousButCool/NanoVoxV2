@@ -13,9 +13,15 @@
  *   volume is real; a tier on four calls is not.
  */
 
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
-import { useAgents, useOverview, useSignals } from '@/shared/api/queries'
+import {
+  useAgents,
+  useEffort,
+  useMembersAtRisk,
+  useOverview,
+  useSignals,
+} from '@/shared/api/queries'
 import type { AgentPerformance, Overview } from '@/shared/api/types'
 import { Bar, BarRows, Histogram, Legend, Metric, MetricStrip } from '@/shared/ui/charts'
 import { Card, Chip, Failure, Loading, Note, PageHeader } from '@/shared/ui/primitives'
@@ -47,6 +53,32 @@ function severityClass(severity: string): string | undefined {
   if (severity === 'CRITICAL' || severity === 'HIGH') return styles.itemHigh
   if (severity === 'MEDIUM') return styles.itemMedium
   return styles.itemLow
+}
+
+/**
+ * The highest score a histogram bin actually contains.
+ *
+ * Bins are half-open — `70-80` holds 70 to 79 — except the last, which runs to
+ * 100 inclusive so the top score has somewhere to sit. The calls filter's
+ * `max_score` is inclusive, so the two have to be reconciled here or every band
+ * would pull in the first call of the next one.
+ */
+function scoreBandCeiling(
+  bin: Overview['histogram']['bins'][number],
+  bins: Overview['histogram']['bins'],
+): number {
+  const isLast = bins.at(-1) === bin
+  return isLast ? bin.upper : bin.upper - 1
+}
+
+/**
+ * How many calls the owner bars account for.
+ *
+ * Each call is attributed to exactly one owner, so this is the number of calls
+ * carrying at least one signal — not a sum of findings.
+ */
+function ownerTotal(owners: readonly { count: number }[]): number {
+  return owners.reduce((sum, owner) => sum + owner.count, 0)
 }
 
 function AttentionQueue({ items }: { items: Overview['attention'] }) {
@@ -90,6 +122,124 @@ function AttentionQueue({ items }: { items: Overview['attention'] }) {
         </article>
       ))}
     </div>
+  )
+}
+
+
+/**
+ * What getting an answer costs a member.
+ *
+ * Effort is the churn signal members rarely voice — somebody can report being
+ * satisfied and still leave, because the whole episode was exhausting. Shown
+ * alongside the quality figures because it answers a different question about
+ * the same calls.
+ */
+function EffortCard() {
+  const effort = useEffort()
+
+  if (effort.isPending) return <Loading what="effort" />
+  if (effort.error) return <Failure error={effort.error} what="effort" />
+
+  const data = effort.data
+  const noRepeats = data.repeat_members === 0
+
+  return (
+    <>
+      <div className={styles.effortRow}>
+        <div className={styles.effortStat}>
+          {/* Per member, not per call: a member who rang three times spent all
+              three calls getting their answer, and the per-call figure would
+              report the shortest of them. */}
+          <b>{data.median_minutes_to_answer}</b>
+          <span>MEDIAN MINUTES TO AN ANSWER</span>
+        </div>
+        <div className={styles.effortStat}>
+          <b>{data.members_without_answer}</b>
+          <span>STILL WITHOUT ONE</span>
+        </div>
+        <div className={styles.effortStat}>
+          <b>{data.repeat_contact_rate}%</b>
+          <span>CALLED MORE THAN ONCE</span>
+        </div>
+      </div>
+      <Note>
+        Measured over the <b>{data.members_with_answer}</b> of{' '}
+        <b>{data.identified_members}</b> identified members who reached a resolution — every
+        minute of every call they made, not just the one that ended it. The{' '}
+        <b>{data.members_without_answer}</b> still without an answer are left out rather than
+        counted as zero: their clock has not stopped, and averaging an unfinished wait in
+        alongside finished ones would make the figure fall the longer people are left waiting.
+        {noRepeats ? (
+          <>
+            {' '}
+            No member here has called twice, so repeat contact reads zero — the measure is in
+            place, the calls to find are not.
+          </>
+        ) : (
+          <>
+            {' '}
+            <b>{data.repeat_members}</b> of them called back, accounting for{' '}
+            <b>{data.calls_by_repeat_members}</b> calls.
+          </>
+        )}
+      </Note>
+    </>
+  )
+}
+
+/**
+ * Members showing signs of leaving.
+ *
+ * Deliberately not a churn score. Nothing here has been measured against a real
+ * departure, so the card names the signs each member is carrying and leaves the
+ * judgement to whoever reads it — a percentage would be indistinguishable from a
+ * measured one while being invented.
+ */
+function MembersAtRisk() {
+  const members = useMembersAtRisk()
+
+  if (members.isPending) return <Loading what="members at risk" />
+  if (members.error) return <Failure error={members.error} what="members at risk" />
+
+  if (members.data.members.length === 0) {
+    return <Note>No member is showing a warning sign. Shown as a result, not an omission.</Note>
+  }
+
+  return (
+    <>
+      <div className={styles.memberList}>
+        {members.data.members.map((member) => (
+          <article key={member.member_id} className={styles.member}>
+            <div>
+              <h4>
+                {/* Filtered by member, not searched by reference: a search
+                    finds one call, and the point of this row is all of them. */}
+                <Link to={`/calls?member=${encodeURIComponent(member.member_id)}`}>
+                  {member.member_id}
+                </Link>
+              </h4>
+              <div className={styles.meta}>
+                {member.factor_labels.map((label) => (
+                  <Chip key={label} tone="high">
+                    {label}
+                  </Chip>
+                ))}
+              </div>
+            </div>
+            <div className={styles.count}>
+              <b>{member.factors.length}</b>
+              <span>
+                {member.call_count === 1 ? '1 CALL' : `${String(member.call_count)} CALLS`}
+              </span>
+            </div>
+          </article>
+        ))}
+      </div>
+      <Note>
+        Ranked by how many warning signs a member shows, not by a predicted probability. No factor
+        here has yet been measured against a member who actually left.
+      </Note>
+    </>
   )
 }
 
@@ -161,6 +311,7 @@ function ResolutionByAgent({ agents }: { agents: readonly AgentPerformance[] }) 
 }
 
 export function OverviewPage() {
+  const navigate = useNavigate()
   const overview = useOverview()
   const agents = useAgents()
   const signals = useSignals()
@@ -194,6 +345,22 @@ export function OverviewPage() {
         title="What needs attention"
         subtitle="Ranked by severity then calls affected. Every item has an owner."
       />
+
+      <div className={styles.grid}>
+        <Card
+          title="Members at risk"
+          subtitle="Warning signs observed, not a prediction — no factor here is validated yet."
+        >
+          <MembersAtRisk />
+        </Card>
+
+        <Card
+          title="What an answer costs a member"
+          subtitle="Effort predicts leaving better than satisfaction does."
+        >
+          <EffortCard />
+        </Card>
+      </div>
 
       <AttentionQueue items={attention} />
 
@@ -247,11 +414,20 @@ export function OverviewPage() {
           subtitle="Reporting one average would hide the low cluster."
         >
           <Histogram
-            bars={histogram.bins.map((bin) => ({
-              label: bin.label,
-              count: bin.count,
-              isBelowThreshold: bin.is_below_threshold,
-            }))}
+            bars={histogram.bins.map((bin) => {
+              const highest = scoreBandCeiling(bin, histogram.bins)
+              return {
+                label: bin.label,
+                count: bin.count,
+                isBelowThreshold: bin.is_below_threshold,
+                selectLabel: `Show the ${String(bin.count)} ${
+                  bin.count === 1 ? 'call' : 'calls'
+                } scoring ${String(bin.lower)} to ${String(highest)}`,
+                onSelect: () => {
+                  navigate(`/calls?min_score=${String(bin.lower)}&max_score=${String(highest)}`)
+                },
+              }
+            })}
             peak={histogram.peak}
           />
           <Note>
@@ -306,7 +482,7 @@ export function OverviewPage() {
 
         <Card
           title="Signals by owner"
-          subtitle="A call can raise more than one signal, so these do not total the call count."
+          subtitle="Each call counts once, under the owner of its most serious finding."
         >
           {signals.isPending ? <Loading what="signals" /> : null}
           {signals.error ? <Failure error={signals.error} what="signal distribution" /> : null}
@@ -330,6 +506,11 @@ export function OverviewPage() {
                 ))}
               </BarRows>
               <Note>
+                {/* Counted from the bars rather than stated, so the sentence cannot
+                    drift from the chart above it as the corpus changes. */}
+                <b>{ownerTotal(signals.data.owners)}</b> of {metrics.total_calls} calls raise at
+                least one signal; the rest raise none. A call raising findings for two teams is
+                counted for the team owning the more serious one, so no call appears twice.
                 Owners with no signals are shown so the absence is visible rather than implied.
               </Note>
             </>

@@ -166,3 +166,11 @@
   display: flex;
   gap: 8px;
 }
+
+/* Member identifiers are codes, not prose: a monospace face makes two of them
+   comparable at a glance, which is the only thing anyone does with them. */
+.member {
+  font-family: var(--font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 12px;
+  white-space: nowrap;
+}

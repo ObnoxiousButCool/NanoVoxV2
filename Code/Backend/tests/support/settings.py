@@ -9,6 +9,7 @@ a particular way. The subclass below disables dotenv loading through
 
 from __future__ import annotations
 
+from pathlib import Path
 from typing import Any
 
 from pydantic_settings import SettingsConfigDict
@@ -22,6 +23,17 @@ class IsolatedSettings(Settings):
     model_config = SettingsConfigDict(env_file=None, case_sensitive=False, extra="ignore")
 
 
+# A path that will not exist, so a test application never serves the frontend.
+#
+# The SPA is a catch-all route, which by construction matches anything the API
+# did not. A test that adds its own route after ``create_app`` would find it
+# shadowed — and the failure looks like a broken error handler rather than a
+# route that was never reached. Tests exercise the API; the build is not theirs
+# to serve.
+_NO_FRONTEND = Path(__file__).resolve().parent / "no-frontend-build"
+
+
 def make_settings(**overrides: Any) -> Settings:
     """Build settings for a test, with the given field overrides."""
+    overrides.setdefault("frontend_dist_path", _NO_FRONTEND)
     return IsolatedSettings(**overrides)

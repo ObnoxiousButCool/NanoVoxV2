@@ -10,6 +10,7 @@ and held on the container; use cases are cheap and are built per request.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from re import Pattern
 
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
 
@@ -24,6 +25,8 @@ from application.use_cases.clear_corpus import ClearCorpus
 from application.use_cases.get_dashboard import (
     GetAgentPerformance,
     GetBrokerScorecard,
+    GetEffortMetrics,
+    GetMembersAtRisk,
     GetOverview,
     GetSignalDistribution,
 )
@@ -38,6 +41,8 @@ from application.use_cases.run_corpus import (
     ResumeCorpusRun,
     StartCorpusRun,
 )
+from domain.broker_evidence import compile_broker_terms
+from domain.member_id import compile_member_id_pattern
 from domain.scoring.rubric import Rubric
 from domain.scoring.rubric_engine import RubricEngine
 from domain.taxonomy import Taxonomy
@@ -86,6 +91,10 @@ class Container:
     # instance would leave every stream permanently silent.
     events: InMemoryRunEventBus
     runner: BackgroundRunner
+    # Compiled once at startup rather than per analysis, and None when the
+    # setting is blank, which turns extraction off rather than matching nothing.
+    member_id_pattern: Pattern[str] | None
+    broker_terms: Pattern[str] | None
 
     def get_health(self) -> GetHealth:
         return GetHealth(probes=self.health_probes, clock=self.clock)
@@ -125,6 +134,12 @@ class Container:
 
     def get_broker_scorecard(self) -> GetBrokerScorecard:
         return GetBrokerScorecard(self.read_models())
+
+    def get_effort_metrics(self) -> GetEffortMetrics:
+        return GetEffortMetrics(self.read_models())
+
+    def get_members_at_risk(self) -> GetMembersAtRisk:
+        return GetMembersAtRisk(self.read_models(), self.dashboard.histogram)
 
     def get_signal_distribution(self) -> GetSignalDistribution:
         return GetSignalDistribution(self.read_models(), self.taxonomy)
@@ -188,6 +203,8 @@ class Container:
             redaction=self.redaction,
             repository=self.analysis_repository(),
             clock=self.clock,
+            member_id_pattern=self.member_id_pattern,
+            broker_terms=self.broker_terms,
         )
 
 
@@ -220,6 +237,12 @@ def build_container(settings: Settings) -> Container:
         corpus=MarkdownCorpusSource(settings.corpus_path, settings.corpus_glob),
         events=InMemoryRunEventBus(),
         runner=BackgroundRunner(),
+        member_id_pattern=(
+            compile_member_id_pattern(settings.member_id_pattern)
+            if settings.member_id_pattern.strip()
+            else None
+        ),
+        broker_terms=compile_broker_terms(settings.broker_evidence_terms),
     )
 
 

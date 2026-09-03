@@ -123,3 +123,59 @@
   border-left: 2px solid var(--line, #d8dee4);
   padding-left: 8px;
 }
+
+/* Effort figures: three numbers that answer "what did this cost the member?" */
+.effortRow {
+  display: flex;
+  gap: 26px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.effortStat b {
+  display: block;
+  font: 700 26px/1.1 var(--font-display, inherit);
+  color: var(--ink);
+}
+
+.effortStat span {
+  font: 600 10px/1 var(--font-body);
+  letter-spacing: 0.09em;
+  color: var(--slate-2);
+}
+
+/* One row per member, matching the attention queue's shape: the two lists are
+   read the same way and should look the same way. */
+.memberList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.member {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 9px 12px;
+  border: 1px solid var(--rule);
+  border-left: 3px solid var(--danger, #b3261e);
+  border-radius: var(--r);
+}
+
+.member h4 {
+  margin: 0 0 4px;
+  font: 600 13px/1.2 var(--font-body);
+}
+
+.member h4 a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.member h4 a:hover,
+.member h4 a:focus-visible {
+  text-decoration: underline;
+}

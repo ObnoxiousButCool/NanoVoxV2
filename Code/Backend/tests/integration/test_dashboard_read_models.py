@@ -287,6 +287,47 @@ class TestAgentPerformance:
         assert priya.rating.note == "Below n=5 significance threshold"
 
 
+class TestMemberAggregates:
+    async def test_calls_are_grouped_by_member(
+        self, read_models: SqlReadModelRepository
+    ) -> None:
+        members = await read_models.member_call_counts()
+
+        assert members
+        assert all(member.call_count >= 1 for member in members)
+
+    async def test_calls_without_an_identifier_are_excluded_not_grouped(
+        self, read_models: SqlReadModelRepository
+    ) -> None:
+        """Unknown members are different people.
+
+        Folding them together would invent a single member with a hundred calls
+        and put them at the top of every at-risk list.
+        """
+        members = await read_models.member_call_counts()
+
+        assert all(member.member_id for member in members)
+        counted = sum(member.call_count for member in members)
+        total = (await read_models.list_calls(CallFilters(), limit=1, offset=0)).total
+        assert counted <= total
+
+    async def test_a_member_with_two_calls_is_counted_once_with_two(
+        self, read_models: SqlReadModelRepository
+    ) -> None:
+        # The whole point of the member_id column: two calls, one member.
+        members = {member.member_id: member for member in await read_models.member_call_counts()}
+
+        assert members["CHM-REPEAT"].call_count == 2
+        assert len(members["CHM-REPEAT"].references) == 2
+
+    async def test_durations_are_returned_for_calls_that_have_one(
+        self, read_models: SqlReadModelRepository
+    ) -> None:
+        durations = await read_models.call_durations()
+
+        assert all(isinstance(value, int) for value in durations)
+
+
 class TestBrokerScorecard:
     @pytest.fixture
     def use_case(self, read_models: SqlReadModelRepository) -> GetBrokerScorecard:
@@ -382,6 +423,36 @@ class TestSignalDistribution:
         assert by_owner["Operations"] == 3
         assert by_owner["Compliance"] == 2
         assert by_owner["Provider Relations"] == 0
+
+    async def test_a_call_is_counted_for_one_owner_only(
+        self, use_case: GetSignalDistribution
+    ) -> None:
+        # F0006 raises compliance_risk and agent_coaching — two categories, two
+        # different owning teams. Counting it for both would put one call on two
+        # managers' bars, each reading it as theirs. Both findings are HIGH in
+        # the fixture, so the configured defaults decide: compliance_risk is
+        # CRITICAL, agent_coaching MEDIUM.
+        entries, owners = await use_case.execute()
+        by_code = {entry.code: entry.count for entry in entries}
+        by_owner = {load.owner: load.count for load in owners}
+
+        # The category bars still report the finding that was actually made...
+        assert by_code["agent_coaching"] == 1
+        # ...while the owner rollup attributes the call once, to Compliance.
+        assert by_owner["Call Centre Management"] == 0
+        assert by_owner["Compliance"] == 2  # F0006 and F0007
+
+    async def test_owner_totals_add_up_to_the_calls_they_describe(
+        self, use_case: GetSignalDistribution, read_models: SqlReadModelRepository
+    ) -> None:
+        # The chart is read as "how many calls are mine", so the bars have to
+        # total the number of calls carrying a signal — no more, from a call
+        # counted twice, and no less.
+        _, owners = await use_case.execute()
+        findings = await read_models.l4_findings()
+
+        flagged = {finding.call_id for finding in findings}
+        assert sum(load.count for load in owners) == len(flagged)
 
 
 class TestCallsList:
@@ -496,6 +567,34 @@ class TestCallsList:
 
         named = [item.agent_name for item in page.items]
         assert named == sorted(named, key=lambda name: (name is None, name or ""))
+
+    async def test_filter_by_member(self, read_models: SqlReadModelRepository) -> None:
+        # How the at-risk list opens a member's calls.
+        page = await read_models.list_calls(
+            CallFilters(member_id="CHM-REPEAT"), limit=50, offset=0
+        )
+
+        assert page.total == 2
+        assert all(item.member_id == "CHM-REPEAT" for item in page.items)
+
+    async def test_an_unknown_member_matches_nothing(
+        self, read_models: SqlReadModelRepository
+    ) -> None:
+        # Not "every call": a filter that silently does nothing is worse than one
+        # that returns an empty list, because the caller believes the result.
+        page = await read_models.list_calls(
+            CallFilters(member_id="CHM-NOBODY"), limit=50, offset=0
+        )
+
+        assert page.total == 0
+
+    async def test_the_member_is_on_every_row(
+        self, read_models: SqlReadModelRepository
+    ) -> None:
+        # The calls screen shows it, so it has to survive the read model.
+        page = await read_models.list_calls(CallFilters(), limit=5, offset=0)
+
+        assert all(item.member_id for item in page.items)
 
     async def test_filter_by_broker_name(self, read_models: SqlReadModelRepository) -> None:
         # Marcus Trent is named on three calls; Patricia Nunez on the other two.

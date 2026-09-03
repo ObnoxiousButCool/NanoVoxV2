@@ -38,6 +38,14 @@ if [ ! -f "$BACKEND/.env" ]; then
     echo "Creating backend/.env from .env.example — the defaults work for a local run."
     cp "$BACKEND/.env.example" "$BACKEND/.env"
 fi
+
+# --- Database schema ---
+# SQLite creates the file on first connect but not the tables in it, so without
+# this a fresh clone starts and dies on "no such table: analysis_runs".
+# Re-running is a no-op once the schema is current.
+echo "Applying database migrations..."
+(cd "$BACKEND" && python -m alembic upgrade head)
+
 deactivate
 
 # --- Frontend: dependencies ---

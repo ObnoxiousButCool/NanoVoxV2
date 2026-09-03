@@ -15,7 +15,9 @@ import type {
   CorpusRun,
   CorpusRunSummary,
   CorpusStatus,
+  Effort,
   Health,
+  MembersAtRisk,
   Overview,
   Providers,
   SignalDistribution,
@@ -34,6 +36,8 @@ export interface CallFilters {
   readonly has_broker_signal?: boolean
   readonly broker?: string
   readonly signal?: string
+  /** Member identifier, as stated in the call. */
+  readonly member?: string
   readonly search?: string
   readonly limit?: number
   readonly offset?: number
@@ -105,6 +109,14 @@ export function fetchBrokers(signal?: AbortSignal): Promise<BrokerScorecard[]> {
   return getJson<BrokerScorecard[]>('/dashboard/brokers', signal ? { signal } : {})
 }
 
+export function fetchEffort(signal?: AbortSignal): Promise<Effort> {
+  return getJson<Effort>('/dashboard/effort', signal ? { signal } : {})
+}
+
+export function fetchMembersAtRisk(signal?: AbortSignal): Promise<MembersAtRisk> {
+  return getJson<MembersAtRisk>('/dashboard/members-at-risk', signal ? { signal } : {})
+}
+
 export function fetchSignals(signal?: AbortSignal): Promise<SignalDistribution> {
   return getJson<SignalDistribution>('/dashboard/signals', signal ? { signal } : {})
 }
@@ -157,7 +169,8 @@ export function clearCorpus(): Promise<ClearedCorpus> {
   return deleteJson<ClearedCorpus>('/corpus/analyses')
 }
 
-/** Absolute URL of a run's progress stream, for `EventSource`. */
+/** The run's progress stream, for `EventSource`. Relative when the API is
+ *  served from this origin; EventSource resolves it against the page. */
 export function runStreamUrl(runId: number): string {
   return `${getConfig().apiBaseUrl}/corpus/runs/${String(runId)}/stream`
 }

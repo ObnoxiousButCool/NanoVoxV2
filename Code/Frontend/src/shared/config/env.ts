@@ -25,10 +25,17 @@ function required(name: keyof ConfigSource, value: string | undefined): string {
 }
 
 function validateBaseUrl(value: string): string {
-  try {
-    new URL(value)
-  } catch {
-    throw new Error(`VITE_API_BASE_URL is not a valid URL: ${value}`)
+  // A root-relative path is the deployed form: the API is served by the same
+  // process and origin as this bundle, so one build works on any host. Absolute
+  // URLs remain valid for development against a separate backend.
+  if (!value.startsWith('/')) {
+    try {
+      new URL(value)
+    } catch {
+      throw new Error(
+        `VITE_API_BASE_URL must be an absolute URL or a root-relative path: ${value}`,
+      )
+    }
   }
   // A trailing slash would produce doubled separators when paths are appended.
   return value.replace(/\/+$/, '')

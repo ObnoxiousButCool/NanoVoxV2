@@ -19,6 +19,7 @@ from application.use_cases.analyze_transcript import (
     AnalyzeTranscript,
     AnalyzeTranscriptCommand,
 )
+from domain.broker_evidence import compile_broker_terms
 from domain.entities.analysis import CallAnalysis, Layer
 from domain.errors import ProviderResponseError, ValidationError
 from domain.scoring.rubric import Rubric
@@ -37,6 +38,7 @@ from tests.support.analysis import (
     StubPromptSource,
 )
 from tests.support.clock import FixedClock
+from tests.support.settings import make_settings
 from tests.unit.scoring.test_call_89_reproduction import TRANSCRIPT
 
 CALL_89 = "\n".join(
@@ -69,6 +71,9 @@ def build(
         redaction=NoRedaction(),
         repository=store,
         clock=FixedClock(),
+        # The shipped vocabulary, not a test-only one: the evidence rule these
+        # tests exercise is the rule the application actually applies.
+        broker_terms=compile_broker_terms(make_settings().broker_evidence_terms),
     )
     return use_case, store
 
@@ -387,8 +392,15 @@ class TestAttributionEvidence:
         assert analysis.broker_signals == ()
         assert "does not exist" in analysis.rejected_attribution_notes[0]
 
-    async def test_a_genuine_attribution_survives(self, taxonomy: Taxonomy, rubric: Rubric) -> None:
-        # The rule must not be so strict that it discards real evidence.
+    async def test_an_attribution_naming_the_agent_is_discarded(
+        self, taxonomy: Taxonomy, rubric: Rubric
+    ) -> None:
+        """The agent who answered the call is not the member's broker.
+
+        A verbatim quote of the agent speaking is real evidence of nothing but
+        the agent speaking. Left unchecked this put the agents themselves on a
+        screen that names people for Compliance review.
+        """
         payloads = dict(PAYLOADS_BY_PROMPT)
         payloads["l4_operational_bi"] = {
             "signals": [],
@@ -405,8 +417,70 @@ class TestAttributionEvidence:
 
         analysis, _ = await analyse(taxonomy, rubric, ScriptedLayerProvider(payloads))
 
-        assert len(analysis.broker_signals) == 1
-        assert analysis.rejected_attribution_notes == ()
+        assert analysis.broker_signals == ()
+        assert "names the agent" in analysis.rejected_attribution_notes[0]
+
+    async def test_an_attribution_whose_quote_names_no_broker_is_discarded(
+        self, taxonomy: Taxonomy, rubric: Rubric
+    ) -> None:
+        """A surgeon named in a real quote is still not a broker.
+
+        Doctors, pharmacies and the plan itself all reached the broker scorecard
+        this way: the words were genuinely said, but they say nothing about a
+        broker relationship.
+        """
+        payloads = dict(PAYLOADS_BY_PROMPT)
+        payloads["l4_operational_bi"] = {
+            "signals": [],
+            "broker_signals": [
+                {
+                    "broker_name": "Dr. Ridgeway",
+                    "polarity": "NEGATIVE",
+                    "issue": "Sent the member to urgent care.",
+                    "evidence_turn_seq": 8,
+                    "quote": "There's one on Ridgeway if you're nearby.",
+                }
+            ],
+        }
+
+        analysis, _ = await analyse(taxonomy, rubric, ScriptedLayerProvider(payloads))
+
+        assert analysis.broker_signals == ()
+        assert "does not name a broker relationship" in analysis.rejected_attribution_notes[0]
+
+    async def test_a_genuine_attribution_survives(self, taxonomy: Taxonomy, rubric: Rubric) -> None:
+        # The rule must not be so strict that it discards real evidence: a member
+        # naming their own broker is exactly what the screen is for.
+        named_broker = chr(10).join(
+            [
+                "Agent Brad: Choice Administrators, Brad.",
+                "Member: My broker, Marcus Trent, told me I didn't need prior authorisation.",
+                "Agent Brad: Let me check that for you.",
+            ]
+        )
+        payloads = dict(PAYLOADS_BY_PROMPT)
+        payloads["l4_operational_bi"] = {
+            "signals": [],
+            "broker_signals": [
+                {
+                    "broker_name": "Marcus Trent",
+                    "polarity": "NEGATIVE",
+                    "issue": "Told the member no prior authorisation was needed.",
+                    "evidence_turn_seq": 1,
+                    "quote": "My broker, Marcus Trent, told me I didn't need prior authorisation.",
+                }
+            ],
+        }
+        use_case, _ = build(taxonomy, rubric, ScriptedLayerProvider(payloads))
+
+        stored = await use_case.execute(
+            AnalyzeTranscriptCommand(transcript=named_broker),
+            ScriptedLayerProvider(payloads),
+        )
+
+        assert len(stored.analysis.broker_signals) == 1
+        assert stored.analysis.broker_signals[0].broker_name == "Marcus Trent"
+        assert stored.analysis.rejected_attribution_notes == ()
 
 
 class _RetryingProvider(ScriptedLayerProvider):
@@ -435,11 +509,31 @@ class _RetryingProvider(ScriptedLayerProvider):
 
 
 # Turn 1 reads: "Hello. I wanted to ask what my emergency room copay is. Member
-# ID CHM-2208814." The elided quote below joins its first and last sentences —
-# every word is real, but the run is not continuous, which is exactly how a real
-# attribution was lost.
-ELIDED_QUOTE = "Hello. Member ID CHM-2208814."
-CONTIGUOUS_QUOTE = "I wanted to ask what my emergency room copay is."
+# The repair scenario needs a turn that both names a broker and has something
+# skippable in the middle. BROKER_CALL below is that turn: the elided quote joins
+# its first and last parts across the member ID, so every word is real while the
+# run is not continuous — exactly how a genuine attribution was lost.
+BROKER_CALL = chr(10).join(
+    [
+        "Agent Brad: Choice Administrators, Brad.",
+        "Member: My broker, Marcus Trent, told me — member ID CHM-2208814 — "
+        "that I did not need prior authorisation.",
+        "Agent Brad: Let me look into that.",
+    ]
+)
+ELIDED_QUOTE = "My broker, Marcus Trent, told me that I did not need prior authorisation."
+CONTIGUOUS_QUOTE = "My broker, Marcus Trent, told me"
+
+
+async def _analyse_broker_call(
+    taxonomy: Taxonomy, rubric: Rubric, provider: ScriptedLayerProvider
+) -> CallAnalysis:
+    """Analyse a transcript in which the member does name a broker."""
+    use_case, _ = build(taxonomy, rubric, provider)
+    stored = await use_case.execute(
+        AnalyzeTranscriptCommand(transcript=BROKER_CALL), provider
+    )
+    return stored.analysis
 
 
 def _attribution(quote: str) -> dict[str, Any]:
@@ -465,7 +559,7 @@ class TestAttributionRepair:
             _attribution(ELIDED_QUOTE), _attribution(CONTIGUOUS_QUOTE)
         )
 
-        analysis, _ = await analyse(taxonomy, rubric, provider)
+        analysis = await _analyse_broker_call(taxonomy, rubric, provider)
 
         assert provider.l4_calls == 2
         assert len(analysis.broker_signals) == 1
@@ -481,12 +575,12 @@ class TestAttributionRepair:
             _attribution(ELIDED_QUOTE), _attribution(CONTIGUOUS_QUOTE)
         )
 
-        await analyse(taxonomy, rubric, provider)
+        await _analyse_broker_call(taxonomy, rubric, provider)
 
         correction = provider.corrections[0]
         assert "CORRECTION" in correction
         assert "Marcus Trent" in correction
-        assert "I wanted to ask what my emergency room copay is" in correction
+        assert "member ID CHM-2208814" in correction
 
     async def test_a_repair_that_fails_again_leaves_the_attribution_rejected(
         self, taxonomy: Taxonomy, rubric: Rubric
@@ -495,7 +589,7 @@ class TestAttributionRepair:
         # still not evidence.
         provider = _RetryingProvider(_attribution(ELIDED_QUOTE), None)
 
-        analysis, _ = await analyse(taxonomy, rubric, provider)
+        analysis = await _analyse_broker_call(taxonomy, rubric, provider)
 
         assert provider.l4_calls == 2
         assert analysis.broker_signals == ()
@@ -507,7 +601,7 @@ class TestAttributionRepair:
         # The repair costs a model call, so it must only run when one is needed.
         provider = _RetryingProvider(_attribution(CONTIGUOUS_QUOTE), None)
 
-        analysis, _ = await analyse(taxonomy, rubric, provider)
+        analysis = await _analyse_broker_call(taxonomy, rubric, provider)
 
         assert provider.l4_calls == 1
         assert len(analysis.broker_signals) == 1

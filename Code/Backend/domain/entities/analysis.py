@@ -97,6 +97,9 @@ class CallAnalysis:
     provenance: Provenance
     source: AnalysisSource = AnalysisSource.PASTED
     agent_name: str | None = None
+    # Read from the transcript, not written by a model. Absent when the call
+    # never states one, which is a fact about the call rather than a failure.
+    member_id: str | None = None
     member_context: str | None = None
     duration_minutes: int | None = None
     signal_codes: tuple[str, ...] = ()

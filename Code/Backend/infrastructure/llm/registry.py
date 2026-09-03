@@ -99,6 +99,23 @@ BILLABLE_PROVIDERS: frozenset[str] = frozenset(
 )
 
 
+# Whether a provider runs inside this environment. A property of where the model
+# executes, not of what it costs — modelled separately from BILLABLE_PROVIDERS on
+# purpose. The two happen to coincide today, and reading one as the other is how
+# a privacy claim ends up attached to a provider that never earned it.
+LOCAL_PROVIDERS: frozenset[str] = frozenset({ollama.PROVIDER_NAME})
+
+
+def is_local(name: str) -> bool:
+    """Whether transcripts stay inside this environment when using this provider.
+
+    An unknown name counts as *not* local. The claim being made here is a privacy
+    guarantee about member health conversations, so the safe direction to be
+    wrong in is the one that promises less.
+    """
+    return name.strip().lower() in LOCAL_PROVIDERS
+
+
 def is_billable(name: str) -> bool:
     """Whether a run against this provider would be charged for.
 

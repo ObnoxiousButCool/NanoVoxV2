@@ -3,6 +3,40 @@
 One-shot scripts to go from a fresh clone to a running app, plus the verification
 gate that CI runs.
 
+| script | for |
+|---|---|
+| `start.bat` / `start.sh` | **Development.** Two servers — uvicorn with reload, and Vite — on 8000 and 5173. |
+| `deploy.ps1` | **Deployment on Windows.** One process serving the API and the built frontend on a single port, registered with Task Scheduler. |
+| `deploy.sh` | **Deployment on macOS.** The same seven steps, registered with launchd. On Linux it deploys everything and hands you the run command. |
+| `verify.bat` / `verify.sh` | Every gate CI runs. |
+
+## Deploying
+
+Windows, from an elevated PowerShell:
+
+```powershell
+.\scripts\deploy.ps1
+```
+
+macOS, with sudo (a LaunchDaemon is written to `/Library/LaunchDaemons`):
+
+```bash
+sudo ./scripts/deploy.sh
+```
+
+Either script takes `--no-service` (`-NoService` on Windows) to set everything
+up without registering a service, which is also the only mode needing no
+elevation.
+
+Installs dependencies, migrates the database, builds the frontend, registers a
+startup task and verifies the result. Re-running it after a `git pull` is the
+update path. `Gen Documents/DEPLOYMENT.md` has the details, the options and the
+troubleshooting table.
+
+Note the difference from `start.bat`: development serves the frontend from Vite
+on its own port, so the API needs CORS. A deployment serves both from one
+process on one origin, so it does not.
+
 ## Running the app
 
 - **Windows:** double-click `start.bat`, or run it from a terminal:
@@ -19,9 +53,12 @@ Each script:
 1. Creates the backend virtual environment (`Code/Backend/.venv`) if missing.
 2. Installs backend dependencies from `Code/Backend/requirements.txt`.
 3. Copies `Code/Backend/.env.example` → `.env` if no `.env` exists yet.
-4. Installs frontend dependencies (`npm install`) if `node_modules` is missing.
-5. Copies `Code/Frontend/.env.example` → `.env` if no `.env` exists yet.
-6. Starts the backend (uvicorn, port 8000) and frontend (Vite, port 5173), then
+4. Applies database migrations. SQLite creates the file on first connect but not
+   the tables in it, so without this a fresh clone starts and dies on
+   "no such table: analysis_runs".
+5. Installs frontend dependencies (`npm install`) if `node_modules` is missing.
+6. Copies `Code/Frontend/.env.example` → `.env` if no `.env` exists yet.
+7. Starts the backend (uvicorn, port 8000) and frontend (Vite, port 5173), then
    opens the app in your browser.
 
 Re-running is safe and fast: it skips venv creation and `npm install` once they

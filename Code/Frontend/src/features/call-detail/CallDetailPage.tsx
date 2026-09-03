@@ -12,7 +12,7 @@
  */
 
 import type { ReactNode } from 'react'
-import { useParams } from 'react-router-dom'
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 
 import { useCall } from '@/shared/api/queries'
 import type { Analysis, Layer } from '@/shared/api/types'
@@ -27,6 +27,7 @@ import {
   PageHeader,
 } from '@/shared/ui/primitives'
 import { toneForResolution, toneForSeverity } from '@/shared/ui/tone'
+import { useCollapsedPanels } from '@/shared/hooks/useCollapsedPanels'
 import { cx } from '@/shared/ui/cx'
 import { TranscriptView } from './TranscriptView'
 import styles from './CallDetail.module.css'
@@ -64,39 +65,152 @@ function list(payload: Record<string, unknown>, key: string): string[] {
   return Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string') : []
 }
 
+/**
+ * One collapsible section of the analysis.
+ *
+ * Shared by the five layers and the transcript. They were separate blocks with
+ * duplicated markup, which is why the transcript was the one section that never
+ * got a toggle — the fix is for there to be only one place to add it.
+ */
+/**
+ * The way back to the call list.
+ *
+ * Goes back through history rather than to a bare `/calls` whenever the reader
+ * arrived from inside the app, because the list they came from was probably
+ * filtered — to one member, one broker, one score band — and dropping them on
+ * the unfiltered list would throw that away.
+ *
+ * `location.key` is `'default'` only for the first entry in a session, so it is
+ * a reliable test for "there is nothing to go back to": someone who opened this
+ * call from a link or a bookmark gets a plain link instead.
+ */
+function BackToCalls() {
+  const navigate = useNavigate()
+  const location = useLocation()
+  const canGoBack = location.key !== 'default'
+
+  if (!canGoBack) {
+    return (
+      <Link className={styles.back} to="/calls">
+        <span aria-hidden="true">←</span> Back to calls
+      </Link>
+    )
+  }
+
+  return (
+    <button
+      type="button"
+      className={styles.back}
+      onClick={() => {
+        navigate(-1)
+      }}
+    >
+      <span aria-hidden="true">←</span> Back to calls
+    </button>
+  )
+}
+
+function Panel({
+  panelKey,
+  badge,
+  badgeClass,
+  title,
+  subtitle,
+  collapsed,
+  onToggle,
+  children,
+}: {
+  panelKey: string
+  badge: string
+  badgeClass: string | undefined
+  title: string
+  subtitle: ReactNode
+  collapsed: boolean
+  onToggle: () => void
+  children: ReactNode
+}) {
+  const panelId = `panel-${panelKey}`
+
+  return (
+    <div className={styles.layer}>
+      {/* The whole heading is the control, not just the chevron: a reader aiming
+          at a section aims at its title. The badge stays outside the button so it
+          reads as a label rather than part of the control's name. */}
+      <div className={cx(styles.badge, badgeClass)}>{badge}</div>
+      <button
+        type="button"
+        className={styles.layerToggle}
+        aria-expanded={!collapsed}
+        aria-controls={panelId}
+        onClick={onToggle}
+      >
+        <span
+          className={cx(styles.layerChevron, collapsed && styles.layerChevronClosed)}
+          aria-hidden="true"
+        >
+          ▾
+        </span>
+        <span className={styles.layerHeading}>
+          <h3>{title}</h3>
+          <span className={styles.layerSub}>{subtitle}</span>
+        </span>
+        <span className={styles.layerHint} aria-hidden="true">
+          {collapsed ? 'Show' : 'Hide'}
+        </span>
+      </button>
+      {collapsed ? null : (
+        <div className={styles.box} id={panelId}>
+          {children}
+        </div>
+      )}
+    </div>
+  )
+}
+
 function LayerBlock({
   id,
   children,
   unavailableReason,
+  collapsed,
+  onToggle,
 }: {
   id: LayerId
   children: ReactNode
   unavailableReason?: string | undefined
+  collapsed: boolean
+  onToggle: () => void
 }) {
   const meta = LAYER_META[id]
+
   return (
-    <div className={styles.layer}>
-      <div className={cx(styles.badge, BADGE_CLASS[id])}>{id}</div>
-      <h3>{meta.title}</h3>
-      <div className={styles.layerSub}>{meta.subtitle}</div>
-      <div className={styles.box}>
-        {unavailableReason ? (
-          <Alert title={`${id} could not be produced`}>
-            {unavailableReason}
-            <Note>
-              This is a failure, not an empty result. The rest of the analysis is unaffected.
-            </Note>
-          </Alert>
-        ) : (
-          children
-        )}
-      </div>
-    </div>
+    <Panel
+      panelKey={id}
+      badge={id}
+      badgeClass={BADGE_CLASS[id]}
+      title={meta.title}
+      subtitle={meta.subtitle}
+      collapsed={collapsed}
+      onToggle={onToggle}
+    >
+      {unavailableReason ? (
+        <Alert title={`${id} could not be produced`}>
+          {unavailableReason}
+          <Note>
+            This is a failure, not an empty result. The rest of the analysis is unaffected.
+          </Note>
+        </Alert>
+      ) : (
+        children
+      )}
+    </Panel>
   )
 }
 
 export function CallDetailPage() {
   const params = useParams<{ callId: string }>()
+  // Keyed per layer rather than per call: the layer someone wants to read is a
+  // habit, not a property of the call in front of them.
+  const panels = useCollapsedPanels('nanovox.call.layers.collapsed')
   const callId = Number(params.callId)
   const { data, isPending, error } = useCall(callId)
 
@@ -116,6 +230,7 @@ export function CallDetailPage() {
 
   return (
     <>
+      <BackToCalls />
       <PageHeader
         title={`Call ${data.reference}`}
         subtitle={[
@@ -155,7 +270,12 @@ export function CallDetailPage() {
             </div>
           </div>
 
-          <LayerBlock id="L1" unavailableReason={isUnavailable(l1) ? text(l1, 'reason') : undefined}>
+          <LayerBlock
+            id="L1"
+            collapsed={panels.isCollapsed('L1')}
+            onToggle={() => {
+              panels.toggle('L1')
+            }} unavailableReason={isUnavailable(l1) ? text(l1, 'reason') : undefined}>
             <dl>
               <div className={styles.kv}>
                 <dt>Call type</dt>
@@ -179,7 +299,12 @@ export function CallDetailPage() {
             </div>
           </LayerBlock>
 
-          <LayerBlock id="L2" unavailableReason={isUnavailable(l2) ? text(l2, 'reason') : undefined}>
+          <LayerBlock
+            id="L2"
+            collapsed={panels.isCollapsed('L2')}
+            onToggle={() => {
+              panels.toggle('L2')
+            }} unavailableReason={isUnavailable(l2) ? text(l2, 'reason') : undefined}>
             <p className={styles.summary}>{data.summary}</p>
             <div className={styles.chips}>
               {list(l2, 'topics').map((topic) => (
@@ -188,7 +313,12 @@ export function CallDetailPage() {
             </div>
           </LayerBlock>
 
-          <LayerBlock id="L3">
+          <LayerBlock
+            id="L3"
+            collapsed={panels.isCollapsed('L3')}
+            onToggle={() => {
+              panels.toggle('L3')
+            }}>
             {data.markers.length === 0 ? (
               <Note>No observations survived evidence checking for this call.</Note>
             ) : (
@@ -222,7 +352,12 @@ export function CallDetailPage() {
             ) : null}
           </LayerBlock>
 
-          <LayerBlock id="L4" unavailableReason={isUnavailable(l4) ? text(l4, 'reason') : undefined}>
+          <LayerBlock
+            id="L4"
+            collapsed={panels.isCollapsed('L4')}
+            onToggle={() => {
+              panels.toggle('L4')
+            }} unavailableReason={isUnavailable(l4) ? text(l4, 'reason') : undefined}>
             <div className={styles.stack}>
               {data.l4_signals.length === 0 ? (
                 <Note>No operational findings were raised by this call.</Note>
@@ -260,7 +395,12 @@ export function CallDetailPage() {
             </div>
           </LayerBlock>
 
-          <LayerBlock id="L5" unavailableReason={isUnavailable(l5) ? text(l5, 'reason') : undefined}>
+          <LayerBlock
+            id="L5"
+            collapsed={panels.isCollapsed('L5')}
+            onToggle={() => {
+              panels.toggle('L5')
+            }} unavailableReason={isUnavailable(l5) ? text(l5, 'reason') : undefined}>
             {data.assist_events.length === 0 ? (
               <Note>No assist activity was recorded for this call.</Note>
             ) : (
@@ -290,16 +430,19 @@ export function CallDetailPage() {
             ) : null}
           </LayerBlock>
 
-          <div className={styles.layer}>
-            <div className={cx(styles.badge, styles.badgeTr)}>TR</div>
-            <h3>Transcript</h3>
-            <div className={styles.layerSub}>
-              {data.transcript.length} turns · speaker separated
-            </div>
-            <div className={styles.box}>
-              <TranscriptView turns={data.transcript} markers={data.markers} />
-            </div>
-          </div>
+          <Panel
+            panelKey="TR"
+            badge="TR"
+            badgeClass={styles.badgeTr}
+            title="Transcript"
+            subtitle={`${String(data.transcript.length)} turns · speaker separated`}
+            collapsed={panels.isCollapsed('TR')}
+            onToggle={() => {
+              panels.toggle('TR')
+            }}
+          >
+            <TranscriptView turns={data.transcript} markers={data.markers} />
+          </Panel>
         </div>
 
         <aside>
