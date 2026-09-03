@@ -141,7 +141,7 @@ describe('AppShell', () => {
     // Hidden entries keep their routes; they are simply not offered here.
     renderShell()
 
-    await screen.findByRole('link', { name: 'Overview' })
+    await screen.findByRole('link', { name: 'Dashboard' })
     expect(screen.queryByRole('link', { name: 'Corpus run' })).not.toBeInTheDocument()
     expect(screen.queryByRole('link', { name: 'Diagnostics' })).not.toBeInTheDocument()
   })
@@ -151,7 +151,7 @@ describe('AppShell', () => {
     // dot and both lines. The rail is navigation only until it does.
     renderShell()
 
-    await screen.findByRole('link', { name: 'Overview' })
+    await screen.findByRole('link', { name: 'Dashboard' })
     expect(screen.queryByText(/Backend healthy/)).not.toBeInTheDocument()
     expect(screen.queryByText(/Backend unreachable/)).not.toBeInTheDocument()
     expect(screen.queryByRole('img')).not.toBeInTheDocument()
@@ -163,7 +163,7 @@ describe('AppShell', () => {
     vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new TypeError('Failed to fetch')))
     renderShell()
 
-    await screen.findByRole('link', { name: 'Overview' })
+    await screen.findByRole('link', { name: 'Dashboard' })
     expect(screen.queryByText(/Backend unreachable/)).not.toBeInTheDocument()
   })
 

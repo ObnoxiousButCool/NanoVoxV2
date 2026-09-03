@@ -24,7 +24,7 @@ export interface NavigationItem {
 export const NAVIGATION: readonly NavigationItem[] = [
   {
     to: '/overview',
-    label: 'Overview',
+    label: 'Dashboard',
     glyph: '◎',
     description: 'What needs attention, ranked with an owner',
   },
