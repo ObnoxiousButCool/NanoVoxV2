@@ -28,7 +28,15 @@ L1_PAYLOAD: dict[str, Any] = {
     "agent_tone": "transactional",
     "member_context": "Member aged 68 on a CalChoice HMO plan.",
     "key_terms": ["chest pressure", "arm ache", "ER copay", "urgent care"],
-    "signals": ["clinical_risk"],
+    # Evidence-bearing, like every other claim the pipeline stores. Turn 5 is
+    # where the member discloses the symptom.
+    "signals": [
+        {
+            "code": "clinical_risk",
+            "evidence_turn_seq": 5,
+            "quote": "pressure in my chest since last night",
+        }
+    ],
 }
 
 L2_PAYLOAD: dict[str, Any] = {

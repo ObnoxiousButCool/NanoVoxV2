@@ -86,7 +86,11 @@ class GatedProvider(ScriptedLayerProvider):
     gate = threading.Event()
 
     async def complete(self, request: LlmRequest[TModel]) -> StructuredResult[TModel]:
-        while not GatedProvider.gate.is_set():
+        # A polled threading.Event rather than an asyncio.Event, which ASYNC110
+        # would prefer: the gate is released from the test's own thread, and
+        # asyncio.Event is not safe to set from outside the loop's thread. The
+        # sleep yields, so the request serving the stream still runs.
+        while not GatedProvider.gate.is_set():  # noqa: ASYNC110
             await asyncio.sleep(0.01)
         return await super().complete(request)
 
@@ -149,7 +153,6 @@ def wait_for_finish(client: TestClient, run_id: int) -> dict[str, Any]:
     body = client.get(f"{RUNS}/{run_id}").json()
     assert isinstance(body, dict)
     return body
-
 
 
 @contextmanager
@@ -236,7 +239,9 @@ class TestStartingARun:
     ) -> None:
         # The provider is built first precisely so this is a 404 on the request
         # rather than a run that exists only to fail on its first call.
-        def refuse(self: Container, name: str | None = None, model: str | None = None) -> LLMProvider:
+        def refuse(
+            self: Container, name: str | None = None, model: str | None = None
+        ) -> LLMProvider:
             raise NotFoundError("Unknown model provider: 'nope'.")
 
         monkeypatch.setattr(Container, "create_provider", refuse)
@@ -269,7 +274,9 @@ class TestCostGuard:
 
     def test_providers_declare_whether_they_cost_money(self, client: TestClient) -> None:
         # The screen cannot warn about a cost it cannot see.
-        providers = {item["name"]: item for item in client.get("/api/v1/providers").json()["providers"]}
+        providers = {
+            item["name"]: item for item in client.get("/api/v1/providers").json()["providers"]
+        }
 
         assert providers["ollama"]["billable"] is False
         assert providers["openai"]["billable"] is True
@@ -500,7 +507,9 @@ class TestResumeIsAtomic:
         GatedProvider.gate.set()
         wait_for_finish(client, run_id)
 
-        def refuse(self: Container, name: str | None = None, model: str | None = None) -> LLMProvider:
+        def refuse(
+            self: Container, name: str | None = None, model: str | None = None
+        ) -> LLMProvider:
             raise NotFoundError("Unknown model provider: 'gone'.")
 
         monkeypatch.setattr(Container, "create_provider", refuse)

@@ -31,6 +31,7 @@ from infrastructure.config.paths import DEFAULT_RUBRIC_PATH, DEFAULT_TAXONOMY_PA
 from infrastructure.config.rubric_loader import load_rubric
 from infrastructure.config.taxonomy_loader import load_taxonomy
 from tests.support.analysis import (
+    L1_PAYLOAD,
     L3_PAYLOAD,
     PAYLOADS_BY_PROMPT,
     InMemoryAnalysisRepository,
@@ -84,6 +85,71 @@ async def analyse(
     use_case, store = build(taxonomy, rubric, provider)
     stored = await use_case.execute(AnalyzeTranscriptCommand(transcript=CALL_89), provider)
     return stored.analysis, store
+
+
+class TestSignalEvidence:
+    """A signal has to prove itself, like every other stored claim."""
+
+    async def test_an_evidenced_signal_reaches_the_score(
+        self, taxonomy: Taxonomy, rubric: Rubric
+    ) -> None:
+        analysis, _ = await analyse(taxonomy, rubric, ScriptedLayerProvider())
+
+        assert "clinical_risk" in analysis.signal_codes
+        # And it does what a signal is for: the score is held for review.
+        assert analysis.score.status is ScoreStatus.PROVISIONAL
+
+    async def test_a_signal_whose_quote_is_not_in_the_call_is_discarded(
+        self, taxonomy: Taxonomy, rubric: Rubric
+    ) -> None:
+        # The failure this check exists for: clinical_risk asserted on a call
+        # whose transcript never said it. Eight of fifty ancillary-benefit calls
+        # were flagged this way, every one wrong, each withholding a score.
+        provider = ScriptedLayerProvider(
+            payloads={
+                **PAYLOADS_BY_PROMPT,
+                "l1_understanding": {
+                    **L1_PAYLOAD,
+                    "signals": [
+                        {
+                            "code": "clinical_risk",
+                            "evidence_turn_seq": 1,
+                            "quote": "my prescription changed",
+                        }
+                    ],
+                }
+            }
+        )
+        analysis, _ = await analyse(taxonomy, rubric, provider)
+
+        assert analysis.signal_codes == ()
+        # Recorded, not silently dropped: a model inventing evidence is a
+        # finding about the model.
+        assert any("clinical_risk" in note for note in analysis.rejected_marker_notes)
+
+    async def test_a_discarded_signal_no_longer_withholds_the_score(
+        self, taxonomy: Taxonomy, rubric: Rubric
+    ) -> None:
+        # The consequence that matters: an unevidenced signal used to open a
+        # clinical review queue nobody could act on.
+        provider = ScriptedLayerProvider(
+            payloads={
+                **PAYLOADS_BY_PROMPT,
+                "l1_understanding": {
+                    **L1_PAYLOAD,
+                    "signals": [
+                        {
+                            "code": "clinical_risk",
+                            "evidence_turn_seq": 0,
+                            "quote": "nothing like this was said",
+                        }
+                    ],
+                }
+            }
+        )
+        analysis, _ = await analyse(taxonomy, rubric, provider)
+
+        assert analysis.score.status is ScoreStatus.CONFIRMED
 
 
 class TestDuration:
@@ -560,9 +626,7 @@ async def _analyse_broker_call(
 ) -> CallAnalysis:
     """Analyse a transcript in which the member does name a broker."""
     use_case, _ = build(taxonomy, rubric, provider)
-    stored = await use_case.execute(
-        AnalyzeTranscriptCommand(transcript=BROKER_CALL), provider
-    )
+    stored = await use_case.execute(AnalyzeTranscriptCommand(transcript=BROKER_CALL), provider)
     return stored.analysis
 
 
@@ -585,9 +649,7 @@ class TestAttributionRepair:
     async def test_an_elided_quote_is_re_asked_and_recovered(
         self, taxonomy: Taxonomy, rubric: Rubric
     ) -> None:
-        provider = _RetryingProvider(
-            _attribution(ELIDED_QUOTE), _attribution(CONTIGUOUS_QUOTE)
-        )
+        provider = _RetryingProvider(_attribution(ELIDED_QUOTE), _attribution(CONTIGUOUS_QUOTE))
 
         analysis = await _analyse_broker_call(taxonomy, rubric, provider)
 
@@ -601,9 +663,7 @@ class TestAttributionRepair:
     ) -> None:
         # Without the turn's text the model has nothing new to copy from, and the
         # second answer is as likely to be wrong as the first.
-        provider = _RetryingProvider(
-            _attribution(ELIDED_QUOTE), _attribution(CONTIGUOUS_QUOTE)
-        )
+        provider = _RetryingProvider(_attribution(ELIDED_QUOTE), _attribution(CONTIGUOUS_QUOTE))
 
         await _analyse_broker_call(taxonomy, rubric, provider)
 

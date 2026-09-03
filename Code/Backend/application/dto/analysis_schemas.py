@@ -79,6 +79,24 @@ def build_analysis_schemas(taxonomy: Taxonomy, rubric: Rubric) -> AnalysisSchema
     severities = _one_of(tuple(member.value for member in Severity))
     polarities = _one_of(tuple(member.value for member in Polarity))
 
+    raised_signal = create_model(
+        "RaisedSignalOut",
+        code=(signal_codes, Field(description="The condition this call raises.")),
+        evidence_turn_seq=(
+            int,
+            Field(description="Zero-based index of the transcript turn that proves this."),
+        ),
+        quote=(
+            str,
+            Field(
+                description=(
+                    "The member's or agent's own words from that turn, copied exactly. "
+                    "Not a paraphrase: the text is matched against the turn."
+                )
+            ),
+        ),
+    )
+
     l1 = create_model(
         "L1Understanding",
         call_type=(str, Field(description="What the member called about, in a short phrase.")),
@@ -100,12 +118,14 @@ def build_analysis_schemas(taxonomy: Taxonomy, rubric: Rubric) -> AnalysisSchema
             Field(description="Up to eight salient terms or phrases from the call."),
         ),
         signals=(
-            _list_of(signal_codes),
+            _list_of(raised_signal),
             Field(
                 description=(
-                    "Conditions this call raises. Include 'clinical_risk' whenever the "
-                    "member describes symptoms or a lapse in essential medication that "
-                    "the agent did not escalate. Empty list if none apply."
+                    "Conditions this call raises, each with the words that prove it. "
+                    "Include 'clinical_risk' whenever the member describes symptoms or "
+                    "a lapse in essential medication that the agent did not escalate. "
+                    "A signal whose quote is not in the turn it cites is discarded, so "
+                    "raise one only where the transcript says it. Empty list if none."
                 )
             ),
         ),

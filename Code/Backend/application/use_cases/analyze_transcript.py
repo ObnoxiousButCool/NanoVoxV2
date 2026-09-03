@@ -20,6 +20,7 @@ same reason the L5 panel shows a missing trigger as a finding.
 from __future__ import annotations
 
 import re
+from collections.abc import Sequence
 from dataclasses import dataclass
 from datetime import datetime
 from re import Pattern
@@ -57,6 +58,7 @@ from domain.parsing import parse_transcript
 from domain.scoring.marker_validation import MarkerValidator
 from domain.scoring.rubric import Rubric
 from domain.scoring.rubric_engine import RubricEngine
+from domain.signal_evidence import RaisedSignal, validate_signals
 from domain.taxonomy import Taxonomy
 from domain.value_objects.polarity import Polarity
 from domain.value_objects.resolution import Resolution
@@ -154,13 +156,22 @@ class AnalyzeTranscript:
         l1 = await self._run(provider, L1_PROMPT, self._schemas.l1, usage, transcript=rendered)
         layers.append(_layer(Layer.L1, l1))
 
+        # Checked against the transcript before anything is told about it. A
+        # signal withholds the score and opens a review queue, so it is the last
+        # claim that should be taken on trust — and, until this check existed,
+        # the only one that was. Validated here rather than at scoring time so a
+        # signal that failed its evidence is not fed to the later layers either.
+        signals = validate_signals(
+            _raised_signals(l1), transcript, (item.code for item in self._taxonomy.signal_types)
+        )
+
         l2 = await self._run(
             provider,
             L2_PROMPT,
             self._schemas.l2,
             usage,
             transcript=rendered,
-            l1_summary=_summarise_l1(l1),
+            l1_summary=_summarise_l1(l1, signals.accepted),
         )
         layers.append(_layer(Layer.L2, l2))
 
@@ -175,15 +186,14 @@ class AnalyzeTranscript:
         )
         layers.append(_layer(Layer.L3, l3))
 
-        signal_codes = tuple(_strings(l1, "signals"))
         validation = MarkerValidator(self._rubric, transcript).validate(_markers(l3))
-        score = self._engine.score(validation.accepted, signal_codes=signal_codes)
+        score = self._engine.score(validation.accepted, signal_codes=signals.accepted)
 
         # Resolved before the attributions are checked, which needs it: an
         # attribution naming the agent on the call is not a member naming a broker.
         agent_name = _text(l3, "agent_name") or _agent_from(transcript)
 
-        context = _summarise_context(l1, l2, score.score.value)
+        context = _summarise_context(l1, l2, score.score.value, signals.accepted)
 
         # --- Additive layers: a failure degrades the layer, not the call. ----
         l4, l4_error = await self._try_run(
@@ -245,9 +255,15 @@ class AnalyzeTranscript:
             started_at=command.started_at,
             ended_at=command.ended_at,
             caller_type=command.caller_type,
-            signal_codes=signal_codes,
+            signal_codes=signals.accepted,
             accepted_markers=validation.accepted,
-            rejected_marker_notes=tuple(item.explanation for item in validation.rejected),
+            rejected_marker_notes=(
+                *(item.explanation for item in validation.rejected),
+                # Kept in the same place a rejected marker goes: both are the
+                # model claiming something the transcript does not say, and a
+                # reader looking for that has one list to read.
+                *signals.rejection_notes,
+            ),
             rejected_attribution_notes=attributions.rejected,
             l4_signals=self._l4_signals(l4),
             broker_signals=attributions.accepted,
@@ -481,6 +497,30 @@ def _entries(payload: dict[str, Any] | None, key: str) -> list[dict[str, Any]]:
     return [item for item in value if isinstance(item, dict)]
 
 
+def _raised_signals(payload: dict[str, Any] | None) -> list[RaisedSignal]:
+    """The signals L1 raised, with whatever evidence each one carries.
+
+    A malformed entry is kept rather than skipped, so the validator refuses it
+    and the refusal is recorded. Dropping it here would make an unevidenced
+    signal indistinguishable from one that was never raised.
+    """
+    return [
+        RaisedSignal(
+            code=_text(entry, "code"),
+            quote=_text(entry, "quote"),
+            # -1 when absent or not a number, which no transcript has, so the
+            # validator reports it as citing a turn that does not exist rather
+            # than silently pointing at turn zero.
+            evidence_turn_seq=(
+                entry["evidence_turn_seq"]
+                if isinstance(entry.get("evidence_turn_seq"), int)
+                else -1
+            ),
+        )
+        for entry in _entries(payload, "signals")
+    ]
+
+
 def _markers(payload: dict[str, Any] | None) -> list[ScoreMarker]:
     markers: list[ScoreMarker] = []
     for entry in _entries(payload, "markers"):
@@ -645,13 +685,15 @@ def _agent_from(transcript: Transcript) -> str | None:
     return None
 
 
-def _summarise_l1(payload: dict[str, Any]) -> str:
+def _summarise_l1(payload: dict[str, Any], signal_codes: Sequence[str]) -> str:
     return (
         f"Call type: {_text(payload, 'call_type')}. "
         f"Member sentiment: {_text(payload, 'member_sentiment_start')} to "
         f"{_text(payload, 'member_sentiment_end')}. "
         f"Agent tone: {_text(payload, 'agent_tone')}. "
-        f"Signals: {', '.join(_strings(payload, 'signals')) or 'none'}."
+        # The validated codes, not what L1 raised: a later layer must not be
+        # told about a condition whose evidence did not survive checking.
+        f"Signals: {', '.join(signal_codes) or 'none'}."
     )
 
 
@@ -662,5 +704,10 @@ def _summarise_l2(payload: dict[str, Any]) -> str:
     )
 
 
-def _summarise_context(l1: dict[str, Any], l2: dict[str, Any], score: int) -> str:
-    return f"{_summarise_l1(l1)}\n{_summarise_l2(l2)}\nComputed agent score: {score}/100."
+def _summarise_context(
+    l1: dict[str, Any], l2: dict[str, Any], score: int, signal_codes: Sequence[str]
+) -> str:
+    return (
+        f"{_summarise_l1(l1, signal_codes)}\n{_summarise_l2(l2)}\n"
+        f"Computed agent score: {score}/100."
+    )

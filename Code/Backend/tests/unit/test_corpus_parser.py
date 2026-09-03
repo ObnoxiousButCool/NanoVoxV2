@@ -217,9 +217,7 @@ class TestTimestampedCorpus:
         assert call.ended_at is None
 
     def test_an_unreadable_date_is_absent_rather_than_guessed(self) -> None:
-        call = parse_corpus_file(
-            TIMESTAMPED_FILE.replace("2026-09-07", "07/09/2026"), "call_014"
-        )
+        call = parse_corpus_file(TIMESTAMPED_FILE.replace("2026-09-07", "07/09/2026"), "call_014")
 
         assert call.started_at is None
 
@@ -271,9 +269,7 @@ class TestMissingInformation:
     def test_a_file_with_no_duration_line_stays_analysable(self) -> None:
         # One missing figure, not a reason to fail a hundred-call run. The
         # analysis then falls back to the model's estimate.
-        call = parse_corpus_file(
-            CALL_FILE.replace("- **Duration:** ~6 min\n", ""), "call_089"
-        )
+        call = parse_corpus_file(CALL_FILE.replace("- **Duration:** ~6 min\n", ""), "call_089")
 
         assert call.duration_minutes is None
         assert call.transcript
