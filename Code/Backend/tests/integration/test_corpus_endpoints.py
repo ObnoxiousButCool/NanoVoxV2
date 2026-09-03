@@ -10,7 +10,9 @@ from __future__ import annotations
 import asyncio
 import json
 import threading
+import time
 from collections.abc import Iterator
+from contextlib import contextmanager
 from pathlib import Path
 from typing import Any
 
@@ -147,6 +149,39 @@ def wait_for_finish(client: TestClient, run_id: int) -> dict[str, Any]:
     body = client.get(f"{RUNS}/{run_id}").json()
     assert isinstance(body, dict)
     return body
+
+
+
+@contextmanager
+def released_once_watching(app: FastAPI) -> Iterator[None]:
+    """Let the parked worker finish once the stream is actually listening.
+
+    This TestClient does not hand back a streaming response until the ASGI call
+    has completed, so a stream on a run that never ends never returns — and the
+    thread inside ``client.stream`` cannot release the gate itself. Something
+    outside it has to.
+
+    Keyed on the subscription rather than on a delay: the release happens after
+    the endpoint has read the run and opened its subscription, so the snapshot is
+    still taken mid-run and the assertion cannot flake on a slow machine.
+    """
+    bus = app.state.container.events
+
+    def release() -> None:
+        # Only this one stream is ever open in these tests, so a subscriber at
+        # all is this subscriber.
+        deadline = time.monotonic() + 5
+        while time.monotonic() < deadline and bus.subscriber_count == 0:
+            time.sleep(0.01)
+        GatedProvider.gate.set()
+
+    watcher = threading.Thread(target=release, daemon=True)
+    watcher.start()
+    try:
+        yield
+    finally:
+        GatedProvider.gate.set()
+        watcher.join(timeout=5)
 
 
 class TestCorpusStatus:
@@ -381,14 +416,17 @@ class TestReadingRuns:
 
 class TestProgressStream:
     def test_it_opens_with_a_snapshot_so_a_late_client_is_not_blank(
-        self, client: TestClient
+        self, client: TestClient, app: FastAPI
     ) -> None:
         # Attaching halfway through would otherwise show nothing until the next
         # call finished — minutes of apparently broken screen.
         GatedProvider.gate.clear()
         run_id = start(client)["id"]
 
-        with client.stream("GET", f"{RUNS}/{run_id}/stream") as response:
+        with (
+            released_once_watching(app),
+            client.stream("GET", f"{RUNS}/{run_id}/stream") as response,
+        ):
             assert response.headers["content-type"].startswith("text/event-stream")
             first = read_event(response.iter_lines())
 
@@ -396,14 +434,17 @@ class TestProgressStream:
         assert first["progress"]["total"] == CORPUS_SIZE
 
     def test_the_snapshot_carries_the_whole_state_not_a_delta(
-        self, client: TestClient
+        self, client: TestClient, app: FastAPI
     ) -> None:
         # A client that reconnects mid-run rebuilds everything from this one
         # frame, so it has to be complete on its own.
         GatedProvider.gate.clear()
         run_id = start(client)["id"]
 
-        with client.stream("GET", f"{RUNS}/{run_id}/stream") as response:
+        with (
+            released_once_watching(app),
+            client.stream("GET", f"{RUNS}/{run_id}/stream") as response,
+        ):
             snapshot = read_event(response.iter_lines())
 
         assert snapshot["run_id"] == run_id
