@@ -28,8 +28,7 @@ def missing_turn_note(broker_name: str, turn_seq: int) -> str:
 def quote_not_found_note(broker_name: str, turn_seq: int, quote: str) -> str:
     """The cited turn exists, but does not contain the quoted words."""
     return (
-        f"{_PREFIX}{broker_name!r} quotes text that does not appear "
-        f"in turn {turn_seq}: {quote!r}"
+        f"{_PREFIX}{broker_name!r} quotes text that does not appear in turn {turn_seq}: {quote!r}"
     )
 
 

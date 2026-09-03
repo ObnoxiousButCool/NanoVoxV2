@@ -22,9 +22,7 @@ from frameworks_drivers.api.v1.corpus import HEARTBEAT_FRAME, _frame, sse_frames
 from infrastructure.runner.event_bus import InMemoryRunEventBus
 
 NOW = datetime(2026, 8, 28, 12, 0, tzinfo=timezone.utc)
-PROGRESS = RunProgress(
-    total=3, completed=1, failed=0, skipped=0, cancelled=0, running=1, pending=1
-)
+PROGRESS = RunProgress(total=3, completed=1, failed=0, skipped=0, cancelled=0, running=1, pending=1)
 
 
 def event(run_id: int = 1, kind: RunEventKind = RunEventKind.ITEM_FINISHED) -> RunEvent:

@@ -77,9 +77,7 @@ def upgrade() -> None:
         )
 
     for row_id in doomed:
-        connection.execute(
-            sa.text("DELETE FROM broker_signals WHERE id = :id"), {"id": row_id}
-        )
+        connection.execute(sa.text("DELETE FROM broker_signals WHERE id = :id"), {"id": row_id})
 
 
 def _existing_notes(stored: object) -> list[str]:

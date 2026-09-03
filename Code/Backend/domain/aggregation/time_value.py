@@ -118,9 +118,7 @@ def _failure_mode(calls: Sequence[CallTime]) -> FailureMode:
     return FailureMode(
         calls=len(calls),
         minutes=sum(call.duration_minutes for call in calls),
-        average_score=(
-            round(sum(call.score for call in calls) / len(calls), 1) if calls else 0.0
-        ),
+        average_score=(round(sum(call.score for call in calls) / len(calls), 1) if calls else 0.0),
     )
 
 

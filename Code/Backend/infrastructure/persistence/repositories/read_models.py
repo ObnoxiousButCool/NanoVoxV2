@@ -76,9 +76,7 @@ def _order_clauses(sort: CallSort, *, descending: bool) -> list[Any]:
     appearing twice while another never appears at all.
     """
     if sort is CallSort.SEVERITY:
-        clauses = [
-            clause.reverse_sort() if descending else clause for clause in _SEVERITY_ORDER
-        ]
+        clauses = [clause.reverse_sort() if descending else clause for clause in _SEVERITY_ORDER]
         return [*clauses, CallRow.id.asc()]
 
     column = _SORT_COLUMNS[sort]

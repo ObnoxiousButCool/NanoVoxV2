@@ -41,7 +41,7 @@ class RegistryProviderProbe(ProviderProbe):
                 implemented=True,
                 is_default=name == self._default,
                 billable=is_billable(name),
-            local=is_local(name),
+                local=is_local(name),
                 detail=exc.message,
             )
 
@@ -61,7 +61,7 @@ class RegistryProviderProbe(ProviderProbe):
                 implemented=True,
                 is_default=name == self._default,
                 billable=is_billable(name),
-            local=is_local(name),
+                local=is_local(name),
                 detail=f"{name} did not answer within {self._timeout:g}s.",
             )
         finally:

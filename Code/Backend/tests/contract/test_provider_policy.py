@@ -215,7 +215,6 @@ class TestAuditLog:
 
         assert field(audit_records[-1], "usage_reported") is False
 
-
     async def test_the_providers_own_reason_reaches_the_audit_record(
         self, audit_records: list[logging.LogRecord]
     ) -> None:

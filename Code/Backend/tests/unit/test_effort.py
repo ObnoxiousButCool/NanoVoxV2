@@ -67,9 +67,7 @@ class TestRepeatContact:
     def test_calls_by_repeat_members_is_carried_separately(self) -> None:
         # Two members accounting for five calls is a different story from two
         # members accounting for four.
-        result = metrics(
-            (10,), identified_members=10, repeat_members=2, calls_by_repeat_members=5
-        )
+        result = metrics((10,), identified_members=10, repeat_members=2, calls_by_repeat_members=5)
 
         assert result.repeat_members == 2
         assert result.calls_by_repeat_members == 5

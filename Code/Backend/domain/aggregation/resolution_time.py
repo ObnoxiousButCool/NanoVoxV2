@@ -42,13 +42,10 @@ class DurationBandSettings:
     def __post_init__(self) -> None:
         if len(self.lower_bounds) < 2:
             raise ValidationError(
-                "Duration bands need at least two lower bounds, "
-                f"got {list(self.lower_bounds)}."
+                f"Duration bands need at least two lower bounds, got {list(self.lower_bounds)}."
             )
         if self.lower_bounds[0] != 0:
-            raise ValidationError(
-                f"Duration bands must start at 0, got {self.lower_bounds[0]}."
-            )
+            raise ValidationError(f"Duration bands must start at 0, got {self.lower_bounds[0]}.")
         if any(later <= earlier for earlier, later in pairwise(self.lower_bounds)):
             raise ValidationError(
                 f"Duration band bounds must ascend, got {list(self.lower_bounds)}."
@@ -110,9 +107,7 @@ def _bands(durations: Sequence[int], settings: DurationBandSettings) -> tuple[Du
             # A band with no calls is kept, not dropped: an absent bar reads as
             # "this does not happen" rather than "this did not happen here".
             count=sum(
-                1
-                for value in durations
-                if lower <= value and (upper is None or value < upper)
+                1 for value in durations if lower <= value and (upper is None or value < upper)
             ),
         )
         for lower, upper in edges

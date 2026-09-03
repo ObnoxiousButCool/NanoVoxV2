@@ -61,9 +61,7 @@ class ListProviders:
         unreachable host makes the whole picker unusable rather than making one
         row unavailable. Concurrently it waits for the slowest.
         """
-        return tuple(
-            await asyncio.gather(*(self._probe.describe(name) for name in self._names))
-        )
+        return tuple(await asyncio.gather(*(self._probe.describe(name) for name in self._names)))
 
     @property
     def default_name(self) -> str:

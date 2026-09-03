@@ -323,9 +323,7 @@ class TestFailureIsolation:
         failed = next(item for item in run.items if item.status is RunItemStatus.FAILED)
         assert "provider is on fire" in failed.message
 
-    async def test_a_run_where_nothing_worked_is_reported_as_failed(
-        self, harness: Harness
-    ) -> None:
+    async def test_a_run_where_nothing_worked_is_reported_as_failed(self, harness: Harness) -> None:
         # A green bar over zero results would be a lie.
         run = await harness.run_all(provider=_AlwaysFails())
 
@@ -430,9 +428,7 @@ class TestConcurrentRuns:
                 StartRunCommand(provider="scripted", model="scripted-model"), billable=False
             )
 
-    async def test_a_new_run_is_allowed_once_the_last_one_finished(
-        self, harness: Harness
-    ) -> None:
+    async def test_a_new_run_is_allowed_once_the_last_one_finished(self, harness: Harness) -> None:
         await harness.run_all()
 
         second = await harness.start().execute(
@@ -474,9 +470,7 @@ class TestProgressEvents:
         assert kinds.count(RunEventKind.ITEM_FINISHED) == CORPUS_SIZE
         assert kinds[-1] is RunEventKind.RUN_FINISHED
 
-    async def test_every_event_carries_the_progress_at_that_moment(
-        self, harness: Harness
-    ) -> None:
+    async def test_every_event_carries_the_progress_at_that_moment(self, harness: Harness) -> None:
         # A client that missed an event must be able to catch up from the next.
         await harness.run_all()
 
@@ -492,9 +486,7 @@ class TestProgressEvents:
 
 
 class TestCorpusStatus:
-    async def test_it_reports_outstanding_work_without_starting_any(
-        self, harness: Harness
-    ) -> None:
+    async def test_it_reports_outstanding_work_without_starting_any(self, harness: Harness) -> None:
         use_case = GetCorpusStatus(
             corpus=harness.corpus, analyses=harness.analyses, runs=harness.runs
         )
