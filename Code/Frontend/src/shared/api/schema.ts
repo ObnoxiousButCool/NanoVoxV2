@@ -570,6 +570,8 @@ export interface components {
             analysed_at: string;
             /** Broker Names */
             broker_names: string[];
+            /** Caller Type */
+            caller_type?: string | null;
             /** Category */
             category: string;
             /** Id */
@@ -1242,6 +1244,8 @@ export interface components {
         };
         /** TaxonomyResponse */
         TaxonomyResponse: {
+            /** Caller Types */
+            caller_types: string[];
             /** Categories */
             categories: components["schemas"]["CategoryEntry"][];
             /** L4 Categories */
@@ -1375,6 +1379,8 @@ export interface operations {
                 has_broker_signal?: boolean | null;
                 /** @description Broker name attributed on the call. */
                 broker?: string | null;
+                /** @description Who called: MEMBER, EMPLOYER or BROKER. */
+                caller?: string | null;
                 /** @description Member identifier, as stated in the call. */
                 member?: string | null;
                 /** @description Signal code, e.g. clinical_risk. */

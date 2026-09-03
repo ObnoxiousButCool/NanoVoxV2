@@ -75,6 +75,7 @@ def build(
         # The shipped vocabulary, not a test-only one: the evidence rule these
         # tests exercise is the rule the application actually applies.
         broker_terms=compile_broker_terms(make_settings().broker_evidence_terms),
+        administrator_name=make_settings().administrator_name,
     )
     return use_case, store
 
@@ -543,6 +544,115 @@ class TestAttributionEvidence:
 
         assert analysis.broker_signals == ()
         assert "does not name a broker relationship" in analysis.rejected_attribution_notes[0]
+
+    async def test_an_attribution_to_the_administrator_is_discarded(
+        self, taxonomy: Taxonomy, rubric: Rubric
+    ) -> None:
+        """C0040 and C0047: the only two attributions the corpus ever produced.
+
+        The model took the name out of the greeting that opens every call and
+        filed it against an agent saying "talk to your broker" — a quote that
+        matched its turn character for character, contained the word "broker",
+        and evidenced nothing. Two false records, and no true ones anywhere.
+        """
+        payloads = dict(PAYLOADS_BY_PROMPT)
+        payloads["l4_operational_bi"] = {
+            "signals": [],
+            "broker_signals": [
+                {
+                    "broker_name": "Choice Administrators",
+                    "polarity": "POSITIVE",
+                    "issue": "Advised the member to consult their broker.",
+                    "evidence_turn_seq": 6,
+                    "quote": "urgent care is cheaper if you want to go that route",
+                }
+            ],
+        }
+
+        analysis, _ = await analyse(taxonomy, rubric, ScriptedLayerProvider(payloads))
+
+        assert analysis.broker_signals == ()
+        assert "names the plan administrator" in analysis.rejected_attribution_notes[0]
+
+    async def test_an_attribution_the_quote_does_not_name_is_discarded(
+        self, taxonomy: Taxonomy, rubric: Rubric
+    ) -> None:
+        """A quote saying only "your broker" identifies no one at all.
+
+        The vocabulary check passes here — the word is right there — which is
+        exactly how this shape survived. A citation that never says whose broker
+        it is decorates the record rather than supporting it.
+        """
+        member_names_no_one = chr(10).join(
+            [
+                "Agent Brad: Choice Administrators, Brad.",
+                "Member: I asked my broker about it and got nowhere.",
+                "Agent Brad: Let me check that for you.",
+            ]
+        )
+        payloads = dict(PAYLOADS_BY_PROMPT)
+        payloads["l4_operational_bi"] = {
+            "signals": [],
+            "broker_signals": [
+                {
+                    "broker_name": "Marcus Trent",
+                    "polarity": "NEGATIVE",
+                    "issue": "Did not respond to the member.",
+                    "evidence_turn_seq": 1,
+                    "quote": "I asked my broker about it and got nowhere.",
+                }
+            ],
+        }
+        use_case, _ = build(taxonomy, rubric, ScriptedLayerProvider(payloads))
+
+        stored = await use_case.execute(
+            AnalyzeTranscriptCommand(transcript=member_names_no_one),
+            ScriptedLayerProvider(payloads),
+        )
+
+        assert stored.analysis.broker_signals == ()
+        assert "is not named in its own quote" in stored.analysis.rejected_attribution_notes[0]
+
+    async def test_an_attribution_quoting_the_agent_is_discarded(
+        self, taxonomy: Taxonomy, rubric: Rubric
+    ) -> None:
+        """The agent naming a broker is not the member naming one.
+
+        Everything else about this attribution holds: the quote is verbatim, it
+        says "broker", it says "Marcus Trent", and Marcus Trent is neither the
+        agent nor us. Only the speaker is wrong — and the rule has always been
+        that the *member* names their broker.
+        """
+        agent_names_the_broker = chr(10).join(
+            [
+                "Agent Brad: Choice Administrators, Brad.",
+                "Member: Nobody told me I needed prior authorisation.",
+                "Agent Brad: Your broker, Marcus Trent, can pull that from the portal.",
+            ]
+        )
+        payloads = dict(PAYLOADS_BY_PROMPT)
+        payloads["l4_operational_bi"] = {
+            "signals": [],
+            "broker_signals": [
+                {
+                    "broker_name": "Marcus Trent",
+                    "polarity": "NEGATIVE",
+                    "issue": "Did not tell the member about prior authorisation.",
+                    "evidence_turn_seq": 2,
+                    "quote": "Your broker, Marcus Trent, can pull that from the portal.",
+                }
+            ],
+        }
+        use_case, _ = build(taxonomy, rubric, ScriptedLayerProvider(payloads))
+
+        stored = await use_case.execute(
+            AnalyzeTranscriptCommand(transcript=agent_names_the_broker),
+            ScriptedLayerProvider(payloads),
+        )
+
+        assert stored.analysis.broker_signals == ()
+        note = stored.analysis.rejected_attribution_notes[0]
+        assert "which the agent spoke" in note
 
     async def test_a_genuine_attribution_survives(self, taxonomy: Taxonomy, rubric: Rubric) -> None:
         # The rule must not be so strict that it discards real evidence: a member

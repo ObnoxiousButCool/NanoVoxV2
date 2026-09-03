@@ -97,6 +97,7 @@ class Container:
     # setting is blank, which turns extraction off rather than matching nothing.
     member_id_pattern: Pattern[str] | None
     broker_terms: Pattern[str] | None
+    administrator_name: str
 
     def get_health(self) -> GetHealth:
         return GetHealth(probes=self.health_probes, clock=self.clock)
@@ -213,6 +214,7 @@ class Container:
             clock=self.clock,
             member_id_pattern=self.member_id_pattern,
             broker_terms=self.broker_terms,
+            administrator_name=self.administrator_name,
         )
 
 
@@ -251,6 +253,7 @@ def build_container(settings: Settings) -> Container:
             else None
         ),
         broker_terms=compile_broker_terms(settings.broker_evidence_terms),
+        administrator_name=settings.administrator_name,
     )
 
 

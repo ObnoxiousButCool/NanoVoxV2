@@ -83,6 +83,10 @@ class Settings(BaseSettings):
     # else — a surgeon, a pharmacy, the agent on the call — and is refused.
     # Comma separated; blank disables the check.
     broker_evidence_terms: str = "broker,broker of record,BOR"
+    # Us. Every call in the corpus opens with this name, which makes it the
+    # string a model reaches for when it wants to report a broker and has none;
+    # it is also the one name that can never be one. Blank disables the check.
+    administrator_name: str = "Choice Administrators"
     # Bounded because the local path is the constrained one: Ollama serves a
     # single model, and issuing more concurrent requests than it can hold makes
     # every call slower without finishing the run any sooner.

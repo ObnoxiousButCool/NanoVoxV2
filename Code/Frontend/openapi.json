@@ -533,6 +533,17 @@
             "title": "Broker Names",
             "type": "array"
           },
+          "caller_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Caller Type"
+          },
           "category": {
             "title": "Category",
             "type": "string"
@@ -2170,6 +2181,13 @@
       },
       "TaxonomyResponse": {
         "properties": {
+          "caller_types": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Caller Types",
+            "type": "array"
+          },
           "categories": {
             "items": {
               "$ref": "#/components/schemas/CategoryEntry"
@@ -2226,6 +2244,7 @@
           "signal_types",
           "sentiment_states",
           "resolutions",
+          "caller_types",
           "severities",
           "tiers",
           "rubric_version"
@@ -2561,6 +2580,24 @@
               ],
               "description": "Broker name attributed on the call.",
               "title": "Broker"
+            }
+          },
+          {
+            "description": "Who called: MEMBER, EMPLOYER or BROKER.",
+            "in": "query",
+            "name": "caller",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Who called: MEMBER, EMPLOYER or BROKER.",
+              "title": "Caller"
             }
           },
           {

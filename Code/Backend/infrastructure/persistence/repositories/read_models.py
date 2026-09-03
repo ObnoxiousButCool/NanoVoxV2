@@ -496,6 +496,7 @@ def _to_summary(
         agent_name=row.agent_name,
         member_id=row.member_id,
         member_name=row.member_name,
+        caller_type=row.caller_type,
         resolution=row.resolution,
         score=row.score,
         score_status=row.score_status,
@@ -532,6 +533,8 @@ def _apply(statement: Select[Any], filters: CallFilters) -> Select[Any]:
                 )
             )
         )
+    if filters.caller_type:
+        statement = statement.where(CallRow.caller_type == filters.caller_type)
     if filters.member_id:
         statement = statement.where(CallRow.member_id == filters.member_id)
     if filters.signal_code:

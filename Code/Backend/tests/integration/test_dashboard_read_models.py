@@ -26,6 +26,7 @@ from application.use_cases.get_dashboard import (
 from domain.attribution_notes import quote_not_found_note
 from domain.scoring.rubric import Rubric
 from domain.taxonomy import Taxonomy
+from domain.value_objects.caller_type import CallerType
 from domain.value_objects.resolution import Resolution
 from domain.value_objects.severity import Severity
 from domain.value_objects.tier import Tier
@@ -44,6 +45,7 @@ from infrastructure.persistence.repositories.read_models import SqlReadModelRepo
 from infrastructure.persistence.tables import CallRow
 from tests.support.corpus import (
     ESCALATED_COUNT,
+    MEMBER_CALLS,
     RESOLVED_COUNT,
     SCORES,
     TOTAL_CALLS,
@@ -494,6 +496,41 @@ class TestCallsList:
 
         assert page.total == 5
         assert all(item.score <= 59 for item in page.items)
+
+    async def test_filter_by_caller_type(self, read_models: SqlReadModelRepository) -> None:
+        """An employer's call is not a member's, and the list has to separate them.
+
+        Half the shipped corpus is an employer or a broker calling. Without this
+        filter the only way to read the employer population was to know which
+        references belonged to it.
+        """
+        page = await read_models.list_calls(
+            CallFilters(caller_type=CallerType.EMPLOYER.value), limit=50, offset=0
+        )
+
+        assert page.total == 1
+        assert page.items[0].reference == "F0009"
+        assert page.items[0].caller_type == "EMPLOYER"
+
+    async def test_the_caller_type_reaches_the_row(
+        self, read_models: SqlReadModelRepository
+    ) -> None:
+        # Stored is not shown: the column exists only if the read model carries it.
+        page = await read_models.list_calls(CallFilters(), limit=50, offset=0)
+        by_reference = {item.reference: item.caller_type for item in page.items}
+
+        assert by_reference["F0009"] == "EMPLOYER"
+        assert by_reference["F0010"] == "BROKER"
+        assert by_reference["F0001"] == "MEMBER"
+
+    async def test_members_are_the_rest_of_the_corpus(
+        self, read_models: SqlReadModelRepository
+    ) -> None:
+        page = await read_models.list_calls(
+            CallFilters(caller_type=CallerType.MEMBER.value), limit=50, offset=0
+        )
+
+        assert page.total == MEMBER_CALLS
 
     async def test_filter_by_signal(self, read_models: SqlReadModelRepository) -> None:
         page = await read_models.list_calls(

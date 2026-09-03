@@ -32,6 +32,9 @@ class CallSummary:
     agent_name: str | None
     member_id: str | None
     member_name: str | None
+    # MEMBER, EMPLOYER or BROKER. The row shows it because half the corpus is
+    # not a member calling, and a blank member column does not say which.
+    caller_type: str | None
     resolution: str
     score: int
     score_status: str
@@ -84,6 +87,9 @@ class CallFilters:
     has_broker_signal: bool | None = None
     broker_name: str | None = None
     signal_code: str | None = None
+    # MEMBER, EMPLOYER or BROKER. Matched exactly rather than by prefix: these
+    # are three separate populations, not a spectrum.
+    caller_type: str | None = None
     # One member's calls. The at-risk list is member-level, so opening it must
     # narrow to that member exactly rather than searching for a reference.
     member_id: str | None = None

@@ -33,6 +33,7 @@ class CallSummaryResponse(BaseModel):
     agent_name: str | None
     member_id: str | None = None
     member_name: str | None = None
+    caller_type: str | None = None
     resolution: str
     score: int
     score_status: str
@@ -61,6 +62,7 @@ def _summary(row: CallSummary) -> CallSummaryResponse:
         agent_name=row.agent_name,
         member_id=row.member_id,
         member_name=row.member_name,
+        caller_type=row.caller_type,
         resolution=row.resolution,
         score=row.score,
         score_status=row.score_status,
@@ -92,6 +94,9 @@ async def list_calls(
     min_score: Annotated[int | None, Query(ge=0, le=100)] = None,
     has_broker_signal: Annotated[bool | None, Query()] = None,
     broker: Annotated[str | None, Query(description="Broker name attributed on the call.")] = None,
+    caller: Annotated[
+        str | None, Query(description="Who called: MEMBER, EMPLOYER or BROKER.")
+    ] = None,
     member: Annotated[
         str | None, Query(description="Member identifier, as stated in the call.")
     ] = None,
@@ -113,6 +118,7 @@ async def list_calls(
         min_score=min_score,
         has_broker_signal=has_broker_signal,
         broker_name=broker,
+        caller_type=caller,
         member_id=member,
         signal_code=signal,
         search=search,

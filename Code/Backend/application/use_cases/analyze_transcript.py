@@ -34,12 +34,20 @@ from application.ports.prompts import PromptSource
 from application.ports.redaction import RedactionPort
 from domain.attribution_notes import (
     broker_name_in,
+    is_our_organisation_note,
     is_the_agent_note,
     missing_turn_note,
+    name_absent_from_quote_note,
     not_a_broker_note,
     quote_not_found_note,
+    spoken_by_the_agent_note,
 )
-from domain.broker_evidence import is_the_agent, quote_names_a_broker
+from domain.broker_evidence import (
+    is_our_organisation,
+    is_the_agent,
+    quote_names_a_broker,
+    quote_names_the_party,
+)
 from domain.entities.analysis import (
     AnalysisLayer,
     AnalysisSource,
@@ -63,6 +71,7 @@ from domain.taxonomy import Taxonomy
 from domain.value_objects.polarity import Polarity
 from domain.value_objects.resolution import Resolution
 from domain.value_objects.severity import Severity
+from domain.value_objects.speaker import SpeakerRole
 
 L1_PROMPT = "l1_understanding"
 L2_PROMPT = "l2_insights"
@@ -126,6 +135,7 @@ class AnalyzeTranscript:
         clock: Clock,
         member_id_pattern: Pattern[str] | None = None,
         broker_terms: Pattern[str] | None = None,
+        administrator_name: str | None = None,
     ) -> None:
         self._prompts = prompts
         self._schemas = schemas
@@ -141,6 +151,9 @@ class AnalyzeTranscript:
         # The words that make a quote evidence of a broker relationship. None
         # disables the check rather than rejecting everything.
         self._broker_terms = broker_terms
+        # Us. The one party named in every call that can never be the broker,
+        # and the name a model reaches for when it has no other.
+        self._administrator_name = administrator_name
 
     async def execute(
         self, command: AnalyzeTranscriptCommand, provider: LLMProvider
@@ -221,6 +234,7 @@ class AnalyzeTranscript:
             _broker_signals(l4),
             transcript,
             agent_name=agent_name,
+            administrator_name=self._administrator_name,
             broker_terms=self._broker_terms,
         )
         if attributions.rejected and l4 is not None:
@@ -353,6 +367,7 @@ class AnalyzeTranscript:
             _broker_signals(l4),
             transcript,
             agent_name=agent_name,
+            administrator_name=self._administrator_name,
             broker_terms=self._broker_terms,
         )
 
@@ -557,19 +572,34 @@ def _validated_attributions(
     transcript: Transcript,
     *,
     agent_name: str | None = None,
+    administrator_name: str | None = None,
     broker_terms: Pattern[str] | None = None,
 ) -> _Attributions:
     """Keep only attributions the transcript genuinely supports.
 
-    Three questions, in order of how cheaply they can be answered wrong:
+    Six questions, in order of how cheaply they can be answered wrong:
 
     1. Does the cited turn exist?
     2. Were the quoted words actually said in it?
-    3. Do those words say what the attribution claims — that this person is the
-       member's *broker*, and is not the agent who answered the call?
+    3. Is the named party someone other than the agent who answered the call?
+    4. Is it someone other than the administrator whose greeting opens it?
+    5. Do the quoted words say what the attribution claims — that this party is
+       the caller's *broker*, and that the party is who they say it is?
+    6. Were the words the caller's? An agent recommending that someone consult a
+       broker is not that someone naming one.
 
-    The third was missing, and its absence is why surgeons, pharmacies and the
-    agents themselves reached a screen that names people for Compliance review.
+    Order decides which reason a reader is given when several are true at once,
+    so it runs from the most specific defect to the least. Who was named comes
+    before what the words mean, and both come before who spoke: a quote about a
+    surgeon is not evidence of a broker whoever said it, so reporting the
+    speaker first would bury the real problem.
+
+    Only the first two existed at first, and their absence is why surgeons,
+    pharmacies and the agents themselves reached a screen that names people for
+    Compliance review. The rest arrived after the two attributions in the whole
+    timestamped corpus turned out to be an agent saying "talk to your broker"
+    filed against the plan administrator: a quote that matched its turn exactly,
+    contained the word "broker", and evidenced nothing at all.
     """
     accepted: list[BrokerSignal] = []
     rejected: list[str] = []
@@ -584,8 +614,14 @@ def _validated_attributions(
             )
         elif is_the_agent(signal.broker_name, agent_name):
             rejected.append(is_the_agent_note(signal.broker_name))
+        elif is_our_organisation(signal.broker_name, administrator_name):
+            rejected.append(is_our_organisation_note(signal.broker_name))
         elif not quote_names_a_broker(signal.quote, broker_terms):
             rejected.append(not_a_broker_note(signal.broker_name, signal.quote))
+        elif not quote_names_the_party(signal.quote, signal.broker_name):
+            rejected.append(name_absent_from_quote_note(signal.broker_name, signal.quote))
+        elif turn.role is not SpeakerRole.MEMBER:
+            rejected.append(spoken_by_the_agent_note(signal.broker_name, signal.evidence_turn_seq))
         else:
             accepted.append(signal)
 
@@ -600,8 +636,8 @@ def _attribution_correction(rejected: tuple[str, ...], transcript: Transcript) -
     """Tell the model exactly which quote failed, and show it the turn to copy."""
     lines = [
         "",
-        "CORRECTION — your previous broker_signals were rejected because their",
-        "quotes did not appear verbatim in the turn they cited:",
+        "CORRECTION — your previous broker_signals were rejected. Each reason",
+        "below is the reason that attribution failed:",
         "",
     ]
     lines.extend(f"- {note}" for note in rejected)
@@ -621,8 +657,10 @@ def _attribution_correction(rejected: tuple[str, ...], transcript: Transcript) -
             "",
             "Re-issue every broker signal you still believe is supported, quoting one",
             "unbroken run of characters copied from the turn above — no words skipped",
-            "from the middle, no punctuation changed at either end. If no continuous",
-            "span supports the attribution, omit that broker entirely.",
+            "from the middle, no punctuation changed at either end. The turn must be",
+            "one the caller spoke, and the words you quote must contain the broker's",
+            "name. If no continuous span meets all three, omit that broker entirely:",
+            "reporting none is the correct answer for most calls.",
         ]
     )
     return "\n".join(lines)

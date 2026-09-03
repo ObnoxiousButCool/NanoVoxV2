@@ -38,6 +38,8 @@ export interface CallFilters {
   readonly has_broker_signal?: boolean
   readonly broker?: string
   readonly signal?: string
+  /** Who called: MEMBER, EMPLOYER or BROKER. */
+  readonly caller?: string
   /** Member identifier, as stated in the call. */
   readonly member?: string
   readonly search?: string

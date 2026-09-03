@@ -51,9 +51,10 @@ const COLUMNS: readonly { readonly label: string; readonly sort: CallSortKey | n
   { label: 'Member issue', sort: null },
   { label: 'Category', sort: 'category' },
   { label: 'Agent', sort: 'agent' },
-  // Not sortable: the API sorts by the columns it has an index for, and a
-  // member identifier is something you filter to, not order by.
-  { label: 'Member', sort: null },
+  // Not sortable: the API sorts by the columns it has an index for, and neither
+  // a caller type nor a member identifier is something you order by — you
+  // filter to one.
+  { label: 'Caller', sort: null },
   { label: 'Outcome', sort: 'resolution' },
   { label: 'Score', sort: 'score' },
   { label: 'Signals', sort: null },
@@ -162,6 +163,10 @@ function CallRow({
       <td>{categoryLabel(call.category, categories)}</td>
       <td>{call.agent_name ?? '—'}</td>
       <td className={styles.member}>
+        {/* Outside the link: an employer or broker call has no member to open,
+            and half the corpus is one of those. Before this column said who
+            called, those rows showed a dash and looked like missing data. */}
+        <span className={styles.callerType}>{call.caller_type ?? '—'}</span>
         {call.member_id ? (
           <Link className={styles.rowLink} to={`/calls?member=${encodeURIComponent(call.member_id)}`}>
             {/* Stacked rather than "Name (ID)" on one line: this column sits in
@@ -170,9 +175,7 @@ function CallRow({
             {call.member_name ? <span className={styles.memberName}>{call.member_name}</span> : null}
             <span className={styles.memberId}>{call.member_id}</span>
           </Link>
-        ) : (
-          '—'
-        )}
+        ) : null}
       </td>
       <td>
         <Chip tone={toneForResolution(call.resolution)}>{call.resolution}</Chip>
@@ -220,6 +223,9 @@ export function CallsPage() {
   const category = searchParams.get('category')
   const resolution = searchParams.get('resolution')
   const signal = searchParams.get('signal')
+  // MEMBER, EMPLOYER or BROKER. Three populations that reach the same queue and
+  // are read very differently, so the table has to be able to show one of them.
+  const caller = searchParams.get('caller')
   // One member's calls, arrived at from the at-risk list.
   const member = searchParams.get('member')
   // A score band, arrived at from the histogram. Read as text and passed
@@ -249,6 +255,7 @@ export function CallsPage() {
     ...(category ? { category } : {}),
     ...(resolution ? { resolution } : {}),
     ...(signal ? { signal } : {}),
+    ...(caller ? { caller } : {}),
     ...(member ? { member } : {}),
     ...(minScore ? { min_score: Number(minScore) } : {}),
     ...(maxScore ? { max_score: Number(maxScore) } : {}),
@@ -283,7 +290,7 @@ export function CallsPage() {
 
   const narrowed =
     activeFilters.length > 0 ||
-    Boolean(agent || broker || category || resolution || signal || member || scoreBand)
+    Boolean(agent || broker || category || resolution || signal || caller || member || scoreBand)
 
   const { data, isPending, error } = useCalls(filters)
 
@@ -335,6 +342,17 @@ export function CallsPage() {
               }}
             />
             <Dropdown
+              label="Caller"
+              value={caller ?? ''}
+              options={(taxonomy.data?.caller_types ?? []).map((value) => ({
+                value,
+                label: value.charAt(0) + value.slice(1).toLowerCase(),
+              }))}
+              onChange={(value) => {
+                setParam('caller', value)
+              }}
+            />
+            <Dropdown
               label="Signal"
               value={signal ?? ''}
               options={(taxonomy.data?.signal_types ?? []).map((entry) => ({
@@ -364,6 +382,11 @@ export function CallsPage() {
             {broker ? (
               <Button className={styles.active} aria-pressed onClick={clearParam('broker')}>
                 Broker: {broker} &times;
+              </Button>
+            ) : null}
+            {caller ? (
+              <Button className={styles.active} aria-pressed onClick={clearParam('caller')}>
+                Caller: {caller} &times;
               </Button>
             ) : null}
             {member ? (

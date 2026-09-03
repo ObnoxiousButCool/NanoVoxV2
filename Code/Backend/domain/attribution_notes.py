@@ -40,6 +40,30 @@ def not_a_broker_note(broker_name: str, quote: str) -> str:
     )
 
 
+def name_absent_from_quote_note(broker_name: str, quote: str) -> str:
+    """The quote shows a broker relationship, but does not say whose."""
+    return (
+        f"{_PREFIX}{broker_name!r} is not named in its own quote, which "
+        f"identifies no one in particular: {quote!r}"
+    )
+
+
+def spoken_by_the_agent_note(broker_name: str, turn_seq: int) -> str:
+    """The cited words are the agent's, not the caller's."""
+    return (
+        f"{_PREFIX}{broker_name!r} cites turn {turn_seq}, which the agent spoke. "
+        f"An agent recommending a broker is not the caller naming one."
+    )
+
+
+def is_our_organisation_note(broker_name: str) -> str:
+    """The attribution names the plan administrator."""
+    return (
+        f"{_PREFIX}{broker_name!r} names the plan administrator handling the call, "
+        f"which is not a broker."
+    )
+
+
 def is_the_agent_note(broker_name: str) -> str:
     """The attribution names the agent who handled the call."""
     return (
