@@ -89,6 +89,37 @@ class TestOneFile:
         assert truth.topics == ("urgency cue missed", "triage", "patient safety")
         assert truth.member_context == "Constance Bell, 68, CalChoice HMO"
 
+    def test_the_stated_duration_is_read(self) -> None:
+        # It is in the header, so it never needs estimating from the words. The
+        # model's estimate was landing on six round values across a hundred
+        # calls, against the fifteen the corpus actually contains.
+        call = parse_corpus_file(CALL_FILE, "call_089")
+
+        assert call.duration_minutes == 6
+
+    @pytest.mark.parametrize(
+        ("stated", "expected"),
+        [
+            ("~11 min", 11),
+            ("11 min", 11),
+            ("11 minutes", 11),
+            ("~4 mins", 4),
+            # A zero is not a measurement. Absent, so it cannot drag a median
+            # down or make a call look instantly resolved.
+            ("0 min", None),
+            ("unknown", None),
+            ("", None),
+        ],
+    )
+    def test_the_duration_is_read_however_it_is_written(
+        self, stated: str, expected: int | None
+    ) -> None:
+        call = parse_corpus_file(
+            CALL_FILE.replace("- **Duration:** ~6 min", f"- **Duration:** {stated}"), "call_089"
+        )
+
+        assert call.duration_minutes == expected
+
     def test_every_named_broker_is_kept(self) -> None:
         # Recall against these names is the measure most likely to catch a model
         # inventing an attribution, so dropping one would hide exactly that.
@@ -135,6 +166,17 @@ class TestMissingInformation:
         assert truth.agent_name == "Ruth"
         assert truth.score is None
         assert truth.tier is None
+
+    def test_a_file_with_no_duration_line_stays_analysable(self) -> None:
+        # One missing figure, not a reason to fail a hundred-call run. The
+        # analysis then falls back to the model's estimate.
+        call = parse_corpus_file(
+            CALL_FILE.replace("- **Duration:** ~6 min
+", ""), "call_089"
+        )
+
+        assert call.duration_minutes is None
+        assert call.transcript
 
     def test_an_unparseable_score_is_absent_rather_than_zero(self) -> None:
         # Zero is a POOR call. "Not stated" is not.

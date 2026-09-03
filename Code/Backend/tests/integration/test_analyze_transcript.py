@@ -86,6 +86,36 @@ async def analyse(
     return stored.analysis, store
 
 
+class TestDuration:
+    """The stated duration beats the model's estimate."""
+
+    async def test_a_stated_duration_wins(self, taxonomy: Taxonomy, rubric: Rubric) -> None:
+        # The corpus files carry the real figure in their header; L2 only ever
+        # estimated it from the words. Every duration figure on the dashboard is
+        # built on this, so the source has to win.
+        provider = ScriptedLayerProvider()
+        use_case, _ = build(taxonomy, rubric, provider)
+
+        stored = await use_case.execute(
+            AnalyzeTranscriptCommand(transcript=CALL_89, duration_minutes=11), provider
+        )
+
+        # The L2 stub says 6.
+        assert stored.analysis.duration_minutes == 11
+
+    async def test_the_estimate_is_used_when_the_source_states_nothing(
+        self, taxonomy: Taxonomy, rubric: Rubric
+    ) -> None:
+        # A pasted transcript has no header. The estimate is then the only
+        # figure available, and dropping it would empty the minute charts.
+        provider = ScriptedLayerProvider()
+        use_case, _ = build(taxonomy, rubric, provider)
+
+        stored = await use_case.execute(AnalyzeTranscriptCommand(transcript=CALL_89), provider)
+
+        assert stored.analysis.duration_minutes == 6
+
+
 class TestCompleteAnalysis:
     async def test_all_five_layers_are_produced(self, taxonomy: Taxonomy, rubric: Rubric) -> None:
         provider = ScriptedLayerProvider()

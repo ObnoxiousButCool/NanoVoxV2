@@ -321,6 +321,7 @@ class CorpusRunWorker:
                     transcript=call.transcript,
                     source=AnalysisSource.CORPUS_RUN,
                     reference=call.reference,
+                    duration_minutes=call.duration_minutes,
                 ),
                 provider,
             )

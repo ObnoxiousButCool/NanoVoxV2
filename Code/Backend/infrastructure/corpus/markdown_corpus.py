@@ -105,6 +105,7 @@ def parse_corpus_file(text: str, source_id: str) -> CorpusCall:
         reference=reference_for(number),
         title=title,
         transcript=transcript,
+        duration_minutes=_minutes(fields.get("duration")),
         ground_truth=_ground_truth(fields, panel),
         sequence=number,
     )
@@ -190,6 +191,24 @@ def _ground_truth(fields: dict[str, str], panel: str) -> GroundTruth:
         member_context=fields.get("member context") or None,
         panel_text=panel,
     )
+
+
+def _minutes(value: str | None) -> int | None:
+    """Read ``~11 min`` as 11, and anything unparseable as "not stated".
+
+    Forgiving like the rest of the panel parsing: the corpus writes "~11 min",
+    "11 min" and "11 minutes" interchangeably, and a duration nobody can read is
+    one missing figure rather than a reason to fail a hundred-call run.
+    """
+    if not value:
+        return None
+    match = _DIGITS.search(value)
+    if match is None:
+        return None
+    minutes = int(match.group(1))
+    # A zero or negative duration is not a measurement. Treated as absent so it
+    # cannot drag a median down or make a call look instantly resolved.
+    return minutes if minutes > 0 else None
 
 
 def _upper(value: str | None) -> str | None:

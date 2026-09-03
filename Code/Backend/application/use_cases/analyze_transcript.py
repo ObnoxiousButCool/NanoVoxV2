@@ -93,6 +93,13 @@ class AnalyzeTranscriptCommand:
     transcript: str
     source: AnalysisSource = AnalysisSource.PASTED
     reference: str | None = None
+    # Set when the source states how long the call ran. It wins over the model's
+    # estimate: the corpus files carry the real figure in their header, and a
+    # model reading only the words produces a plausible number instead — six
+    # round values across a hundred calls, against the fourteen the corpus
+    # actually contains. Pasted transcripts carry no header, so they still fall
+    # back to the estimate.
+    duration_minutes: int | None = None
 
 
 class AnalyzeTranscript:
@@ -222,7 +229,11 @@ class AnalyzeTranscript:
             if self._member_id_pattern
             else None,
             member_context=_text(l1, "member_context") or None,
-            duration_minutes=_positive_int(l2, "duration_minutes"),
+            duration_minutes=(
+                command.duration_minutes
+                if command.duration_minutes is not None
+                else _positive_int(l2, "duration_minutes")
+            ),
             signal_codes=signal_codes,
             accepted_markers=validation.accepted,
             rejected_marker_notes=tuple(item.explanation for item in validation.rejected),

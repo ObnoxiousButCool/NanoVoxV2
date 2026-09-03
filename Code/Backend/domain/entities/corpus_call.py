@@ -25,6 +25,10 @@ class CorpusCall:
     reference: str
     title: str
     transcript: str
+    # Stated in the file's header, not inferred. A duration is a fact about the
+    # call that the source already knows; asking a model to estimate it from the
+    # words produces a plausible number instead of the real one.
+    duration_minutes: int | None = None
     ground_truth: GroundTruth | None = None
     sequence: int = 0
 
