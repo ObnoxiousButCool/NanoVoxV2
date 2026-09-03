@@ -453,7 +453,9 @@ describe('CallsPage', () => {
   })
 
   describe('the default order', () => {
-    it('loads in call order without being asked', async () => {
+    it('loads newest first without being asked', async () => {
+      // A call history is read from the most recent end; the far end of the
+      // corpus is not where anyone starts.
       const urls = stubCalls(page([call()]))
       renderCalls()
       await screen.findByText('F0006')
@@ -461,6 +463,19 @@ describe('CallsPage', () => {
       await waitFor(() => {
         const listing = urls.find((url) => url.includes('/calls?'))
         expect(listing).toContain('sort=reference')
+        expect(listing).toContain('direction=desc')
+      })
+    })
+
+    it('lets an ascending link override the default', async () => {
+      // The default is for an unsorted visit only. A shared link naming asc
+      // must not be flipped back to newest first.
+      const urls = stubCalls(page([call()]))
+      renderCalls('/calls?sort=reference&direction=asc')
+      await screen.findByText('F0006')
+
+      await waitFor(() => {
+        const listing = urls.find((url) => url.includes('/calls?'))
         expect(listing).toContain('direction=asc')
       })
     })

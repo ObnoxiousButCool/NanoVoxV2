@@ -227,11 +227,15 @@ export function CallsPage() {
   // recover from a malformed one would filter on something nobody asked for.
   const minScore = searchParams.get('min_score')
   const maxScore = searchParams.get('max_score')
-  // Call reference on load, so the list reads in corpus order and a call is
-  // where it was last time. Severity remains one press of the Score column away,
-  // and any sort survives in the URL — this is only what an unsorted visit gets.
+  // Call reference on load, so a call is where it was last time. Severity
+  // remains one press of the Score column away, and any sort survives in the
+  // URL — this is only what an unsorted visit gets.
   const sort = (searchParams.get('sort') ?? 'reference') as CallSortKey
-  const descending = searchParams.get('direction') === 'desc'
+  // Newest first by default: a call history is read from the most recent end,
+  // and the far end of fifty rows is not where anyone starts. An explicit
+  // direction in the URL still wins, so a shared link keeps its order.
+  const direction = searchParams.get('direction')
+  const descending = direction === null ? true : direction === 'desc'
 
   const filters: CallFilters = QUICK_FILTERS.filter((filter) =>
     activeFilters.includes(filter.id),
