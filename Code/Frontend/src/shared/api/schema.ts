@@ -542,6 +542,8 @@ export interface components {
             id: number;
             /** Member Id */
             member_id?: string | null;
+            /** Member Name */
+            member_name?: string | null;
             /** Reference */
             reference: string;
             /** Resolution */
@@ -804,6 +806,11 @@ export interface components {
             lowest_score: number;
             /** Member Id */
             member_id: string;
+            /**
+             * Member Name
+             * @description The member's name where a call stated one. Null otherwise — the identifier is always known, the name is not.
+             */
+            member_name?: string | null;
             /** References */
             references: string[];
         };

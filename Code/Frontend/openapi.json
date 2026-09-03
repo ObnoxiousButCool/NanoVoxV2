@@ -552,6 +552,17 @@
             ],
             "title": "Member Id"
           },
+          "member_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Member Name"
+          },
           "reference": {
             "title": "Reference",
             "type": "string"
@@ -1163,6 +1174,18 @@
           "member_id": {
             "title": "Member Id",
             "type": "string"
+          },
+          "member_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The member's name where a call stated one. Null otherwise \u2014 the identifier is always known, the name is not.",
+            "title": "Member Name"
           },
           "references": {
             "items": {

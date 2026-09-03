@@ -66,6 +66,9 @@ class MemberCalls:
     """What is known about one member's calls, counted in SQL."""
 
     member_id: str
+    # None where no call of theirs stated a name. The identifier always exists;
+    # the name is the part that may not.
+    member_name: str | None
     call_count: int
     # Minutes across every call this member made, and whether any of them ended
     # resolved. Together they answer what an answer cost this person.
@@ -84,6 +87,7 @@ class MemberAtRisk:
     """A member and the signs they are showing."""
 
     member_id: str
+    member_name: str | None
     call_count: int
     factors: tuple[RiskFactor, ...]
     lowest_score: int
@@ -116,6 +120,7 @@ def assess(member: MemberCalls, *, coaching_threshold: int) -> MemberAtRisk:
 
     return MemberAtRisk(
         member_id=member.member_id,
+        member_name=member.member_name,
         call_count=member.call_count,
         factors=tuple(factors),
         lowest_score=member.lowest_score,

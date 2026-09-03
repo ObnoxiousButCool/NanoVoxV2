@@ -53,6 +53,10 @@ class CallRow(Base):
 
     agent_name: Mapped[str | None] = mapped_column(String(_NAME))
     member_id: Mapped[str | None] = mapped_column(String(_SHORT))
+    # Null where the stored summary describes the caller rather than naming
+    # them, which is a third of the shipped corpus. Not indexed: it is read
+    # for display beside the identifier, never filtered on.
+    member_name: Mapped[str | None] = mapped_column(String(_SHORT))
     member_context: Mapped[str | None] = mapped_column(Text)
     duration_minutes: Mapped[int | None] = mapped_column(Integer)
 

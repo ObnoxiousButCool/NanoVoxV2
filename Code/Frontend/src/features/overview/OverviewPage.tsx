@@ -215,7 +215,19 @@ function MembersAtRisk() {
                 {/* Filtered by member, not searched by reference: a search
                     finds one call, and the point of this row is all of them. */}
                 <Link to={`/calls?member=${encodeURIComponent(member.member_id)}`}>
-                  {member.member_id}
+                  {member.member_name ? (
+                    <>
+                      {member.member_name}{' '}
+                      {/* The identifier stays visible rather than being replaced:
+                          it is what the calls list filters on and what anyone
+                          looking the member up in another system will need. */}
+                      <span className={styles.memberId}>({member.member_id})</span>
+                    </>
+                  ) : (
+                    // No call of theirs stated a name. The identifier alone is
+                    // still true; a placeholder like "Unknown" would not be.
+                    member.member_id
+                  )}
                 </Link>
               </h4>
               <div className={styles.meta}>

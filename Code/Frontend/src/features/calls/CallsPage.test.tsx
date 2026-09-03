@@ -16,6 +16,7 @@ function call(overrides: Record<string, unknown> = {}) {
     category: 'claims_eob',
     agent_name: 'Brad',
     member_id: 'CHM6672290',
+    member_name: 'Terrence Boyd',
     resolution: 'UNRESOLVED',
     score: 30,
     tier: 'POOR',
@@ -235,11 +236,33 @@ describe('CallsPage', () => {
     expect(within(row).getAllByText('—')).toHaveLength(1)
   })
 
+  it('names the member beside their identifier', async () => {
+    stubCalls(page([call()]))
+    renderCalls()
+
+    await screen.findByText('F0006')
+    expect(screen.getByText('Terrence Boyd')).toBeInTheDocument()
+    // The identifier stays: it is what this column's link filters on, and what
+    // the member is looked up by elsewhere.
+    expect(screen.getByText('CHM6672290')).toBeInTheDocument()
+  })
+
+  it('shows the identifier alone when the call never named the member', async () => {
+    // A third of the corpus summarises the caller instead of naming them.
+    stubCalls(page([call({ member_name: null })]))
+    renderCalls()
+
+    await screen.findByText('F0006')
+    expect(screen.getByText('CHM6672290')).toBeInTheDocument()
+    expect(screen.queryByText('Terrence Boyd')).not.toBeInTheDocument()
+  })
+
   it('links a member to the rest of their calls', async () => {
     stubCalls(page([call()]))
     renderCalls()
 
-    const link = await screen.findByRole('link', { name: 'CHM6672290' })
+    // The link now carries both the name and the identifier as its text.
+    const link = await screen.findByRole('link', { name: /CHM6672290/ })
     expect(link).toHaveAttribute('href', '/calls?member=CHM6672290')
   })
 

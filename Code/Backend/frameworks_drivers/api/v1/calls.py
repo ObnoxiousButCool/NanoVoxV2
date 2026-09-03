@@ -32,6 +32,7 @@ class CallSummaryResponse(BaseModel):
     category: str
     agent_name: str | None
     member_id: str | None = None
+    member_name: str | None = None
     resolution: str
     score: int
     score_status: str
@@ -59,6 +60,7 @@ def _summary(row: CallSummary) -> CallSummaryResponse:
         category=row.category_code,
         agent_name=row.agent_name,
         member_id=row.member_id,
+        member_name=row.member_name,
         resolution=row.resolution,
         score=row.score,
         score_status=row.score_status,

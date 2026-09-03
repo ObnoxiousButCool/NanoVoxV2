@@ -29,6 +29,7 @@ class CallSummary:
     category_code: str
     agent_name: str | None
     member_id: str | None
+    member_name: str | None
     resolution: str
     score: int
     score_status: str

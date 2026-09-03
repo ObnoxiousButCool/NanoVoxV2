@@ -170,7 +170,19 @@
 /* Member identifiers are codes, not prose: a monospace face makes two of them
    comparable at a glance, which is the only thing anyone does with them. */
 .member {
-  font-family: var(--font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
   font-size: 12px;
   white-space: nowrap;
+}
+
+/* The name reads as prose, the identifier as a code — so only the identifier
+   gets the monospace face. Together they would look like two codes. */
+.memberName {
+  display: block;
+  color: var(--ink-2);
+}
+
+.memberId {
+  display: block;
+  font-family: var(--font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  color: var(--slate);
 }

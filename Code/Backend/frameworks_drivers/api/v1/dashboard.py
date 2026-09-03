@@ -178,6 +178,11 @@ class EffortResponse(BaseModel):
 
 class MemberAtRiskResponse(BaseModel):
     member_id: str
+    member_name: str | None = Field(
+        default=None,
+        description="The member's name where a call stated one. Null otherwise — the "
+        "identifier is always known, the name is not.",
+    )
     call_count: int
     factors: list[str] = Field(
         description="Machine-readable risk factor codes observed for this member."
@@ -318,6 +323,7 @@ async def get_members_at_risk(use_case: MembersAtRiskDep) -> MembersAtRiskRespon
         members=[
             MemberAtRiskResponse(
                 member_id=member.member_id,
+                member_name=member.member_name,
                 call_count=member.call_count,
                 factors=[factor.value for factor in member.factors],
                 factor_labels=[factor.label for factor in member.factors],

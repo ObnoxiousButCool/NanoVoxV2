@@ -20,6 +20,7 @@ THRESHOLD = 60
 def member(member_id: str = "CHM0000001", **overrides: object) -> MemberCalls:
     defaults: dict[str, object] = {
         "member_id": member_id,
+        "member_name": None,
         "call_count": 1,
         "total_minutes": 10,
         "resolved": 0,

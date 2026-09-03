@@ -320,6 +320,9 @@ class SqlReadModelRepository(ReadModelRepository):
             rows = await session.execute(
                 select(
                     CallRow.member_id,
+                    # Any call of theirs that stated a name; they agree across a
+                    # member's calls, and MAX simply ignores the nulls.
+                    func.max(CallRow.member_name),
                     func.count(),
                     func.coalesce(func.sum(CallRow.duration_minutes), 0),
                     _count_if(CallRow.resolution == Resolution.RESOLVED.value),
@@ -335,6 +338,7 @@ class SqlReadModelRepository(ReadModelRepository):
             members = []
             for (
                 member_id,
+                member_name,
                 count,
                 minutes,
                 resolved,
@@ -348,6 +352,7 @@ class SqlReadModelRepository(ReadModelRepository):
                 members.append(
                     MemberCalls(
                         member_id=str(member_id),
+                        member_name=str(member_name) if member_name else None,
                         call_count=int(count),
                         total_minutes=int(minutes or 0),
                         resolved=int(resolved or 0),
@@ -456,6 +461,7 @@ def _to_summary(
         category_code=row.category_code,
         agent_name=row.agent_name,
         member_id=row.member_id,
+        member_name=row.member_name,
         resolution=row.resolution,
         score=row.score,
         score_status=row.score_status,

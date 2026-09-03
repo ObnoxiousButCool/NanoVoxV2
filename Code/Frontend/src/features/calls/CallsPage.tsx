@@ -164,7 +164,11 @@ function CallRow({
       <td className={styles.member}>
         {call.member_id ? (
           <Link className={styles.rowLink} to={`/calls?member=${encodeURIComponent(call.member_id)}`}>
-            {call.member_id}
+            {/* Stacked rather than "Name (ID)" on one line: this column sits in
+                an already-wide table, and one long string would either wrap
+                mid-identifier or push the outcome and score off-screen. */}
+            {call.member_name ? <span className={styles.memberName}>{call.member_name}</span> : null}
+            <span className={styles.memberId}>{call.member_id}</span>
           </Link>
         ) : (
           '—'

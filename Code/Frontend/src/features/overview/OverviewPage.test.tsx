@@ -128,6 +128,7 @@ const MEMBERS = {
   members: [
     {
       member_id: 'CHM5519074',
+      member_name: 'Maria Gonzalez',
       call_count: 3,
       factors: ['unresolved', 'ended_unhappy', 'repeat_contact'],
       factor_labels: ['Issue unresolved', 'Ended the call unhappy', 'Has called more than once'],
@@ -137,6 +138,7 @@ const MEMBERS = {
     },
     {
       member_id: 'CHM8817740',
+      member_name: null,
       call_count: 1,
       factors: ['low_score'],
       factor_labels: ['Poorly handled'],
@@ -305,7 +307,7 @@ describe('OverviewPage', () => {
       // invented, and would be acted on as though it were fact.
       renderOverview()
 
-      expect(await screen.findByText('CHM5519074')).toBeInTheDocument()
+      expect(await screen.findByText(/CHM5519074/)).toBeInTheDocument()
       expect(screen.getByText('Issue unresolved')).toBeInTheDocument()
       expect(screen.getByText('Ended the call unhappy')).toBeInTheDocument()
       expect(screen.getByText('Has called more than once')).toBeInTheDocument()
@@ -314,7 +316,7 @@ describe('OverviewPage', () => {
     it('says plainly that it is not a prediction', async () => {
       renderOverview()
 
-      await screen.findByText('CHM5519074')
+      await screen.findByText(/CHM5519074/)
       expect(screen.getByText(/not.*a predicted probability/i)).toBeInTheDocument()
     })
 
@@ -323,8 +325,28 @@ describe('OverviewPage', () => {
       // because the member has a history; the link has to open that history.
       renderOverview()
 
-      const link = await screen.findByRole('link', { name: 'CHM5519074' })
+      const link = await screen.findByRole('link', { name: /CHM5519074/ })
       expect(link).toHaveAttribute('href', '/calls?member=CHM5519074')
+    })
+
+    it('names the member, keeping the identifier beside it', async () => {
+      // The name is what a reader recognises; the identifier is what the calls
+      // list filters on and what other systems are looked up by. Both, not one.
+      renderOverview()
+
+      const link = await screen.findByRole('link', { name: /Maria Gonzalez/ })
+      expect(link).toHaveTextContent('Maria Gonzalez (CHM5519074)')
+      expect(link).toHaveAttribute('href', '/calls?member=CHM5519074')
+    })
+
+    it('shows the identifier alone when no call stated a name', async () => {
+      // A third of the corpus describes the caller instead of naming them.
+      // The identifier is still true; "Unknown" would not be.
+      renderOverview()
+
+      const link = await screen.findByRole('link', { name: 'CHM8817740' })
+      expect(link).toHaveTextContent('CHM8817740')
+      expect(link.textContent).not.toMatch(/[()]/)
     })
 
     it('reports an empty list as a result, not an omission', async () => {

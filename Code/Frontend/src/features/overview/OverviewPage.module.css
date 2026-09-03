@@ -179,3 +179,12 @@
 .member h4 a:focus-visible {
   text-decoration: underline;
 }
+
+/* The identifier beside a member's name: present and copyable, but not
+   competing with the name for attention. */
+.memberId {
+  color: var(--slate);
+  font-weight: 400;
+  font-size: 0.85em;
+  white-space: nowrap;
+}
