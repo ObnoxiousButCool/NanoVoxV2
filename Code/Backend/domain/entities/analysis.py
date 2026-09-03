@@ -101,6 +101,10 @@ class CallAnalysis:
     # never states one, which is a fact about the call rather than a failure.
     member_id: str | None = None
     member_context: str | None = None
+    # Read out of ``member_context`` when it opens with one. Only the leading
+    # form is trusted: a name is the one thing on this dashboard a reader
+    # recognises personally, and the wrong one is worse than none.
+    member_name: str | None = None
     duration_minutes: int | None = None
     # Handle time to the second, where the source states it that precisely.
     # Whole minutes lose 30 seconds on a five-minute call, which is 10% of it.

@@ -62,6 +62,7 @@ from domain.entities.score_marker import ScoreMarker
 from domain.entities.transcript import Transcript
 from domain.errors import NanoVoxError, ValidationError
 from domain.member_id import find_member_id
+from domain.member_name import find_member_name
 from domain.parsing import parse_transcript
 from domain.scoring.marker_validation import MarkerValidator
 from domain.scoring.rubric import Rubric
@@ -243,6 +244,7 @@ class AnalyzeTranscript:
             )
 
         finished = self._clock.now()
+        member_context = _text(l1, "member_context") or None
         analysis = CallAnalysis(
             reference=command.reference or await self._repository.next_reference(),
             title=_text(l2, "title") or _text(l1, "call_type") or "Untitled call",
@@ -259,7 +261,12 @@ class AnalyzeTranscript:
             member_id=find_member_id(transcript, self._member_id_pattern)
             if self._member_id_pattern
             else None,
-            member_context=_text(l1, "member_context") or None,
+            member_context=member_context,
+            # Read on the write path, not only in the migration that added the
+            # column. Backfilling existing rows was half the job: every call
+            # analysed afterwards stored nothing, so a rebuilt database — which
+            # is every row here — came back with the name blank on all of them.
+            member_name=find_member_name(member_context),
             duration_minutes=(
                 command.duration_minutes
                 if command.duration_minutes is not None

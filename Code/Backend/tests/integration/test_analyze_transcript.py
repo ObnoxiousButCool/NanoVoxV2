@@ -88,6 +88,39 @@ async def analyse(
     return stored.analysis, store
 
 
+class TestTheMemberName:
+    """The name has to be read when the call is analysed, not only backfilled.
+
+    It was added as a migration that filled in the rows already stored, and
+    nothing read it afterwards — so every call analysed since stored nothing,
+    and a database rebuilt from the corpus came back with all fifty blank. The
+    fix belongs on the write path, and this is the test that keeps it there.
+    """
+
+    async def test_a_named_context_stores_the_name(
+        self, taxonomy: Taxonomy, rubric: Rubric
+    ) -> None:
+        payloads = dict(PAYLOADS_BY_PROMPT)
+        payloads["l1_understanding"] = {
+            **L1_PAYLOAD,
+            "member_context": "Alicia Ferrara, 34, on a Delta Dental PPO via ChoiceBuilder.",
+        }
+
+        analysis, _ = await analyse(taxonomy, rubric, ScriptedLayerProvider(payloads))
+
+        assert analysis.member_name == "Alicia Ferrara"
+
+    async def test_a_context_that_names_no_one_stores_nothing(
+        self, taxonomy: Taxonomy, rubric: Rubric
+    ) -> None:
+        # The shipped fixture context — "Member aged 68 on a CalChoice HMO plan."
+        # A name is the one thing on this dashboard a reader recognises
+        # personally, so guessing is worse than leaving the column blank.
+        analysis, _ = await analyse(taxonomy, rubric, ScriptedLayerProvider(PAYLOADS_BY_PROMPT))
+
+        assert analysis.member_name is None
+
+
 class TestSignalEvidence:
     """A signal has to prove itself, like every other stored claim."""
 

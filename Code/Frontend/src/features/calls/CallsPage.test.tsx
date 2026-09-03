@@ -17,6 +17,7 @@ function call(overrides: Record<string, unknown> = {}) {
     agent_name: 'Brad',
     member_id: 'CHM6672290',
     member_name: 'Terrence Boyd',
+    caller_type: 'MEMBER',
     resolution: 'UNRESOLVED',
     score: 30,
     tier: 'POOR',
@@ -56,6 +57,7 @@ const TAXONOMY = {
   signal_types: [{ code: 'clinical_risk', label: 'Clinical Risk', severity: 'CRITICAL' }],
   sentiment_states: [],
   resolutions: ['RESOLVED', 'UNRESOLVED'],
+  caller_types: ['MEMBER', 'EMPLOYER', 'BROKER'],
   severities: [],
   tiers: { good: 85, average: 70, min_calls_for_tier_rating: 5 },
   rubric_version: '1.0.0',
@@ -225,15 +227,39 @@ describe('CallsPage', () => {
     expect(within(row).getAllByText('—')).toHaveLength(1)
   })
 
-  it('shows a dash where the call never stated a member', async () => {
+  it('still says who called where the call never stated a member', async () => {
     // A real corpus call: the agent asks for the member ID and never gets it.
-    // Absence is a fact about the call, not a gap to fill.
-    stubCalls(page([call({ member_id: null })]))
+    // The column leads with the caller type precisely so that this row says
+    // something — before, it was a bare dash that read as missing data.
+    stubCalls(page([call({ member_id: null, member_name: null })]))
+    renderCalls()
+
+    await screen.findByText('F0006')
+    const row = screen.getAllByRole('row')[1] as HTMLElement
+    expect(within(row).getByText('MEMBER')).toBeInTheDocument()
+    expect(within(row).queryByText('CHM6672290')).not.toBeInTheDocument()
+  })
+
+  it('shows a dash where the caller type is unknown', async () => {
+    // A pasted transcript, not a corpus call: nothing states who was calling,
+    // and inventing MEMBER would be a guess presented as a fact.
+    stubCalls(page([call({ caller_type: null, member_id: null, member_name: null })]))
     renderCalls()
 
     await screen.findByText('F0006')
     const row = screen.getAllByRole('row')[1] as HTMLElement
     expect(within(row).getAllByText('—')).toHaveLength(1)
+  })
+
+  it("shows an employer's call as an employer's", async () => {
+    // Fifteen of the fifty shipped calls are this: a group's renewal, not a
+    // member's claim. The distinction is the whole reason the column changed.
+    stubCalls(page([call({ caller_type: 'EMPLOYER', member_id: null, member_name: null })]))
+    renderCalls()
+
+    await screen.findByText('F0006')
+    const row = screen.getAllByRole('row')[1] as HTMLElement
+    expect(within(row).getByText('EMPLOYER')).toBeInTheDocument()
   })
 
   it('names the member beside their identifier', async () => {
@@ -367,6 +393,18 @@ describe('CallsPage', () => {
 
       await waitFor(() => {
         expect(urls.at(-1)).toContain('signal=clinical_risk')
+      })
+    })
+
+    it('narrows the query by caller type', async () => {
+      const urls = stubCalls(page([call()]))
+      renderCalls()
+      await screen.findByText('F0006')
+
+      await userEvent.selectOptions(screen.getByLabelText('Caller'), 'EMPLOYER')
+
+      await waitFor(() => {
+        expect(urls.at(-1)).toContain('caller=EMPLOYER')
       })
     })
 
