@@ -167,7 +167,12 @@ function setup(world: Partial<World> = {}) {
         return Promise.resolve(json(state.clearBody, state.clearStatus))
       }
       if (init?.method === 'POST') {
-        state.posted.push({ url, body: JSON.parse(String(init.body)) })
+        // Narrowed rather than coerced: RequestInit.body may be a Blob or
+        // FormData, and String() on one of those yields "[object Object]" —
+        // a body assertion would then pass against nonsense.
+        const body: unknown =
+          typeof init.body === 'string' ? JSON.parse(init.body) : init.body
+        state.posted.push({ url, body })
         return Promise.resolve(json(state.startBody, state.startStatus))
       }
       if (url.includes('/providers')) return Promise.resolve(json(PROVIDERS))
