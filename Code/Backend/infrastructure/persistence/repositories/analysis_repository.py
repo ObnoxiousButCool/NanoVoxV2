@@ -203,6 +203,10 @@ class SqlAnalysisRepository(AnalysisRepository):
             member_id=row.member_id,
             member_context=row.member_context,
             duration_minutes=row.duration_minutes,
+            duration_seconds=row.duration_seconds,
+            started_at=row.started_at,
+            ended_at=row.ended_at,
+            caller_type=row.caller_type,
             signal_codes=tuple(signal.code for signal in row.signals),
             accepted_markers=tuple(
                 ScoreMarker(
@@ -280,6 +284,10 @@ def _to_row(analysis: CallAnalysis) -> CallRow:
         member_id=analysis.member_id,
         member_context=analysis.member_context,
         duration_minutes=analysis.duration_minutes,
+        duration_seconds=analysis.duration_seconds,
+        started_at=analysis.started_at,
+        ended_at=analysis.ended_at,
+        caller_type=analysis.caller_type,
         score=score.score.value,
         score_status=score.status.value,
         tier=score.tier.value,

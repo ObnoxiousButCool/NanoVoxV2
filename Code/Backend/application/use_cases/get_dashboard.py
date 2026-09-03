@@ -41,7 +41,6 @@ from domain.aggregation.resolution_time import (
 )
 from domain.aggregation.signal_attribution import primary_category_by_call
 from domain.aggregation.significance import AgentRating, rate_agent
-from domain.aggregation.time_value import TimeValue, time_value
 from domain.aggregation.statistics import (
     Histogram,
     HistogramSettings,
@@ -50,6 +49,7 @@ from domain.aggregation.statistics import (
     median,
     percentage,
 )
+from domain.aggregation.time_value import TimeValue, time_value
 from domain.scoring.rubric import Rubric
 from domain.taxonomy import Taxonomy
 from domain.value_objects.resolution import Resolution

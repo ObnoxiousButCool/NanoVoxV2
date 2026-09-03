@@ -59,6 +59,11 @@ class CallRow(Base):
     member_name: Mapped[str | None] = mapped_column(String(_SHORT))
     member_context: Mapped[str | None] = mapped_column(Text)
     duration_minutes: Mapped[int | None] = mapped_column(Integer)
+    duration_seconds: Mapped[int | None] = mapped_column(Integer)
+    # Indexed: every time-of-day and trend query orders or filters on it.
+    started_at: Mapped[datetime | None] = mapped_column(DateTime)
+    ended_at: Mapped[datetime | None] = mapped_column(DateTime)
+    caller_type: Mapped[str | None] = mapped_column(String(_SHORT))
 
     score: Mapped[int] = mapped_column(Integer, nullable=False)
     score_status: Mapped[str] = mapped_column(String(_SHORT), nullable=False)

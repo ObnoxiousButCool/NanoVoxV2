@@ -9,7 +9,8 @@
 import type { ReactNode } from 'react'
 import { NavLink } from 'react-router-dom'
 
-import { VISIBLE_NAVIGATION } from '@/app/layout/navigation'
+import { visibleNavigation } from '@/app/layout/navigation'
+import { getConfig } from '@/shared/config/env'
 import {
   SHOW_PROVIDER_STATUS,
   SHOW_RAIL_STATUS,
@@ -114,7 +115,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         )}
 
         <div className={styles.nav}>
-          {VISIBLE_NAVIGATION.map((item) => (
+          {visibleNavigation(getConfig()).map((item) => (
             <NavLink
               key={item.to}
               to={item.to}

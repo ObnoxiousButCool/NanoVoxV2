@@ -6,6 +6,37 @@ afterEach(() => {
   resetConfigCache()
 })
 
+describe('readConfig — feature flags', () => {
+  const BASE = {
+    VITE_API_BASE_URL: 'http://localhost:8000/api/v1',
+    VITE_APP_NAME: 'NanoVox',
+  }
+
+  it('shows the corpus run when nothing says otherwise', () => {
+    // The screen exists; hiding it is the deliberate act, not showing it.
+    expect(readConfig(BASE).showCorpusRun).toBe(true)
+  })
+
+  it.each(['true', 'TRUE', '1', 'yes', 'on'])('reads %s as on', (value) => {
+    expect(readConfig({ ...BASE, VITE_SHOW_CORPUS_RUN: value }).showCorpusRun).toBe(true)
+  })
+
+  it.each(['false', 'False', '0', 'no', 'off'])('reads %s as off', (value) => {
+    expect(readConfig({ ...BASE, VITE_SHOW_CORPUS_RUN: value }).showCorpusRun).toBe(false)
+  })
+
+  it('treats blank as unset rather than as off', () => {
+    expect(readConfig({ ...BASE, VITE_SHOW_CORPUS_RUN: '   ' }).showCorpusRun).toBe(true)
+  })
+
+  it('refuses a value it cannot read rather than assuming off', () => {
+    // `flase` quietly hiding a screen is the misconfiguration this catches.
+    expect(() => readConfig({ ...BASE, VITE_SHOW_CORPUS_RUN: 'flase' })).toThrow(
+      /VITE_SHOW_CORPUS_RUN must be true or false/,
+    )
+  })
+})
+
 describe('readConfig', () => {
   it('reads a complete configuration', () => {
     const config = readConfig({

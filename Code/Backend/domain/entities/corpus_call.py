@@ -13,6 +13,7 @@ reference being taken by an unrelated call.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import datetime
 
 from domain.entities.ground_truth import GroundTruth
 
@@ -25,10 +26,20 @@ class CorpusCall:
     reference: str
     title: str
     transcript: str
-    # Stated in the file's header, not inferred. A duration is a fact about the
-    # call that the source already knows; asking a model to estimate it from the
-    # words produces a plausible number instead of the real one.
+    # All stated in the file's header, not inferred. These are facts the source
+    # already knows; asking a model to estimate them from the words produces
+    # plausible numbers instead of the real ones.
     duration_minutes: int | None = None
+    # Seconds, where the corpus states handle time to that precision ("AHT 5m
+    # 21s"). Kept alongside the minutes rather than replacing them: the older
+    # corpus states only whole minutes, and rounding every figure to match it
+    # would throw away precision this one has.
+    duration_seconds: int | None = None
+    started_at: datetime | None = None
+    ended_at: datetime | None = None
+    # MEMBER, EMPLOYER or BROKER. Not every caller is a member, and treating an
+    # employer's HR director as one would put their name in the member column.
+    caller_type: str | None = None
     ground_truth: GroundTruth | None = None
     sequence: int = 0
 

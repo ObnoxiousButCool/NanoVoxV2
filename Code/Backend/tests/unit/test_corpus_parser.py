@@ -7,6 +7,7 @@ nonsense, and a panel it invents becomes a fidelity comparison against fiction.
 
 from __future__ import annotations
 
+from datetime import datetime
 from pathlib import Path
 
 import pytest
@@ -39,6 +40,37 @@ Member: What is my emergency room copay?
 
 L1 — Transcription: UNRECOGNISED CLINICAL EMERGENCY.
 L3 — Agent Score: 36/100.
+"""
+
+
+# The timestamped corpus, converted by scripts/convert_corpus_pdf.py. It states
+# four things the older files do not: handle time to the second, the date, the
+# clock times, and which kind of caller rang.
+TIMESTAMPED_FILE = """# Call #14 - Filing a Life Insurance Claim After a Spouse's Death
+
+- **Agent:** Danielle
+- **Caller:** MEMBER
+- **Tier:** GOOD
+- **Score:** 97/100
+- **Sentiment Arc:** GRIEVING -> SUPPORTED
+- **Resolution:** RESOLVED
+- **Date:** 2026-09-07
+- **Start:** 09:46:45
+- **End:** 09:58:15
+- **AHT:** 11m 30s
+- **Duration:** ~12 min
+- **Topics:** life insurance, beneficiary claim, bereavement
+
+**Member context:** Harold Brennan, 71, Assurity Life via ChoiceBuilder
+
+## Transcript
+
+Agent Danielle: Choice Administrators, this is Danielle.
+ Caller: My wife passed away three weeks ago. Member ID CB-6672290.
+
+## AI Insights Panel - NanoVox 5-Layer Output
+
+L1 - Transcription: Bereavement claim.
 """
 
 
@@ -135,6 +167,75 @@ class TestOneFile:
         assert truth.broker_names == ("Marcus Trent", "Denise Whitfield")
 
 
+class TestTimestampedCorpus:
+    """The fields the timestamped corpus adds."""
+
+    def test_the_handle_time_is_kept_to_the_second(self) -> None:
+        # Rounding to whole minutes loses 30 seconds on a five-minute call,
+        # which is a tenth of it.
+        call = parse_corpus_file(TIMESTAMPED_FILE, "call_014")
+
+        assert call.duration_seconds == 690
+        assert call.duration_minutes == 12
+
+    def test_the_start_and_end_become_moments(self) -> None:
+        # Naive: the corpus states local wall-clock times, and the parser must
+        # not invent a timezone the source never gave.
+        call = parse_corpus_file(TIMESTAMPED_FILE, "call_014")
+
+        assert call.started_at == datetime(2026, 9, 7, 9, 46, 45)  # noqa: DTZ001
+        assert call.ended_at == datetime(2026, 9, 7, 9, 58, 15)  # noqa: DTZ001
+
+    def test_the_caller_type_is_read(self) -> None:
+        # An employer's HR director and a broker reach the same queue. Counting
+        # either as a member would inflate every per-member figure.
+        call = parse_corpus_file(TIMESTAMPED_FILE, "call_014")
+
+        assert call.caller_type == "MEMBER"
+
+    @pytest.mark.parametrize(
+        ("stated", "expected"),
+        [("11m 30s", 690), ("9m", 540), ("45s", 45), ("0m 0s", None), ("", None), ("soon", None)],
+    )
+    def test_handle_time_is_read_however_it_is_written(
+        self, stated: str, expected: int | None
+    ) -> None:
+        call = parse_corpus_file(
+            TIMESTAMPED_FILE.replace("- **AHT:** 11m 30s", f"- **AHT:** {stated}"), "call_014"
+        )
+
+        assert call.duration_seconds == expected
+
+    def test_a_time_without_its_date_is_not_a_moment(self) -> None:
+        # A midnight standing in for "unknown" would sort as a real call at the
+        # start of the day and skew every time-of-day figure.
+        call = parse_corpus_file(
+            TIMESTAMPED_FILE.replace("- **Date:** 2026-09-07\n", ""), "call_014"
+        )
+
+        assert call.started_at is None
+        assert call.ended_at is None
+
+    def test_an_unreadable_date_is_absent_rather_than_guessed(self) -> None:
+        call = parse_corpus_file(
+            TIMESTAMPED_FILE.replace("2026-09-07", "07/09/2026"), "call_014"
+        )
+
+        assert call.started_at is None
+
+    def test_the_older_files_still_parse_without_these_fields(self) -> None:
+        # The previous corpus states none of them. Absent, not zero: a caller
+        # type guessed from the transcript would be invented data.
+        call = parse_corpus_file(CALL_FILE, "call_089")
+
+        assert call.duration_seconds is None
+        assert call.started_at is None
+        assert call.ended_at is None
+        assert call.caller_type is None
+        # ...while what it does state is still read.
+        assert call.duration_minutes == 6
+
+
 class TestMissingInformation:
     def test_a_file_with_no_transcript_is_rejected(self) -> None:
         # Unusable, and spending a model call on it would produce a confident
@@ -171,8 +272,7 @@ class TestMissingInformation:
         # One missing figure, not a reason to fail a hundred-call run. The
         # analysis then falls back to the model's estimate.
         call = parse_corpus_file(
-            CALL_FILE.replace("- **Duration:** ~6 min
-", ""), "call_089"
+            CALL_FILE.replace("- **Duration:** ~6 min\n", ""), "call_089"
         )
 
         assert call.duration_minutes is None

@@ -18,6 +18,7 @@ Created: 2026-09-03 13:30:00.000000+00:00
 
 from __future__ import annotations
 
+import logging
 from collections.abc import Sequence
 
 import sqlalchemy as sa
@@ -25,6 +26,8 @@ from alembic import op
 
 from infrastructure.config.settings import get_settings
 from infrastructure.corpus.markdown_corpus import parse_corpus_file
+
+_log = logging.getLogger("alembic.runtime.migration")
 
 revision: str = "c7d1e0b48f35"
 down_revision: str | None = "b3f4a19c7d02"
@@ -54,9 +57,12 @@ def upgrade() -> None:
     for path in sorted(directory.glob(settings.corpus_glob)):
         try:
             call = parse_corpus_file(path.read_text(encoding="utf-8"), path.stem)
-        except Exception:  # noqa: BLE001
+        except Exception:
             # One malformed file must not stop the upgrade. Its call keeps the
-            # estimate it already had, which is the pre-migration behaviour.
+            # estimate it already had, which is the pre-migration behaviour --
+            # logged rather than swallowed, so a corpus defect is visible in the
+            # migration output instead of showing up as a stale figure later.
+            _log.warning("Skipped %s: it could not be parsed.", path.name, exc_info=True)
             continue
         if call.duration_minutes is None:
             continue

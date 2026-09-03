@@ -102,6 +102,18 @@ class CallAnalysis:
     member_id: str | None = None
     member_context: str | None = None
     duration_minutes: int | None = None
+    # Handle time to the second, where the source states it that precisely.
+    # Whole minutes lose 30 seconds on a five-minute call, which is 10% of it.
+    duration_seconds: int | None = None
+    # When the call actually happened, not when it was analysed. Two fields
+    # because "how long did it run" and "when in the day was it" are different
+    # questions, and end - start is not always the handle time.
+    started_at: datetime | None = None
+    ended_at: datetime | None = None
+    # MEMBER, EMPLOYER or BROKER. Not every caller is a member: an employer's HR
+    # director and a broker both reach the same queue, and counting them as
+    # members would inflate every per-member figure on the dashboard.
+    caller_type: str | None = None
     signal_codes: tuple[str, ...] = ()
     accepted_markers: tuple[ScoreMarker, ...] = ()
     rejected_marker_notes: tuple[str, ...] = ()

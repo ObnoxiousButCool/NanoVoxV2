@@ -15,6 +15,7 @@ from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
+from itertools import pairwise
 
 from domain.aggregation.statistics import median
 from domain.errors import ValidationError
@@ -48,10 +49,7 @@ class DurationBandSettings:
             raise ValidationError(
                 f"Duration bands must start at 0, got {self.lower_bounds[0]}."
             )
-        if any(
-            later <= earlier
-            for earlier, later in zip(self.lower_bounds, self.lower_bounds[1:], strict=False)
-        ):
+        if any(later <= earlier for earlier, later in pairwise(self.lower_bounds)):
             raise ValidationError(
                 f"Duration band bounds must ascend, got {list(self.lower_bounds)}."
             )
@@ -101,9 +99,7 @@ def _label(lower: int, upper: int | None) -> str:
 
 def _bands(durations: Sequence[int], settings: DurationBandSettings) -> tuple[DurationBand, ...]:
     bounds = settings.lower_bounds
-    edges: list[tuple[int, int | None]] = [
-        (lower, upper) for lower, upper in zip(bounds, bounds[1:], strict=False)
-    ]
+    edges: list[tuple[int, int | None]] = list(pairwise(bounds))
     edges.append((bounds[-1], None))
 
     return tuple(
@@ -113,7 +109,11 @@ def _bands(durations: Sequence[int], settings: DurationBandSettings) -> tuple[Du
             upper=upper,
             # A band with no calls is kept, not dropped: an absent bar reads as
             # "this does not happen" rather than "this did not happen here".
-            count=sum(1 for value in durations if lower <= value and (upper is None or value < upper)),
+            count=sum(
+                1
+                for value in durations
+                if lower <= value and (upper is None or value < upper)
+            ),
         )
         for lower, upper in edges
     )

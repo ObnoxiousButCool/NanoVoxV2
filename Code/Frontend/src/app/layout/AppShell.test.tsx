@@ -7,6 +7,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { AppShell } from '@/app/layout/AppShell'
 import { providerStatus } from '@/app/layout/providerStatus'
 import { AppProviders } from '@/app/providers'
+import { resetConfigCache } from '@/shared/config/env'
 
 const HEALTHY = {
   status: 'up',
@@ -47,6 +48,10 @@ beforeEach(() => {
 
 afterEach(() => {
   vi.unstubAllGlobals()
+  // The configuration is memoised, so a stubbed flag would otherwise leak into
+  // whichever test happens to run next.
+  vi.unstubAllEnvs()
+  resetConfigCache()
 })
 
 const PROVIDERS = {
@@ -142,8 +147,28 @@ describe('AppShell', () => {
     renderShell()
 
     await screen.findByRole('link', { name: 'Dashboard' })
-    expect(screen.queryByRole('link', { name: 'Corpus run' })).not.toBeInTheDocument()
     expect(screen.queryByRole('link', { name: 'Diagnostics' })).not.toBeInTheDocument()
+  })
+
+  it('offers the corpus run unless the environment turns it off', async () => {
+    renderShell()
+
+    expect(await screen.findByRole('link', { name: 'Corpus run' })).toHaveAttribute(
+      'href',
+      '/corpus',
+    )
+  })
+
+  it('drops the corpus run from the rail when configured off', async () => {
+    // The route is untouched — only the rail entry goes, so an operator can
+    // still reach /corpus by address while a demo audience cannot click into it.
+    vi.stubEnv('VITE_SHOW_CORPUS_RUN', 'false')
+    resetConfigCache()
+
+    renderShell()
+
+    await screen.findByRole('link', { name: 'Dashboard' })
+    expect(screen.queryByRole('link', { name: 'Corpus run' })).not.toBeInTheDocument()
   })
 
   it('shows no status block at all', async () => {

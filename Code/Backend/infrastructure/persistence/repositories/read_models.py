@@ -16,7 +16,6 @@ Three counting rules are enforced in SQL and are each easy to get subtly wrong:
 from __future__ import annotations
 
 from collections.abc import Mapping
-
 from typing import Any
 
 from sqlalchemy import Select, case, distinct, func, or_, select

@@ -4,12 +4,20 @@
  * Only screens that exist appear here. A rail entry leading to an empty page
  * would be a worse lie than a short rail.
  *
- * An entry marked `hidden` keeps its route and its page — it is left out of the
- * rail, not deleted. The screen is still reachable by typing the address, which
- * is the point: these are operator tools that a demo audience should not be
- * clicking into, rather than features being withdrawn. Flip the flag to bring
- * one back.
+ * An entry left out of the rail keeps its route and its page — it is hidden, not
+ * deleted. The screen stays reachable by typing the address, which is the point:
+ * these are operator tools a demo audience should not be clicking into, rather
+ * than features being withdrawn.
+ *
+ * Two ways to leave one out. `hidden` is a decision made in code. `flag` defers
+ * to configuration, so the corpus run can be turned on for an operator and off
+ * for a demo without a rebuild of anything but the bundle.
  */
+
+import type { AppConfig } from '@/shared/config/env'
+
+/** Configuration a rail entry can be gated on. */
+export type NavigationFlag = 'showCorpusRun'
 
 export interface NavigationItem {
   readonly to: string
@@ -19,6 +27,8 @@ export interface NavigationItem {
   readonly description: string
   /** Omitted from the rail. The route still works. */
   readonly hidden?: boolean
+  /** Shown only when this configuration flag is on. The route still works. */
+  readonly flag?: NavigationFlag
 }
 
 export const NAVIGATION: readonly NavigationItem[] = [
@@ -51,7 +61,7 @@ export const NAVIGATION: readonly NavigationItem[] = [
     label: 'Corpus run',
     glyph: '⟳',
     description: 'Re-analyse the whole corpus with live progress',
-    hidden: true,
+    flag: 'showCorpusRun',
   },
   {
     to: '/diagnostics',
@@ -62,7 +72,18 @@ export const NAVIGATION: readonly NavigationItem[] = [
   },
 ]
 
-/** The entries the rail draws. Hidden ones keep their routes. */
-export const VISIBLE_NAVIGATION: readonly NavigationItem[] = NAVIGATION.filter(
-  (item) => !item.hidden,
-)
+/**
+ * The entries the rail draws, for this configuration.
+ *
+ * A function rather than a constant: reading configuration at module load would
+ * make an unrelated import throw on a misconfigured environment, which is the
+ * failure mode `shared/config/env.ts` is written to avoid.
+ */
+export function visibleNavigation(config: Pick<AppConfig, NavigationFlag>): NavigationItem[] {
+  return NAVIGATION.filter((item) => {
+    if (item.hidden) {
+      return false
+    }
+    return item.flag ? config[item.flag] : true
+  })
+}

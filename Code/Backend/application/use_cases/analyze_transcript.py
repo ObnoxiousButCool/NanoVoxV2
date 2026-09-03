@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
+from datetime import datetime
 from re import Pattern
 from typing import Any
 
@@ -100,6 +101,12 @@ class AnalyzeTranscriptCommand:
     # actually contains. Pasted transcripts carry no header, so they still fall
     # back to the estimate.
     duration_minutes: int | None = None
+    # The rest of what the source states about the call. Carried through
+    # untouched: no model sees them, and none of them is derived.
+    duration_seconds: int | None = None
+    started_at: datetime | None = None
+    ended_at: datetime | None = None
+    caller_type: str | None = None
 
 
 class AnalyzeTranscript:
@@ -234,6 +241,10 @@ class AnalyzeTranscript:
                 if command.duration_minutes is not None
                 else _positive_int(l2, "duration_minutes")
             ),
+            duration_seconds=command.duration_seconds,
+            started_at=command.started_at,
+            ended_at=command.ended_at,
+            caller_type=command.caller_type,
             signal_codes=signal_codes,
             accepted_markers=validation.accepted,
             rejected_marker_notes=tuple(item.explanation for item in validation.rejected),

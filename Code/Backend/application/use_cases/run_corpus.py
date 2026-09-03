@@ -322,6 +322,10 @@ class CorpusRunWorker:
                     source=AnalysisSource.CORPUS_RUN,
                     reference=call.reference,
                     duration_minutes=call.duration_minutes,
+                    duration_seconds=call.duration_seconds,
+                    started_at=call.started_at,
+                    ended_at=call.ended_at,
+                    caller_type=call.caller_type,
                 ),
                 provider,
             )
