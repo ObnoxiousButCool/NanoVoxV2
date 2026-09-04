@@ -50,6 +50,7 @@ import {
   MetricStrip,
   TrendLine,
 } from '@/shared/ui/charts'
+import { maskMemberId, maskedMemberIdLabel } from '@/shared/ui/memberId'
 import { Card, Failure, Loading, Note, PageHeader } from '@/shared/ui/primitives'
 import styles from './OverviewPage.module.css'
 
@@ -362,15 +363,22 @@ function MembersAtRisk() {
                     {member.member_name ? (
                       <>
                         {member.member_name}{' '}
-                        {/* The identifier stays visible rather than being replaced:
-                            it is what the calls list filters on and what anyone
-                            looking the member up in another system will need. */}
-                        <span className={styles.memberId}>({member.member_id})</span>
+                        {/* Kept beside the name rather than dropped: two members
+                            can share a name, and the last four characters are
+                            what tells them apart. */}
+                        <span
+                          className={styles.memberId}
+                          title={maskedMemberIdLabel(member.member_id)}
+                        >
+                          ({maskMemberId(member.member_id)})
+                        </span>
                       </>
                     ) : (
                       // No call of theirs stated a name. The identifier alone is
                       // still true; a placeholder like "Unknown" would not be.
-                      member.member_id
+                      <span title={maskedMemberIdLabel(member.member_id)}>
+                        {maskMemberId(member.member_id)}
+                      </span>
                     )}
                   </Link>
                   <span className={styles.matrixCalls}>
@@ -916,7 +924,7 @@ export function OverviewPage() {
         </Card>
 
         <Card
-          title="When the calls come"
+          title="Hourly call distribution"
           subtitle="Load by hour, with the weakest staffed hour marked."
           hint="Calls by the hour they started. The marked hour is a staffing question rather than a coaching one. Hours with fewer than four calls are drawn but carry no finding: a rota changed on two calls is a rota changed on noise."
         >

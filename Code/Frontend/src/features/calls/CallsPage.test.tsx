@@ -264,7 +264,7 @@ describe('CallsPage', () => {
     await screen.findByText('F0006')
     const row = screen.getAllByRole('row')[1] as HTMLElement
     expect(within(row).getByText('MEMBER')).toBeInTheDocument()
-    expect(within(row).queryByText('CHM6672290')).not.toBeInTheDocument()
+    expect(within(row).queryByText('••••2290')).not.toBeInTheDocument()
   })
 
   it('shows a dash where the caller type is unknown', async () => {
@@ -295,9 +295,10 @@ describe('CallsPage', () => {
 
     await screen.findByText('F0006')
     expect(screen.getByText('Terrence Boyd')).toBeInTheDocument()
-    // The identifier stays: it is what this column's link filters on, and what
-    // the member is looked up by elsewhere.
-    expect(screen.getByText('CHM6672290')).toBeInTheDocument()
+    // The identifier stays, masked to its last four characters. It is still
+    // whole in the link this column carries, which is what the list filters on.
+    expect(screen.getByText('••••2290')).toBeInTheDocument()
+    expect(screen.queryByText('CHM6672290')).not.toBeInTheDocument()
   })
 
   it('shows the identifier alone when the call never named the member', async () => {
@@ -306,7 +307,7 @@ describe('CallsPage', () => {
     renderCalls()
 
     await screen.findByText('F0006')
-    expect(screen.getByText('CHM6672290')).toBeInTheDocument()
+    expect(screen.getByText('••••2290')).toBeInTheDocument()
     expect(screen.queryByText('Terrence Boyd')).not.toBeInTheDocument()
   })
 
@@ -315,7 +316,9 @@ describe('CallsPage', () => {
     renderCalls()
 
     // The link now carries both the name and the identifier as its text.
-    const link = await screen.findByRole('link', { name: /CHM6672290/ })
+    // Masked on the face, whole in the address: the list filters on the real
+    // identifier, so hiding it from the href would break the link.
+    const link = await screen.findByRole('link', { name: new RegExp('••••2290') })
     expect(link).toHaveAttribute('href', '/calls?member=CHM6672290')
   })
 
@@ -480,7 +483,9 @@ describe('CallsPage', () => {
       stubCalls(page([call()]))
       renderCalls('/calls?member=CHM6672290')
 
-      const chip = await screen.findByRole('button', { name: /Member: CHM6672290/ })
+      const chip = await screen.findByRole('button', {
+        name: new RegExp('Member: ••••2290'),
+      })
       await userEvent.click(chip)
 
       expect(screen.queryByRole('button', { name: /Member:/ })).not.toBeInTheDocument()

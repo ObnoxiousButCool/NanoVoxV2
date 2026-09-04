@@ -326,6 +326,13 @@ class CorpusRunWorker:
                     started_at=call.started_at,
                     ended_at=call.ended_at,
                     caller_type=call.caller_type,
+                    # Stated in the file header, like the durations above, and
+                    # like them not recoverable from the words: across the
+                    # shipped corpus 28 files name the member and only 3 of
+                    # those names are ever spoken in the call.
+                    member_context=(
+                        call.ground_truth.member_context if call.ground_truth else None
+                    ),
                 ),
                 provider,
             )

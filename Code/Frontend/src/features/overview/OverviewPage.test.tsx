@@ -613,7 +613,7 @@ describe('OverviewPage', () => {
       // invented, and would be acted on as though it were fact.
       renderOverview()
 
-      await screen.findByText(/CHM5519074/)
+      await screen.findByText(new RegExp('••••9074'))
       // Scoped to the matrix: several of these words also name a metric
       // elsewhere on the page.
       const matrix = screen.getByRole('table', { name: 'Members showing warning signs' })
@@ -628,7 +628,7 @@ describe('OverviewPage', () => {
       // fixture has escalated.
       renderOverview()
 
-      await screen.findByText(/CHM5519074/)
+      await screen.findByText(new RegExp('••••9074'))
       const matrix = screen.getByRole('table', { name: 'Members showing warning signs' })
       expect(within(matrix).getByText('Escalated')).toBeInTheDocument()
     })
@@ -655,7 +655,7 @@ describe('OverviewPage', () => {
       // by everyone, and they are the entire content of the row.
       renderOverview()
 
-      const row = await screen.findByRole('row', { name: /CHM8817740/ })
+      const row = await screen.findByRole('row', { name: new RegExp('••••7740') })
       expect(within(row).getByText('Poorly handled')).toBeInTheDocument()
       expect(within(row).getByText('Not issue unresolved')).toBeInTheDocument()
     })
@@ -665,14 +665,14 @@ describe('OverviewPage', () => {
       // sit in a fixed order for a reason nothing on screen gave.
       renderOverview()
 
-      const row = await screen.findByRole('row', { name: /CHM5519074/ })
+      const row = await screen.findByRole('row', { name: new RegExp('••••9074') })
       expect(within(row).getByText('29')).toBeInTheDocument()
     })
 
     it('says plainly that it is not a prediction', async () => {
       renderOverview()
 
-      await screen.findByText(/CHM5519074/)
+      await screen.findByText(new RegExp('••••9074'))
       expect(screen.getByText(/not.*a predicted probability/i)).toBeInTheDocument()
     })
 
@@ -681,7 +681,8 @@ describe('OverviewPage', () => {
       // because the member has a history; the link has to open that history.
       renderOverview()
 
-      const link = await screen.findByRole('link', { name: /CHM5519074/ })
+      // Masked on the face, whole in the href — the list filters on the real one.
+      const link = await screen.findByRole('link', { name: new RegExp('••••9074') })
       expect(link).toHaveAttribute('href', '/calls?member=CHM5519074')
     })
 
@@ -691,7 +692,7 @@ describe('OverviewPage', () => {
       renderOverview()
 
       const link = await screen.findByRole('link', { name: /Maria Gonzalez/ })
-      expect(link).toHaveTextContent('Maria Gonzalez (CHM5519074)')
+      expect(link).toHaveTextContent('Maria Gonzalez (••••9074)')
       expect(link).toHaveAttribute('href', '/calls?member=CHM5519074')
     })
 
@@ -700,9 +701,11 @@ describe('OverviewPage', () => {
       // The identifier is still true; "Unknown" would not be.
       renderOverview()
 
-      const link = await screen.findByRole('link', { name: 'CHM8817740' })
-      expect(link).toHaveTextContent('CHM8817740')
+      const link = await screen.findByRole('link', { name: '••••7740' })
+      expect(link).toHaveTextContent('••••7740')
+      // No brackets: with no name in front of it there is nothing to bracket.
       expect(link.textContent).not.toMatch(/[()]/)
+      expect(link).toHaveAttribute('href', '/calls?member=CHM8817740')
     })
 
     it('reports an empty list as a result, not an omission', async () => {

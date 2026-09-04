@@ -21,6 +21,7 @@ import type { CallSummary, Taxonomy } from '@/shared/api/types'
 import { Button, Card, Chip, Empty, Failure, Loading, Note, PageHeader } from '@/shared/ui/primitives'
 import { toneForResolution } from '@/shared/ui/tone'
 import { cx } from '@/shared/ui/cx'
+import { maskMemberId, maskedMemberIdLabel } from '@/shared/ui/memberId'
 import styles from './CallsPage.module.css'
 
 const PAGE_SIZE = 25
@@ -185,7 +186,9 @@ function CallRow({
                 an already-wide table, and one long string would either wrap
                 mid-identifier or push the outcome and score off-screen. */}
             {call.member_name ? <span className={styles.memberName}>{call.member_name}</span> : null}
-            <span className={styles.memberId}>{call.member_id}</span>
+            <span className={styles.memberId} title={maskedMemberIdLabel(call.member_id)}>
+              {maskMemberId(call.member_id)}
+            </span>
           </Link>
         ) : null}
       </td>
@@ -415,7 +418,10 @@ export function CallsPage() {
             ) : null}
             {member ? (
               <Button className={styles.active} aria-pressed onClick={clearParam('member')}>
-                Member: {member} &times;
+                {/* Masked here too. The whole identifier is in the address bar
+                    either way, but the chip is what sits on screen while the
+                    list is read. */}
+                Member: {maskMemberId(member)} &times;
               </Button>
             ) : null}
             {scoreBand ? (

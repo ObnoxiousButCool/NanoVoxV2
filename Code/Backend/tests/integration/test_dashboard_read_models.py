@@ -227,9 +227,7 @@ class TestAttentionQueue:
         # sentence a model wrote about it.
         items = (await overview.execute()).attention
 
-        breakdown = next(
-            item for item in items if item.kind is RuleKind.L4_CATEGORY_VOLUME
-        )
+        breakdown = next(item for item in items if item.kind is RuleKind.L4_CATEGORY_VOLUME)
         assert f"{breakdown.count} of" in breakdown.why
 
     async def test_every_item_names_an_owner(self, overview: GetOverview) -> None:

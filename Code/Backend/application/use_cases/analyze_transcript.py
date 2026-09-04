@@ -119,6 +119,14 @@ class AnalyzeTranscriptCommand:
     started_at: datetime | None = None
     ended_at: datetime | None = None
     caller_type: str | None = None
+    # Who the member is, as the source states it. The corpus header carries it
+    # in the form the name reader expects — "Priya Raman, 36 · ChoiceBuilder
+    # dental · ..." — and the name is almost never in the transcript itself:
+    # across the shipped corpus, 28 files name the member in the header and only
+    # 3 of those names are ever spoken. A model reading the words alone
+    # therefore cannot recover it, and writes a description of the caller
+    # instead, which is why every stored name was blank.
+    member_context: str | None = None
 
 
 class AnalyzeTranscript:
@@ -244,7 +252,12 @@ class AnalyzeTranscript:
             )
 
         finished = self._clock.now()
-        member_context = _text(l1, "member_context") or None
+        # The source's own words win over the model's. This is the same rule
+        # the durations follow, and for the same reason: it is authored
+        # metadata about the call rather than something derived from it. The
+        # model's version stays as the fallback for a pasted transcript, which
+        # arrives with no header at all.
+        member_context = command.member_context or _text(l1, "member_context") or None
         analysis = CallAnalysis(
             reference=command.reference or await self._repository.next_reference(),
             title=_text(l2, "title") or _text(l1, "call_type") or "Untitled call",
