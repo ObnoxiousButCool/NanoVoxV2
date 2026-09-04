@@ -450,6 +450,21 @@ describe('OverviewPage', () => {
     expect(note).toHaveTextContent('5 calls fall below the coaching threshold')
   })
 
+  it('opens a category from the demand chart', async () => {
+    renderOverview()
+
+    const link = await screen.findByRole('link', { name: 'Coverage & Benefits' })
+    expect(link).toHaveAttribute('href', '/calls?category=coverage_benefits')
+  })
+
+  it('leaves a category with no calls unlinked', async () => {
+    // Drawn so the absence is visible, but there is nothing behind it to open.
+    renderOverview()
+
+    await screen.findByText('Broker Conduct')
+    expect(screen.queryByRole('link', { name: 'Broker Conduct' })).not.toBeInTheDocument()
+  })
+
   it('draws a category with no calls rather than omitting it', async () => {
     // An absent bar reads as "this does not happen".
     renderOverview()
@@ -792,6 +807,28 @@ describe('OverviewPage', () => {
       expect(within(card).getByText('8 min')).toBeInTheDocument()
     })
 
+    it('opens only the resolved calls, matching what the card counts', async () => {
+      // The card is resolved calls only. A link without the outcome would open
+      // the whole category and contradict the figure it was opened from.
+      renderOverview()
+      const card = await resolutionCard()
+
+      expect(within(card).getByRole('link', { name: 'Coverage & Benefits' })).toHaveAttribute(
+        'href',
+        '/calls?category=coverage_benefits&resolution=RESOLVED',
+      )
+    })
+
+    it('leaves a category that has resolved nothing unlinked', async () => {
+      renderOverview()
+      const card = await resolutionCard()
+
+      expect(within(card).getByText('Claims & EOB')).toBeInTheDocument()
+      expect(
+        within(card).queryByRole('link', { name: 'Claims & EOB' }),
+      ).not.toBeInTheDocument()
+    })
+
     it('shows a category that has resolved nothing as a dash, not a zero', async () => {
       // No time was measured, which is not the same as a fast one.
       renderOverview()
@@ -823,6 +860,19 @@ describe('OverviewPage', () => {
       expect(within(card).getByText('25%')).toBeInTheDocument()
       expect(within(card).getByText('BOUGHT A RESOLUTION')).toBeInTheDocument()
       expect(within(card).getByText('7.5h')).toBeInTheDocument()
+    })
+
+    it('opens every call in a category, because every outcome claimed minutes', async () => {
+      // Unlike the resolution-time card, this one counts the minutes a
+      // category claimed rather than the ones it earned, so the link carries
+      // no outcome.
+      renderOverview()
+      const card = await timeCard()
+
+      expect(within(card).getByRole('link', { name: 'Claims & EOB' })).toHaveAttribute(
+        'href',
+        '/calls?category=claims_eob',
+      )
     })
 
     it('lays the categories out by the time they claim', async () => {

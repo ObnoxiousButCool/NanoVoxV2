@@ -191,7 +191,14 @@ function ResolutionTimeCard() {
         {data.categories.map((category) => (
           <Bar
             key={category.code}
-            label={category.label}
+            // Resolved only, matching the card. Without the outcome the link
+            // would open every call in the category and quietly contradict the
+            // count it was opened from.
+            label={drillDown(
+              category.label,
+              `category=${encodeURIComponent(category.code)}&resolution=RESOLVED`,
+              category.resolved_calls > 0,
+            )}
             title={`${category.label}: ${String(category.resolved_calls)} resolved, longest ${String(category.longest_minutes)} min`}
             segments={[
               {
@@ -265,7 +272,13 @@ function TimeValueCard() {
         {data.categories.map((category) => (
           <Bar
             key={category.code}
-            label={category.label}
+            // Every outcome, because the bar is every outcome — this card
+            // counts the minutes a category claimed, not the ones it earned.
+            label={drillDown(
+              category.label,
+              `category=${encodeURIComponent(category.code)}`,
+              category.total_minutes > 0,
+            )}
             title={`${category.label}: ${String(category.total_minutes)} min, ${String(category.unproductive_share)}% bought no resolution`}
             segments={[
               ...category.by_outcome.map((outcome) => ({
@@ -594,6 +607,23 @@ function TrendCard() {
   )
 }
 
+/**
+ * A bar's label, as a way into the calls behind it.
+ *
+ * Every drill-down on this page obeys one rule: a bar with nothing in it is not
+ * a link. There is nothing to open, and a link to an empty list reads as a
+ * fault rather than as an answer — which is the same reason an empty histogram
+ * bar stays inert.
+ *
+ * The query is the caller's, because only the caller knows which calls its bar
+ * counted. "How long an answer takes" draws resolved calls only, so its link
+ * has to say so or it would open a set larger than the figure it came from.
+ */
+function drillDown(label: string, query: string, populated: boolean) {
+  if (!populated) return label
+  return <Link to={`/calls?${query}`}>{label}</Link>
+}
+
 /** "MEMBER" and 28 calls, as "Member · 28". */
 function callerLabel(caller: { caller_type: string; calls: number }): string {
   const name = `${caller.caller_type.charAt(0)}${caller.caller_type.slice(1).toLowerCase()}`
@@ -612,21 +642,11 @@ function CallerMixCard() {
         {mix.data.callers.map((caller) => (
           <Bar
             key={caller.caller_type}
-            label={
-              // Straight to that population's calls. The bar says one of the
-              // three fares worse than the others, and the next question is
-              // always which calls — an answer this card does not hold.
-              //
-              // A population with no calls is not a link. There would be
-              // nothing to open, and a link to an empty list reads as a fault.
-              caller.calls === 0 ? (
-                callerLabel(caller)
-              ) : (
-                <Link to={`/calls?caller=${encodeURIComponent(caller.caller_type)}`}>
-                  {callerLabel(caller)}
-                </Link>
-              )
-            }
+            label={drillDown(
+              callerLabel(caller),
+              `caller=${encodeURIComponent(caller.caller_type)}`,
+              caller.calls > 0,
+            )}
             segments={[
               {
                 value: caller.resolution_rate,
@@ -946,7 +966,11 @@ export function OverviewPage() {
             {categories.map((category, index) => (
               <Bar
                 key={category.code}
-                label={category.label}
+                label={drillDown(
+                  category.label,
+                  `category=${encodeURIComponent(category.code)}`,
+                  category.count > 0,
+                )}
                 segments={[
                   {
                     value: category.count,
