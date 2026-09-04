@@ -58,6 +58,22 @@ class MarkerValidation:
         return bool(self.rejected)
 
     @property
+    def evidence_all_rejected(self) -> bool:
+        """The model found evidence and none of it survived checking.
+
+        Distinct from finding none: a call the model read and had nothing to say
+        about is a quiet call, while a call it had five things to say about, none
+        of which could be located in the transcript, is a call nobody has
+        actually scored. The second reads as a flawless one — every penalty was
+        discarded along with the evidence for it — and is the more dangerous of
+        the two precisely because it flatters.
+
+        The usual cause is a transcript that failed to parse into turns, which
+        leaves every evidence index pointing at a turn that does not exist.
+        """
+        return bool(self.rejected) and not self.accepted
+
+    @property
     def rejection_summary(self) -> str:
         return "; ".join(item.explanation for item in self.rejected)
 

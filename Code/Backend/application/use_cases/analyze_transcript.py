@@ -209,7 +209,15 @@ class AnalyzeTranscript:
         layers.append(_layer(Layer.L3, l3))
 
         validation = MarkerValidator(self._rubric, transcript).validate(_markers(l3))
-        score = self._engine.score(validation.accepted, signal_codes=signals.accepted)
+        score = self._engine.score(
+            validation.accepted,
+            signal_codes=signals.accepted,
+            # A call whose every marker was refused is not scored, and must not
+            # report as though it were. The usual cause is a transcript that did
+            # not parse into turns, which leaves every evidence index pointing at
+            # a turn that is not there.
+            evidence_all_rejected=validation.evidence_all_rejected,
+        )
 
         # Resolved before the attributions are checked, which needs it: an
         # attribution naming the agent on the call is not a member naming a broker.

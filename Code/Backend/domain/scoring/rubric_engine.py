@@ -94,6 +94,8 @@ class RubricEngine:
         self,
         markers: Sequence[ScoreMarker],
         signal_codes: Collection[str] = (),
+        *,
+        evidence_all_rejected: bool = False,
     ) -> ScoreResult:
         """Score a call.
 
@@ -114,7 +116,7 @@ class RubricEngine:
         tier = self._rubric.tiers.tier_for(score)
 
         gates = triggered_gates(self._rubric.gates, score=score, signal_codes=signal_codes)
-        status = self._status_for(gates)
+        status = self._status_for(gates, evidence_all_rejected=evidence_all_rejected)
 
         return ScoreResult(
             score=score,
@@ -165,7 +167,15 @@ class RubricEngine:
         return tuple(applied), totals
 
     @staticmethod
-    def _status_for(gates: Collection[Gate]) -> ScoreStatus:
+    def _status_for(gates: Collection[Gate], *, evidence_all_rejected: bool) -> ScoreStatus:
         if any(gate.effect is GateEffect.SUSPEND_SCORE for gate in gates):
+            return ScoreStatus.PROVISIONAL
+        if evidence_all_rejected:
+            # Every marker the model raised failed checking, so the arithmetic
+            # ran over nothing: no penalty was applied because none survived,
+            # and the base score came through untouched. That is not a call that
+            # went well, it is a call nobody has scored — and confirming it
+            # would publish the highest number on the dashboard for the least
+            # evidence behind it.
             return ScoreStatus.PROVISIONAL
         return ScoreStatus.CONFIRMED
