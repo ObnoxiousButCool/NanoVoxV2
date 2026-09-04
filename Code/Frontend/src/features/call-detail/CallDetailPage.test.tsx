@@ -189,6 +189,19 @@ describe('CallDetailPage', () => {
     expect(screen.getByText(/Owner: Compliance/)).toBeInTheDocument()
   })
 
+  it('states each fact about the call once', async () => {
+    // The sidebar repeated the reference, category, outcome and agent, all of
+    // which the header and the banner already carry. Source and the member's
+    // context were the only things it alone said, so they moved up with it.
+    renderCall()
+
+    await screen.findByText('27')
+    expect(screen.getByText('PASTED')).toBeInTheDocument()
+    expect(screen.getByText(/CalChoice HMO plan/)).toBeInTheDocument()
+    expect(screen.getAllByText(/UNRESOLVED/)).toHaveLength(1)
+    expect(screen.queryByText('Reference')).not.toBeInTheDocument()
+  })
+
   it('keeps the model and the score arithmetic off the page', async () => {
     // Provenance and the rubric's arithmetic are how the number was produced,
     // not what it means. A reader here is judging the call, and every deduction

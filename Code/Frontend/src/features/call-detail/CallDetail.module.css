@@ -1,18 +1,3 @@
-/* The call detail layout, matching the prototype's #detail section. */
-
-.layout {
-  display: grid;
-  grid-template-columns: 1fr 316px;
-  gap: 16px;
-  align-items: start;
-}
-
-@media (max-width: 1080px) {
-  .layout {
-    grid-template-columns: 1fr;
-  }
-}
-
 .hero {
   background: #fff;
   border: 1px solid var(--rule);
@@ -337,10 +322,6 @@
 }
 
 .stack > * + * {
-  margin-top: 12px;
-}
-
-.sidebarCard + .sidebarCard {
   margin-top: 12px;
 }
 
