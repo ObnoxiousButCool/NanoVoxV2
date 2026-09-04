@@ -47,7 +47,7 @@ from domain.aggregation.sentiment_movement import (
     sentiment_movement,
 )
 from domain.aggregation.signal_attribution import primary_category_by_call
-from domain.aggregation.significance import AgentRating, is_tier_rated, rate_agent
+from domain.aggregation.significance import AgentRating, rate_agent
 from domain.aggregation.statistics import (
     Histogram,
     HistogramSettings,

@@ -558,7 +558,9 @@ async def get_members_at_risk(use_case: MembersAtRiskDep) -> MembersAtRiskRespon
             for member in members
         ],
         factor_vocabulary=[
-            RiskFactorResponse(code=factor.value, label=factor.label, short_label=factor.short_label)
+            RiskFactorResponse(
+                code=factor.value, label=factor.label, short_label=factor.short_label
+            )
             for factor in RiskFactor
         ],
     )
