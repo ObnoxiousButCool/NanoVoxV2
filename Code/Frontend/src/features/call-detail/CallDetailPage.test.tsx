@@ -189,11 +189,16 @@ describe('CallDetailPage', () => {
     expect(screen.getByText(/Owner: Compliance/)).toBeInTheDocument()
   })
 
-  it('shows the provenance behind the analysis', async () => {
+  it('keeps the model and the score arithmetic off the page', async () => {
+    // Provenance and the rubric's arithmetic are how the number was produced,
+    // not what it means. A reader here is judging the call, and every deduction
+    // is already quoted against the line that earned it.
     renderCall()
 
     await screen.findByText('27')
-    expect(screen.getByText('qwen2.5:7b-instruct')).toBeInTheDocument()
+    expect(screen.queryByText('qwen2.5:7b-instruct')).not.toBeInTheDocument()
+    expect(screen.queryByText('How this score was reached')).not.toBeInTheDocument()
+    expect(screen.queryByText('Provenance')).not.toBeInTheDocument()
   })
 
   it('distinguishes a layer that failed from one that found nothing', async () => {

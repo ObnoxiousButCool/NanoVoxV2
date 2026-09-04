@@ -471,60 +471,6 @@ export function CallDetailPage() {
             </dl>
             {data.member_context ? <Note>{data.member_context}</Note> : null}
           </Card>
-
-          <Card title="How this score was reached" className={styles.sidebarCard}>
-            <dl>
-              <div className={styles.kv}>
-                <dt>Score</dt>
-                <dd>
-                  {data.score.value} · {data.score.tier}
-                </dd>
-              </div>
-              <div className={styles.kv}>
-                <dt>Status</dt>
-                <dd>{data.score.status}</dd>
-              </div>
-              <div className={styles.kv}>
-                <dt>Penalties</dt>
-                <dd>−{data.score.total_negative}</dd>
-              </div>
-              <div className={styles.kv}>
-                <dt>Offset by positives</dt>
-                <dd>+{data.score.applied_offset}</dd>
-              </div>
-            </dl>
-            <Note>
-              Computed from a fixed rubric, not written by the model. Every deduction traces to a
-              quoted line above.
-            </Note>
-          </Card>
-
-          <Card title="Provenance" className={styles.sidebarCard}>
-            <dl>
-              <div className={styles.kv}>
-                <dt>Provider</dt>
-                <dd>{data.provenance.provider}</dd>
-              </div>
-              <div className={styles.kv}>
-                <dt>Model</dt>
-                <dd>{data.provenance.model}</dd>
-              </div>
-              <div className={styles.kv}>
-                <dt>Rubric</dt>
-                <dd>{data.provenance.rubric_version}</dd>
-              </div>
-              <div className={styles.kv}>
-                <dt>Prompts</dt>
-                <dd>{data.provenance.prompt_version}</dd>
-              </div>
-              <div className={styles.kv}>
-                <dt>Tokens</dt>
-                <dd>
-                  {data.provenance.input_tokens}+{data.provenance.output_tokens}
-                </dd>
-              </div>
-            </dl>
-          </Card>
         </aside>
       </div>
     </>
