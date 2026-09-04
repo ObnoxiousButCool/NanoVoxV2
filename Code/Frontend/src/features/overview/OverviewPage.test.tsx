@@ -324,11 +324,13 @@ function renderOverview(
     members = MEMBERS,
     timeValue = TIME_VALUE,
     pulse = PULSE,
+    workMix = WORK_MIX,
   }: {
     resolution?: unknown
     members?: unknown
     timeValue?: unknown
     pulse?: unknown
+    workMix?: unknown
   } = {},
 ) {
   vi.stubGlobal(
@@ -341,7 +343,7 @@ function renderOverview(
       if (url.includes('/dashboard/time-value')) return Promise.resolve(json(timeValue))
       if (url.includes('/dashboard/members-at-risk')) return Promise.resolve(json(members))
       if (url.includes('/dashboard/pulse')) return Promise.resolve(json(pulse))
-      if (url.includes('/dashboard/work-mix')) return Promise.resolve(json(WORK_MIX))
+      if (url.includes('/dashboard/work-mix')) return Promise.resolve(json(workMix))
       return Promise.resolve(json({}))
     }),
   )
@@ -582,6 +584,27 @@ describe('OverviewPage', () => {
 
       expect(await screen.findByText('Member · 28')).toBeInTheDocument()
       expect(screen.getByText('Employer · 15')).toBeInTheDocument()
+    })
+
+    it('opens a population’s calls from its bar', async () => {
+      // The bar says one of the three fares worse; the calls say which ones.
+      renderOverview()
+
+      const link = await screen.findByRole('link', { name: 'Member · 28' })
+      expect(link).toHaveAttribute('href', '/calls?caller=MEMBER')
+    })
+
+    it('leaves a population with no calls unlinked', async () => {
+      // Nothing to open, and a link to an empty list reads as a fault.
+      renderOverview(OVERVIEW, {
+        workMix: {
+          ...WORK_MIX,
+          callers: [{ ...WORK_MIX.callers[0], caller_type: 'BROKER', calls: 0 }],
+        },
+      })
+
+      await screen.findByText('Broker · 0')
+      expect(screen.queryByRole('link', { name: /^Broker/ })).not.toBeInTheDocument()
     })
   })
 

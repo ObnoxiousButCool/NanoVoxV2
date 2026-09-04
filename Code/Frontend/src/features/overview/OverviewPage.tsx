@@ -594,6 +594,12 @@ function TrendCard() {
   )
 }
 
+/** "MEMBER" and 28 calls, as "Member · 28". */
+function callerLabel(caller: { caller_type: string; calls: number }): string {
+  const name = `${caller.caller_type.charAt(0)}${caller.caller_type.slice(1).toLowerCase()}`
+  return `${name} · ${String(caller.calls)}`
+}
+
 function CallerMixCard() {
   const mix = useWorkMix()
 
@@ -606,7 +612,21 @@ function CallerMixCard() {
         {mix.data.callers.map((caller) => (
           <Bar
             key={caller.caller_type}
-            label={`${caller.caller_type.charAt(0)}${caller.caller_type.slice(1).toLowerCase()} · ${String(caller.calls)}`}
+            label={
+              // Straight to that population's calls. The bar says one of the
+              // three fares worse than the others, and the next question is
+              // always which calls — an answer this card does not hold.
+              //
+              // A population with no calls is not a link. There would be
+              // nothing to open, and a link to an empty list reads as a fault.
+              caller.calls === 0 ? (
+                callerLabel(caller)
+              ) : (
+                <Link to={`/calls?caller=${encodeURIComponent(caller.caller_type)}`}>
+                  {callerLabel(caller)}
+                </Link>
+              )
+            }
             segments={[
               {
                 value: caller.resolution_rate,
