@@ -12,7 +12,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAnalyzeTranscript } from '@/shared/api/queries'
 import { ApiError, NetworkError } from '@/shared/api/client'
 import { Alert, Button, Card, Note, PageHeader } from '@/shared/ui/primitives'
-import { countTurns } from './countTurns'
+import { countTurns, transcriptWarning } from './countTurns'
 import { ProviderPicker, type ProviderSelection } from './ProviderPicker'
 import styles from './AnalyzePage.module.css'
 
@@ -44,6 +44,9 @@ export function AnalyzePage() {
   const analyse = useAnalyzeTranscript()
 
   const turns = countTurns(transcript)
+  // Advisory. A transcript can parse into turns and still not read the way it
+  // will be scored — the case this catches costs a provider call to discover.
+  const warning = transcriptWarning(transcript)
   const running = analyse.isPending
   const canSubmit = turns > 0 && !running
 
@@ -103,6 +106,17 @@ export function AnalyzePage() {
               </Button>
             </div>
           </div>
+
+          {warning ? (
+            /* Above the general guidance, because it is about this paste rather
+               than about the format in general. Submission is still allowed:
+               the mid-line test can fire on an ordinary sentence, and refusing
+               a transcript on a heuristic is worse than scoring one badly with
+               the reason on screen. */
+            <Alert tone="medium" title="This will not parse the way it reads">
+              {warning}
+            </Alert>
+          ) : null}
 
           {transcript.length > 0 && turns === 0 ? (
             <Note>

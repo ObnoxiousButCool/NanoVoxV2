@@ -120,3 +120,80 @@ class TestCounting:
     def test_unparseable_text_counts_zero_rather_than_raising(self) -> None:
         # Drives a UI counter on every keystroke; it must never throw.
         assert count_turns("no prefixes here") == 0
+
+
+class TestLabelsInsideALine:
+    """A transcript pasted with its line breaks stripped.
+
+    Copying out of a document or a chat window flattens the newlines, and the
+    line-based rule then finds one prefix and attributes the whole conversation
+    to whoever spoke first. Every corpus transcript recovers identically —
+    turns, roles and text — when flattened this way.
+    """
+
+    def test_a_flattened_conversation_recovers_its_turns(self) -> None:
+        flat = "Agent Sarah: Thank you for calling. Caller: Why do I owe $340? Agent Sarah: Let me check."
+
+        transcript = parse_transcript(flat)
+
+        assert transcript.turn_count == 3
+        assert [turn.role for turn in transcript.turns] == [
+            SpeakerRole.AGENT,
+            SpeakerRole.MEMBER,
+            SpeakerRole.AGENT,
+        ]
+
+    def test_the_full_stop_stays_on_the_turn_it_ended(self) -> None:
+        # The boundary belongs to the sentence that closed, not to the one
+        # opening. A quote validated against "Thank you" must still find it.
+        transcript = parse_transcript("Agent Sarah: Thank you. Caller: Why?")
+
+        assert [turn.text for turn in transcript.turns] == ["Thank you.", "Why?"]
+
+    def test_a_label_recovers_after_a_question_or_a_quote(self) -> None:
+        assert parse_transcript("Agent Sarah: Can I help? Caller: Yes.").turn_count == 2
+        assert parse_transcript('Agent Sarah: She said "call back." Caller: I did.').turn_count == 2
+
+    def test_a_colon_inside_speech_does_not_open_a_turn(self) -> None:
+        # Five of the corpus's 758 turns contain one of these. None of them is
+        # a speaker, and reading one as a speaker would split a sentence in two.
+        for speech in (
+            "And one thing worth knowing: the dentist cannot change it.",
+            "Three things: the date, the code, and the amount.",
+            "Please note: your deductible resets in January.",
+        ):
+            assert parse_transcript(f"Agent Brad: {speech}").turn_count == 1
+
+    def test_a_role_word_mid_sentence_does_not_open_a_turn(self) -> None:
+        # The reason an inline label has to follow a closed sentence.
+        transcript = parse_transcript("Agent Brad: I told the member: it was already paid.")
+
+        assert transcript.turn_count == 1
+        assert transcript.turns[0].role is SpeakerRole.AGENT
+
+    def test_a_time_is_not_a_speaker(self) -> None:
+        assert parse_transcript("Caller: I called at 3:30 and nobody answered.").turn_count == 1
+
+    def test_a_bare_name_is_not_trusted_mid_line(self) -> None:
+        # Deliberate asymmetry. At the start of a line a bare name is a speaker,
+        # because somebody put it there; mid-line it is far more likely to be
+        # prose, and guessing wrong splits a sentence and misattributes it.
+        assert parse_transcript("Brad: Hello there.").turn_count == 1
+        assert parse_transcript("Agent Brad: Hello. Sarah: Hi.").turn_count == 1
+
+
+class TestAWrappedLineIsNotASpeaker:
+    def test_a_continuation_carrying_an_early_colon_joins_the_turn_above(self) -> None:
+        # Line 6 of call_017 in the shipped corpus. Before the label had to look
+        # like a label, this produced a turn spoken by an agent named "new
+        # enrollments effective the 1st".
+        text = (
+            "Agent Sarah: We processed four\n"
+            "new enrollments effective the 1st: two dental only, two dental and vision."
+        )
+
+        transcript = parse_transcript(text)
+
+        assert transcript.turn_count == 1
+        assert transcript.turns[0].speaker_name == "Sarah"
+        assert "new enrollments" in transcript.turns[0].text
