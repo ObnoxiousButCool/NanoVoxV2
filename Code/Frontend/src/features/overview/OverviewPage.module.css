@@ -1,8 +1,11 @@
+/* 14px below, the same as every other card gap. At 22 the queue was the only
+   block on the page keeping its own spacing, which read as a missing heading
+   rather than as emphasis. */
 .queue {
   display: flex;
   flex-direction: column;
   gap: 9px;
-  margin-bottom: 22px;
+  margin-bottom: 14px;
 }
 
 .item {
@@ -94,11 +97,20 @@
   }
 }
 
+/* A tier heading opens a section, so it needs more air above it than the cards
+   within a section leave between themselves — otherwise it reads as a caption
+   belonging to the card it follows. With none at all it sat on that card's
+   bottom border. The space above is deliberately larger than the 14px card gap
+   so the break is visible without a rule being drawn.
+
+   Adjoining margins collapse, so the first eyebrow takes this rather than
+   stacking it on top of the page header's own bottom margin. */
 .eyebrow {
   font: 600 10px/1 var(--font-body);
   letter-spacing: 0.11em;
   text-transform: uppercase;
   color: var(--slate-2);
+  margin-top: 26px;
   margin-bottom: 9px;
 }
 

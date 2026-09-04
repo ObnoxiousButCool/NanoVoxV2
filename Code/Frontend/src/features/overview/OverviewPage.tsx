@@ -625,14 +625,18 @@ function TrendCard() {
           {
             label: 'Resolved first time',
             color: TREND_COLOURS.resolution,
-            values: points.map((point) => point.resolution_rate),
+            // A field the API may omit and a field it may send as null both
+            // mean the same thing — that week has no figure — and the chart
+            // knows one spelling of it. Collapsing the two here keeps a third
+            // way of saying "no value" out of the chart's contract.
+            values: points.map((point) => point.resolution_rate ?? null),
             max: 100,
             format: (value) => `${String(value)}%`,
           },
           {
             label: 'Median score',
             color: TREND_COLOURS.score,
-            values: points.map((point) => point.median_score),
+            values: points.map((point) => point.median_score ?? null),
             max: 100,
             format: (value) => String(value),
           },
@@ -771,7 +775,7 @@ export function OverviewPage() {
     <>
       <PageHeader
         title="Operations dashboard"
-        subtitle={`${String(metrics.total_calls)} analysed calls. Read top to bottom: where we stand, then why, then the detail behind it.`}
+        subtitle={`${String(metrics.total_calls)} analysed calls. Read top to bottom: where we stand, then where it is going wrong, then the detail behind it.`}
       />
 
       {/* --- Where we stand -------------------------------------------------
@@ -790,16 +794,33 @@ export function OverviewPage() {
       </Card>
 
       {/* --- Where it is going wrong ----------------------------------------
-          The three cards under this heading each narrow the same question by a
-          different dimension: which calls went wrong, which callers fare worst,
-          and which hours are weakest. "Why" was accurate while the scatter sat
-          here and argued a cause; what is left locates a problem rather than
-          explaining one, and a one-word label between two phrases read as a
-          fragment rather than as a heading. */}
+          Ordered by what a leader acts on rather than by how the figures are
+          computed. The queue names the problem, the matrix names the members
+          living it, the split says which population and which team it belongs
+          to, and the minutes card says what it costs. Three of these used to
+          sit under "the detail behind it", below the coaching charts — churn
+          risk and wasted hours are not detail, and reading them last meant
+          reading the remedy before the reason for it. */}
       <div className={styles.eyebrow}>Where it is going wrong</div>
 
       <AttentionQueue items={attention} />
 
+      {/* Full width rather than half: the matrix is a column per warning sign
+          the system can observe, and at half width the member column collapses
+          to the point where a name and its identifier no longer fit on a line. */}
+      <div className={styles.solo}>
+        <Card
+          title="Members at risk"
+          subtitle="Warning signs observed, not a prediction — no factor here is validated yet."
+        >
+          <MembersAtRisk />
+        </Card>
+      </div>
+
+      {/* Paired because they answer the same question from opposite ends —
+          which callers are failed, and which team owns the failure. They are
+          also within fifty pixels of each other in height, so neither card
+          leaves a void beside the other. */}
       <div className={styles.grid}>
         <Card
           title="Who calls, and who gets an answer"
@@ -809,12 +830,49 @@ export function OverviewPage() {
         </Card>
 
         <Card
-          title="When the calls come"
-          subtitle="Load by hour, with the weakest staffed hour marked."
+          title="Signals by owner"
+          subtitle="Each call counts once, under the owner of its most serious finding."
         >
-          <HourlyCard />
+          {signals.isPending ? <Loading what="signals" /> : null}
+          {signals.error ? <Failure error={signals.error} what="signal distribution" /> : null}
+          {signals.data ? (
+            <>
+              <BarRows>
+                {signals.data.owners.map((owner) => (
+                  <Bar
+                    key={owner.owner}
+                    label={owner.owner}
+                    segments={[
+                      { value: owner.count, color: OWNER_COLOUR, label: owner.owner },
+                      {
+                        value: Math.max(metrics.total_calls - owner.count, 0),
+                        color: 'transparent',
+                        label: 'Remainder',
+                      },
+                    ]}
+                    value={owner.count === 0 ? '—' : owner.count}
+                  />
+                ))}
+              </BarRows>
+              <Note>
+                {/* Counted from the bars rather than stated, so the sentence cannot
+                    drift from the chart above it as the corpus changes. */}
+                <b>{ownerTotal(signals.data.owners)}</b> of {metrics.total_calls} calls raise at
+                least one signal; the rest raise none. A call raising findings for two teams is
+                counted for the team owning the more serious one, so no call appears twice.
+                Owners with no signals are shown so the absence is visible rather than implied.
+              </Note>
+            </>
+          ) : null}
         </Card>
       </div>
+
+      <Card
+        title="Productive and unproductive minutes"
+        subtitle="Counted in minutes, not calls — the hours a resolution cost, and the hours that bought none."
+      >
+        <TimeValueCard />
+      </Card>
 
       {/* --- The detail behind it -------------------------------------------
           Kept in full and demoted. Nothing here is wrong; it is simply the
@@ -870,7 +928,30 @@ export function OverviewPage() {
         />
       </MetricStrip>
 
-      <div className={styles.grid} style={{ marginTop: 22 }}>
+      {/* The two tallest cards on the page share a row, and the two shortest
+          share the next one. Paired by subject alone, a 198px histogram sat
+          beside a 461px agent list and left a quarter of its card empty. */}
+      <div className={styles.grid}>
+        <Card
+          title="Resolution by agent"
+          subtitle="Proportional, so volume does not distort the picture."
+        >
+          {agents.isPending ? <Loading what="agents" /> : null}
+          {agents.error ? <Failure error={agents.error} what="agent performance" /> : null}
+          {agents.data ? <ResolutionByAgent agents={agents.data} /> : null}
+        </Card>
+
+        <Card
+          title="How long an answer takes"
+          subtitle="Resolved calls only — the quickest way to end a call is to solve nothing."
+        >
+          <ResolutionTimeCard />
+        </Card>
+      </div>
+
+      {/* The hourly chart is third and so takes the full row. It is the one
+          chart here that gains from the width: a rota is read hour by hour. */}
+      <div className={styles.grid}>
         <Card
           title="Agent score distribution"
           subtitle="Reporting one average would hide the low cluster."
@@ -897,36 +978,6 @@ export function OverviewPage() {
             {histogram.below_threshold_count === 1 ? '' : 's'} fall below the coaching threshold.
             Coach that cluster; the rest needs no intervention.
           </Note>
-        </Card>
-
-        <Card
-          title="Resolution by agent"
-          subtitle="Proportional, so volume does not distort the picture."
-        >
-          {agents.isPending ? <Loading what="agents" /> : null}
-          {agents.error ? <Failure error={agents.error} what="agent performance" /> : null}
-          {agents.data ? <ResolutionByAgent agents={agents.data} /> : null}
-        </Card>
-      </div>
-
-      {/* Full width rather than half: the matrix is a column per warning sign
-          the system can observe, and at half width the member column collapses
-          to the point where a name and its identifier no longer fit on a line. */}
-      <div className={styles.solo}>
-        <Card
-          title="Members at risk"
-          subtitle="Warning signs observed, not a prediction — no factor here is validated yet."
-        >
-          <MembersAtRisk />
-        </Card>
-      </div>
-
-      <div className={styles.grid}>
-        <Card
-          title="How long an answer takes"
-          subtitle="Resolved calls only — the quickest way to end a call is to solve nothing."
-        >
-          <ResolutionTimeCard />
         </Card>
 
         <Card
@@ -962,49 +1013,13 @@ export function OverviewPage() {
         </Card>
 
         <Card
-          title="Signals by owner"
-          subtitle="Each call counts once, under the owner of its most serious finding."
+          title="When the calls come"
+          subtitle="Load by hour, with the weakest staffed hour marked."
         >
-          {signals.isPending ? <Loading what="signals" /> : null}
-          {signals.error ? <Failure error={signals.error} what="signal distribution" /> : null}
-          {signals.data ? (
-            <>
-              <BarRows>
-                {signals.data.owners.map((owner) => (
-                  <Bar
-                    key={owner.owner}
-                    label={owner.owner}
-                    segments={[
-                      { value: owner.count, color: OWNER_COLOUR, label: owner.owner },
-                      {
-                        value: Math.max(metrics.total_calls - owner.count, 0),
-                        color: 'transparent',
-                        label: 'Remainder',
-                      },
-                    ]}
-                    value={owner.count === 0 ? '—' : owner.count}
-                  />
-                ))}
-              </BarRows>
-              <Note>
-                {/* Counted from the bars rather than stated, so the sentence cannot
-                    drift from the chart above it as the corpus changes. */}
-                <b>{ownerTotal(signals.data.owners)}</b> of {metrics.total_calls} calls raise at
-                least one signal; the rest raise none. A call raising findings for two teams is
-                counted for the team owning the more serious one, so no call appears twice.
-                Owners with no signals are shown so the absence is visible rather than implied.
-              </Note>
-            </>
-          ) : null}
+          <HourlyCard />
         </Card>
       </div>
 
-      <Card
-        title="Productive and unproductive minutes"
-        subtitle="Counted in minutes, not calls — the hours a resolution cost, and the hours that bought none."
-      >
-        <TimeValueCard />
-      </Card>
     </>
   )
 }

@@ -120,6 +120,10 @@
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   gap: 12px;
+  /* The same gap a card leaves under itself. Without it the strip's lower
+     border sat flush against the top border of the card beneath, reading as
+     one box divided rather than as two things. */
+  margin-bottom: 14px;
 }
 
 @media (max-width: 1080px) {
@@ -251,6 +255,14 @@
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--slate-2);
+}
+
+/* Every value column the same width, whatever its heading is called.
+   Sized by content, "Resolved first time" claimed 537px and "Median score"
+   399px, so two figures meant to be read against each other sat 140px apart
+   with the wider one stranded mid-card. The label column takes the surplus. */
+.dataTable thead th:not(:first-child) {
+  width: 150px;
 }
 
 .dataTable tbody th,

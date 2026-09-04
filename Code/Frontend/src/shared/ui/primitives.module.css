@@ -1,9 +1,13 @@
 /* Primitives lifted from the prototype's stylesheet. */
 
+/* A column so that a card stretched by a taller neighbour can decide where its
+   own surplus height goes, rather than piling all of it under the last line. */
 .card {
   background: var(--panel);
   border: 1px solid var(--rule);
   border-radius: var(--r);
+  display: flex;
+  flex-direction: column;
 }
 
 .cardHeader {
@@ -28,6 +32,19 @@
 
 .pad {
   padding: 16px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* A card's closing note sits on the card's floor, not immediately under the
+   chart. Where a neighbour has made the card taller than its own content, the
+   surplus opens between the chart and the note instead of below both, so the
+   two cards in a row end on the same line and neither looks unfinished.
+   No effect on a card tall enough for its content: there is no surplus. */
+.pad > .note:last-child {
+  margin-top: auto;
+  padding-top: 9px;
 }
 
 .pageHeader {
