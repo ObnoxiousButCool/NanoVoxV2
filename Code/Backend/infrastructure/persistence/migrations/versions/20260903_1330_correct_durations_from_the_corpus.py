@@ -6,7 +6,7 @@ ignored it, so 86 of the 100 stored calls carried an estimate rather than the
 stated duration, and the dashboard's minute figures were built on it.
 
 This corrects the stored values by re-reading the corpus. No model is called and
-nothing is re-analysed: the number was in the source all along.
+nothing is re-analyzed: the number was in the source all along.
 
 Only calls created by a corpus run are touched. A pasted transcript carries no
 header, so its estimate is the best figure available and must not be cleared.

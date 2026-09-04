@@ -48,7 +48,7 @@ export const NAVIGATION: readonly NavigationItem[] = [
     to: '/calls',
     label: 'Calls',
     glyph: '☰',
-    description: 'Every analysed call, most urgent first',
+    description: 'Every analyzed call, most urgent first',
   },
   {
     to: '/brokers',

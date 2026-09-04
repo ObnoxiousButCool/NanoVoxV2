@@ -1,4 +1,4 @@
-"""Persistence port for analysed calls."""
+"""Persistence port for analyzed calls."""
 
 from __future__ import annotations
 

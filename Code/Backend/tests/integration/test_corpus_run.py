@@ -177,12 +177,12 @@ def harness(engine: AsyncEngine, taxonomy: Taxonomy, corpus_dir: Path) -> Harnes
 
 
 class TestAFullRun:
-    async def test_every_corpus_call_is_analysed_and_stored(self, harness: Harness) -> None:
+    async def test_every_corpus_call_is_analyzed_and_stored(self, harness: Harness) -> None:
         run = await harness.run_all()
 
         assert run.status is RunStatus.COMPLETED
         assert run.progress.completed == CORPUS_SIZE
-        assert len(run.analysed_call_ids) == CORPUS_SIZE
+        assert len(run.analyzed_call_ids) == CORPUS_SIZE
 
     async def test_each_item_links_to_the_call_it_produced(self, harness: Harness) -> None:
         # "Item 89 failed" is only actionable if it names the call.
@@ -207,7 +207,7 @@ class TestAFullRun:
     async def test_the_run_reports_what_it_did(self, harness: Harness) -> None:
         run = await harness.run_all()
 
-        assert run.message == f"{CORPUS_SIZE} analysed."
+        assert run.message == f"{CORPUS_SIZE} analyzed."
 
     async def test_progress_reaches_a_hundred_percent(self, harness: Harness) -> None:
         run = await harness.run_all()
@@ -255,14 +255,14 @@ class TestGroundTruth:
 
 
 class TestIdempotency:
-    async def test_a_second_run_skips_what_is_already_analysed(self, harness: Harness) -> None:
+    async def test_a_second_run_skips_what_is_already_analyzed(self, harness: Harness) -> None:
         await harness.run_all()
 
         second = await harness.run_all()
 
         assert second.progress.skipped == CORPUS_SIZE
         assert second.progress.completed == 0
-        assert "Already analysed" in second.items[0].message
+        assert "Already analyzed" in second.items[0].message
 
     async def test_a_skip_leaves_exactly_one_stored_call(self, harness: Harness) -> None:
         # Two rows for one call would double every dashboard figure.
@@ -308,7 +308,7 @@ class TestIdempotency:
 
 class TestFailureIsolation:
     async def test_one_failed_call_does_not_stop_the_others(self, harness: Harness) -> None:
-        # Ninety-nine analysed calls are worth having.
+        # Ninety-nine analyzed calls are worth having.
         provider = _FailsOnce()
 
         run = await harness.run_all(provider=provider)
@@ -386,7 +386,7 @@ class TestResume:
 
     async def test_resuming_retries_failures_but_not_skips(self, harness: Harness) -> None:
         # Skipping was a decision about the call; failing was an accident.
-        await harness.run_all()  # everything now analysed
+        await harness.run_all()  # everything now analyzed
         second = await harness.run_all(provider=_AlwaysFails())  # all skipped
 
         with pytest.raises(ConflictError, match="nothing left to do"):

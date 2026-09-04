@@ -28,7 +28,7 @@ const ATTENTION = [
     rule_id: 'operational_failure_volume',
     title: 'Process Breakdown is affecting 4 calls',
     subject: 'Process Breakdown',
-    why: '4 of 12 analysed calls raise a Process Breakdown finding.',
+    why: '4 of 12 analyzed calls raise a Process Breakdown finding.',
     owner: 'Operations',
     severity: 'HIGH',
     count: 4,

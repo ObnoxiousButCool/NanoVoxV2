@@ -23,6 +23,7 @@ from application.use_cases.get_dashboard import (
     GetOverview,
     GetSignalDistribution,
 )
+from domain.aggregation.attention import RuleKind
 from domain.attribution_notes import quote_not_found_note
 from domain.scoring.rubric import Rubric
 from domain.taxonomy import Taxonomy
@@ -208,22 +209,28 @@ class TestAttentionQueue:
         ranks = [item.rank_key for item in items]
         assert ranks == sorted(ranks, reverse=True)
 
-    async def test_a_broker_below_the_threshold_stays_off_the_queue(
-        self, overview: GetOverview
-    ) -> None:
-        # Trent has 3 negatives and reaches it; Nunez has 0 and does not.
+    async def test_broker_conduct_stays_off_the_queue(self, overview: GetOverview) -> None:
+        # Trent has 3 negatives — enough to have reached the queue while a broker
+        # rule was configured. He is kept off it because the brokers screen
+        # already reports him, net rather than cumulative and with the sentence
+        # behind every signal. Two screens reporting one finding is how the two
+        # come to disagree.
         items = (await overview.execute()).attention
 
-        brokers = [item.subject for item in items if item.rule_id == "broker_conduct_pattern"]
-        assert brokers == ["Marcus Trent"]
+        assert [item for item in items if item.kind is RuleKind.BROKER_NEGATIVE] == []
+        assert all("Trent" not in item.subject for item in items)
 
     async def test_narratives_are_filled_from_counts_not_written_by_a_model(
         self, overview: GetOverview
     ) -> None:
+        # The claim in an item's prose is the number that was counted, not a
+        # sentence a model wrote about it.
         items = (await overview.execute()).attention
 
-        trent = next(item for item in items if item.subject == "Marcus Trent")
-        assert "Marcus Trent in 3 calls" in trent.why
+        breakdown = next(
+            item for item in items if item.kind is RuleKind.L4_CATEGORY_VOLUME
+        )
+        assert f"{breakdown.count} of" in breakdown.why
 
     async def test_every_item_names_an_owner(self, overview: GetOverview) -> None:
         # An item nobody owns will not get done.

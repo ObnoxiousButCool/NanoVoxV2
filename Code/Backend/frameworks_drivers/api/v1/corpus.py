@@ -177,14 +177,14 @@ def _status_response(status_: CorpusStatus) -> CorpusStatusResponse:
 @router.get(
     "/corpus",
     response_model=CorpusStatusResponse,
-    summary="How large the corpus is, and how much of it is analysed",
+    summary="How large the corpus is, and how much of it is analyzed",
 )
 async def corpus_status(use_case: CorpusStatusDep) -> CorpusStatusResponse:
     return _status_response(await use_case.execute())
 
 
 class ClearedCorpusResponse(BaseModel):
-    calls: int = Field(description="Analysed calls removed.")
+    calls: int = Field(description="Analyzed calls removed.")
     runs: int = Field(description="Corpus run records removed, with their items.")
     ground_truth_kept: bool = Field(
         default=True,
@@ -198,10 +198,10 @@ class ClearedCorpusResponse(BaseModel):
 @router.delete(
     "/corpus/analyses",
     response_model=ClearedCorpusResponse,
-    summary="Discard every analysed call, keeping ground truth",
+    summary="Discard every analyzed call, keeping ground truth",
 )
 async def clear_corpus(use_case: ClearCorpusDep) -> ClearedCorpusResponse:
-    """Empty the corpus so it can be re-analysed from nothing.
+    """Empty the corpus so it can be re-analyzed from nothing.
 
     Refused with a 409 while a run is working: the worker would be writing to
     rows this is deleting.

@@ -870,7 +870,7 @@
       "ClearedCorpusResponse": {
         "properties": {
           "calls": {
-            "description": "Analysed calls removed.",
+            "description": "Analyzed calls removed.",
             "title": "Calls",
             "type": "integer"
           },
@@ -3140,7 +3140,7 @@
             "description": "Validation Error"
           }
         },
-        "summary": "List analysed calls",
+        "summary": "List analyzed calls",
         "tags": [
           "calls"
         ]
@@ -3203,7 +3203,7 @@
             "description": "Successful Response"
           }
         },
-        "summary": "How large the corpus is, and how much of it is analysed",
+        "summary": "How large the corpus is, and how much of it is analyzed",
         "tags": [
           "corpus"
         ]
@@ -3211,7 +3211,7 @@
     },
     "/api/v1/corpus/analyses": {
       "delete": {
-        "description": "Empty the corpus so it can be re-analysed from nothing.\n\nRefused with a 409 while a run is working: the worker would be writing to\nrows this is deleting.",
+        "description": "Empty the corpus so it can be re-analyzed from nothing.\n\nRefused with a 409 while a run is working: the worker would be writing to\nrows this is deleting.",
         "operationId": "clear_corpus_api_v1_corpus_analyses_delete",
         "responses": {
           "200": {
@@ -3225,7 +3225,7 @@
             "description": "Successful Response"
           }
         },
-        "summary": "Discard every analysed call, keeping ground truth",
+        "summary": "Discard every analyzed call, keeping ground truth",
         "tags": [
           "corpus"
         ]

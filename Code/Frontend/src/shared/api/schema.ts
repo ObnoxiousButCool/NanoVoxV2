@@ -28,7 +28,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** List analysed calls */
+        /** List analyzed calls */
         get: operations["list_calls_api_v1_calls_get"];
         put?: never;
         post?: never;
@@ -62,7 +62,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** How large the corpus is, and how much of it is analysed */
+        /** How large the corpus is, and how much of it is analyzed */
         get: operations["corpus_status_api_v1_corpus_get"];
         put?: never;
         post?: never;
@@ -83,8 +83,8 @@ export interface paths {
         put?: never;
         post?: never;
         /**
-         * Discard every analysed call, keeping ground truth
-         * @description Empty the corpus so it can be re-analysed from nothing.
+         * Discard every analyzed call, keeping ground truth
+         * @description Empty the corpus so it can be re-analyzed from nothing.
          *
          *     Refused with a 409 while a run is working: the worker would be writing to
          *     rows this is deleting.
@@ -730,7 +730,7 @@ export interface components {
         ClearedCorpusResponse: {
             /**
              * Calls
-             * @description Analysed calls removed.
+             * @description Analyzed calls removed.
              */
             calls: number;
             /**

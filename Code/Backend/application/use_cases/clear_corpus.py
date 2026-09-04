@@ -31,7 +31,7 @@ class ClearedCorpus:
 
 
 class ClearCorpus:
-    """Empties the analysed corpus, leaving ground truth in place."""
+    """Empties the analyzed corpus, leaving ground truth in place."""
 
     def __init__(self, analyses: AnalysisRepository, runs: RunRepository) -> None:
         self._analyses = analyses

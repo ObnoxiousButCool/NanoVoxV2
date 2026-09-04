@@ -108,7 +108,7 @@ export function BrokersPage() {
       {data && data.length === 0 ? (
         <Card>
           <Empty title="No broker signals recorded">
-            No member has named a broker in an analysed call. Shown as an empty result rather than
+            No member has named a broker in an analyzed call. Shown as an empty result rather than
             omitted, so the absence is visible.
           </Empty>
         </Card>

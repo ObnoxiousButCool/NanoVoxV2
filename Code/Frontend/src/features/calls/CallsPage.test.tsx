@@ -237,7 +237,7 @@ describe('CallsPage', () => {
     renderCalls()
 
     await screen.findByText('No calls match')
-    expect(screen.getByText('Nothing has been analysed yet.')).toBeInTheDocument()
+    expect(screen.getByText('Nothing has been analyzed yet.')).toBeInTheDocument()
 
     await userEvent.click(screen.getByRole('button', { name: 'Unresolved only' }))
     expect(await screen.findByText('Clear a filter to widen the search.')).toBeInTheDocument()

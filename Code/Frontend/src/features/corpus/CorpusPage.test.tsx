@@ -91,7 +91,7 @@ function run(overrides: Record<string, unknown> = {}) {
         title: 'Out-of-pocket maximum',
         status: 'SKIPPED',
         call_id: null,
-        message: 'Already analysed. Re-run with force to replace it.',
+        message: 'Already analyzed. Re-run with force to replace it.',
         started_at: null,
         finished_at: null,
         duration_ms: null,
@@ -312,11 +312,11 @@ describe('the cost guard', () => {
 
 describe('a run in progress', () => {
   it('shows progress with each outcome counted separately', async () => {
-    // "40 done" would hide whether they were analysed or skipped.
+    // "40 done" would hide whether they were analyzed or skipped.
     const working = run({ progress: progress({ completed: 30, skipped: 8, failed: 2 }) })
     setup({ run: working, runs: [working] })
 
-    expect(await screen.findByText(/30 analysed/)).toBeInTheDocument()
+    expect(await screen.findByText(/30 analyzed/)).toBeInTheDocument()
     expect(screen.getByText(/8 skipped/)).toBeInTheDocument()
     expect(screen.getByText(/2 failed/)).toBeInTheDocument()
   })
@@ -328,7 +328,7 @@ describe('a run in progress', () => {
     expect(bar).toHaveAttribute('aria-valuenow', '40')
   })
 
-  it('names the call being analysed and warns it is slow', async () => {
+  it('names the call being analyzed and warns it is slow', async () => {
     setup()
 
     expect(await screen.findByText(/Analysing C0003/)).toBeInTheDocument()
@@ -346,7 +346,7 @@ describe('a run in progress', () => {
     setup()
 
     await screen.findByText('C0002')
-    expect(screen.getByText(/Already analysed/)).toBeInTheDocument()
+    expect(screen.getByText(/Already analyzed/)).toBeInTheDocument()
     expect(screen.queryByRole('link', { name: 'C0002' })).not.toBeInTheDocument()
   })
 
@@ -443,10 +443,10 @@ describe('run history', () => {
     })
 
     // The history row names the model, which is the provenance question a
-    // reader of a hundred analysed calls actually asks.
+    // reader of a hundred analyzed calls actually asks.
     const row = await screen.findByRole('button', { name: /Run 3/ })
     expect(row).toHaveTextContent('ollama · qwen2.5:7b-instruct')
-    expect(row).toHaveTextContent('100/100 analysed')
+    expect(row).toHaveTextContent('100/100 analyzed')
   })
 
   it('says so when nothing has ever been run', async () => {
@@ -488,7 +488,7 @@ describe('run history', () => {
 
       await userEvent.click(await screen.findByRole('button', { name: 'Clear analyses' }))
 
-      expect(screen.getByText(/This deletes every analysed call/)).toBeInTheDocument()
+      expect(screen.getByText(/This deletes every analyzed call/)).toBeInTheDocument()
       expect(screen.getByText(/Ground truth is kept/)).toBeInTheDocument()
     })
 

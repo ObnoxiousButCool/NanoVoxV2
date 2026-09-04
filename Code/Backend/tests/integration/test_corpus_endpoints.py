@@ -188,7 +188,7 @@ def released_once_watching(app: FastAPI) -> Iterator[None]:
 
 
 class TestCorpusStatus:
-    def test_it_reports_the_corpus_before_anything_is_analysed(self, client: TestClient) -> None:
+    def test_it_reports_the_corpus_before_anything_is_analyzed(self, client: TestClient) -> None:
         body = client.get(CORPUS).json()
 
         assert body["total_calls"] == CORPUS_SIZE
@@ -218,7 +218,7 @@ class TestStartingARun:
         assert body["progress"]["completed"] == CORPUS_SIZE
         assert body["progress"]["percent_complete"] == 100.0
 
-    def test_the_analysed_calls_reach_the_dashboard(self, client: TestClient) -> None:
+    def test_the_analyzed_calls_reach_the_dashboard(self, client: TestClient) -> None:
         # The point of the run: the corpus becomes the dashboard's data.
         wait_for_finish(client, start(client)["id"])
 
@@ -284,14 +284,14 @@ class TestCostGuard:
 
 
 class TestIdempotencyOverHttp:
-    def test_a_second_run_skips_what_is_already_analysed(self, client: TestClient) -> None:
+    def test_a_second_run_skips_what_is_already_analyzed(self, client: TestClient) -> None:
         wait_for_finish(client, start(client)["id"])
 
         second = wait_for_finish(client, start(client)["id"])
 
         assert second["progress"]["skipped"] == CORPUS_SIZE
         assert second["progress"]["completed"] == 0
-        assert "Already analysed" in second["items"][0]["message"]
+        assert "Already analyzed" in second["items"][0]["message"]
 
     def test_forcing_re_analyses_every_call(self, client: TestClient) -> None:
         wait_for_finish(client, start(client)["id"])
@@ -352,7 +352,7 @@ class TestCancelAndResume:
 
 
 class TestClearingTheCorpus:
-    def test_it_removes_every_analysed_call_and_run(self, client: TestClient) -> None:
+    def test_it_removes_every_analyzed_call_and_run(self, client: TestClient) -> None:
         run_id = start(client)["id"]
         wait_for_finish(client, run_id)
         assert client.get(CORPUS).json()["analysed_calls"] == CORPUS_SIZE

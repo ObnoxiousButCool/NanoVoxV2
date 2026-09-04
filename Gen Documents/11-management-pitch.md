@@ -206,7 +206,7 @@ Being precise here is what buys you credibility for everything above.
 |---|---|
 | Transcript → classified, scored, evidence-backed record | **Built and running** |
 | Deterministic scoring from a rubric file | **Built** |
-| Operational dashboards over analysed conversations | **Built** |
+| Operational dashboards over analyzed conversations | **Built** |
 | Four AI vendor adapters, switchable at run time | **Built** |
 | Live transcription and in-call assistance | **Designed and costed, not built** |
 | Email and chat channels | **Designed, not built** |

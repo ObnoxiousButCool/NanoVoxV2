@@ -80,18 +80,28 @@ attention_rules:
     severity: HIGH
     owner: Operations
     why: >-
-      {count} of {total} analysed calls raise a {subject} finding. A pattern at
+      {count} of {total} analyzed calls raise a {subject} finding. A pattern at
       this volume is a process problem rather than a run of individual mistakes.
 
-  - id: broker_conduct_pattern
-    kind: broker_negative
-    title: "{subject} — {count} member-reported conduct issues"
-    minimum: 3
-    severity: HIGH
-    owner: Broker Relations
-    why: >-
-      Members named {subject} in {count} calls, each time reporting a failure.
-      Every signal links to the sentence that produced it.
+  # No broker rule here, deliberately. Broker conduct has a screen of its own,
+  # which reports it better than a queue item can: every named broker, net
+  # rather than cumulative, with the discarded attributions shown and each
+  # signal linking to the sentence that produced it. A rule here would report
+  # the same finding a second time and in less detail, and two places saying
+  # the same thing is how the two come to disagree.
+  #
+  # The `broker_negative` kind is still supported — restoring the rule is this
+  # block, not a code change:
+  #
+  #   - id: broker_conduct_pattern
+  #     kind: broker_negative
+  #     title: "{subject} — {count} member-reported conduct issues"
+  #     minimum: 3
+  #     severity: HIGH
+  #     owner: Broker Relations
+  #     why: >-
+  #       Members named {subject} in {count} calls, each time reporting a
+  #       failure. Every signal links to the sentence that produced it.
 
   - id: unresolved_concentration
     kind: unresolved_in_category

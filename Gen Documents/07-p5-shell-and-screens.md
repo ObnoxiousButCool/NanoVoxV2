@@ -70,7 +70,7 @@ Guarded by `tests/audit/test_migrations_preserve_data.py`, which seeds a call
 *with children* at the first revision, migrates to head, and asserts every child
 table survives. It fails on the old code.
 
-The two dev calls were unrecoverable and were removed; one was re-analysed to
+The two dev calls were unrecoverable and were removed; one was re-analyzed to
 give the UI real data.
 
 **2. The collapse silently did nothing.** The DOM said collapsed, the preference
@@ -119,7 +119,7 @@ extract the backend's parser tests use. If they disagreed, the box would say
 | # | Decision | Reasoning |
 |---|---|---|
 | P5-1 | The rail lists only screens that exist | Overview, Calls and Brokers arrive in P6; a nav entry to an empty page is a worse lie than a short rail |
-| P5-2 | Unknown routes land on Analyze | Nothing has been analysed on a fresh install, so a dashboard would be an empty room |
+| P5-2 | Unknown routes land on Analyze | Nothing has been analyzed on a fresh install, so a dashboard would be an empty room |
 | P5-3 | A withheld score shows its number and reason | A reviewer needs to know how bad a call looks while it waits for sign-off |
 | P5-4 | An unavailable layer is drawn differently from an empty one | "Nothing fired" is a finding; "L5 unavailable" is a fault |
 | P5-5 | Unusable providers are listed with the reason | A choice that silently vanished tells the user nothing |
@@ -130,7 +130,7 @@ extract the backend's parser tests use. If they disagreed, the box would say
 - **No Calls list yet.** Call detail is reachable from a completed analysis or by
   URL. The list is P6, and without it there is no way back to an earlier call
   from the UI.
-- **Model quality, unchanged.** The re-analysed Call #89 again scored 74 AVERAGE,
+- **Model quality, unchanged.** The re-analyzed Call #89 again scored 74 AVERAGE,
   classified the call as Provider Network, and marked it RESOLVED. The UI is
   faithfully displaying what P3 §5 documented. It is now visible on a screen a
   stakeholder would look at.

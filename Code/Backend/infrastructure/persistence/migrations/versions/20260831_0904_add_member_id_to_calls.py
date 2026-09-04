@@ -3,7 +3,7 @@
 Adds the column and fills it in for calls already stored.
 
 The backfill reads the transcripts already in ``turns``. No model is called and
-nothing is re-analysed: a member identifier is a fixed pattern in words the call
+nothing is re-analyzed: a member identifier is a fixed pattern in words the call
 already contains, so recovering it is a read of data that was parsed and stored
 months ago but never kept in a column of its own.
 

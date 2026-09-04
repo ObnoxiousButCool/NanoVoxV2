@@ -334,7 +334,7 @@ class TestDirectory:
             MarkdownCorpusSource(tmp_path, "call_*.md").load()
 
     def test_two_files_claiming_one_call_number_are_refused(self, tmp_path: Path) -> None:
-        # Otherwise one of them is silently never analysed.
+        # Otherwise one of them is silently never analyzed.
         body = "## Transcript\n\nAgent: Hello.\n"
         write(tmp_path, "call_007.md", f"# Call #7 — First\n\n{body}")
         write(tmp_path, "call_007b.md", f"# Call #7 — Second\n\n{body}")

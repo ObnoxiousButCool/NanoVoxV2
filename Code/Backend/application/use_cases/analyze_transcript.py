@@ -264,7 +264,7 @@ class AnalyzeTranscript:
             member_context=member_context,
             # Read on the write path, not only in the migration that added the
             # column. Backfilling existing rows was half the job: every call
-            # analysed afterwards stored nothing, so a rebuilt database — which
+            # analyzed afterwards stored nothing, so a rebuilt database — which
             # is every row here — came back with the name blank on all of them.
             member_name=find_member_name(member_context),
             duration_minutes=(

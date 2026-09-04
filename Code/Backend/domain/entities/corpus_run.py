@@ -5,7 +5,7 @@ lives in these rows, so a browser refresh reattaches to a live run and a crashed
 process leaves something a later one can pick up (plan §7.4). Holding progress
 only in the worker's memory would make both impossible.
 
-Each item names the call it came from and, once analysed, the call it produced.
+Each item names the call it came from and, once analyzed, the call it produced.
 That link is what lets a reader go from "item 89 failed" to the transcript that
 failed, without matching on text.
 """
@@ -62,7 +62,7 @@ class CorpusRun:
         return summarise(item.status for item in self.items)
 
     @property
-    def analysed_call_ids(self) -> tuple[int, ...]:
+    def analyzed_call_ids(self) -> tuple[int, ...]:
         return tuple(item.call_id for item in self.items if item.call_id is not None)
 
     @property

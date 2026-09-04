@@ -175,7 +175,7 @@ export function useRun(runId: number | null) {
 /**
  * Everything a run changes, refreshed together.
  *
- * A run rewrites the calls it analysed, so every dashboard figure counted from
+ * A run rewrites the calls it analyzed, so every dashboard figure counted from
  * them is stale the moment it finishes. Invalidating only the run would leave
  * the Overview showing the numbers from before.
  */
@@ -206,7 +206,7 @@ export function useResumeRun() {
 }
 
 /**
- * Discard every analysed call.
+ * Discard every analyzed call.
  *
  * Invalidates the same keys a finished run does, and for the same reason: the
  * calls are gone, so every dashboard figure counted from them is now wrong.

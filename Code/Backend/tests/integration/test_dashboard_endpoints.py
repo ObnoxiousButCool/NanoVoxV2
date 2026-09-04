@@ -226,7 +226,7 @@ class TestTaxonomyEndpoint:
 
 
 class TestEmptyDatabase:
-    def test_the_dashboard_renders_before_any_call_is_analysed(self, client: TestClient) -> None:
+    def test_the_dashboard_renders_before_any_call_is_analyzed(self, client: TestClient) -> None:
         # A fresh install must not crash or show misleading zeros-as-percentages.
         body = client.get("/api/v1/dashboard/overview").json()
 

@@ -59,7 +59,7 @@ const OVERVIEW = {
       rule_id: 'operational_failure_volume',
       title: 'Process Breakdown is affecting 4 calls',
       subject: 'Process Breakdown',
-      why: '4 of 12 analysed calls raise a Process Breakdown finding.',
+      why: '4 of 12 analyzed calls raise a Process Breakdown finding.',
       owner: 'Operations',
       severity: 'HIGH',
       count: 4,
@@ -457,7 +457,7 @@ describe('OverviewPage', () => {
   it('points a fresh install at Analyze instead of showing empty charts', async () => {
     renderOverview({ ...OVERVIEW, metrics: { ...OVERVIEW.metrics, total_calls: 0 } })
 
-    expect(await screen.findByText('No calls analysed yet')).toBeInTheDocument()
+    expect(await screen.findByText('No calls analyzed yet')).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Analyze a call' })).toBeInTheDocument()
   })
 
@@ -557,7 +557,7 @@ describe('OverviewPage', () => {
       // not one: the shipped corpus contains no escalated call at all.
       renderOverview({ ...OVERVIEW, metrics: { ...OVERVIEW.metrics, escalation_rate: 0 } })
 
-      expect(await screen.findByText('No analysed call was escalated')).toBeInTheDocument()
+      expect(await screen.findByText('No analyzed call was escalated')).toBeInTheDocument()
     })
 
     it('keeps the benchmark when calls do escalate', async () => {
@@ -565,7 +565,7 @@ describe('OverviewPage', () => {
 
       // Two metrics carry a benchmark; the escalation one must be among them.
       expect(await screen.findByText(/8–12%/)).toBeInTheDocument()
-      expect(screen.queryByText('No analysed call was escalated')).not.toBeInTheDocument()
+      expect(screen.queryByText('No analyzed call was escalated')).not.toBeInTheDocument()
     })
   })
 

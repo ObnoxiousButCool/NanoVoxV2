@@ -89,10 +89,10 @@ async def analyse(
 
 
 class TestTheMemberName:
-    """The name has to be read when the call is analysed, not only backfilled.
+    """The name has to be read when the call is analyzed, not only backfilled.
 
     It was added as a migration that filled in the rows already stored, and
-    nothing read it afterwards — so every call analysed since stored nothing,
+    nothing read it afterwards — so every call analyzed since stored nothing,
     and a database rebuilt from the corpus came back with all fifty blank. The
     fix belongs on the write path, and this is the test that keeps it there.
     """

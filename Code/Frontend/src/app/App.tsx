@@ -2,7 +2,7 @@
  * Application shell and routes.
  *
  * Unknown routes land on the Overview, which itself points at Analyze when
- * nothing has been analysed yet — so a fresh install never shows an empty room
+ * nothing has been analyzed yet — so a fresh install never shows an empty room
  * without saying what to do about it.
  */
 

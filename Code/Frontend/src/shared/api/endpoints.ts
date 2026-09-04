@@ -193,7 +193,7 @@ export interface ClearedCorpus {
   readonly ground_truth_kept: boolean
 }
 
-/** Discard every analysed call. Ground truth is kept; the API refuses with 409
+/** Discard every analyzed call. Ground truth is kept; the API refuses with 409
  *  while a run is working. */
 export function clearCorpus(): Promise<ClearedCorpus> {
   return deleteJson<ClearedCorpus>('/corpus/analyses')

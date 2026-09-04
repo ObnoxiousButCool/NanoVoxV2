@@ -12,7 +12,7 @@
 Choice Administrators handles several thousand member calls a month with zero content
 visibility — no scoring, no sentiment signal, no view of whether agents resolve issues.
 This build delivers a working application that turns a pasted call transcript into the
-NanoVox 5-layer output, persists it, and aggregates every analysed call into the
+NanoVox 5-layer output, persists it, and aggregates every analyzed call into the
 operational dashboards leadership needs.
 
 **Definition of done**
@@ -35,7 +35,7 @@ These were settled with the product owner before planning and are binding for Ph
 
 | ID | Decision | Rationale / consequence |
 |----|----------|-------------------------|
-| **DEC-01** | **Corpus is re-analysed through the LLM**, not seeded from the authored panels | Dashboard is 100% model-derived and proves the pipeline end to end. Consequence: computed figures **will differ** from `call_corpus_v3_index.xlsx` and from the prototype's hardcoded numbers. This is expected and must be communicated, not hidden. |
+| **DEC-01** | **Corpus is re-analyzed through the LLM**, not seeded from the authored panels | Dashboard is 100% model-derived and proves the pipeline end to end. Consequence: computed figures **will differ** from `call_corpus_v3_index.xlsx` and from the prototype's hardcoded numbers. This is expected and must be communicated, not hidden. |
 | **DEC-02** | **Taxonomy = the 7 categories in the xlsx**, unchanged | Guarantees continuity with the index Rebekah has already seen. The 10–12 category expansion was raised and deliberately deferred; taxonomy lives in `config/taxonomy.yaml`, so growing it later is a config edit plus a re-classification run, not a code change. |
 | **DEC-03** | **Agent score is computed deterministically from a rubric**; the LLM supplies evidence-anchored markers only | Same transcript + same rubric = same score, every marker traceable to a transcript quote. A bare LLM number is not auditable and drifts between providers. |
 | **DEC-04** | **Paste transcript only.** No audio/ASR, no Outlook email ingestion in Phase 1 | Domain model is channel-agnostic so both are additive later (§12). No dead UI affordances — the prototype's "upload audio" wording is removed. |
@@ -179,7 +179,7 @@ NanoVox-V2/
 
 ### 4.1 Core entities
 
-- **Call** — one member interaction. Holds category, agent, resolution, sentiment arc, duration, computed score, tier, score status, and provenance (provider, model, prompt version, analysed-at).
+- **Call** — one member interaction. Holds category, agent, resolution, sentiment arc, duration, computed score, tier, score status, and provenance (provider, model, prompt version, analyzed-at).
 - **Transcript** → ordered **Turns** (`seq`, `speaker_role` ∈ {AGENT, MEMBER, SYSTEM}, `speaker_name`, `text`). Turn indices are the anchor for every piece of evidence in the system.
 - **Analysis** — the 5-layer output, one row per layer with a validated JSON payload.
 - **ScoreMarker** — polarity (+/−), rubric dimension, weight, description, **and a mandatory `evidence_turn_seq` plus verbatim quote**. A marker without evidence is rejected at validation, not silently accepted.
@@ -251,7 +251,7 @@ tooltip — so nobody has to guess what a number means.
 
 - **6.1 Agent Performance** (mirrors the xlsx sheet): calls, avg/min/max score, tier, unresolved, escalated. Agents below `min_calls_for_tier_rating` are **shown but not tier-rated**, carrying the "below significance threshold" note — the prototype's fairness rule, preserved.
 - **6.2 Broker Scorecard**: signals, negative, positive, call IDs, profile. **Net, not cumulative** — a broker with one error against strong overall performance is a coaching signal, not a conduct signal. Attribution is recorded **only** when the member names the broker aloud or the member ID resolves to a broker of record, and every signal links to the sentence that produced it. Nothing is inferred.
-- **6.3 Overview metrics**: calls analysed; median **and** mean agent score (the distribution is bimodal — reporting one number hides the low cluster); **first-contact resolution** = `RESOLVED / total`, excluding PARTIALLY RESOLVED, stated explicitly in the UI; escalation rate = `ESCALATED / total`; broker-attributed signal count and distinct brokers.
+- **6.3 Overview metrics**: calls analyzed; median **and** mean agent score (the distribution is bimodal — reporting one number hides the low cluster); **first-contact resolution** = `RESOLVED / total`, excluding PARTIALLY RESOLVED, stated explicitly in the UI; escalation rate = `ESCALATED / total`; broker-attributed signal count and distinct brokers.
 - **6.4 Score histogram**: fixed bins from config; bins below the coaching threshold render in the alert colour.
 - **6.5 L4 Signal Distribution**: calls flagged and % of corpus per category. Categories with zero signals are **rendered with an em-dash rather than omitted** — the absence is itself a finding.
 - **6.6 Attention Queue**: deterministic aggregation rules in `config/attention_rules.yaml` (e.g. *"≥ N unresolved calls sharing one L4 category"*, *"≥ N negative signals against one broker"*, *"any CLINICAL_RISK signal"*). Each rule declares severity, owner and an evidence query. The ranked list and every number in it come from SQL. An optional LLM pass writes only the human-readable "why" paragraph **over already-computed evidence**, cached per run and clearly attributed. Book-level claims are never invented by a model.
@@ -302,7 +302,7 @@ emitting per-call `started` / `completed` / `failed` events plus a rolling summa
 `POST /api/v1/corpus/runs/{id}/cancel` requests cooperative cancellation.
 
 Run state is **persisted per item**, so a browser refresh reattaches to a live run and a
-crash leaves a resumable record. Runs are idempotent — already-analysed calls are skipped
+crash leaves a resumable record. Runs are idempotent — already-analyzed calls are skipped
 unless `force` is set. No Celery, no Redis: an in-process runner backed by SQLite is the
 right weight for a single-node POC, and the port boundary means swapping in a real queue
 later touches exactly one adapter.
@@ -423,7 +423,7 @@ appears in a `.py` or `.tsx` file.** A CI grep gate checks the common offenders.
 | **P4 — Read models + dashboard API** | Aggregation queries, attention rules, all `/dashboard/*` and `/calls` endpoints | Integration tests assert every figure against a known fixture DB |
 | **P5 — Frontend shell + Analyze** | Tokens, AppShell, collapsible rail, routing, Analyze screen with provider picker, Call detail | Call #89 detail is visually faithful to the prototype |
 | **P6 — Dashboards** | Overview, Calls, Brokers screens with all charts | All four xlsx views reproduced from live data |
-| **P7 — Corpus run** | Background runner, SSE progress, run UI, cancel/resume, cost warning | 100 calls analysed end to end via Ollama with live progress and a resumable run record |
+| **P7 — Corpus run** | Background runner, SSE progress, run UI, cancel/resume, cost warning | 100 calls analyzed end to end via Ollama with live progress and a resumable run record |
 | **P8 — Hardening** | Fidelity report (§11.2), docs, `scripts/` correction, accessibility and audit pass | §13 checklist fully green |
 
 Phases P1–P4 (backend) and P5–P6 (frontend) overlap once the OpenAPI contract is frozen at
@@ -454,7 +454,7 @@ Because DEC-01 re-analyses everything, output *will* differ from the authored pa
 generated report compares model output against stored ground truth on category accuracy,
 resolution accuracy, score MAE, broker-signal recall and L4 category agreement. This is how
 we answer *"is the model actually good?"* with evidence rather than assertion — and it is
-the honest way to present a re-analysed corpus whose numbers no longer match the xlsx.
+the honest way to present a re-analyzed corpus whose numbers no longer match the xlsx.
 
 ---
 
@@ -499,7 +499,7 @@ the honest way to present a re-analysed corpus whose numbers no longer match the
 | Risk | Impact | Mitigation |
 |---|---|---|
 | Small local models produce weak or malformed 5-layer output | Demo quality | Per-layer schemas, repair retry, fidelity report to choose a model on evidence; the Ollama model is env-configurable |
-| Re-analysed figures differ from the xlsx Rebekah has already seen | Stakeholder confusion | Stated openly (DEC-01); the fidelity report explains the delta; provenance shown per call |
+| Re-analyzed figures differ from the xlsx Rebekah has already seen | Stakeholder confusion | Stated openly (DEC-01); the fidelity report explains the delta; provenance shown per call |
 | Cloud cost on a 100-call run | Budget | Local default, explicit cost warning, per-run token accounting in the audit log |
 | Model hallucinates a broker attribution | Reputational / compliance | Attribution requires a member-spoken name plus a stored evidence quote; unverifiable signals are dropped and logged |
 | Score perceived as arbitrary | Adoption | Deterministic rubric, visible weights, evidence per marker, clinical gate |

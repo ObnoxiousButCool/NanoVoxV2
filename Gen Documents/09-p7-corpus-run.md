@@ -2,7 +2,7 @@
 
 **Status:** complete
 **Date:** 2026-08-28
-**Exit criterion (plan §10):** *100 calls analysed end to end via Ollama with live progress and a resumable run record.*
+**Exit criterion (plan §10):** *100 calls analyzed end to end via Ollama with live progress and a resumable run record.*
 **Met:** the mechanism is built, tested and verified live end to end. The full
 hundred-call run has **not** been executed — see §7.
 
@@ -35,11 +35,11 @@ a restart, so a run still claiming to be `RUNNING` is describing a worker that n
 longer exists.
 
 **Idempotent.** A call that already has an analysis is skipped *with a reason*
-rather than analysed twice. `force` replaces instead, and replacement deletes the
+rather than analyzed twice. `force` replaces instead, and replacement deletes the
 old call first: leaving both would double every figure on the dashboard.
 
 **Failure-isolating.** A call that fails is recorded as failed, with the reason,
-and the run carries on. Ninety-nine analysed calls are worth having. A run where
+and the run carries on. Ninety-nine analyzed calls are worth having. A run where
 *nothing* succeeded is reported as `FAILED`, not `COMPLETED` — a green progress
 bar over zero results would be a lie.
 
@@ -129,18 +129,18 @@ Everything below was observed, not inferred.
 
 - **The parser reads all 100 real corpus files.** Every field populated on every
   call; 22 calls carry a named broker; references `C0001`–`C0100`.
-- **A run analysed a real call end to end** through Ollama and stored it:
+- **A run analyzed a real call end to end** through Ollama and stored it:
   `C0002 — "Out-of-Pocket Maximum — Member Still Getting Bills After Hitting Max"`,
   **347.4 s**.
-- **Skip worked**: `C0001` was already analysed and was skipped with its reason
-  rather than analysed twice.
+- **Skip worked**: `C0001` was already analyzed and was skipped with its reason
+  rather than analyzed twice.
 - **Interruption and resume worked**: the process was killed mid-run; on restart
   the run was marked `INTERRUPTED` with *"The process stopped while this run was
   working"*, `POST /resume` returned it to `PENDING` keeping the skipped item
   finished, and it ran to completion.
 - **The stream stayed alive** through 20 heartbeats and delivered the finish.
 - **The browser updated itself**: the Corpus screen went to `COMPLETED`, `2 of 2`,
-  `1 analysed · 1 skipped`, and the corpus summary refreshed to `0 outstanding`
+  `1 analyzed · 1 skipped`, and the corpus summary refreshed to `0 outstanding`
   without a reload.
 - **The cost warning fires**: selecting `openai` produced the charged-for warning
   and disabled the start button until acknowledged.

@@ -91,7 +91,7 @@ describe('App', () => {
   })
 
   it('lands an unknown route on the Overview', async () => {
-    // Overview itself redirects the eye to Analyze while nothing is analysed,
+    // Overview itself redirects the eye to Analyze while nothing is analyzed,
     // so a fresh install still gets somewhere it can act — see OverviewPage.test.
     renderAt('/somewhere-that-does-not-exist')
 

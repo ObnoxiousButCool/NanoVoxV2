@@ -81,7 +81,7 @@ class ResolutionTime:
     """Time to resolve, overall and per category."""
 
     resolved_calls: int
-    # Every analysed call, so a reader can see what share reached a resolution
+    # Every analyzed call, so a reader can see what share reached a resolution
     # at all rather than assuming the median describes the whole corpus.
     total_calls: int
     median_minutes: float

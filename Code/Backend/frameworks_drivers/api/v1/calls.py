@@ -84,7 +84,7 @@ def _page(page: Page) -> CallsPageResponse:
     )
 
 
-@router.get("/calls", response_model=CallsPageResponse, summary="List analysed calls")
+@router.get("/calls", response_model=CallsPageResponse, summary="List analyzed calls")
 async def list_calls(
     repository: ReadModelsDep,
     category: Annotated[str | None, Query(description="Call category code.")] = None,

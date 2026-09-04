@@ -2,9 +2,9 @@
  * The operations dashboard — the first screen anyone sees.
  *
  * Arranged as three questions in the order a manager asks them: **where we
- * stand**, then **who is affected and what it costs**, then **the detail behind
- * it**. That ordering is the point of the layout. Before it, the screen opened
- * on a scrolling list of member identifiers and put every total below three tall
+ * stand**, then **who is affected**, then **the detail behind it**. That
+ * ordering is the point of the layout. Before it, the screen opened on a
+ * scrolling list of member identifiers and put every total below three tall
  * cards, so the first thing read was the narrowest thing on the page — and
  * nothing anywhere said which way any figure was moving. On this corpus that
  * mattered: resolution reads 54% overall while the weekly series behind it runs
@@ -434,7 +434,7 @@ function MembersAtRisk() {
 
 function ResolutionByAgent({ agents }: { agents: readonly AgentPerformance[] }) {
   if (agents.length === 0) {
-    return <Note>No agents have been named in an analysed call yet.</Note>
+    return <Note>No agents have been named in an analyzed call yet.</Note>
   }
 
   // Ordered by the figure each row actually shows. An agent below the
@@ -715,9 +715,9 @@ export function OverviewPage() {
     return (
       <>
         <PageHeader title="Operations dashboard" />
-        <Card title="No calls analysed yet">
+        <Card title="No calls analyzed yet">
           <Note>
-            Every figure on this screen is counted from analysed calls. Start with{' '}
+            Every figure on this screen is counted from analyzed calls. Start with{' '}
             <Link to="/analyze">Analyze a call</Link>.
           </Note>
         </Card>
@@ -729,7 +729,7 @@ export function OverviewPage() {
     <>
       <PageHeader
         title="Operations dashboard"
-        subtitle={`${String(metrics.total_calls)} analysed calls. Read top to bottom: where we stand, then who is affected, then the detail behind it.`}
+        subtitle={`${String(metrics.total_calls)} analyzed calls. Read top to bottom: where we stand, then who is affected, then the detail behind it.`}
       />
 
       {/* --- Where we stand -------------------------------------------------
@@ -747,7 +747,7 @@ export function OverviewPage() {
         <TrendCard />
       </Card>
 
-      {/* --- Who is affected, and what it costs ------------------------------
+      {/* --- Who is affected -------------------------------------------------
           What used to be "where it is going wrong", minus the queue that named
           the problems — that is its own screen now, at /inferences. What is
           left says who is on the receiving end: the members showing warning
@@ -756,7 +756,7 @@ export function OverviewPage() {
           the figures are computed; three of these sat under "the detail behind
           it" below the coaching charts, and churn risk and wasted hours are
           not detail. */}
-      <div className={styles.eyebrow}>Who is affected, and what it costs</div>
+      <div className={styles.eyebrow}>Who is affected</div>
 
       {/* Full width rather than half: the matrix is a column per warning sign
           the system can observe, and at half width the member column collapses
@@ -832,7 +832,7 @@ export function OverviewPage() {
           second question, and it was being asked first. */}
       <div className={styles.eyebrow}>The detail behind it</div>
       <MetricStrip>
-        <Metric label="Calls analysed" value={metrics.total_calls} sub="From stored analyses" />
+        <Metric label="Calls analyzed" value={metrics.total_calls} sub="From stored analyses" />
         <Metric
           label="Median agent score"
           value={metrics.median_score}
@@ -862,7 +862,7 @@ export function OverviewPage() {
             // not: no call in this corpus was ever marked escalated, and saying
             // so is the difference between a finding and a suspected bug.
             metrics.escalation_rate === 0 ? (
-              <>No analysed call was escalated</>
+              <>No analyzed call was escalated</>
             ) : (
               <>
                 Industry range <b>8–12%</b>

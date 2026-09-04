@@ -1,5 +1,5 @@
 /**
- * Every analysed call, most urgent first.
+ * Every analyzed call, most urgent first.
  *
  * Sorted by severity by default — the prototype's stated rule, "the calls that
  * need action surface first". A withheld score outranks everything, then the
@@ -458,7 +458,7 @@ export function CallsPage() {
           <Empty title="No calls match">
             {narrowed
               ? 'Clear a filter to widen the search.'
-              : 'Nothing has been analysed yet.'}
+              : 'Nothing has been analyzed yet.'}
           </Empty>
         ) : null}
         {data && data.items.length > 0 ? (

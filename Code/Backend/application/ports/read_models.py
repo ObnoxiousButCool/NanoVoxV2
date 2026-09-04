@@ -164,7 +164,7 @@ class KeyCount:
 
 
 class ReadModelRepository(ABC):
-    """Aggregate queries over analysed calls."""
+    """Aggregate queries over analyzed calls."""
 
     @abstractmethod
     async def total_calls(self) -> int: ...
@@ -256,7 +256,7 @@ class ReadModelRepository(ABC):
 
     @abstractmethod
     async def call_facts(self) -> tuple[CallFact, ...]:
-        """Every analysed call, reduced to the dimensions the dashboard slices by."""
+        """Every analyzed call, reduced to the dimensions the dashboard slices by."""
 
     @abstractmethod
     async def distinct_agents(self) -> tuple[str, ...]: ...

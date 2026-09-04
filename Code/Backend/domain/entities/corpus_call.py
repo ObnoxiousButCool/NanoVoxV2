@@ -1,6 +1,6 @@
-"""One authored call from the corpus, before anything has been analysed.
+"""One authored call from the corpus, before anything has been analyzed.
 
-The corpus is the input side of DEC-01: every call is re-analysed by the model
+The corpus is the input side of DEC-01: every call is re-analyzed by the model
 rather than trusted from the spreadsheet. This entity therefore carries the raw
 transcript the model will see, and — kept strictly apart — the authored panel it
 will later be measured against.

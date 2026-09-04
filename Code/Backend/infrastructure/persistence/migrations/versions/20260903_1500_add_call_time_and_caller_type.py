@@ -4,7 +4,7 @@ The timestamped corpus states four things the schema had nowhere to put: handle
 time to the second, when the call started and ended, and which kind of caller it
 was — MEMBER, EMPLOYER or BROKER.
 
-All nullable. The previous corpus states none of them, so a call analysed before
+All nullable. The previous corpus states none of them, so a call analyzed before
 this carries nulls rather than a fabricated midnight or a caller type guessed
 from the transcript.
 

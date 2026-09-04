@@ -84,7 +84,7 @@ class Provenance:
 
 @dataclass(frozen=True)
 class CallAnalysis:
-    """Everything known about one analysed call."""
+    """Everything known about one analyzed call."""
 
     reference: str
     title: str
@@ -109,7 +109,7 @@ class CallAnalysis:
     # Handle time to the second, where the source states it that precisely.
     # Whole minutes lose 30 seconds on a five-minute call, which is 10% of it.
     duration_seconds: int | None = None
-    # When the call actually happened, not when it was analysed. Two fields
+    # When the call actually happened, not when it was analyzed. Two fields
     # because "how long did it run" and "when in the day was it" are different
     # questions, and end - start is not always the handle time.
     started_at: datetime | None = None
