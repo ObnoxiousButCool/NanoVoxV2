@@ -3034,6 +3034,26 @@
             }
           },
           {
+            "description": "The hour of the day a call started, 0-23, in the wall-clock the source stated. Matches the hourly chart's bars.",
+            "in": "query",
+            "name": "hour",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 23,
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "The hour of the day a call started, 0-23, in the wall-clock the source stated. Matches the hourly chart's bars.",
+              "title": "Hour"
+            }
+          },
+          {
             "description": "L4 finding category code. The finding taxonomy, not the call category: a Coverage & Benefits call can raise a Process Breakdown finding.",
             "in": "query",
             "name": "l4_category",

@@ -48,6 +48,13 @@ export interface CallFilters {
    * This is how an inference opens the calls it counted.
    */
   readonly l4_category?: string
+  /**
+   * The hour of the day a call started, 0-23.
+   *
+   * Wall-clock as the source stated it, with no zone applied — the same
+   * reading the hourly chart uses, so a bar and the list it opens agree.
+   */
+  readonly hour?: number
   /** Who called: MEMBER, EMPLOYER or BROKER. */
   readonly caller?: string
   /** Member identifier, as stated in the call. */

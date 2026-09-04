@@ -635,6 +635,7 @@ function CallerMixCard() {
 }
 
 function HourlyCard() {
+  const navigate = useNavigate()
   const mix = useWorkMix()
   const weakest = mix.data?.weakest_hour
 
@@ -653,6 +654,14 @@ function HourlyCard() {
           count: hour.calls,
           // Marked, not merely low: this is the hour a rota would change for.
           isBelowThreshold: hour.label === weakest,
+          // "Which calls?" is the next question after "which hour?", and a
+          // rota argument is won with the calls rather than with the bar.
+          selectLabel: `Show the ${String(hour.calls)} ${
+            hour.calls === 1 ? 'call' : 'calls'
+          } that started at ${hour.label}`,
+          onSelect: () => {
+            navigate(`/calls?hour=${String(hour.hour)}`)
+          },
         }))}
       />
       {weakest ? (
@@ -879,7 +888,7 @@ export function OverviewPage() {
           chart here that gains from the width: a rota is read hour by hour. */}
       <div className={styles.grid}>
         <Card
-          title="Agent score distribution"
+          title="Score distribution"
           subtitle="Reporting one average would hide the low cluster."
           hint="Coach the cluster below the threshold; the rest needs no intervention. Bins are half-open — 70–80 holds 70 to 79 — except the last, which runs to 100 inclusive so the top score has somewhere to sit. Press a bar to open the calls in it."
         >

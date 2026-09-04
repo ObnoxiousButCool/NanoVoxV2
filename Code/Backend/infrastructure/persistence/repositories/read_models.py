@@ -18,7 +18,7 @@ from __future__ import annotations
 from collections.abc import Mapping
 from typing import Any
 
-from sqlalchemy import Select, case, distinct, func, or_, select
+from sqlalchemy import Select, case, distinct, extract, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from application.ports.read_models import (
@@ -581,6 +581,11 @@ def _apply(statement: Select[Any], filters: CallFilters) -> Select[Any]:
                 )
             )
         )
+    if filters.started_hour is not None:
+        # Read from the stored timestamp the same way the hourly aggregation
+        # reads it — the bar's count and this list have to agree, or the chart
+        # is offering a drill-down to a different set of calls than it drew.
+        statement = statement.where(extract("hour", CallRow.started_at) == filters.started_hour)
     if filters.search:
         pattern = f"%{filters.search}%"
         statement = statement.where(

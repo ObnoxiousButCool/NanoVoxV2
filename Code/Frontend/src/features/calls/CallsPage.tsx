@@ -242,6 +242,10 @@ export function CallsPage() {
   // rather than the call category above: a Coverage & Benefits call can raise a
   // Process Breakdown finding, so the two narrow the table differently.
   const l4Category = searchParams.get('l4_category')
+  // An hour of the day, arrived at from the hourly chart. Read as text and
+  // passed through: the API validates the 0-23 range, and repairing a
+  // malformed one here would filter on an hour nobody asked for.
+  const hour = searchParams.get('hour')
   // MEMBER, EMPLOYER or BROKER. Three populations that reach the same queue and
   // are read very differently, so the table has to be able to show one of them.
   const caller = searchParams.get('caller')
@@ -275,6 +279,9 @@ export function CallsPage() {
     ...(resolution ? { resolution } : {}),
     ...(signal ? { signal } : {}),
     ...(l4Category ? { l4_category: l4Category } : {}),
+    // Not `hour ? ...`: midnight is "0", which is falsy as a string only by
+    // accident of it being a number in disguise. Tested for presence instead.
+    ...(hour !== null && hour !== '' ? { hour: Number(hour) } : {}),
     ...(caller ? { caller } : {}),
     ...(member ? { member } : {}),
     ...(minScore ? { min_score: Number(minScore) } : {}),
@@ -311,7 +318,16 @@ export function CallsPage() {
   const narrowed =
     activeFilters.length > 0 ||
     Boolean(
-      agent || broker || category || resolution || signal || l4Category || caller || member || scoreBand,
+      agent ||
+        broker ||
+        category ||
+        resolution ||
+        signal ||
+        l4Category ||
+        hour ||
+        caller ||
+        member ||
+        scoreBand,
     )
 
   const { data, isPending, error } = useCalls(filters)
@@ -409,6 +425,11 @@ export function CallsPage() {
             {l4Category ? (
               <Button className={styles.active} aria-pressed onClick={clearParam('l4_category')}>
                 Finding: {l4Label(l4Category, taxonomy.data?.l4_categories)} &times;
+              </Button>
+            ) : null}
+            {hour ? (
+              <Button className={styles.active} aria-pressed onClick={clearParam('hour')}>
+                Hour: {hour.padStart(2, '0')}:00 &times;
               </Button>
             ) : null}
             {caller ? (

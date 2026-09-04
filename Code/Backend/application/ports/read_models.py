@@ -93,6 +93,12 @@ class CallFilters:
     # and an item that cannot be opened is a claim the reader has to take on
     # trust.
     l4_category_code: str | None = None
+    # The hour of the day a call started, 0-23, in the wall-clock the source
+    # stated. No zone is applied, for the same reason the hourly chart applies
+    # none: the corpus never gave one, and inventing one here would silently
+    # move calls between bars and make the drill-down disagree with the chart
+    # it was opened from.
+    started_hour: int | None = None
     # MEMBER, EMPLOYER or BROKER. Matched exactly rather than by prefix: these
     # are three separate populations, not a spectrum.
     caller_type: str | None = None

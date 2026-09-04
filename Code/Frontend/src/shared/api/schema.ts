@@ -1550,6 +1550,8 @@ export interface operations {
                 member?: string | null;
                 /** @description Signal code, e.g. clinical_risk. */
                 signal?: string | null;
+                /** @description The hour of the day a call started, 0-23, in the wall-clock the source stated. Matches the hourly chart's bars. */
+                hour?: number | null;
                 /** @description L4 finding category code. The finding taxonomy, not the call category: a Coverage & Benefits call can raise a Process Breakdown finding. */
                 l4_category?: string | null;
                 /** @description Matches title, summary or reference. */

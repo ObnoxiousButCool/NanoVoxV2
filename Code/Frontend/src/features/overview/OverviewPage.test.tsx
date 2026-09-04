@@ -586,6 +586,19 @@ describe('OverviewPage', () => {
   })
 
   describe('when the calls come', () => {
+    it('offers each hour as a way into the calls that started in it', async () => {
+      // The bar says a rota question exists; the calls are what wins the
+      // argument for changing one.
+      renderOverview()
+
+      expect(
+        await screen.findByRole('button', { name: 'Show the 6 calls that started at 13:00' }),
+      ).toBeInTheDocument()
+      expect(
+        screen.getByRole('button', { name: 'Show the 11 calls that started at 10:00' }),
+      ).toBeInTheDocument()
+    })
+
     it('names the weakest staffed hour as a staffing question', async () => {
       renderOverview()
 

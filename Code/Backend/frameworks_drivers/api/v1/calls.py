@@ -101,6 +101,17 @@ async def list_calls(
         str | None, Query(description="Member identifier, as stated in the call.")
     ] = None,
     signal: Annotated[str | None, Query(description="Signal code, e.g. clinical_risk.")] = None,
+    hour: Annotated[
+        int | None,
+        Query(
+            ge=0,
+            le=23,
+            description=(
+                "The hour of the day a call started, 0-23, in the wall-clock "
+                "the source stated. Matches the hourly chart's bars."
+            ),
+        ),
+    ] = None,
     l4_category: Annotated[
         str | None,
         Query(
@@ -132,6 +143,7 @@ async def list_calls(
         member_id=member,
         signal_code=signal,
         l4_category_code=l4_category,
+        started_hour=hour,
         search=search,
     )
     return _page(

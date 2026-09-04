@@ -143,6 +143,35 @@ describe('CallsPage', () => {
     })
   })
 
+  it('narrows to one hour when the hourly chart links here', async () => {
+    const urls = stubCalls(page([call()]))
+    renderCalls('/calls?hour=13')
+
+    await screen.findByText('F0006')
+    await waitFor(() => {
+      expect(urls.some((url) => url.includes('hour=13'))).toBe(true)
+    })
+  })
+
+  it('keeps midnight, which is a falsy hour and a real one', async () => {
+    // "0" is the one hour whose string form is falsy in the wrong hands. A
+    // presence test rather than a truthiness test is what keeps it a filter.
+    const urls = stubCalls(page([call()]))
+    renderCalls('/calls?hour=0')
+
+    await screen.findByText('F0006')
+    await waitFor(() => {
+      expect(urls.some((url) => url.includes('hour=0'))).toBe(true)
+    })
+  })
+
+  it('names the hour it was narrowed to, and offers to clear it', async () => {
+    stubCalls(page([call()]))
+    renderCalls('/calls?hour=9')
+
+    expect(await screen.findByRole('button', { name: /Hour: 09:00/ })).toBeInTheDocument()
+  })
+
   it('narrows to an L4 finding when an inference links here', async () => {
     // The inferences page states a count and offers to show the calls behind
     // it. If this page read every parameter but that one, the link would land
