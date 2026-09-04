@@ -101,6 +101,16 @@ async def list_calls(
         str | None, Query(description="Member identifier, as stated in the call.")
     ] = None,
     signal: Annotated[str | None, Query(description="Signal code, e.g. clinical_risk.")] = None,
+    l4_category: Annotated[
+        str | None,
+        Query(
+            description=(
+                "L4 finding category code. The finding taxonomy, not the call "
+                "category: a Coverage & Benefits call can raise a Process "
+                "Breakdown finding."
+            )
+        ),
+    ] = None,
     search: Annotated[str | None, Query(description="Matches title, summary or reference.")] = None,
     sort: Annotated[
         CallSort,
@@ -121,6 +131,7 @@ async def list_calls(
         caller_type=caller,
         member_id=member,
         signal_code=signal,
+        l4_category_code=l4_category,
         search=search,
     )
     return _page(

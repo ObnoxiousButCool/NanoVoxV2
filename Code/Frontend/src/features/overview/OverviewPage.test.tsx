@@ -382,21 +382,6 @@ async function timeCard(): Promise<HTMLElement> {
 }
 
 describe('OverviewPage', () => {
-  it('ranks the attention queue with the most severe first', async () => {
-    renderOverview()
-
-    const headings = await screen.findAllByRole('heading', { level: 4 })
-    expect(headings[0]).toHaveTextContent('Agents are not escalating clinical urgency')
-  })
-
-  it('gives every attention item an owner and the calls behind it', async () => {
-    renderOverview()
-
-    await screen.findByText('Agents are not escalating clinical urgency')
-    expect(screen.getByText('Quality and Clinical')).toBeInTheDocument()
-    expect(screen.getByText('C0001 F0006')).toBeInTheDocument()
-  })
-
   it('says how many calls the owner bars account for', async () => {
     // The bars total flagged calls, not findings, so the card states the figure
     // rather than leaving the reader to wonder why it is under the call count.
@@ -474,13 +459,6 @@ describe('OverviewPage', () => {
 
     expect(await screen.findByText('No calls analysed yet')).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Analyze a call' })).toBeInTheDocument()
-  })
-
-  it('says the rules ran when nothing crossed a threshold', async () => {
-    // Distinct from "nothing was checked".
-    renderOverview({ ...OVERVIEW, attention: [] })
-
-    expect(await screen.findByText(/Nothing has crossed a threshold/)).toBeInTheDocument()
   })
 
   it('explains a load failure rather than showing a blank screen', async () => {

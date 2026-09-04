@@ -140,6 +140,18 @@ function categoryLabel(code: string, categories: Taxonomy['categories'] | undefi
   return categories?.find((entry) => entry.code === code)?.label ?? code
 }
 
+/**
+ * The human label for an L4 finding code.
+ *
+ * Same reasoning as `categoryLabel`, over a different taxonomy: an inference
+ * links here by code, and "member_communication_gap" in a filter chip is a
+ * database value shown to a person. Falls back to the code so an inference
+ * whose category has been retired still says what it filtered on.
+ */
+function l4Label(code: string, l4Categories: Taxonomy['l4_categories'] | undefined): string {
+  return l4Categories?.find((entry) => entry.code === code)?.label ?? code
+}
+
 function CallRow({
   call,
   categories,
@@ -223,6 +235,10 @@ export function CallsPage() {
   const category = searchParams.get('category')
   const resolution = searchParams.get('resolution')
   const signal = searchParams.get('signal')
+  // An L4 finding category, arrived at from an inference. The finding taxonomy
+  // rather than the call category above: a Coverage & Benefits call can raise a
+  // Process Breakdown finding, so the two narrow the table differently.
+  const l4Category = searchParams.get('l4_category')
   // MEMBER, EMPLOYER or BROKER. Three populations that reach the same queue and
   // are read very differently, so the table has to be able to show one of them.
   const caller = searchParams.get('caller')
@@ -255,6 +271,7 @@ export function CallsPage() {
     ...(category ? { category } : {}),
     ...(resolution ? { resolution } : {}),
     ...(signal ? { signal } : {}),
+    ...(l4Category ? { l4_category: l4Category } : {}),
     ...(caller ? { caller } : {}),
     ...(member ? { member } : {}),
     ...(minScore ? { min_score: Number(minScore) } : {}),
@@ -290,7 +307,9 @@ export function CallsPage() {
 
   const narrowed =
     activeFilters.length > 0 ||
-    Boolean(agent || broker || category || resolution || signal || caller || member || scoreBand)
+    Boolean(
+      agent || broker || category || resolution || signal || l4Category || caller || member || scoreBand,
+    )
 
   const { data, isPending, error } = useCalls(filters)
 
@@ -382,6 +401,11 @@ export function CallsPage() {
             {broker ? (
               <Button className={styles.active} aria-pressed onClick={clearParam('broker')}>
                 Broker: {broker} &times;
+              </Button>
+            ) : null}
+            {l4Category ? (
+              <Button className={styles.active} aria-pressed onClick={clearParam('l4_category')}>
+                Finding: {l4Label(l4Category, taxonomy.data?.l4_categories)} &times;
               </Button>
             ) : null}
             {caller ? (

@@ -36,7 +36,13 @@ export const NAVIGATION: readonly NavigationItem[] = [
     to: '/overview',
     label: 'Dashboard',
     glyph: '◎',
-    description: 'What needs attention, ranked with an owner',
+    description: 'Where we stand, and the detail behind it',
+  },
+  {
+    to: '/inferences',
+    label: 'Inferences',
+    glyph: '!',
+    description: 'What the calls add up to, ranked with an owner',
   },
   {
     to: '/calls',

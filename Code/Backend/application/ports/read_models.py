@@ -87,6 +87,12 @@ class CallFilters:
     has_broker_signal: bool | None = None
     broker_name: str | None = None
     signal_code: str | None = None
+    # An L4 finding category, which is the finding taxonomy rather than the call
+    # category above: a Coverage & Benefits call can raise a Process Breakdown
+    # finding. Needed because the attention queue counts calls by L4 category
+    # and an item that cannot be opened is a claim the reader has to take on
+    # trust.
+    l4_category_code: str | None = None
     # MEMBER, EMPLOYER or BROKER. Matched exactly rather than by prefix: these
     # are three separate populations, not a spectrum.
     caller_type: str | None = None

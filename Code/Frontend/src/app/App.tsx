@@ -11,6 +11,7 @@ import { Navigate, Route, Routes } from 'react-router-dom'
 import { AppShell } from '@/app/layout/AppShell'
 import { AnalyzePage } from '@/features/analyze/AnalyzePage'
 import { BrokersPage } from '@/features/brokers/BrokersPage'
+import { InferencesPage } from '@/features/inferences/InferencesPage'
 import { CallsPage } from '@/features/calls/CallsPage'
 import { CorpusPage } from '@/features/corpus/CorpusPage'
 import { CallDetailPage } from '@/features/call-detail/CallDetailPage'
@@ -22,6 +23,7 @@ export function App() {
     <AppShell>
       <Routes>
         <Route path="/overview" element={<OverviewPage />} />
+        <Route path="/inferences" element={<InferencesPage />} />
         <Route path="/calls" element={<CallsPage />} />
         <Route path="/brokers" element={<BrokersPage />} />
         <Route path="/analyze" element={<AnalyzePage />} />

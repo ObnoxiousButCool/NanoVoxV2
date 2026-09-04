@@ -2,12 +2,18 @@
  * The operations dashboard — the first screen anyone sees.
  *
  * Arranged as three questions in the order a manager asks them: **where we
- * stand**, then **why**, then **the detail behind it**. That ordering is the
- * point of the layout. Before it, the screen opened on a scrolling list of
- * member identifiers and put every total below three tall cards, so the first
- * thing read was the narrowest thing on the page — and nothing anywhere said
- * which way any figure was moving. On this corpus that mattered: resolution
- * reads 54% overall while the weekly series behind it runs 88, 70, 43, 33, 57.
+ * stand**, then **who is affected and what it costs**, then **the detail behind
+ * it**. That ordering is the point of the layout. Before it, the screen opened
+ * on a scrolling list of member identifiers and put every total below three tall
+ * cards, so the first thing read was the narrowest thing on the page — and
+ * nothing anywhere said which way any figure was moving. On this corpus that
+ * mattered: resolution reads 54% overall while the weekly series behind it runs
+ * 88, 70, 43, 33, 57.
+ *
+ * The ranked findings that used to head the second tier are a screen of their
+ * own now — `features/inferences`. Six items with a paragraph of reasoning each
+ * is a worklist somebody owns rather than something read at a glance, and it was
+ * pushing the figures a leader steers by below the fold.
  *
  * Every figure here is counted from stored calls; nothing is written by a model.
  * Three presentation rules carry over from the prototype because each of them
@@ -44,8 +50,7 @@ import {
   MetricStrip,
   TrendLine,
 } from '@/shared/ui/charts'
-import { Card, Chip, Failure, Loading, Note, PageHeader } from '@/shared/ui/primitives'
-import { cx } from '@/shared/ui/cx'
+import { Card, Failure, Loading, Note, PageHeader } from '@/shared/ui/primitives'
 import styles from './OverviewPage.module.css'
 
 /** The prototype's outcome colours. */
@@ -97,12 +102,6 @@ const CATEGORY_SHADES = [
 
 const OWNER_COLOUR = '#B26A00'
 
-function severityClass(severity: string): string | undefined {
-  if (severity === 'CRITICAL' || severity === 'HIGH') return styles.itemHigh
-  if (severity === 'MEDIUM') return styles.itemMedium
-  return styles.itemLow
-}
-
 /**
  * The highest score a histogram bin actually contains.
  *
@@ -128,51 +127,6 @@ function scoreBandCeiling(
 function ownerTotal(owners: readonly { count: number }[]): number {
   return owners.reduce((sum, owner) => sum + owner.count, 0)
 }
-
-function AttentionQueue({ items }: { items: Overview['attention'] }) {
-  if (items.length === 0) {
-    return (
-      <Card title="What needs attention">
-        <Note>
-          Nothing has crossed a threshold. This means the rules ran and found nothing, not that
-          nothing was checked — the thresholds live in <code>dashboard.yaml</code>.
-        </Note>
-      </Card>
-    )
-  }
-
-  return (
-    <div className={styles.queue}>
-      {items.map((item) => (
-        <article
-          key={`${item.rule_id}-${item.subject}`}
-          className={cx(styles.item, severityClass(item.severity))}
-        >
-          <div>
-            <h4>{item.title}</h4>
-            <p className={styles.why}>{item.why}</p>
-            <div className={styles.meta}>
-              <span className={styles.owner}>{item.owner}</span>
-              <Chip tone="high">{item.severity}</Chip>
-              {item.references.length > 0 ? (
-                <span className={styles.reference}>
-                  <Chip>{item.references.slice(0, 6).join(' ')}</Chip>
-                </span>
-              ) : null}
-            </div>
-          </div>
-          <div className={styles.count}>
-            <b>{item.count}</b>
-            <span>
-              {item.unresolved > 0 ? `CALLS · ${String(item.unresolved)} OPEN` : 'CALLS'}
-            </span>
-          </div>
-        </article>
-      ))}
-    </div>
-  )
-}
-
 
 /**
  * What getting an answer costs a member.
@@ -755,7 +709,7 @@ export function OverviewPage() {
     return <Failure error={overview.error} what="the dashboard" />
   }
 
-  const { metrics, histogram, categories, attention } = overview.data
+  const { metrics, histogram, categories } = overview.data
 
   if (metrics.total_calls === 0) {
     return (
@@ -775,7 +729,7 @@ export function OverviewPage() {
     <>
       <PageHeader
         title="Operations dashboard"
-        subtitle={`${String(metrics.total_calls)} analysed calls. Read top to bottom: where we stand, then where it is going wrong, then the detail behind it.`}
+        subtitle={`${String(metrics.total_calls)} analysed calls. Read top to bottom: where we stand, then who is affected, then the detail behind it.`}
       />
 
       {/* --- Where we stand -------------------------------------------------
@@ -793,17 +747,16 @@ export function OverviewPage() {
         <TrendCard />
       </Card>
 
-      {/* --- Where it is going wrong ----------------------------------------
-          Ordered by what a leader acts on rather than by how the figures are
-          computed. The queue names the problem, the matrix names the members
-          living it, the split says which population and which team it belongs
-          to, and the minutes card says what it costs. Three of these used to
-          sit under "the detail behind it", below the coaching charts — churn
-          risk and wasted hours are not detail, and reading them last meant
-          reading the remedy before the reason for it. */}
-      <div className={styles.eyebrow}>Where it is going wrong</div>
-
-      <AttentionQueue items={attention} />
+      {/* --- Who is affected, and what it costs ------------------------------
+          What used to be "where it is going wrong", minus the queue that named
+          the problems — that is its own screen now, at /inferences. What is
+          left says who is on the receiving end: the members showing warning
+          signs, the population being failed, the team who owns it, and the
+          hours it burns. Ordered by what a leader acts on rather than by how
+          the figures are computed; three of these sat under "the detail behind
+          it" below the coaching charts, and churn risk and wasted hours are
+          not detail. */}
+      <div className={styles.eyebrow}>Who is affected, and what it costs</div>
 
       {/* Full width rather than half: the matrix is a column per warning sign
           the system can observe, and at half width the member column collapses

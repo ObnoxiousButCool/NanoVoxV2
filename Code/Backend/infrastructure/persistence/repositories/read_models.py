@@ -571,6 +571,16 @@ def _apply(statement: Select[Any], filters: CallFilters) -> Select[Any]:
                 select(CallSignalRow.call_id).where(CallSignalRow.code == filters.signal_code)
             )
         )
+    if filters.l4_category_code:
+        # As with brokers, matched by the findings raised on the call rather than
+        # by a column: one call can raise findings in several L4 categories.
+        statement = statement.where(
+            CallRow.id.in_(
+                select(L4SignalRow.call_id).where(
+                    L4SignalRow.category_code == filters.l4_category_code
+                )
+            )
+        )
     if filters.search:
         pattern = f"%{filters.search}%"
         statement = statement.where(

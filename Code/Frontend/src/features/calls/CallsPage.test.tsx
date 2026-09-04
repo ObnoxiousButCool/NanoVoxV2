@@ -53,7 +53,9 @@ const TAXONOMY = {
     { code: 'billing', label: 'Billing', description: null },
     { code: 'claims_eob', label: 'Claims & EOB', description: null },
   ],
-  l4_categories: [],
+  l4_categories: [
+    { code: 'process_breakdown', label: 'Process Breakdown', owner: 'Operations', default_severity: 'HIGH' },
+  ],
   signal_types: [{ code: 'clinical_risk', label: 'Clinical Risk', severity: 'CRITICAL' }],
   sentiment_states: [],
   resolutions: ['RESOLVED', 'UNRESOLVED'],
@@ -139,6 +141,31 @@ describe('CallsPage', () => {
     await waitFor(() => {
       expect(urls.some((url) => url.includes('resolution=UNRESOLVED'))).toBe(true)
     })
+  })
+
+  it('narrows to an L4 finding when an inference links here', async () => {
+    // The inferences page states a count and offers to show the calls behind
+    // it. If this page read every parameter but that one, the link would land
+    // on the full list and quietly contradict the number it was opened from.
+    const urls = stubCalls(page([call()]))
+    renderCalls('/calls?l4_category=process_breakdown')
+
+    await screen.findByText('F0006')
+    await waitFor(() => {
+      expect(urls.some((url) => url.includes('l4_category=process_breakdown'))).toBe(true)
+    })
+  })
+
+  it('names the finding it was narrowed to, and offers to clear it', async () => {
+    // A table silently missing three quarters of its rows is worse than an
+    // unfiltered one. The chip says why, in the taxonomy's words rather than
+    // in the code the URL carries.
+    stubCalls(page([call()]))
+    renderCalls('/calls?l4_category=process_breakdown')
+
+    expect(
+      await screen.findByRole('button', { name: /Finding: Process Breakdown/ }),
+    ).toBeInTheDocument()
   })
 
   it('combines two filters into one query instead of replacing', async () => {

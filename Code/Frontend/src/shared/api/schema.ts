@@ -529,6 +529,13 @@ export interface components {
         };
         /** AttentionItemResponse */
         AttentionItemResponse: {
+            /**
+             * Call Filter
+             * @description The calls list query that returns exactly the calls this item counted, as query-string parameters. Sent from here rather than rebuilt by the client from the rule id: the rule kinds are a server-side vocabulary, and a client mapping them itself would quietly produce a dead link the first time a kind is added. Empty when the item's subject has no filter, which is a gap to close rather than a state to design for.
+             */
+            call_filter: {
+                [key: string]: string;
+            };
             /** Count */
             count: number;
             /** Owner */
@@ -1543,6 +1550,8 @@ export interface operations {
                 member?: string | null;
                 /** @description Signal code, e.g. clinical_risk. */
                 signal?: string | null;
+                /** @description L4 finding category code. The finding taxonomy, not the call category: a Coverage & Benefits call can raise a Process Breakdown finding. */
+                l4_category?: string | null;
                 /** @description Matches title, summary or reference. */
                 search?: string | null;
                 /** @description Column to order by. 'severity' is what needs action first. */

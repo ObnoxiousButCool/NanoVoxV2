@@ -40,6 +40,14 @@ export interface CallFilters {
   readonly has_broker_signal?: boolean
   readonly broker?: string
   readonly signal?: string
+  /**
+   * An L4 finding category code.
+   *
+   * The finding taxonomy, not `category` above: a Coverage & Benefits call can
+   * raise a Process Breakdown finding, so the two narrow the list differently.
+   * This is how an inference opens the calls it counted.
+   */
+  readonly l4_category?: string
   /** Who called: MEMBER, EMPLOYER or BROKER. */
   readonly caller?: string
   /** Member identifier, as stated in the call. */

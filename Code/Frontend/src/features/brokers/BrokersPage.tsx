@@ -16,7 +16,7 @@ import { useBrokers } from '@/shared/api/queries'
 import type { BrokerScorecard } from '@/shared/api/types'
 import { Alert, Card, Chip, Empty, Failure, Loading, Note, PageHeader } from '@/shared/ui/primitives'
 import { cx } from '@/shared/ui/cx'
-import styles from '@/features/overview/OverviewPage.module.css'
+import styles from '@/shared/ui/queue.module.css'
 
 function BrokerCard({ broker }: { broker: BrokerScorecard }) {
   const netPositive = broker.is_net_positive

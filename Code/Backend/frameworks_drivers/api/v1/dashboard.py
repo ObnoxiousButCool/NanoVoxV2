@@ -18,8 +18,10 @@ from application.use_cases.get_dashboard import (
     Overview,
     SignalDistributionEntry,
 )
+from domain.aggregation.attention import AttentionItem, RuleKind
 from domain.aggregation.member_risk import RiskFactor
 from domain.aggregation.trend import TrendPoint
+from domain.value_objects.resolution import Resolution
 from frameworks_drivers.api.dependencies import (
     AgentPerformanceDep,
     BrokerScorecardDep,
@@ -86,6 +88,17 @@ class AttentionItemResponse(BaseModel):
     count: int
     unresolved: int
     references: list[str]
+    call_filter: dict[str, str] = Field(
+        description=(
+            "The calls list query that returns exactly the calls this item "
+            "counted, as query-string parameters. Sent from here rather than "
+            "rebuilt by the client from the rule id: the rule kinds are a "
+            "server-side vocabulary, and a client mapping them itself would "
+            "quietly produce a dead link the first time a kind is added. Empty "
+            "when the item's subject has no filter, which is a gap to close "
+            "rather than a state to design for."
+        )
+    )
 
 
 class OverviewResponse(BaseModel):
@@ -347,11 +360,32 @@ def _overview_response(overview: Overview) -> OverviewResponse:
                 count=item.count,
                 unresolved=item.unresolved,
                 references=list(item.references),
+                call_filter=_call_filter(item),
             )
             for item in overview.attention
         ],
         taxonomy_coverage=overview.taxonomy_coverage,
     )
+
+
+def _call_filter(item: AttentionItem) -> dict[str, str]:
+    """The calls list query that reproduces an attention item's count.
+
+    Each rule kind counts calls by one dimension, and each dimension is a filter
+    the calls list already accepts — so the mapping is total, and a new kind
+    added without a filter shows up here as a missing branch rather than as a
+    link that silently returns every call.
+    """
+    if item.kind is RuleKind.SIGNAL_PRESENT:
+        return {"signal": item.subject_key}
+    if item.kind is RuleKind.L4_CATEGORY_VOLUME:
+        return {"l4_category": item.subject_key}
+    if item.kind is RuleKind.BROKER_NEGATIVE:
+        return {"broker": item.subject_key}
+    # Unresolved in a category: the rule counts only the unresolved ones, so the
+    # outcome belongs in the filter. Without it the link would open the whole
+    # category and contradict the count it was opened from.
+    return {"category": item.subject_key, "resolution": Resolution.UNRESOLVED.value}
 
 
 def _agent_response(agent: AgentPerformance) -> AgentResponse:
