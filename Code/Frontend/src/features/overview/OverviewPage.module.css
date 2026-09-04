@@ -293,3 +293,15 @@
 .solo {
   margin-bottom: 14px;
 }
+
+/* An average shown for an agent the significance threshold will not tier. The
+   arithmetic is sound; what it cannot carry is a label. Muted rather than
+   hidden, so the column has a figure on every row and the difference between a
+   settled one and a thin one is visible without reading the rule first. */
+.provisionalScore {
+  color: var(--slate-2);
+}
+
+.provisionalScore span[aria-hidden] {
+  margin-left: 1px;
+}

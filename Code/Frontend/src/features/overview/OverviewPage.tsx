@@ -418,18 +418,16 @@ function ResolutionByAgent({ agents }: { agents: readonly AgentPerformance[] }) 
     return <Note>No agents have been named in an analyzed call yet.</Note>
   }
 
-  // Ordered by the figure each row actually shows. An agent below the
-  // significance threshold has no score to sort on — a dash cannot be ranked
-  // against a number — so those fall to the bottom ordered by call count, which
-  // puts the ones closest to earning a rating first. Sorting a copy: the query
-  // cache's array must not be mutated.
+  // Rated agents first, then the rest, and within each group by the score the
+  // row shows. The two groups stay apart because a tier is a claim about an
+  // agent and a thin average is not, and mixing them would rank a three-call
+  // figure against a settled one. Ordering the second group by score too, now
+  // that it has one: ordering visible numbers by an invisible call count reads
+  // as no order at all. Sorting a copy — the query cache's array must not be
+  // mutated.
   const ranked = [...agents].sort((a, b) => {
-    if (a.tier && b.tier) {
-      return b.average_score - a.average_score || a.agent_name.localeCompare(b.agent_name)
-    }
-    if (a.tier) return -1
-    if (b.tier) return 1
-    return b.call_count - a.call_count || a.agent_name.localeCompare(b.agent_name)
+    if (Boolean(a.tier) !== Boolean(b.tier)) return a.tier ? -1 : 1
+    return b.average_score - a.average_score || a.agent_name.localeCompare(b.agent_name)
   })
 
   return (
@@ -460,7 +458,26 @@ function ResolutionByAgent({ agents }: { agents: readonly AgentPerformance[] }) 
               { value: agent.escalated, color: OUTCOME_COLOURS.escalated, label: 'Escalated' },
               { value: agent.unresolved, color: OUTCOME_COLOURS.unresolved, label: 'Unresolved' },
             ]}
-            value={agent.tier ? Math.round(agent.average_score) : '—'}
+            value={
+              agent.tier ? (
+                Math.round(agent.average_score)
+              ) : (
+                // Shown, but not as a settled figure. The average is real
+                // arithmetic on every call the agent took; what the threshold
+                // withholds is the tier, because one call moves a four-call
+                // average by four points and a GOOD/AVERAGE boundary should not
+                // turn on that. Muted and marked so the difference is visible
+                // without a reader having to know the rule — the mark's meaning
+                // is on the row's tooltip and in the card's hint.
+                <span className={styles.provisionalScore} title={agent.note ?? 'Not tier-rated'}>
+                  {Math.round(agent.average_score)}
+                  <span aria-hidden="true">*</span>
+                  <span className={styles.visuallyHidden}>
+                    , {agent.note ?? 'not tier-rated'}
+                  </span>
+                </span>
+              )
+            }
           />
         ))}
       </BarRows>
@@ -842,7 +859,7 @@ export function OverviewPage() {
         <Card
           title="Resolution by agent"
           subtitle="Proportional, so volume does not distort the picture."
-          hint="Agents with too few calls are shown but not tier-rated — the sample is too small to be fair, and their score reads as a dash. Their volume is real; a tier on four calls is not."
+          hint="Every agent's average is shown; a starred one is not tier-rated, because the agent has fewer calls than the significance threshold. The average is real arithmetic either way — what is withheld is the GOOD, AVERAGE or POOR label, since one call moves a four-call average by four points and a tier boundary should not turn on that. The bars are outcomes, not the score: they show how the agent's calls ended."
         >
           {agents.isPending ? <Loading what="agents" /> : null}
           {agents.error ? <Failure error={agents.error} what="agent performance" /> : null}

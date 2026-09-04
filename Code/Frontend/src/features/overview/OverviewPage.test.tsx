@@ -456,18 +456,27 @@ describe('OverviewPage', () => {
     expect(screen.getByText('Broker Conduct')).toBeInTheDocument()
   })
 
-  it('shows an unrated agent without a score', async () => {
-    // Priya has one call and the best average; the tier is still withheld.
+  it('shows an unrated agent their average, and withholds only the tier', async () => {
+    // Priya has one call and the best average. The arithmetic is sound on one
+    // call as on fifty; what one call cannot carry is a GOOD or POOR label.
     renderOverview()
 
     expect(await screen.findByText('Priya · 1')).toBeInTheDocument()
     expect(screen.getByText('Sarah · 5')).toBeInTheDocument()
     expect(screen.getByText('81')).toBeInTheDocument()
+
+    // Marked, so a thin average does not read as a settled one.
+    // The mark is a star for sighted readers; the reason is spelled out for a
+    // screen reader, which cannot see one.
+    const marked = screen.getByTitle('Below n=5 significance threshold')
+    expect(marked).toHaveTextContent('96')
+    expect(marked).toHaveTextContent('Below n=5 significance threshold')
   })
 
-  it('ranks rated agents by score, and unrated ones by call count below them', async () => {
-    // Sarah is rated (81) so she leads; Priya shows a dash and cannot be ranked
-    // against a number, so she falls below regardless of her higher average.
+  it('keeps rated agents above unrated ones, whatever the averages say', async () => {
+    // Priya averages 96 against Sarah's 81 and still sits below her: a tier is
+    // a claim about an agent and a one-call average is not, so the two are not
+    // ranked against each other even though both now show a number.
     renderOverview()
 
     await screen.findByText('Sarah · 5')
@@ -482,8 +491,10 @@ describe('OverviewPage', () => {
 
     await screen.findByText('Member Communications')
     expect(screen.getByText('Provider Relations')).toBeInTheDocument()
-    // Two dashes: the owner with no signals, and Priya's withheld tier.
-    expect(screen.getAllByText('—')).toHaveLength(2)
+    // One dash on the page: the owner carrying no signals. An agent below the
+    // significance threshold used to be the other one, and now shows their
+    // average — it is the tier that is withheld, not the arithmetic.
+    expect(screen.getAllByText('—')).toHaveLength(1)
   })
 
   it('points a fresh install at Analyze instead of showing empty charts', async () => {
