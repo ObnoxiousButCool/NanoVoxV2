@@ -39,3 +39,38 @@ export function maskedMemberIdLabel(memberId: string): string {
   if (trimmed.length <= VISIBLE) return `Member ${trimmed}`
   return `Member ending ${trimmed.slice(-VISIBLE)}`
 }
+
+/**
+ * Identifiers spoken inside a transcript, masked in place.
+ *
+ * Members read their card number out loud, so the identifier the field masks is
+ * also sitting in the second line of nearly every call: *"Why am I paying
+ * anything? Member ID CB-8819204."* Masking the field and leaving the transcript
+ * alone would be theatre.
+ *
+ * **The result is the same length as the input, character for character.** That
+ * is not incidental: the transcript highlights quoted evidence by index, and a
+ * mask that changed the length would slide every highlight after it onto the
+ * wrong words. Only the digits become bullets, and only the ones being hidden.
+ *
+ * Two letters and a run of digits is the shape of a person's identifier in this
+ * corpus — a plan member ID, or the subscriber ID a carrier like Delta Dental or
+ * VSP knows them by. Group numbers are deliberately left alone: `GRP-402210`
+ * names an employer, not a person, and it is the number a broker calls in about,
+ * so hiding it would break the screens that exist to answer those calls.
+ */
+
+/** Prefixes that identify an organisation rather than a person. */
+const GROUP_PREFIXES = new Set(['GRP'])
+
+/** Letters then digits, optionally hyphenated: `CB-8819204`, `VS-88410276`. */
+const SPOKEN_IDENTIFIER = /\b([A-Za-z]{2,4})-?(\d{5,12})\b/g
+
+export function maskIdentifiersInText(text: string): string {
+  return text.replace(SPOKEN_IDENTIFIER, (whole, prefix: string, digits: string) => {
+    if (GROUP_PREFIXES.has(prefix.toUpperCase())) return whole
+    if (digits.length <= VISIBLE) return whole
+    const lead = whole.slice(0, whole.length - digits.length)
+    return `${lead}${MASK.repeat(digits.length - VISIBLE)}${digits.slice(-VISIBLE)}`
+  })
+}

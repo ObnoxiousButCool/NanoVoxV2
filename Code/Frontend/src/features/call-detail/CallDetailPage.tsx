@@ -25,6 +25,7 @@ import {
   Note,
   PageHeader,
 } from '@/shared/ui/primitives'
+import { maskIdentifiersInText } from '@/shared/ui/memberId'
 import { toneForResolution, toneForSeverity } from '@/shared/ui/tone'
 import { useCollapsedPanels } from '@/shared/hooks/useCollapsedPanels'
 import { cx } from '@/shared/ui/cx'
@@ -336,7 +337,7 @@ export function CallDetailPage() {
                   className={styles.markerQuote}
                   href={`#turn-${String(marker.evidence_turn_seq)}`}
                 >
-                  turn {marker.evidence_turn_seq}: &ldquo;{marker.quote}&rdquo;
+                  turn {marker.evidence_turn_seq}: &ldquo;{maskIdentifiersInText(marker.quote)}&rdquo;
                 </a>
               </span>
             </div>
@@ -380,7 +381,7 @@ export function CallDetailPage() {
             >
               {signal.issue}
               <p className={styles.markerQuote}>
-                Member said, turn {signal.evidence_turn_seq}: &ldquo;{signal.quote}&rdquo;
+                Member said, turn {signal.evidence_turn_seq}: &ldquo;{maskIdentifiersInText(signal.quote)}&rdquo;
               </p>
             </Alert>
           ))}
