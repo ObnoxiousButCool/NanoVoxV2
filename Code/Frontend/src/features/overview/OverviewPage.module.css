@@ -272,12 +272,6 @@
   color: var(--slate);
 }
 
-.failureMode p {
-  margin: 8px 0 0;
-  font-size: 12px;
-  line-height: 1.5;
-  color: var(--slate);
-}
 
 /* Available to a screen reader, absent for everyone else. The matrix cells
    carry no text, so each states its meaning here rather than relying on a

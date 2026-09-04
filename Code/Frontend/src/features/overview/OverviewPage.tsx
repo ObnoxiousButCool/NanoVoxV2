@@ -210,11 +210,6 @@ function ResolutionTimeCard() {
           />
         ))}
       </BarRows>
-      <Note>
-        Median minutes to resolve, slowest first, over the <b>{data.resolved_calls}</b> calls that
-        reached a resolution. A category that has resolved nothing shows a dash rather than a zero,
-        because no time was measured — not a fast one.
-      </Note>
     </>
   )
 }
@@ -294,19 +289,8 @@ function TimeValueCard() {
 
       <div className={styles.failureModes}>
         {[
-          {
-            key: 'fast',
-            title: 'Ended early, unresolved',
-            mode: data.fast_fail,
-            reading: 'Shorter than a call that works — the member was brushed off. Coaching.',
-          },
-          {
-            key: 'slow',
-            title: 'Ran long, still unresolved',
-            mode: data.slow_fail,
-            reading:
-              'The work was done and no answer existed. A process problem — coaching these agents would be the wrong response.',
-          },
+          { key: 'fast', title: 'Ended early, unresolved', mode: data.fast_fail },
+          { key: 'slow', title: 'Ran long, still unresolved', mode: data.slow_fail },
         ].map((entry) => (
           <div key={entry.key} className={styles.failureMode}>
             <h5>{entry.title}</h5>
@@ -316,15 +300,9 @@ function TimeValueCard() {
                 CALLS · {entry.mode.minutes} MIN · AVG SCORE {entry.mode.average_score}
               </span>
             </div>
-            <p>{entry.reading}</p>
           </div>
         ))}
       </div>
-      <Note>
-        Split at <b>{data.resolved_median_minutes} minutes</b>, the median length of a call that
-        did resolve — derived from this corpus rather than configured, so it stays comparable as
-        the mix of work changes.
-      </Note>
     </>
   )
 }
@@ -423,11 +401,6 @@ function MembersAtRisk() {
           </tbody>
         </table>
       </div>
-      <Note>
-        Ranked by how many warning signs a member shows, not by a predicted probability. No factor
-        here has yet been measured against a member who actually left. The score is the lowest any
-        one of their calls was given.
-      </Note>
     </>
   )
 }
@@ -491,10 +464,6 @@ function ResolutionByAgent({ agents }: { agents: readonly AgentPerformance[] }) 
           { label: 'Unresolved', color: OUTCOME_COLOURS.unresolved },
         ]}
       />
-      <Note>
-        Agents with too few calls are shown but not tier-rated — the sample is too small to be
-        fair, and their score reads as a dash.
-      </Note>
     </>
   )
 }
@@ -568,7 +537,7 @@ function TrendCard() {
 
   if (pulse.isPending) return <Loading what="the trend" />
   if (pulse.error) return <Failure error={pulse.error} what="the weekly trend" />
-  const { points, latest, previous } = pulse.data
+  const { points } = pulse.data
   if (points.length === 0) return null
 
   return (
@@ -596,21 +565,6 @@ function TrendCard() {
           },
         ]}
       />
-      <Note>
-        {latest && previous && latest.resolution_rate !== null && previous.resolution_rate !== null
-          ? `Resolution moved from ${String(previous.resolution_rate)}% to ${String(
-              latest.resolution_rate,
-            )}% in the last week measured. `
-          : ''}
-        Both series are drawn to the same 0–100 box so their shapes can be compared; a week with
-        no calls breaks the line rather than being drawn through.
-        {pulse.data.undated_calls > 0 ? (
-          <>
-            {' '}
-            <b>{pulse.data.undated_calls}</b> calls state no start time and are in no week.
-          </>
-        ) : null}
-      </Note>
     </>
   )
 }
@@ -644,18 +598,13 @@ function CallerMixCard() {
           />
         ))}
       </BarRows>
-      <Note>
-        Bars are the share of each population resolved first time, not their share of the queue —
-        the three are different sizes and stacking them by volume would say only that members call
-        most. An employer is a whole group&rsquo;s coverage and a broker is a distribution channel;
-        averaging all three into one resolution rate describes none of them.
-        {mix.data.unattributed_calls > 0 ? (
-          <>
-            {' '}
-            <b>{mix.data.unattributed_calls}</b> calls state no caller and are left out.
-          </>
-        ) : null}
-      </Note>
+      {mix.data.unattributed_calls > 0 ? (
+        <Note>
+          <b>{mix.data.unattributed_calls}</b>{' '}
+          {mix.data.unattributed_calls === 1 ? 'call states' : 'calls state'} no caller and
+          {mix.data.unattributed_calls === 1 ? ' is' : ' are'} left out.
+        </Note>
+      ) : null}
     </>
   )
 }
@@ -681,17 +630,11 @@ function HourlyCard() {
           isBelowThreshold: hour.label === weakest,
         }))}
       />
-      <Note>
-        Calls by the hour they started.{' '}
-        {weakest ? (
-          <>
-            The <b>{weakest}</b> hour scores lowest of the hours with enough calls to read —
-            a staffing question rather than a coaching one.{' '}
-          </>
-        ) : null}
-        Hours with fewer than four calls are shown but carry no finding; a rota changed on two
-        calls is a rota changed on noise.
-      </Note>
+      {weakest ? (
+        <Note>
+          The <b>{weakest}</b> hour scores lowest of the hours with enough calls to read.
+        </Note>
+      ) : null}
     </>
   )
 }
@@ -743,6 +686,7 @@ export function OverviewPage() {
       <Card
         title="Five weeks of resolution and quality"
         subtitle="Every other figure here is an all-time total. This is the only one that says which way it is moving."
+        hint="Both series are drawn to the same 0–100 box so their shapes can be compared. A week with no calls breaks the line rather than being drawn through, so a gap is missing data and not a collapse. A call that states no start time belongs to no week and is left out of the series entirely."
       >
         <TrendCard />
       </Card>
@@ -765,6 +709,7 @@ export function OverviewPage() {
         <Card
           title="Members at risk"
           subtitle="Warning signs observed, not a prediction — no factor here is validated yet."
+          hint="Ranked by how many warning signs a member shows, not by a predicted probability: no factor here has yet been measured against a member who actually left. The score is the lowest any one of their calls was given, which is what separates two members showing the same signs."
         >
           <MembersAtRisk />
         </Card>
@@ -778,6 +723,7 @@ export function OverviewPage() {
         <Card
           title="Who calls, and who gets an answer"
           subtitle="Three populations reach the same queue and fare differently."
+          hint="Bars are the share of each population resolved first time, not their share of the queue — the three are different sizes, and stacking them by volume would say only that members call most. An employer is a whole group’s coverage and a broker is a distribution channel; averaging all three into one resolution rate describes none of them."
         >
           <CallerMixCard />
         </Card>
@@ -785,6 +731,7 @@ export function OverviewPage() {
         <Card
           title="Signals by owner"
           subtitle="Each call counts once, under the owner of its most serious finding."
+          hint="A call raising findings for two teams is counted for the team owning the more serious one, so no call appears twice. Owners with no signals are drawn so the absence is visible rather than implied."
         >
           {signals.isPending ? <Loading what="signals" /> : null}
           {signals.error ? <Failure error={signals.error} what="signal distribution" /> : null}
@@ -811,9 +758,7 @@ export function OverviewPage() {
                 {/* Counted from the bars rather than stated, so the sentence cannot
                     drift from the chart above it as the corpus changes. */}
                 <b>{ownerTotal(signals.data.owners)}</b> of {metrics.total_calls} calls raise at
-                least one signal; the rest raise none. A call raising findings for two teams is
-                counted for the team owning the more serious one, so no call appears twice.
-                Owners with no signals are shown so the absence is visible rather than implied.
+                least one signal; the rest raise none.
               </Note>
             </>
           ) : null}
@@ -823,6 +768,7 @@ export function OverviewPage() {
       <Card
         title="Productive and unproductive minutes"
         subtitle="Counted in minutes, not calls — the hours a resolution cost, and the hours that bought none."
+        hint="The two failure modes need opposite responses. Ending early and unresolved is a member brushed off, which is a coaching signal; running long and still unresolved is a process problem, where coaching the agent would be the wrong response. They are split at the median length of a call that did resolve — derived from this corpus rather than configured, so the line stays comparable as the mix of work changes. Calls with no recorded duration are left out entirely rather than counted as zero, which would understate the minutes."
       >
         <TimeValueCard />
       </Card>
@@ -888,6 +834,7 @@ export function OverviewPage() {
         <Card
           title="Resolution by agent"
           subtitle="Proportional, so volume does not distort the picture."
+          hint="Agents with too few calls are shown but not tier-rated — the sample is too small to be fair, and their score reads as a dash. Their volume is real; a tier on four calls is not."
         >
           {agents.isPending ? <Loading what="agents" /> : null}
           {agents.error ? <Failure error={agents.error} what="agent performance" /> : null}
@@ -897,6 +844,7 @@ export function OverviewPage() {
         <Card
           title="How long an answer takes"
           subtitle="Resolved calls only — the quickest way to end a call is to solve nothing."
+          hint="Median minutes to resolve, slowest category first, over the calls that reached a resolution. A category that has resolved nothing shows a dash rather than a zero, because no time was measured — not a fast one."
         >
           <ResolutionTimeCard />
         </Card>
@@ -908,6 +856,7 @@ export function OverviewPage() {
         <Card
           title="Agent score distribution"
           subtitle="Reporting one average would hide the low cluster."
+          hint="Coach the cluster below the threshold; the rest needs no intervention. Bins are half-open — 70–80 holds 70 to 79 — except the last, which runs to 100 inclusive so the top score has somewhere to sit. Press a bar to open the calls in it."
         >
           <Histogram
             bars={histogram.bins.map((bin) => {
@@ -927,15 +876,17 @@ export function OverviewPage() {
             peak={histogram.peak}
           />
           <Note>
-            {histogram.below_threshold_count} call
-            {histogram.below_threshold_count === 1 ? '' : 's'} fall below the coaching threshold.
-            Coach that cluster; the rest needs no intervention.
+            <b>{histogram.below_threshold_count}</b> call
+            {histogram.below_threshold_count === 1 ? '' : 's'}{' '}
+            {histogram.below_threshold_count === 1 ? 'falls' : 'fall'} below the coaching
+            threshold.
           </Note>
         </Card>
 
         <Card
           title="What members call about"
           subtitle="Every configured category, including those with no calls."
+          hint="A zero-count category is drawn rather than omitted: an absent bar reads as “this does not happen” rather than “this did not happen here”. If coverage drops below 90% the categories need revising, not the chart."
         >
           <BarRows>
             {categories.map((category, index) => (
@@ -960,14 +911,14 @@ export function OverviewPage() {
             ))}
           </BarRows>
           <Note>
-            Taxonomy coverage <b>{overview.data.taxonomy_coverage}%</b>. If this drops below 90%
-            the categories need revising, not the chart.
+            Taxonomy coverage <b>{overview.data.taxonomy_coverage}%</b>.
           </Note>
         </Card>
 
         <Card
           title="When the calls come"
           subtitle="Load by hour, with the weakest staffed hour marked."
+          hint="Calls by the hour they started. The marked hour is a staffing question rather than a coaching one. Hours with fewer than four calls are drawn but carry no finding: a rota changed on two calls is a rota changed on noise."
         >
           <HourlyCard />
         </Card>

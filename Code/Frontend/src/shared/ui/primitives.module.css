@@ -209,3 +209,75 @@
   color: var(--slate-2);
   margin-top: 8px;
 }
+
+/* --- Hint --------------------------------------------------------------- */
+
+/* The icon sits beside the title on its baseline. A row rather than the heading
+   itself, so the panel's prose stays out of the heading's accessible name. */
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.hint {
+  position: relative;
+  display: inline-flex;
+  /* Does not inherit the h3's weight or size: it is punctuation beside the
+     title, not part of it. */
+  font: 400 11px/1 var(--font-body);
+}
+
+.hintButton {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1px solid var(--rule);
+  background: transparent;
+  color: var(--slate-2);
+  font: 600 9.5px/1 var(--font-body);
+  cursor: help;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hintButton:hover,
+.hintButton[aria-expanded='true'] {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.hintButton:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Anchored to the icon's left edge so a card on the right of the grid does not
+   push the panel off-screen. Above everything, including a sticky table head. */
+.hintPanel {
+  position: absolute;
+  top: calc(100% + 7px);
+  left: -8px;
+  z-index: 20;
+  width: 290px;
+  max-width: 78vw;
+  padding: 10px 12px;
+  background: var(--panel);
+  border: 1px solid var(--rule);
+  border-radius: var(--r);
+  box-shadow: 0 6px 20px rgb(15 23 42 / 13%);
+  font: 400 11.5px/1.55 var(--font-body);
+  color: var(--slate);
+  text-align: left;
+  white-space: normal;
+  /* Normal weight regardless of where it is anchored: the header sets 600 for
+     the title and the panel is prose, not a heading. */
+  font-weight: 400;
+}
+
+.hintPanel b {
+  color: var(--ink);
+  font-weight: 600;
+}

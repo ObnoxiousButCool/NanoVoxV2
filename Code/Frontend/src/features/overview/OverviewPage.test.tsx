@@ -1,5 +1,6 @@
 import { QueryClient } from '@tanstack/react-query'
 import { render, screen, within } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
@@ -390,7 +391,37 @@ describe('OverviewPage', () => {
 
     const note = await screen.findByText(/raise at least one signal/)
     expect(note).toHaveTextContent('4 of 12 calls raise at least one signal')
-    expect(note).toHaveTextContent('counted for the team owning the more serious one')
+  })
+
+  it('keeps the double-counting rule reachable, behind the card hint', async () => {
+    // Hidden by default but never removed: a reader who wonders why the bars
+    // do not sum to the call count has to be able to find out that they cannot.
+    renderOverview()
+
+    const heading = await screen.findByText('Signals by owner')
+    const card = heading.closest('section')
+    if (!card) throw new Error('signals card has no containing section')
+    expect(within(card).getByRole('note', { hidden: true })).toHaveTextContent(
+      'counted for the team owning the more serious one',
+    )
+  })
+
+  it('opens a card hint when its icon is pressed', async () => {
+    // Hover alone would put every explanation on the dashboard out of reach of
+    // a keyboard or a touch screen, so the trigger is a real button.
+    renderOverview()
+
+    const heading = await screen.findByText('Signals by owner')
+    const card = heading.closest('section')
+    if (!card) throw new Error('signals card has no containing section')
+
+    const icon = within(card).getByRole('button', { name: 'How this is counted' })
+    expect(icon).toHaveAttribute('aria-expanded', 'false')
+
+    await userEvent.click(icon)
+
+    expect(icon).toHaveAttribute('aria-expanded', 'true')
+    expect(within(card).getByRole('note')).toBeVisible()
   })
 
   it('shows the median and the mean together', async () => {
@@ -413,7 +444,8 @@ describe('OverviewPage', () => {
   it('marks how many calls fall below the coaching threshold', async () => {
     renderOverview()
 
-    expect(await screen.findByText(/5 calls fall below the coaching threshold/)).toBeInTheDocument()
+    const note = await screen.findByText(/below the coaching threshold/)
+    expect(note).toHaveTextContent('5 calls fall below the coaching threshold')
   })
 
   it('draws a category with no calls rather than omitting it', async () => {
@@ -546,8 +578,14 @@ describe('OverviewPage', () => {
     it('names the weakest staffed hour as a staffing question', async () => {
       renderOverview()
 
-      expect(await screen.findByText(/staffing question rather than a coaching one/)).toBeInTheDocument()
-      expect(screen.getByText('13:00')).toBeInTheDocument()
+      const note = await screen.findByText(/scores lowest of the hours/)
+      expect(note).toHaveTextContent('13:00')
+
+      const card = note.closest('section')
+      if (!card) throw new Error('hourly card has no containing section')
+      expect(within(card).getByRole('note', { hidden: true })).toHaveTextContent(
+        'a staffing question rather than a coaching one',
+      )
     })
   })
 
@@ -756,19 +794,27 @@ describe('OverviewPage', () => {
       const card = await timeCard()
 
       expect(within(card).getByText('Ended early, unresolved')).toBeInTheDocument()
-      expect(within(card).getByText(/brushed off/)).toBeInTheDocument()
       expect(within(card).getByText('Ran long, still unresolved')).toBeInTheDocument()
-      expect(within(card).getByText(/no answer existed/)).toBeInTheDocument()
       expect(within(card).getByText(/CALLS · 435 MIN · AVG SCORE 79/)).toBeInTheDocument()
+
+      // Which response each one calls for is behind the card's hint. The two
+      // boxes are only worth pairing because they need opposite responses, so
+      // that has to stay reachable even though it is no longer on the face.
+      expect(within(card).getByRole('note', { hidden: true })).toHaveTextContent(
+        'coaching the agent would be the wrong response',
+      )
     })
 
     it('says where the dividing line came from', async () => {
-      // A reader has to be able to tell a derived threshold from an invented one.
+      // A reader has to be able to tell a derived threshold from an invented
+      // one. Behind the card's hint rather than under the chart: it is a
+      // property of the measure, read once, not a finding read every day.
       renderOverview()
       const card = await timeCard()
 
-      expect(within(card).getByText(/median length of a call that did resolve/)).toBeInTheDocument()
-      expect(within(card).getByText('10 minutes')).toBeInTheDocument()
+      expect(within(card).getByRole('note', { hidden: true })).toHaveTextContent(
+        'median length of a call that did resolve',
+      )
     })
 
     it('says so plainly when no call has a duration', async () => {

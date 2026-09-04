@@ -5,6 +5,7 @@
  * so the built application and the approved design cannot drift.
  */
 
+import { useEffect, useId, useRef, useState } from 'react'
 import type { ButtonHTMLAttributes, ReactNode } from 'react'
 
 import { ApiError, NetworkError } from '@/shared/api/client'
@@ -48,10 +49,96 @@ export function PageHeader({
   )
 }
 
+/**
+ * How a figure is counted, behind an icon rather than under the chart.
+ *
+ * These explanations earn their place — a reader who does not know that a
+ * category resolving nothing shows a dash instead of a zero will misread the
+ * chart — but they are read once and then never again, while the chart is read
+ * every day. As standing paragraphs they were most of the text on the screen.
+ *
+ * Opens on hover **and** on keyboard focus, and the trigger is a real button so
+ * a touch device gets it too. Hover alone would put the explanation out of
+ * reach of anyone not using a mouse. Escape closes it; the content is linked to
+ * the button by `aria-describedby`, so a screen reader reaches it without any
+ * of that.
+ */
+export function Hint({ children, label = 'How this is counted' }: { children: ReactNode; label?: string }) {
+  const [open, setOpen] = useState(false)
+  const id = useId()
+  const wrapper = useRef<HTMLSpanElement>(null)
+  const button = useRef<HTMLButtonElement>(null)
+
+  useEffect(() => {
+    if (!open) return
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setOpen(false)
+    }
+    // A click anywhere else dismisses it. Without this a panel opened by tap
+    // stays open until the same icon is tapped again, which reads as stuck.
+    const onClick = (event: MouseEvent) => {
+      if (!wrapper.current?.contains(event.target as Node)) setOpen(false)
+    }
+    document.addEventListener('keydown', onKey)
+    document.addEventListener('click', onClick)
+    return () => {
+      document.removeEventListener('keydown', onKey)
+      document.removeEventListener('click', onClick)
+    }
+  }, [open])
+
+  return (
+    <span
+      className={styles.hint}
+      ref={wrapper}
+      onMouseEnter={() => {
+        setOpen(true)
+      }}
+      onMouseLeave={() => {
+        // Not while it is focused: a keyboard user whose mouse happens to pass
+        // over the icon would otherwise have the panel taken away from them.
+        if (document.activeElement !== button.current) setOpen(false)
+      }}
+    >
+      <button
+        type="button"
+        ref={button}
+        className={styles.hintButton}
+        aria-label={label}
+        aria-expanded={open}
+        aria-describedby={id}
+        // Opens rather than toggles. A press focuses the button first, which
+        // opens the panel, so a toggle here would close it again in the same
+        // gesture — on a touch screen that means it never opens at all.
+        // Escape, a press outside, or leaving the icon all close it.
+        onClick={() => {
+          setOpen(true)
+        }}
+        onFocus={() => {
+          setOpen(true)
+        }}
+        onBlur={() => {
+          setOpen(false)
+        }}
+      >
+        i
+      </button>
+      {/* Rendered whether or not it is open, so `aria-describedby` always has
+          something to point at and the text is reachable without the icon ever
+          being operated. `hidden` rather than a conditional render for the same
+          reason. */}
+      <span className={styles.hintPanel} id={id} role="note" hidden={!open}>
+        {children}
+      </span>
+    </span>
+  )
+}
+
 export function Card({
   title,
   subtitle,
   actions,
+  hint,
   children,
   className,
 }: {
@@ -59,6 +146,8 @@ export function Card({
   subtitle?: string | undefined
   /** Controls that act on this card, placed opposite its title. */
   actions?: ReactNode
+  /** How this card's figures are counted. Shown behind an icon by its title. */
+  hint?: ReactNode
   children: ReactNode
   className?: string | undefined
 }) {
@@ -66,8 +155,15 @@ export function Card({
     <section className={cx(styles.card, className)}>
       {title ? (
         <div className={styles.cardHeader}>
-          <div>
-            <h3>{title}</h3>
+          <div className={styles.cardTitle}>
+            {/* The icon is a sibling of the heading, not a child of it. Nested,
+                the panel's prose became part of the heading's own text, so a
+                screen reader announcing the card read the whole explanation as
+                the title. */}
+            <div className={styles.titleRow}>
+              <h3>{title}</h3>
+              {hint ? <Hint>{hint}</Hint> : null}
+            </div>
             {subtitle ? <p>{subtitle}</p> : null}
           </div>
           {actions}
