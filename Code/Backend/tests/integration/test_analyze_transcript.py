@@ -151,7 +151,7 @@ class TestSignalEvidence:
                             "quote": "my prescription changed",
                         }
                     ],
-                }
+                },
             }
         )
         analysis, _ = await analyse(taxonomy, rubric, provider)
@@ -178,7 +178,7 @@ class TestSignalEvidence:
                             "quote": "nothing like this was said",
                         }
                     ],
-                }
+                },
             }
         )
         analysis, _ = await analyse(taxonomy, rubric, provider)

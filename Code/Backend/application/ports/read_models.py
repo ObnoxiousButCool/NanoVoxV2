@@ -112,6 +112,29 @@ class AgentAggregate:
     partially_resolved: int
     escalated: int
     unresolved: int
+    # Average handle time, where the agent's calls state one. Optional because
+    # a pasted transcript carries no duration, and an agent with only those has
+    # no handle time rather than a handle time of zero.
+    average_handle_minutes: float | None = None
+
+
+@dataclass(frozen=True)
+class CallFact:
+    """One call, reduced to the dimensions the dashboard slices by.
+
+    Fetched once and sliced in the domain — by week, by hour, by caller, by
+    sentiment arc — rather than as four GROUP BYs returning four shapes. At
+    dashboard scale the join is the cost, not the rows, and the definitions then
+    live in testable functions instead of in SQL.
+    """
+
+    started_at: datetime | None
+    score: int
+    resolution: str
+    duration_seconds: int | None
+    caller_type: str | None
+    sentiment_start: str | None
+    sentiment_end: str | None
 
 
 @dataclass(frozen=True)
@@ -228,6 +251,10 @@ class ReadModelRepository(ABC):
         sort: CallSort = CallSort.SEVERITY,
         descending: bool = False,
     ) -> Page: ...
+
+    @abstractmethod
+    async def call_facts(self) -> tuple[CallFact, ...]:
+        """Every analysed call, reduced to the dimensions the dashboard slices by."""
 
     @abstractmethod
     async def distinct_agents(self) -> tuple[str, ...]: ...

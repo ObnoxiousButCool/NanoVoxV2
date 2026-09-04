@@ -96,7 +96,7 @@ describe('App', () => {
     renderAt('/somewhere-that-does-not-exist')
 
     expect(await screen.findByRole('heading', { level: 1 })).toHaveTextContent(
-      'What needs attention',
+      'Operations dashboard',
     )
   })
 

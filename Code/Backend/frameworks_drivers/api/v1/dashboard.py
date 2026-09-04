@@ -7,6 +7,8 @@ actionable rather than merely readable.
 
 from __future__ import annotations
 
+from datetime import date
+
 from fastapi import APIRouter
 from pydantic import BaseModel, Field
 
@@ -16,15 +18,19 @@ from application.use_cases.get_dashboard import (
     Overview,
     SignalDistributionEntry,
 )
+from domain.aggregation.trend import TrendPoint
 from frameworks_drivers.api.dependencies import (
     AgentPerformanceDep,
     BrokerScorecardDep,
     EffortMetricsDep,
+    HandleTimeQualityDep,
     MembersAtRiskDep,
     OverviewDep,
+    PulseDep,
     ResolutionTimeDep,
     SignalDistributionDep,
     TimeValueDep,
+    WorkMixDep,
 )
 
 router = APIRouter(prefix="/dashboard", tags=["dashboard"])
@@ -358,6 +364,97 @@ def _broker_response(broker: BrokerScorecardEntry) -> BrokerResponse:
     )
 
 
+class TrendPointResponse(BaseModel):
+    starting: date
+    label: str
+    calls: int
+    median_score: float | None = Field(
+        default=None, description="Absent for a week with no calls, which is a gap not a zero."
+    )
+    resolution_rate: float | None = None
+    median_handle_minutes: float | None = None
+
+
+class TrendDeltaResponse(BaseModel):
+    """The most recent week against the one before it."""
+
+    calls: int
+    median_score: float | None
+    resolution_rate: float | None
+    median_handle_minutes: float | None
+
+
+class SentimentMovementResponse(BaseModel):
+    improved: int
+    unchanged: int
+    worsened: int
+    unclassified: int
+    improved_rate: float
+
+
+class PulseResponse(BaseModel):
+    points: list[TrendPointResponse]
+    latest: TrendPointResponse | None
+    previous: TrendPointResponse | None
+    delta: TrendDeltaResponse | None
+    sentiment: SentimentMovementResponse
+    undated_calls: int
+
+
+class CallerBreakdownResponse(BaseModel):
+    caller_type: str
+    calls: int
+    share: float
+    resolution_rate: float
+    average_score: float
+    average_handle_minutes: float | None
+
+
+class HourlyPointResponse(BaseModel):
+    hour: int
+    label: str
+    calls: int
+    average_score: float | None
+    resolution_rate: float | None
+    is_thin: bool = Field(description="Too few calls in this hour to read anything into.")
+
+
+class WorkMixResponse(BaseModel):
+    callers: list[CallerBreakdownResponse]
+    caller_total: int
+    unattributed_calls: int
+    hours: list[HourlyPointResponse]
+    busiest_hour: str | None
+    weakest_hour: str | None
+
+
+class AgentSpeedResponse(BaseModel):
+    agent_name: str
+    calls: int
+    average_score: float
+    average_handle_minutes: float
+    is_comparable: bool
+
+
+class SpeedGroupResponse(BaseModel):
+    label: str
+    calls: int
+    average_score: float
+    average_handle_minutes: float
+
+
+class HandleTimeQualityResponse(BaseModel):
+    agents: list[AgentSpeedResponse]
+    faster: SpeedGroupResponse | None
+    slower: SpeedGroupResponse | None
+    split_minutes: float
+    score_gap: float = Field(
+        description="Points the slower half scores above the faster half. Positive is the "
+        "direction an average-handle-time target makes worse."
+    )
+    flagged_agents: int
+
+
 @router.get("/overview", response_model=OverviewResponse, summary="What needs attention")
 async def get_overview(use_case: OverviewDep) -> OverviewResponse:
     return _overview_response(await use_case.execute())
@@ -483,3 +580,122 @@ async def get_signals(use_case: SignalDistributionDep) -> SignalsResponse:
 
 def _signal_entry(entry: SignalDistributionEntry) -> SignalEntryResponse:
     return SignalEntryResponse(**entry.__dict__)
+
+
+def _trend_point(point: TrendPoint) -> TrendPointResponse:
+    return TrendPointResponse(
+        starting=point.starting,
+        label=point.label,
+        calls=point.calls,
+        median_score=point.median_score,
+        resolution_rate=point.resolution_rate,
+        median_handle_minutes=point.median_handle_minutes,
+    )
+
+
+def _difference(later: float | None, earlier: float | None) -> float | None:
+    """The move between two weeks, or None when either week did not measure it."""
+    if later is None or earlier is None:
+        return None
+    return round(later - earlier, 1)
+
+
+@router.get(
+    "/pulse",
+    response_model=PulseResponse,
+    summary="Which way the centre is moving, week by week",
+)
+async def get_pulse(use_case: PulseDep) -> PulseResponse:
+    pulse = await use_case.execute()
+    latest, previous = pulse.trend.latest, pulse.trend.previous
+
+    delta = (
+        TrendDeltaResponse(
+            calls=latest.calls - previous.calls,
+            median_score=_difference(latest.median_score, previous.median_score),
+            resolution_rate=_difference(latest.resolution_rate, previous.resolution_rate),
+            median_handle_minutes=_difference(
+                latest.median_handle_minutes, previous.median_handle_minutes
+            ),
+        )
+        if latest and previous
+        else None
+    )
+
+    return PulseResponse(
+        points=[_trend_point(point) for point in pulse.trend.points],
+        latest=_trend_point(latest) if latest else None,
+        previous=_trend_point(previous) if previous else None,
+        delta=delta,
+        sentiment=SentimentMovementResponse(
+            improved=pulse.sentiment.improved,
+            unchanged=pulse.sentiment.unchanged,
+            worsened=pulse.sentiment.worsened,
+            unclassified=pulse.sentiment.unclassified,
+            improved_rate=pulse.sentiment.improved_rate,
+        ),
+        undated_calls=pulse.trend.undated_calls,
+    )
+
+
+@router.get(
+    "/work-mix",
+    response_model=WorkMixResponse,
+    summary="Who calls, and when the calls come",
+)
+async def get_work_mix(use_case: WorkMixDep) -> WorkMixResponse:
+    mix = await use_case.execute()
+    return WorkMixResponse(
+        callers=[
+            CallerBreakdownResponse(
+                caller_type=row.caller_type,
+                calls=row.calls,
+                share=row.share,
+                resolution_rate=row.resolution_rate,
+                average_score=row.average_score,
+                average_handle_minutes=row.average_handle_minutes,
+            )
+            for row in mix.callers.callers
+        ],
+        caller_total=mix.callers.total_calls,
+        unattributed_calls=mix.callers.unattributed_calls,
+        hours=[
+            HourlyPointResponse(
+                hour=point.hour,
+                label=point.label,
+                calls=point.calls,
+                average_score=point.average_score,
+                resolution_rate=point.resolution_rate,
+                is_thin=point.is_thin,
+            )
+            for point in mix.hours.hours
+        ],
+        busiest_hour=mix.hours.busiest.label if mix.hours.busiest else None,
+        weakest_hour=mix.hours.weakest.label if mix.hours.weakest else None,
+    )
+
+
+@router.get(
+    "/handle-time-quality",
+    response_model=HandleTimeQualityResponse,
+    summary="What speed costs, per agent",
+)
+async def get_handle_time_quality(use_case: HandleTimeQualityDep) -> HandleTimeQualityResponse:
+    result = await use_case.execute()
+    return HandleTimeQualityResponse(
+        agents=[
+            AgentSpeedResponse(
+                agent_name=agent.agent_name,
+                calls=agent.calls,
+                average_score=agent.average_score,
+                average_handle_minutes=agent.average_handle_minutes,
+                is_comparable=agent.is_comparable,
+            )
+            for agent in result.agents
+        ],
+        faster=SpeedGroupResponse(**result.faster.__dict__) if result.faster else None,
+        slower=SpeedGroupResponse(**result.slower.__dict__) if result.slower else None,
+        split_minutes=result.split_minutes,
+        score_gap=result.score_gap,
+        flagged_agents=result.flagged_agents,
+    )

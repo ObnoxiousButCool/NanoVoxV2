@@ -1,7 +1,16 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 
-import { Bar, Histogram, Legend, Metric, MetricStrip } from '@/shared/ui/charts'
+import {
+  Bar,
+  DeltaMetric,
+  Histogram,
+  Legend,
+  Metric,
+  MetricStrip,
+  Scatter,
+  TrendLine,
+} from '@/shared/ui/charts'
 
 describe('Bar', () => {
   it('sizes segments by share so different call volumes stay comparable', () => {
@@ -114,5 +123,176 @@ describe('Metric', () => {
     const { container } = render(<Metric label="Calls" value={12} />)
 
     expect(container.textContent).toBe('Calls12')
+  })
+})
+
+describe('TrendLine', () => {
+  const series = [
+    {
+      label: 'Resolved first time',
+      color: '#14514F',
+      values: [87.5, null, 33.3],
+      max: 100,
+      format: (value: number) => `${String(value)}%`,
+    },
+  ]
+
+  it('labels the vertical scale so a fall can be sized', () => {
+    // Without ticks a reader sees that the line falls and cannot see whether it
+    // fell four points or forty, which is the whole question.
+    render(<TrendLine series={series} labels={['31 Aug', '7 Sep', '14 Sep']} />)
+
+    for (const tick of ['0', '25', '50', '75', '100']) {
+      expect(screen.getByText(tick)).toBeInTheDocument()
+    }
+  })
+
+  it('names each series beside its colour, above the plot', () => {
+    // Colour alone is not a label, and the table is below the fold.
+    render(<TrendLine series={series} labels={['31 Aug', '7 Sep', '14 Sep']} />)
+
+    expect(screen.getAllByText('Resolved first time').length).toBeGreaterThan(1)
+  })
+
+  it('says what the axes are', () => {
+    render(<TrendLine series={series} labels={['31 Aug', '7 Sep', '14 Sep']} />)
+
+    expect(screen.getByText(/Week beginning, left to right/)).toBeInTheDocument()
+  })
+
+  it('breaks the line where a period measured nothing', () => {
+    // Two runs, not one line drawn through the gap: a straight segment across
+    // an unmeasured week draws a measurement that was never taken.
+    const { container } = render(
+      <TrendLine series={series} labels={['31 Aug', '7 Sep', '14 Sep']} />,
+    )
+
+    expect(container.querySelectorAll('polyline')).toHaveLength(2)
+  })
+
+  it('gives the missing period a dash rather than a zero', () => {
+    render(<TrendLine series={series} labels={['31 Aug', '7 Sep', '14 Sep']} />)
+
+    const row = screen.getByRole('row', { name: /7 Sep/ })
+    expect(within(row).getByText('—')).toBeInTheDocument()
+  })
+})
+
+describe('Scatter', () => {
+  const points = [
+    { label: 'Brad', x: 4.7, y: 57 },
+    { label: 'Sarah', x: 10, y: 84.2 },
+    { label: 'Priya', x: 9, y: 75, isProvisional: true },
+  ]
+
+  function renderScatter() {
+    return render(
+      <Scatter
+        points={points}
+        xLabel="Average minutes"
+        yLabel="Average score"
+        xMax={11}
+        yMax={100}
+        splitAt={6.7}
+        splitLabel="Median call 6.7 min"
+      />,
+    )
+  }
+
+  it('labels both axes', () => {
+    renderScatter()
+
+    expect(screen.getByText('100')).toBeInTheDocument()
+    expect(screen.getByText(/Horizontal: average minutes/)).toBeInTheDocument()
+  })
+
+  it('rounds the horizontal ceiling so the ticks are evenly spaced', () => {
+    // A ceiling of 11 gives 0, 3, 6, 8, 11 — gaps of 3, 3, 2, 3 on ticks that
+    // are equally spaced, which misstates the scale rather than looking untidy.
+    const { container } = renderScatter()
+    // Scoped to the axis: the values table repeats some of these numbers.
+    const axis = container.querySelector('[class*="axisX"]')
+
+    expect([...(axis?.children ?? [])].map((tick) => tick.textContent)).toEqual([
+      '0',
+      '3',
+      '6',
+      '9',
+      '12',
+    ])
+  })
+
+  it('places a point against the same ceiling the ticks describe', () => {
+    // Ten minutes of a twelve-minute axis is five sixths across. Placing dots
+    // against the raw maximum while labelling the rounded one would put every
+    // point slightly off the scale beneath it.
+    const { container } = renderScatter()
+    const sarah = container.querySelector('[title^="Sarah"]')
+
+    expect(sarah).toHaveStyle({ left: `${String((10 * 100) / 12)}%` })
+  })
+
+  it('marks the split and says what it is', () => {
+    renderScatter()
+
+    expect(screen.getByText('Median call 6.7 min')).toBeInTheDocument()
+  })
+
+  it('marks a provisional point in the values table', () => {
+    renderScatter()
+
+    const row = screen.getByRole('row', { name: /Priya/ })
+    expect(within(row).getByText('*')).toBeInTheDocument()
+  })
+})
+
+describe('DeltaMetric', () => {
+  it('carries the direction in words as well as in colour', () => {
+    // The page prints in monochrome and is read by people who cannot separate
+    // red from green, so the arrow and the sentence do the work colour does.
+    render(
+      <DeltaMetric
+        label="Resolved first time"
+        value="57%"
+        delta={-23.8}
+        format={(value) => `${String(value)} pts`}
+      />,
+    )
+
+    expect(screen.getByText(/▼ 23.8 pts on last week/)).toBeInTheDocument()
+  })
+
+  it('reads a fall as bad when up is good, and the reverse', () => {
+    const { container: falling } = render(
+      <DeltaMetric label="A" value="1" delta={-5} format={String} goodDirection="up" />,
+    )
+    const { container: rising } = render(
+      <DeltaMetric label="B" value="1" delta={5} format={String} goodDirection="up" />,
+    )
+
+    const bad = falling.querySelector('span')?.className
+    const good = rising.querySelector('span')?.className
+    expect(bad).not.toEqual(good)
+  })
+
+  it('treats a measure with no good direction as neither', () => {
+    // Handle time: a shorter call is an answer found faster or a member brushed
+    // off, and this figure cannot tell them apart.
+    const { container: neutral } = render(
+      <DeltaMetric label="A" value="1" delta={-5} format={String} goodDirection="neutral" />,
+    )
+    const { container: bad } = render(
+      <DeltaMetric label="B" value="1" delta={-5} format={String} goodDirection="up" />,
+    )
+
+    expect(neutral.querySelector('span')?.className).not.toEqual(
+      bad.querySelector('span')?.className,
+    )
+  })
+
+  it('says there is nothing to compare against rather than showing zero', () => {
+    render(<DeltaMetric label="A" value="1" delta={null} format={String} />)
+
+    expect(screen.getByText('No previous week')).toBeInTheDocument()
   })
 })

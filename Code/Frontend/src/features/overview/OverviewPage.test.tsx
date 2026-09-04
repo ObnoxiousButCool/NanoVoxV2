@@ -217,13 +217,138 @@ function json(body: unknown): Response {
   })
 }
 
+/** A falling series, which is what the trend card exists to make visible. */
+const PULSE = {
+  points: [
+    {
+      starting: '2026-08-31',
+      label: '31 Aug',
+      calls: 8,
+      median_score: 88,
+      resolution_rate: 87.5,
+      median_handle_minutes: 8,
+    },
+    {
+      starting: '2026-09-07',
+      label: '7 Sep',
+      calls: 0,
+      median_score: null,
+      resolution_rate: null,
+      median_handle_minutes: null,
+    },
+    {
+      starting: '2026-09-14',
+      label: '14 Sep',
+      calls: 7,
+      median_score: 69.5,
+      resolution_rate: 33.3,
+      median_handle_minutes: 6.5,
+    },
+  ],
+  latest: {
+    starting: '2026-09-14',
+    label: '14 Sep',
+    calls: 7,
+    median_score: 69.5,
+    resolution_rate: 33.3,
+    median_handle_minutes: 6.5,
+  },
+  previous: {
+    starting: '2026-08-31',
+    label: '31 Aug',
+    calls: 8,
+    median_score: 88,
+    resolution_rate: 87.5,
+    median_handle_minutes: 8,
+  },
+  delta: {
+    calls: -1,
+    median_score: -18.5,
+    resolution_rate: -54.2,
+    median_handle_minutes: -1.5,
+  },
+  sentiment: { improved: 44, unchanged: 5, worsened: 1, unclassified: 0, improved_rate: 88 },
+  undated_calls: 0,
+}
+
+const WORK_MIX = {
+  callers: [
+    {
+      caller_type: 'MEMBER',
+      calls: 28,
+      share: 56,
+      resolution_rate: 57.1,
+      average_score: 77,
+      average_handle_minutes: 7.1,
+    },
+    {
+      caller_type: 'EMPLOYER',
+      calls: 15,
+      share: 30,
+      resolution_rate: 40,
+      average_score: 76.1,
+      average_handle_minutes: 7.6,
+    },
+  ],
+  caller_total: 43,
+  unattributed_calls: 0,
+  hours: [
+    {
+      hour: 10,
+      label: '10:00',
+      calls: 11,
+      average_score: 73.8,
+      resolution_rate: 54.5,
+      is_thin: false,
+    },
+    { hour: 13, label: '13:00', calls: 6, average_score: 63.2, resolution_rate: 33, is_thin: false },
+  ],
+  busiest_hour: '10:00',
+  weakest_hour: '13:00',
+}
+
+const SPEED = {
+  agents: [
+    {
+      agent_name: 'Sarah',
+      calls: 5,
+      average_score: 84.2,
+      average_handle_minutes: 10,
+      is_comparable: true,
+    },
+    {
+      agent_name: 'Brad',
+      calls: 4,
+      average_score: 57,
+      average_handle_minutes: 4.7,
+      is_comparable: false,
+    },
+  ],
+  faster: { label: 'under 6.7 min', calls: 25, average_score: 67.6, average_handle_minutes: 5.6 },
+  slower: {
+    label: 'at 6.7 min and over',
+    calls: 25,
+    average_score: 84.2,
+    average_handle_minutes: 9,
+  },
+  split_minutes: 6.7,
+  score_gap: 16.6,
+  flagged_agents: 1,
+}
+
 function renderOverview(
   overview: unknown = OVERVIEW,
   {
     resolution = RESOLUTION,
     members = MEMBERS,
     timeValue = TIME_VALUE,
-  }: { resolution?: unknown; members?: unknown; timeValue?: unknown } = {},
+    pulse = PULSE,
+  }: {
+    resolution?: unknown
+    members?: unknown
+    timeValue?: unknown
+    pulse?: unknown
+  } = {},
 ) {
   vi.stubGlobal(
     'fetch',
@@ -234,6 +359,9 @@ function renderOverview(
       if (url.includes('/dashboard/resolution-time')) return Promise.resolve(json(resolution))
       if (url.includes('/dashboard/time-value')) return Promise.resolve(json(timeValue))
       if (url.includes('/dashboard/members-at-risk')) return Promise.resolve(json(members))
+      if (url.includes('/dashboard/pulse')) return Promise.resolve(json(pulse))
+      if (url.includes('/dashboard/work-mix')) return Promise.resolve(json(WORK_MIX))
+      if (url.includes('/dashboard/handle-time-quality')) return Promise.resolve(json(SPEED))
       return Promise.resolve(json({}))
     }),
   )
@@ -388,6 +516,135 @@ describe('OverviewPage', () => {
     )
 
     expect(await screen.findByText(/Could not load the dashboard/)).toBeInTheDocument()
+  })
+
+  describe('where we stand', () => {
+    it('leads with the week, not with the all-time total', async () => {
+      // The screen used to open on a scrolling list of member identifiers, with
+      // every total below three tall cards and no direction anywhere.
+      renderOverview()
+
+      expect(await screen.findByText('Where we stand — most recent week')).toBeInTheDocument()
+      expect(await screen.findByText('Calls this week')).toBeInTheDocument()
+    })
+
+    it('says which way each figure moved and by how much', async () => {
+      renderOverview()
+
+      expect(await screen.findByText(/54.2 pts on last week/)).toBeInTheDocument()
+      expect(screen.getByText(/18.5 pts on last week/)).toBeInTheDocument()
+    })
+
+    it('marks a fall as bad and a rise as good, per measure', async () => {
+      // Handle time is the exception: shorter is an answer found faster or a
+      // member brushed off, and this figure cannot tell them apart.
+      renderOverview()
+
+      const resolution = await screen.findByText(/54.2 pts on last week/)
+      const handleTime = screen.getByText(/1.5 min on last week/)
+
+      expect(resolution.className).not.toEqual(handleTime.className)
+    })
+
+    it('says so rather than inventing a comparison when there is no prior week', async () => {
+      renderOverview(OVERVIEW, { pulse: { ...PULSE, previous: null, delta: null } })
+
+      expect((await screen.findAllByText('No previous week')).length).toBeGreaterThan(0)
+    })
+  })
+
+  describe('the weekly trend', () => {
+    it('gives every week as a value, not only as a line', async () => {
+      // The plot is SVG with no text in it. The table is the same data in the
+      // form a screen reader and a printed page can use.
+      renderOverview()
+
+      const table = await screen.findByRole('table', { name: /weekly series/i })
+      expect(within(table).getByText('87.5%')).toBeInTheDocument()
+      expect(within(table).getByText('33.3%')).toBeInTheDocument()
+    })
+
+    it('shows a week with no calls as a gap rather than a zero', async () => {
+      // A zero would read as "nobody was helped that week" instead of "nobody
+      // called that week".
+      renderOverview()
+
+      const table = await screen.findByRole('table', { name: /weekly series/i })
+      const week = within(table).getByRole('row', { name: /7 Sep/ })
+      expect(within(week).getAllByText('—')).toHaveLength(2)
+    })
+  })
+
+  describe('what speed costs', () => {
+    it('states the gap between the two halves of the calls', async () => {
+      renderOverview()
+
+      expect(await screen.findByText(/gap of/)).toBeInTheDocument()
+      expect(screen.getByText('16.6')).toBeInTheDocument()
+    })
+
+    it('says the split is over calls, not over agents', async () => {
+      // The distinction the statistic depends on: thirteen agents is thirteen
+      // points and most of them have four calls.
+      renderOverview()
+
+      expect(
+        await screen.findByText(/measured over calls rather than over agents/),
+      ).toBeInTheDocument()
+    })
+
+    it('refuses to call the relationship a cause', async () => {
+      renderOverview()
+
+      expect(
+        await screen.findByText(/not which one causes the other/),
+      ).toBeInTheDocument()
+    })
+
+    it('plots an agent below the threshold and marks them', async () => {
+      renderOverview()
+
+      const table = await screen.findByRole('table', { name: /Average score and Average minutes/i })
+      expect(within(table).getByRole('row', { name: /Brad/ })).toBeInTheDocument()
+      expect(screen.getByText(/below the tier threshold/)).toBeInTheDocument()
+    })
+  })
+
+  describe('who calls', () => {
+    it('measures each population against itself, not against the queue', async () => {
+      // Stacking by volume would say only that members call most.
+      renderOverview()
+
+      expect(await screen.findByText('Member · 28')).toBeInTheDocument()
+      expect(screen.getByText('Employer · 15')).toBeInTheDocument()
+    })
+  })
+
+  describe('when the calls come', () => {
+    it('names the weakest staffed hour as a staffing question', async () => {
+      renderOverview()
+
+      expect(await screen.findByText(/staffing question rather than a coaching one/)).toBeInTheDocument()
+      expect(screen.getByText('13:00')).toBeInTheDocument()
+    })
+  })
+
+  describe('the detail behind it', () => {
+    it('explains a zero escalation rate instead of leaving it beside a benchmark', async () => {
+      // A flat 0% next to "industry range 8-12%" reads as a broken feed. It is
+      // not one: the shipped corpus contains no escalated call at all.
+      renderOverview({ ...OVERVIEW, metrics: { ...OVERVIEW.metrics, escalation_rate: 0 } })
+
+      expect(await screen.findByText('No analysed call was escalated')).toBeInTheDocument()
+    })
+
+    it('keeps the benchmark when calls do escalate', async () => {
+      renderOverview()
+
+      // Two metrics carry a benchmark; the escalation one must be among them.
+      expect(await screen.findByText(/8–12%/)).toBeInTheDocument()
+      expect(screen.queryByText('No analysed call was escalated')).not.toBeInTheDocument()
+    })
   })
 
   describe('members at risk', () => {

@@ -26,6 +26,9 @@ import {
   fetchMembersAtRisk,
   fetchResolutionTime,
   fetchTimeValue,
+  fetchPulse,
+  fetchWorkMix,
+  fetchHandleTimeQuality,
   fetchSignals,
   fetchTaxonomy,
   resumeRun,
@@ -52,6 +55,9 @@ export const queryKeys = {
   resolutionTime: ['dashboard', 'resolution-time'] as const,
   timeValue: ['dashboard', 'time-value'] as const,
   membersAtRisk: ['dashboard', 'members-at-risk'] as const,
+  pulse: ['dashboard', 'pulse'] as const,
+  workMix: ['dashboard', 'work-mix'] as const,
+  handleTimeQuality: ['dashboard', 'handle-time-quality'] as const,
   corpus: ['corpus'] as const,
   runs: ['corpus', 'runs'] as const,
   run: (runId: number) => ['corpus', 'run', runId] as const,
@@ -134,6 +140,21 @@ export function useMembersAtRisk() {
   return useQuery({
     queryKey: queryKeys.membersAtRisk,
     queryFn: ({ signal }) => fetchMembersAtRisk(signal),
+  })
+}
+
+export function usePulse() {
+  return useQuery({ queryKey: queryKeys.pulse, queryFn: ({ signal }) => fetchPulse(signal) })
+}
+
+export function useWorkMix() {
+  return useQuery({ queryKey: queryKeys.workMix, queryFn: ({ signal }) => fetchWorkMix(signal) })
+}
+
+export function useHandleTimeQuality() {
+  return useQuery({
+    queryKey: queryKeys.handleTimeQuality,
+    queryFn: ({ signal }) => fetchHandleTimeQuality(signal),
   })
 }
 

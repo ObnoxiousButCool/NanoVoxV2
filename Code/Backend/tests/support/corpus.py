@@ -33,11 +33,11 @@ from domain.entities.transcript import Transcript
 from domain.entities.turn import Turn
 from domain.scoring.rubric_engine import ScoreResult
 from domain.taxonomy import Taxonomy
+from domain.value_objects.caller_type import CallerType
 from domain.value_objects.polarity import Polarity
 from domain.value_objects.resolution import Resolution
 from domain.value_objects.score import Score, ScoreStatus
 from domain.value_objects.severity import Severity
-from domain.value_objects.caller_type import CallerType
 from domain.value_objects.speaker import SpeakerRole
 from domain.value_objects.tier import Tier
 
@@ -201,6 +201,12 @@ def build_analysis(spec: CallSpec, taxonomy: Taxonomy, index: int) -> CallAnalys
         source=AnalysisSource.CORPUS_RUN,
         agent_name=spec.agent,
         duration_minutes=6,
+        # Spread a call a day from BASE_TIME, so the fixture spans three weeks
+        # and the weekly trend has something to be a trend of. Handle time
+        # alternates either side of six minutes, which is what makes the
+        # speed-against-quality split land on a boundary worth testing.
+        duration_seconds=300 if index % 2 else 480,
+        started_at=BASE_TIME + timedelta(days=index, hours=index % 6),
         signal_codes=spec.signals,
         l4_signals=tuple(
             L4Signal(

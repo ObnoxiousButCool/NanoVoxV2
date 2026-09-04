@@ -32,15 +32,28 @@ from domain.aggregation.attention import (
     GroupCount,
     evaluate_rules,
 )
+from domain.aggregation.caller_mix import CallerCall, CallerMix, caller_mix
 from domain.aggregation.effort import EffortMetrics, effort_metrics
+from domain.aggregation.handle_time_quality import (
+    AgentSpeed,
+    HandleTimeQuality,
+    TimedCall,
+    handle_time_quality,
+)
+from domain.aggregation.hourly import HourCall, HourlyLoad, hourly_load
 from domain.aggregation.member_risk import MemberAtRisk, members_at_risk
 from domain.aggregation.resolution_time import (
     DurationBandSettings,
     ResolutionTime,
     resolution_time,
 )
+from domain.aggregation.sentiment_movement import (
+    SentimentArc,
+    SentimentMovement,
+    sentiment_movement,
+)
 from domain.aggregation.signal_attribution import primary_category_by_call
-from domain.aggregation.significance import AgentRating, rate_agent
+from domain.aggregation.significance import AgentRating, is_tier_rated, rate_agent
 from domain.aggregation.statistics import (
     Histogram,
     HistogramSettings,
@@ -50,8 +63,10 @@ from domain.aggregation.statistics import (
     percentage,
 )
 from domain.aggregation.time_value import TimeValue, time_value
+from domain.aggregation.trend import Trend, TrendCall, trend
 from domain.scoring.rubric import Rubric
 from domain.taxonomy import Taxonomy
+from domain.value_objects.caller_type import CallerType
 from domain.value_objects.resolution import Resolution
 from domain.value_objects.score import Score
 
@@ -289,6 +304,120 @@ class GetAgentPerformance:
         )
 
 
+@dataclass(frozen=True)
+class Pulse:
+    """Whether the centre is getting better or worse.
+
+    Every other figure the dashboard reports is an all-time total, which answers
+    "how are we doing" and not "which way are we going" — and on this corpus the
+    two disagree flatly. Resolution reads 54% overall; the weekly series behind
+    it runs 88, 70, 43, 33, 57.
+    """
+
+    trend: Trend
+    sentiment: SentimentMovement
+
+
+@dataclass(frozen=True)
+class WorkMix:
+    """How the work is distributed — across who calls, and across the day."""
+
+    callers: CallerMix
+    hours: HourlyLoad
+
+
+class GetPulse:
+    """Builds the weekly trend and the sentiment arc that goes beside it."""
+
+    def __init__(self, repository: ReadModelRepository) -> None:
+        self._repository = repository
+
+    async def execute(self) -> Pulse:
+        facts = await self._repository.call_facts()
+        return Pulse(
+            trend=trend(
+                TrendCall(
+                    started_at=fact.started_at,
+                    score=fact.score,
+                    resolution=fact.resolution,
+                    duration_seconds=fact.duration_seconds,
+                )
+                for fact in facts
+            ),
+            sentiment=sentiment_movement(
+                SentimentArc(start=fact.sentiment_start, end=fact.sentiment_end) for fact in facts
+            ),
+        )
+
+
+class GetWorkMix:
+    """Builds the caller breakdown and the hour-of-day load."""
+
+    def __init__(self, repository: ReadModelRepository) -> None:
+        self._repository = repository
+
+    async def execute(self) -> WorkMix:
+        facts = await self._repository.call_facts()
+        return WorkMix(
+            callers=caller_mix(
+                (
+                    CallerCall(
+                        caller_type=fact.caller_type,
+                        resolution=fact.resolution,
+                        score=fact.score,
+                        duration_seconds=fact.duration_seconds,
+                    )
+                    for fact in facts
+                ),
+                known_types=[member.value for member in CallerType],
+            ),
+            hours=hourly_load(
+                HourCall(started_at=fact.started_at, score=fact.score, resolution=fact.resolution)
+                for fact in facts
+            ),
+        )
+
+
+class GetHandleTimeQuality:
+    """Builds the speed-against-quality comparison.
+
+    Agents below the rubric's significance threshold are carried through but
+    marked incomparable: a four-call average lands anywhere, and one of those in
+    the wrong corner reads as a counter-example to a real pattern.
+    """
+
+    def __init__(self, repository: ReadModelRepository, rubric: Rubric) -> None:
+        self._repository = repository
+        self._rubric = rubric
+
+    async def execute(self) -> HandleTimeQuality:
+        agents = await self._repository.agent_aggregates()
+        facts = await self._repository.call_facts()
+        return handle_time_quality(
+            (
+                AgentSpeed(
+                    agent_name=row.agent_name,
+                    calls=row.call_count,
+                    average_score=row.average_score,
+                    average_handle_minutes=row.average_handle_minutes or 0.0,
+                    is_comparable=is_tier_rated(
+                        row.call_count, self._rubric.min_calls_for_tier_rating
+                    ),
+                )
+                for row in agents
+                # An agent whose calls all lack a duration has no handle time,
+                # and plotting them at zero minutes would put them at the
+                # fast end of a chart they are not on.
+                if row.average_handle_minutes is not None
+            ),
+            (
+                TimedCall(duration_seconds=fact.duration_seconds, score=fact.score)
+                for fact in facts
+                if fact.duration_seconds
+            ),
+        )
+
+
 class GetBrokerScorecard:
     """Builds the broker scorecard."""
 
@@ -434,9 +563,7 @@ class GetSignalDistribution:
         primary = primary_category_by_call(
             await self._repository.l4_findings(), self._taxonomy.l4_categories
         )
-        owner_of = {
-            category.code: category.owner.name for category in self._taxonomy.l4_categories
-        }
+        owner_of = {category.code: category.owner.name for category in self._taxonomy.l4_categories}
         # Seeded with every owner at zero, so a team with no findings keeps its
         # row rather than vanishing from the chart.
         by_owner = {category.owner.name: 0 for category in self._taxonomy.l4_categories}

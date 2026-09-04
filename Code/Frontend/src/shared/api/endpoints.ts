@@ -16,14 +16,17 @@ import type {
   CorpusRunSummary,
   CorpusStatus,
   Effort,
+  HandleTimeQuality,
   Health,
   MembersAtRisk,
   Overview,
   Providers,
+  Pulse,
   ResolutionTime,
   TimeValue,
   SignalDistribution,
   Taxonomy,
+  WorkMix,
 } from '@/shared/api/types'
 
 /** `/health` answers 503 with the report itself when a component is down. */
@@ -127,6 +130,18 @@ export function fetchTimeValue(signal?: AbortSignal): Promise<TimeValue> {
 
 export function fetchMembersAtRisk(signal?: AbortSignal): Promise<MembersAtRisk> {
   return getJson<MembersAtRisk>('/dashboard/members-at-risk', signal ? { signal } : {})
+}
+
+export function fetchPulse(signal?: AbortSignal): Promise<Pulse> {
+  return getJson<Pulse>('/dashboard/pulse', signal ? { signal } : {})
+}
+
+export function fetchWorkMix(signal?: AbortSignal): Promise<WorkMix> {
+  return getJson<WorkMix>('/dashboard/work-mix', signal ? { signal } : {})
+}
+
+export function fetchHandleTimeQuality(signal?: AbortSignal): Promise<HandleTimeQuality> {
+  return getJson<HandleTimeQuality>('/dashboard/handle-time-quality', signal ? { signal } : {})
 }
 
 export function fetchSignals(signal?: AbortSignal): Promise<SignalDistribution> {

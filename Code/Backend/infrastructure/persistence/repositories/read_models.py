@@ -24,6 +24,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 from application.ports.read_models import (
     AgentAggregate,
     BrokerAggregate,
+    CallFact,
     CallFilters,
     CallSort,
     CallSummary,
@@ -163,6 +164,10 @@ class SqlReadModelRepository(ReadModelRepository):
                     _count_if(CallRow.resolution == Resolution.PARTIALLY_RESOLVED.value),
                     _count_if(CallRow.resolution == Resolution.ESCALATED.value),
                     _count_if(CallRow.resolution == Resolution.UNRESOLVED.value),
+                    # AVG skips NULLs, so an agent with some untimed calls gets
+                    # the average of the ones that were timed rather than a
+                    # figure dragged towards zero by the ones that were not.
+                    func.avg(CallRow.duration_seconds),
                 )
                 .where(CallRow.agent_name.is_not(None))
                 .group_by(CallRow.agent_name)
@@ -179,6 +184,9 @@ class SqlReadModelRepository(ReadModelRepository):
                     partially_resolved=int(partial or 0),
                     escalated=int(escalated or 0),
                     unresolved=int(unresolved or 0),
+                    average_handle_minutes=(
+                        round(float(seconds) / 60, 1) if seconds is not None else None
+                    ),
                 )
                 for (
                     name,
@@ -190,6 +198,7 @@ class SqlReadModelRepository(ReadModelRepository):
                     partial,
                     escalated,
                     unresolved,
+                    seconds,
                 ) in rows
             )
 
@@ -446,6 +455,33 @@ class SqlReadModelRepository(ReadModelRepository):
             limit=limit,
             offset=offset,
         )
+
+    async def call_facts(self) -> tuple[CallFact, ...]:
+        """Every call, reduced to the dimensions the dashboard slices by."""
+        async with self._session_factory() as session:
+            rows = await session.execute(
+                select(
+                    CallRow.started_at,
+                    CallRow.score,
+                    CallRow.resolution,
+                    CallRow.duration_seconds,
+                    CallRow.caller_type,
+                    CallRow.sentiment_start,
+                    CallRow.sentiment_end,
+                )
+            )
+            return tuple(
+                CallFact(
+                    started_at=started_at,
+                    score=int(score),
+                    resolution=str(resolution),
+                    duration_seconds=int(seconds) if seconds is not None else None,
+                    caller_type=str(caller) if caller else None,
+                    sentiment_start=str(start) if start else None,
+                    sentiment_end=str(end) if end else None,
+                )
+                for started_at, score, resolution, seconds, caller, start, end in rows
+            )
 
     async def distinct_agents(self) -> tuple[str, ...]:
         async with self._session_factory() as session:

@@ -1,5 +1,13 @@
 /**
- * "What needs attention" — the first screen anyone sees.
+ * The operations dashboard — the first screen anyone sees.
+ *
+ * Arranged as three questions in the order a manager asks them: **where we
+ * stand**, then **why**, then **the detail behind it**. That ordering is the
+ * point of the layout. Before it, the screen opened on a scrolling list of
+ * member identifiers and put every total below three tall cards, so the first
+ * thing read was the narrowest thing on the page — and nothing anywhere said
+ * which way any figure was moving. On this corpus that mattered: resolution
+ * reads 54% overall while the weekly series behind it runs 88, 70, 43, 33, 57.
  *
  * Every figure here is counted from stored calls; nothing is written by a model.
  * Three presentation rules carry over from the prototype because each of them
@@ -17,14 +25,27 @@ import { Link, useNavigate } from 'react-router-dom'
 
 import {
   useAgents,
+  useHandleTimeQuality,
   useMembersAtRisk,
   useOverview,
+  usePulse,
   useResolutionTime,
   useTimeValue,
   useSignals,
+  useWorkMix,
 } from '@/shared/api/queries'
 import type { AgentPerformance, Overview } from '@/shared/api/types'
-import { Bar, BarRows, Histogram, Legend, Metric, MetricStrip } from '@/shared/ui/charts'
+import {
+  Bar,
+  BarRows,
+  DeltaMetric,
+  Histogram,
+  Legend,
+  Metric,
+  MetricStrip,
+  Scatter,
+  TrendLine,
+} from '@/shared/ui/charts'
 import { Card, Chip, Failure, Loading, Note, PageHeader } from '@/shared/ui/primitives'
 import { cx } from '@/shared/ui/cx'
 import styles from './OverviewPage.module.css'
@@ -491,6 +512,247 @@ function ResolutionByAgent({ agents }: { agents: readonly AgentPerformance[] }) 
   )
 }
 
+function PulseStrip() {
+  const pulse = usePulse()
+
+  if (pulse.isPending) return <Loading what="this week" />
+  if (pulse.error) return <Failure error={pulse.error} what="the weekly trend" />
+  const { latest, delta, sentiment } = pulse.data
+
+  if (!latest) {
+    return <Note>No call carries a start time, so there is no week to report.</Note>
+  }
+
+  return (
+    <MetricStrip>
+      <DeltaMetric
+        label="Calls this week"
+        value={latest.calls}
+        delta={delta?.calls}
+        format={(value) => `${String(value)} call${value === 1 ? '' : 's'}`}
+        goodDirection="neutral"
+      />
+      <DeltaMetric
+        label="Resolved first time"
+        value={latest.resolution_rate === null ? '—' : `${String(latest.resolution_rate)}%`}
+        delta={delta?.resolution_rate}
+        format={(value) => `${String(value)} pts`}
+        goodDirection="up"
+      />
+      <DeltaMetric
+        label="Median score"
+        value={latest.median_score ?? '—'}
+        delta={delta?.median_score}
+        format={(value) => `${String(value)} pts`}
+        goodDirection="up"
+      />
+      <DeltaMetric
+        label="Median handle time"
+        value={
+          latest.median_handle_minutes === null
+            ? '—'
+            : `${String(latest.median_handle_minutes)}m`
+        }
+        delta={delta?.median_handle_minutes}
+        format={(value) => `${String(value)} min`}
+        // Neither direction is good on its own. A shorter call is an answer
+        // found faster or a member brushed off, and this figure cannot tell
+        // them apart — the card below it can.
+        goodDirection="neutral"
+      />
+      <Metric
+        label="Left better off"
+        value={`${String(sentiment.improved_rate)}%`}
+        sub={
+          <>
+            <b>{sentiment.improved}</b> improved, <b>{sentiment.worsened}</b> worse — all weeks
+          </>
+        }
+      />
+    </MetricStrip>
+  )
+}
+
+/** Colours for the two headline series. Distinct in hue and in lightness. */
+const TREND_COLOURS = { resolution: '#14514F', score: '#B26A00' } as const
+
+function TrendCard() {
+  const pulse = usePulse()
+
+  if (pulse.isPending) return <Loading what="the trend" />
+  if (pulse.error) return <Failure error={pulse.error} what="the weekly trend" />
+  const { points, latest, previous } = pulse.data
+  if (points.length === 0) return null
+
+  return (
+    <>
+      <TrendLine
+        labels={points.map((point) => point.label)}
+        series={[
+          {
+            label: 'Resolved first time',
+            color: TREND_COLOURS.resolution,
+            values: points.map((point) => point.resolution_rate),
+            max: 100,
+            format: (value) => `${String(value)}%`,
+          },
+          {
+            label: 'Median score',
+            color: TREND_COLOURS.score,
+            values: points.map((point) => point.median_score),
+            max: 100,
+            format: (value) => String(value),
+          },
+        ]}
+      />
+      <Note>
+        {latest && previous && latest.resolution_rate !== null && previous.resolution_rate !== null
+          ? `Resolution moved from ${String(previous.resolution_rate)}% to ${String(
+              latest.resolution_rate,
+            )}% in the last week measured. `
+          : ''}
+        Both series are drawn to the same 0–100 box so their shapes can be compared; a week with
+        no calls breaks the line rather than being drawn through.
+        {pulse.data.undated_calls > 0 ? (
+          <>
+            {' '}
+            <b>{pulse.data.undated_calls}</b> calls state no start time and are in no week.
+          </>
+        ) : null}
+      </Note>
+    </>
+  )
+}
+
+function SpeedCard() {
+  const speed = useHandleTimeQuality()
+
+  if (speed.isPending) return <Loading what="handle time" />
+  if (speed.error) return <Failure error={speed.error} what="handle time against quality" />
+  const { agents, faster, slower, split_minutes, score_gap, flagged_agents } = speed.data
+  if (agents.length === 0) return null
+  const longest = Math.max(...agents.map((agent) => agent.average_handle_minutes), 1)
+
+  return (
+    <>
+      <Scatter
+        points={agents.map((agent) => ({
+          label: agent.agent_name,
+          x: agent.average_handle_minutes,
+          y: agent.average_score,
+          isProvisional: !agent.is_comparable,
+        }))}
+        xLabel="Average minutes"
+        yLabel="Average score"
+        xMax={Math.ceil(longest) + 1}
+        yMax={100}
+        splitAt={split_minutes}
+        splitLabel={`Median call ${String(split_minutes)} min`}
+      />
+      {faster && slower ? (
+        <Note>
+          The <b>{slower.calls}</b> calls {slower.label} average <b>{slower.average_score}</b>;
+          the <b>{faster.calls}</b> calls {faster.label} average <b>{faster.average_score}</b> — a
+          gap of <b>{score_gap}</b> points. Split at the median
+          call rather than at a target, and measured over calls rather than over agents, because
+          thirteen agents is thirteen points and most of them have four calls.
+          {flagged_agents > 0 ? (
+            <>
+              {' '}
+              <b>{flagged_agents}</b> agents marked <span aria-hidden="true">*</span> are below the
+              tier threshold; they are plotted because their volume is real, and faintly because a
+              four-call average lands anywhere.
+            </>
+          ) : null}{' '}
+          Slower calls may simply be harder ones — this says speed and quality move together here,
+          not which one causes the other.
+        </Note>
+      ) : null}
+    </>
+  )
+}
+
+function CallerMixCard() {
+  const mix = useWorkMix()
+
+  if (mix.isPending) return <Loading what="the caller mix" />
+  if (mix.error) return <Failure error={mix.error} what="the caller mix" />
+
+  return (
+    <>
+      <BarRows>
+        {mix.data.callers.map((caller) => (
+          <Bar
+            key={caller.caller_type}
+            label={`${caller.caller_type.charAt(0)}${caller.caller_type.slice(1).toLowerCase()} · ${String(caller.calls)}`}
+            segments={[
+              {
+                value: caller.resolution_rate,
+                color: OUTCOME_COLOURS.resolved,
+                label: 'Resolved first time',
+              },
+              {
+                value: Math.max(100 - caller.resolution_rate, 0),
+                color: OUTCOME_COLOURS.unresolved,
+                label: 'Not resolved first time',
+              },
+            ]}
+            value={caller.calls === 0 ? '—' : `${String(caller.resolution_rate)}%`}
+          />
+        ))}
+      </BarRows>
+      <Note>
+        Bars are the share of each population resolved first time, not their share of the queue —
+        the three are different sizes and stacking them by volume would say only that members call
+        most. An employer is a whole group&rsquo;s coverage and a broker is a distribution channel;
+        averaging all three into one resolution rate describes none of them.
+        {mix.data.unattributed_calls > 0 ? (
+          <>
+            {' '}
+            <b>{mix.data.unattributed_calls}</b> calls state no caller and are left out.
+          </>
+        ) : null}
+      </Note>
+    </>
+  )
+}
+
+function HourlyCard() {
+  const mix = useWorkMix()
+  const weakest = mix.data?.weakest_hour
+
+  if (mix.isPending) return <Loading what="the day" />
+  if (mix.error) return <Failure error={mix.error} what="the hourly load" />
+  if (mix.data.hours.length === 0) return null
+
+  const peak = Math.max(...mix.data.hours.map((hour) => hour.calls), 1)
+
+  return (
+    <>
+      <Histogram
+        peak={peak}
+        bars={mix.data.hours.map((hour) => ({
+          label: hour.label.slice(0, 2),
+          count: hour.calls,
+          // Marked, not merely low: this is the hour a rota would change for.
+          isBelowThreshold: hour.label === weakest,
+        }))}
+      />
+      <Note>
+        Calls by the hour they started.{' '}
+        {weakest ? (
+          <>
+            The <b>{weakest}</b> hour scores lowest of the hours with enough calls to read —
+            a staffing question rather than a coaching one.{' '}
+          </>
+        ) : null}
+        Hours with fewer than four calls are shown but carry no finding; a rota changed on two
+        calls is a rota changed on noise.
+      </Note>
+    </>
+  )
+}
+
 export function OverviewPage() {
   const navigate = useNavigate()
   const overview = useOverview()
@@ -509,7 +771,7 @@ export function OverviewPage() {
   if (metrics.total_calls === 0) {
     return (
       <>
-        <PageHeader title="What needs attention" />
+        <PageHeader title="Operations dashboard" />
         <Card title="No calls analysed yet">
           <Note>
             Every figure on this screen is counted from analysed calls. Start with{' '}
@@ -523,29 +785,57 @@ export function OverviewPage() {
   return (
     <>
       <PageHeader
-        title="What needs attention"
-        subtitle="Ranked by severity then calls affected. Every item has an owner."
+        title="Operations dashboard"
+        subtitle={`${String(metrics.total_calls)} analysed calls. Read top to bottom: where we stand, then why, then the detail behind it.`}
       />
 
-      <div className={styles.grid}>
-        <Card
-          title="Members at risk"
-          subtitle="Warning signs observed, not a prediction — no factor here is validated yet."
-        >
-          <MembersAtRisk />
-        </Card>
+      {/* --- Where we stand -------------------------------------------------
+          The first viewport answers "which way are we going", which is what a
+          leader manages against. It used to answer "who is at risk" — a
+          scrolling list of member identifiers — while the totals sat fifteen
+          hundred pixels below it and carried no direction at all. */}
+      <div className={styles.eyebrow}>Where we stand — most recent week</div>
+      <PulseStrip />
 
-        <Card
-          title="How long an answer takes"
-          subtitle="Resolved calls only — the quickest way to end a call is to solve nothing."
-        >
-          <ResolutionTimeCard />
-        </Card>
-      </div>
+      <Card
+        title="Five weeks of resolution and quality"
+        subtitle="Every other figure here is an all-time total. This is the only one that says which way it is moving."
+      >
+        <TrendCard />
+      </Card>
+
+      {/* --- Why ------------------------------------------------------------ */}
+      <div className={styles.eyebrow}>Why</div>
+
+      <Card
+        title="What speed costs"
+        subtitle="Average score against average handle time, one point per agent."
+      >
+        <SpeedCard />
+      </Card>
 
       <AttentionQueue items={attention} />
 
-      <div className={styles.eyebrow}>Volume and outcomes</div>
+      <div className={styles.grid}>
+        <Card
+          title="Who calls, and who gets an answer"
+          subtitle="Three populations reach the same queue and fare differently."
+        >
+          <CallerMixCard />
+        </Card>
+
+        <Card
+          title="When the calls come"
+          subtitle="Load by hour, with the weakest staffed hour marked."
+        >
+          <HourlyCard />
+        </Card>
+      </div>
+
+      {/* --- The detail behind it -------------------------------------------
+          Kept in full and demoted. Nothing here is wrong; it is simply the
+          second question, and it was being asked first. */}
+      <div className={styles.eyebrow}>The detail behind it</div>
       <MetricStrip>
         <Metric label="Calls analysed" value={metrics.total_calls} sub="From stored analyses" />
         <Metric
@@ -573,9 +863,16 @@ export function OverviewPage() {
           label="Escalation rate"
           value={`${String(metrics.escalation_rate)}%`}
           sub={
-            <>
-              Industry range <b>8–12%</b>
-            </>
+            // A flat 0% beside an industry range reads as a broken feed. It is
+            // not: no call in this corpus was ever marked escalated, and saying
+            // so is the difference between a finding and a suspected bug.
+            metrics.escalation_rate === 0 ? (
+              <>No analysed call was escalated</>
+            ) : (
+              <>
+                Industry range <b>8–12%</b>
+              </>
+            )
           }
         />
         <Metric
@@ -625,6 +922,22 @@ export function OverviewPage() {
           {agents.isPending ? <Loading what="agents" /> : null}
           {agents.error ? <Failure error={agents.error} what="agent performance" /> : null}
           {agents.data ? <ResolutionByAgent agents={agents.data} /> : null}
+        </Card>
+      </div>
+
+      <div className={styles.grid}>
+        <Card
+          title="Members at risk"
+          subtitle="Warning signs observed, not a prediction — no factor here is validated yet."
+        >
+          <MembersAtRisk />
+        </Card>
+
+        <Card
+          title="How long an answer takes"
+          subtitle="Resolved calls only — the quickest way to end a call is to solve nothing."
+        >
+          <ResolutionTimeCard />
         </Card>
       </div>
 
@@ -699,7 +1012,6 @@ export function OverviewPage() {
         </Card>
       </div>
 
-      <div className={styles.eyebrow}>What the time bought</div>
       <Card
         title="Productive and unproductive minutes"
         subtitle="Counted in minutes, not calls — the hours a resolution cost, and the hours that bought none."

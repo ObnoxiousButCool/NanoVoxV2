@@ -109,6 +109,91 @@ class TestSignalsEndpoint:
         assert by_owner["Provider Relations"] == 0
 
 
+class TestPulseEndpoint:
+    """The only figure on the dashboard that says which way anything is going."""
+
+    def test_it_returns_a_week_per_point(self, seeded: TestClient) -> None:
+        body = seeded.get("/api/v1/dashboard/pulse").json()
+
+        assert [point["label"] for point in body["points"]] == ["27 Jul", "3 Aug", "10 Aug"]
+        assert sum(point["calls"] for point in body["points"]) == TOTAL_CALLS
+        assert body["undated_calls"] == 0
+
+    def test_the_delta_compares_the_last_two_weeks_with_calls(self, seeded: TestClient) -> None:
+        body = seeded.get("/api/v1/dashboard/pulse").json()
+
+        assert body["latest"]["label"] == "10 Aug"
+        assert body["previous"]["label"] == "3 Aug"
+        assert body["delta"]["resolution_rate"] == pytest.approx(
+            body["latest"]["resolution_rate"] - body["previous"]["resolution_rate"], abs=0.1
+        )
+
+    def test_the_sentiment_arc_is_reported_beside_it(self, seeded: TestClient) -> None:
+        body = seeded.get("/api/v1/dashboard/pulse").json()
+        sentiment = body["sentiment"]
+
+        assert (
+            sentiment["improved"]
+            + sentiment["unchanged"]
+            + sentiment["worsened"]
+            + sentiment["unclassified"]
+            == TOTAL_CALLS
+        )
+        assert 0 <= sentiment["improved_rate"] <= 100
+
+
+class TestWorkMixEndpoint:
+    def test_every_configured_caller_gets_a_row(self, seeded: TestClient) -> None:
+        # Including the ones nobody called, which is the more interesting row.
+        body = seeded.get("/api/v1/dashboard/work-mix").json()
+
+        assert {row["caller_type"] for row in body["callers"]} == {
+            "MEMBER",
+            "EMPLOYER",
+            "BROKER",
+        }
+
+    def test_the_populations_are_measured_separately(self, seeded: TestClient) -> None:
+        body = seeded.get("/api/v1/dashboard/work-mix").json()
+        by_type = {row["caller_type"]: row for row in body["callers"]}
+
+        assert by_type["EMPLOYER"]["calls"] == 1
+        assert by_type["BROKER"]["calls"] == 1
+        assert by_type["MEMBER"]["calls"] == TOTAL_CALLS - 2
+
+    def test_hours_carry_a_thin_evidence_flag(self, seeded: TestClient) -> None:
+        body = seeded.get("/api/v1/dashboard/work-mix").json()
+
+        assert body["hours"]
+        assert all("is_thin" in hour for hour in body["hours"])
+        assert body["busiest_hour"] is not None
+
+
+class TestHandleTimeQualityEndpoint:
+    def test_the_split_is_counted_in_calls(self, seeded: TestClient) -> None:
+        # Not in agents: on a real corpus only one agent clears the tier
+        # threshold, and one agent is not a comparison.
+        body = seeded.get("/api/v1/dashboard/handle-time-quality").json()
+
+        assert body["faster"]["calls"] + body["slower"]["calls"] == TOTAL_CALLS
+        assert body["split_minutes"] > 0
+
+    def test_agents_below_the_threshold_are_flagged_not_dropped(self, seeded: TestClient) -> None:
+        body = seeded.get("/api/v1/dashboard/handle-time-quality").json()
+        names = {agent["agent_name"] for agent in body["agents"]}
+
+        # Priya has one call in the fixture and is still on the chart.
+        assert "Priya" in names
+        assert body["flagged_agents"] >= 1
+        assert any(not agent["is_comparable"] for agent in body["agents"])
+
+    def test_agents_are_ordered_slowest_first(self, seeded: TestClient) -> None:
+        body = seeded.get("/api/v1/dashboard/handle-time-quality").json()
+        minutes = [agent["average_handle_minutes"] for agent in body["agents"]]
+
+        assert minutes == sorted(minutes, reverse=True)
+
+
 class TestCallsEndpoint:
     def test_lists_calls_with_a_total_and_paging(self, seeded: TestClient) -> None:
         body = get(seeded, "/api/v1/calls", limit=4)

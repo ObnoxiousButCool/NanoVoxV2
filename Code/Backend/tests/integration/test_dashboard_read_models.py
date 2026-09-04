@@ -290,9 +290,7 @@ class TestAgentPerformance:
 
 
 class TestMemberAggregates:
-    async def test_calls_are_grouped_by_member(
-        self, read_models: SqlReadModelRepository
-    ) -> None:
+    async def test_calls_are_grouped_by_member(self, read_models: SqlReadModelRepository) -> None:
         members = await read_models.member_call_counts()
 
         assert members
@@ -607,9 +605,7 @@ class TestCallsList:
 
     async def test_filter_by_member(self, read_models: SqlReadModelRepository) -> None:
         # How the at-risk list opens a member's calls.
-        page = await read_models.list_calls(
-            CallFilters(member_id="CHM-REPEAT"), limit=50, offset=0
-        )
+        page = await read_models.list_calls(CallFilters(member_id="CHM-REPEAT"), limit=50, offset=0)
 
         assert page.total == 2
         assert all(item.member_id == "CHM-REPEAT" for item in page.items)
@@ -619,15 +615,11 @@ class TestCallsList:
     ) -> None:
         # Not "every call": a filter that silently does nothing is worse than one
         # that returns an empty list, because the caller believes the result.
-        page = await read_models.list_calls(
-            CallFilters(member_id="CHM-NOBODY"), limit=50, offset=0
-        )
+        page = await read_models.list_calls(CallFilters(member_id="CHM-NOBODY"), limit=50, offset=0)
 
         assert page.total == 0
 
-    async def test_the_member_is_on_every_row(
-        self, read_models: SqlReadModelRepository
-    ) -> None:
+    async def test_the_member_is_on_every_row(self, read_models: SqlReadModelRepository) -> None:
         # The calls screen shows it, so it has to survive the read model.
         page = await read_models.list_calls(CallFilters(), limit=5, offset=0)
 

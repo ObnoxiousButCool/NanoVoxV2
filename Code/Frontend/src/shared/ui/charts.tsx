@@ -172,3 +172,333 @@ export function Metric({
     </div>
   )
 }
+
+export interface TrendSeries {
+  readonly label: string
+  readonly color: string
+  /** One value per point, `null` where the period measured nothing. */
+  readonly values: readonly (number | null)[]
+  /** Axis ceiling. Fixed per series so two series can share one plot. */
+  readonly max: number
+  readonly format: (value: number) => string
+}
+
+/**
+ * A weekly series, drawn as a line per measure.
+ *
+ * Two measures on different scales share one plot — a score out of 100 and a
+ * percentage — because the question is whether they move together, and two
+ * stacked charts make that comparison an act of memory. Each series carries its
+ * own ceiling and is drawn to the same box, so the shapes are comparable while
+ * the values stay in their own units.
+ *
+ * A period that measured nothing breaks the line rather than interpolating
+ * across it. A straight segment through a week nobody called would draw a
+ * measurement that was never taken.
+ */
+export function TrendLine({
+  series,
+  labels,
+  height = 150,
+}: {
+  series: readonly TrendSeries[]
+  labels: readonly string[]
+  height?: number
+}) {
+  const width = 100
+  const step = labels.length > 1 ? width / (labels.length - 1) : 0
+  // Every series here is drawn to the same ceiling, so one axis describes them
+  // all. Ticks are the reader's only way to tell a fall of four points from a
+  // fall of forty — the line shape alone is the same either way.
+  const ceiling = Math.max(...series.map((line) => line.max))
+  const ticks = [100, 75, 50, 25, 0].map((share) => Math.round((ceiling * share) / 100))
+
+  return (
+    <div className={styles.trend}>
+      <div className={styles.legend}>
+        {series.map((line) => (
+          <span key={line.label} className={styles.legendItem}>
+            <span className={styles.swatch} style={{ background: line.color }} />
+            {line.label}
+          </span>
+        ))}
+      </div>
+
+      <div className={styles.plotRow}>
+        <div className={styles.axisY} style={{ height }}>
+          {ticks.map((tick) => (
+            <span key={tick}>{tick}</span>
+          ))}
+        </div>
+      <svg
+        className={styles.trendPlot}
+        viewBox={`0 0 ${String(width)} 100`}
+        preserveAspectRatio="none"
+        style={{ height }}
+        role="img"
+        aria-label={`Weekly trend: ${series.map((line) => line.label).join(', ')}`}
+      >
+        {[0, 25, 50, 75, 100].map((y) => (
+          <line key={y} x1="0" x2={width} y1={y} y2={y} className={styles.trendRule} />
+        ))}
+        {series.map((line) => {
+          const points = line.values.map((value, index) => ({
+            x: labels.length > 1 ? index * step : width / 2,
+            y: value === null ? null : 100 - (Math.min(value, line.max) * 100) / line.max,
+          }))
+
+          // Split into runs of consecutive measured points, so a gap stays a gap.
+          const runs: { x: number; y: number }[][] = []
+          let run: { x: number; y: number }[] = []
+          for (const point of points) {
+            if (point.y === null) {
+              if (run.length > 0) runs.push(run)
+              run = []
+            } else {
+              run.push({ x: point.x, y: point.y })
+            }
+          }
+          if (run.length > 0) runs.push(run)
+
+          return (
+            <g key={line.label}>
+              {runs.map((segment) => (
+                <polyline
+                  key={`${line.label}-${String(segment[0]?.x ?? 0)}`}
+                  className={styles.trendLine}
+                  stroke={line.color}
+                  points={segment.map((p) => `${String(p.x)},${String(p.y)}`).join(' ')}
+                />
+              ))}
+            </g>
+          )
+        })}
+      </svg>
+      </div>
+
+      <div className={styles.plotRow}>
+        <div className={styles.axisYSpacer} />
+        <div className={styles.trendAxis}>
+          {labels.map((label) => (
+            <span key={label}>{label}</span>
+          ))}
+        </div>
+      </div>
+      <div className={styles.axisNote}>
+        Week beginning, left to right. Both series read against the same 0–{ceiling} scale.
+      </div>
+
+      <div className={styles.dataScroll}>
+      <table className={styles.dataTable}>
+        <caption className={styles.visuallyHidden}>The weekly series, as values</caption>
+        <thead>
+          <tr>
+            <th scope="col">Week</th>
+            {series.map((line) => (
+              <th key={line.label} scope="col">
+                <span className={styles.swatch} style={{ background: line.color }} />
+                {line.label}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {labels.map((label, index) => (
+            <tr key={label}>
+              <th scope="row">{label}</th>
+              {series.map((line) => {
+                const value = line.values[index]
+                return (
+                  <td key={line.label}>
+                    {value === null || value === undefined ? '—' : line.format(value)}
+                  </td>
+                )
+              })}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      </div>
+    </div>
+  )
+}
+
+export interface ScatterPoint {
+  readonly label: string
+  readonly x: number
+  readonly y: number
+  /** Drawn faintly, and marked as provisional in the table beneath. */
+  readonly isProvisional?: boolean
+}
+
+/**
+ * Two measures against each other, one dot per subject.
+ *
+ * Used for handle time against quality, where the relationship is the finding
+ * and any other form hides it: two sorted bar charts show the same numbers and
+ * leave the reader to correlate them by eye.
+ *
+ * The table beneath is not a fallback — it is the chart, for anyone reading by
+ * screen reader or printing the page.
+ */
+export function Scatter({
+  points,
+  xLabel,
+  yLabel,
+  xMax,
+  yMax,
+  splitAt,
+  splitLabel,
+}: {
+  points: readonly ScatterPoint[]
+  xLabel: string
+  yLabel: string
+  xMax: number
+  yMax: number
+  splitAt?: number
+  splitLabel?: string
+}) {
+  // Both axes are labelled at quarters. Without them a reader can see that the
+  // dots slope, and cannot see whether the spread is five points or fifty —
+  // which is the entire question the chart is asked.
+  //
+  // The horizontal ceiling is rounded up to a multiple of four so those quarters
+  // are whole numbers. A ceiling of 11 labels evenly-spaced ticks 0, 3, 6, 8, 11
+  // — gaps of 3, 3, 2, 3 on an axis that is actually linear, which misreads the
+  // spacing rather than merely looking untidy.
+  const xCeiling = Math.max(Math.ceil(xMax / 4) * 4, 4)
+  const yTicks = [100, 75, 50, 25, 0].map((share) => Math.round((yMax * share) / 100))
+  const xTicks = [0, 1, 2, 3, 4].map((quarter) => (xCeiling / 4) * quarter)
+
+  return (
+    <div className={styles.scatter}>
+      <div className={styles.plotRow}>
+        <div className={styles.axisY} style={{ height: 190 }}>
+          {yTicks.map((tick) => (
+            <span key={tick}>{tick}</span>
+          ))}
+        </div>
+      {/* The dots are positioned elements rather than SVG circles. The plot is
+          stretched to the width of its card, and a circle in a stretched
+          viewBox is drawn as an ellipse — which reads as a data encoding
+          ("wider means what?") when it is only an artefact of the box. */}
+      <div
+        className={styles.scatterFrame}
+        role="img"
+        aria-label={`${yLabel} against ${xLabel}, one point per agent`}
+      >
+        {[25, 50, 75].map((y) => (
+          <span key={y} className={styles.scatterGrid} style={{ bottom: `${String(y)}%` }} />
+        ))}
+        {splitAt !== undefined && splitAt > 0 ? (
+          <span
+            className={styles.scatterSplit}
+            style={{ left: `${String((splitAt * 100) / xCeiling)}%` }}
+          >
+            <span className={styles.scatterSplitLabel}>{splitLabel}</span>
+          </span>
+        ) : null}
+        {points.map((point) => (
+          <span
+            key={point.label}
+            className={cx(
+              styles.scatterDot,
+              point.isProvisional === true && styles.scatterDotFaint,
+            )}
+            style={{
+              left: `${String((Math.min(point.x, xCeiling) * 100) / xCeiling)}%`,
+              bottom: `${String((Math.min(point.y, yMax) * 100) / yMax)}%`,
+            }}
+            title={`${point.label}: ${String(point.y)} at ${String(point.x)} min`}
+          />
+        ))}
+      </div>
+      </div>
+
+      <div className={styles.plotRow}>
+        <div className={styles.axisYSpacer} />
+        <div className={styles.axisX}>
+          {xTicks.map((tick) => (
+            <span key={tick}>{tick}</span>
+          ))}
+        </div>
+      </div>
+      <div className={styles.axisNote}>
+        Horizontal: {xLabel.toLowerCase()}. Vertical: {yLabel.toLowerCase()}, 0–{yMax}. Each dot is
+        one agent.
+      </div>
+
+      <div className={styles.dataScroll}>
+      <table className={styles.dataTable}>
+        <caption className={styles.visuallyHidden}>{`${yLabel} and ${xLabel} per agent`}</caption>
+        <thead>
+          <tr>
+            <th scope="col">Agent</th>
+            <th scope="col">{xLabel}</th>
+            <th scope="col">{yLabel}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {points.map((point) => (
+            <tr key={point.label}>
+              <th scope="row">
+                {point.label}
+                {point.isProvisional === true ? <span className={styles.faint}>*</span> : null}
+              </th>
+              <td>{point.x}</td>
+              <td>{point.y}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      </div>
+    </div>
+  )
+}
+
+/**
+ * A metric with its move since the previous period.
+ *
+ * The direction that reads as good differs by measure — resolution rising is
+ * good, handle time rising is not necessarily anything — so the caller states
+ * which way is up rather than the component assuming bigger is better.
+ */
+export function DeltaMetric({
+  label,
+  value,
+  delta,
+  format,
+  goodDirection = 'up',
+  sub,
+}: {
+  label: string
+  value: ReactNode
+  delta: number | null | undefined
+  format: (value: number) => string
+  goodDirection?: 'up' | 'down' | 'neutral'
+  sub?: ReactNode
+}) {
+  const flat = delta === null || delta === undefined || delta === 0
+  const tone = flat || goodDirection === 'neutral'
+    ? styles.deltaFlat
+    : (delta > 0) === (goodDirection === 'up')
+      ? styles.deltaGood
+      : styles.deltaBad
+
+  return (
+    <div className={styles.metric}>
+      <div className={styles.metricKey}>{label}</div>
+      <div className={styles.metricValue}>{value}</div>
+      <div className={styles.metricSub}>
+        {delta === null || delta === undefined ? (
+          <span className={styles.deltaFlat}>No previous week</span>
+        ) : (
+          <span className={tone}>
+            {delta > 0 ? '▲' : delta < 0 ? '▼' : '■'} {format(Math.abs(delta))} on last week
+          </span>
+        )}
+        {sub === undefined ? null : <div>{sub}</div>}
+      </div>
+    </div>
+  )
+}

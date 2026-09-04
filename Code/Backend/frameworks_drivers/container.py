@@ -26,11 +26,14 @@ from application.use_cases.get_dashboard import (
     GetAgentPerformance,
     GetBrokerScorecard,
     GetEffortMetrics,
+    GetHandleTimeQuality,
     GetMembersAtRisk,
     GetOverview,
+    GetPulse,
     GetResolutionTime,
     GetSignalDistribution,
     GetTimeValue,
+    GetWorkMix,
 )
 from application.use_cases.get_health import GetHealth
 from application.use_cases.list_providers import ListProviders
@@ -152,6 +155,15 @@ class Container:
 
     def get_signal_distribution(self) -> GetSignalDistribution:
         return GetSignalDistribution(self.read_models(), self.taxonomy)
+
+    def get_pulse(self) -> GetPulse:
+        return GetPulse(self.read_models())
+
+    def get_work_mix(self) -> GetWorkMix:
+        return GetWorkMix(self.read_models())
+
+    def get_handle_time_quality(self) -> GetHandleTimeQuality:
+        return GetHandleTimeQuality(self.read_models(), self.rubric)
 
     def run_repository(self) -> SqlRunRepository:
         return SqlRunRepository(self.session_factory)

@@ -232,6 +232,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/dashboard/handle-time-quality": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** What speed costs, per agent */
+        get: operations["get_handle_time_quality_api_v1_dashboard_handle_time_quality_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/dashboard/members-at-risk": {
         parameters: {
             query?: never;
@@ -258,6 +275,23 @@ export interface paths {
         };
         /** What needs attention */
         get: operations["get_overview_api_v1_dashboard_overview_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/dashboard/pulse": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Which way the centre is moving, week by week */
+        get: operations["get_pulse_api_v1_dashboard_pulse_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -309,6 +343,23 @@ export interface paths {
         };
         /** What the time on calls bought, in minutes */
         get: operations["get_time_value_api_v1_dashboard_time_value_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/dashboard/work-mix": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Who calls, and when the calls come */
+        get: operations["get_work_mix_api_v1_dashboard_work_mix_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -399,6 +450,19 @@ export interface components {
             tier: string | null;
             /** Unresolved */
             unresolved: number;
+        };
+        /** AgentSpeedResponse */
+        AgentSpeedResponse: {
+            /** Agent Name */
+            agent_name: string;
+            /** Average Handle Minutes */
+            average_handle_minutes: number;
+            /** Average Score */
+            average_score: number;
+            /** Calls */
+            calls: number;
+            /** Is Comparable */
+            is_comparable: boolean;
         };
         /** AnalysisResponse */
         AnalysisResponse: {
@@ -599,6 +663,21 @@ export interface components {
             /** Title */
             title: string;
         };
+        /** CallerBreakdownResponse */
+        CallerBreakdownResponse: {
+            /** Average Handle Minutes */
+            average_handle_minutes: number | null;
+            /** Average Score */
+            average_score: number;
+            /** Caller Type */
+            caller_type: string;
+            /** Calls */
+            calls: number;
+            /** Resolution Rate */
+            resolution_rate: number;
+            /** Share */
+            share: number;
+        };
         /** CallsPageResponse */
         CallsPageResponse: {
             /** Has More */
@@ -794,6 +873,22 @@ export interface components {
             /** Detail */
             detail?: components["schemas"]["ValidationError"][];
         };
+        /** HandleTimeQualityResponse */
+        HandleTimeQualityResponse: {
+            /** Agents */
+            agents: components["schemas"]["AgentSpeedResponse"][];
+            faster: components["schemas"]["SpeedGroupResponse"] | null;
+            /** Flagged Agents */
+            flagged_agents: number;
+            /**
+             * Score Gap
+             * @description Points the slower half scores above the faster half. Positive is the direction an average-handle-time target makes worse.
+             */
+            score_gap: number;
+            slower: components["schemas"]["SpeedGroupResponse"] | null;
+            /** Split Minutes */
+            split_minutes: number;
+        };
         /** HealthResponse */
         HealthResponse: {
             /** Application */
@@ -834,6 +929,24 @@ export interface components {
             peak: number;
             /** Total */
             total: number;
+        };
+        /** HourlyPointResponse */
+        HourlyPointResponse: {
+            /** Average Score */
+            average_score: number | null;
+            /** Calls */
+            calls: number;
+            /** Hour */
+            hour: number;
+            /**
+             * Is Thin
+             * @description Too few calls in this hour to read anything into.
+             */
+            is_thin: boolean;
+            /** Label */
+            label: string;
+            /** Resolution Rate */
+            resolution_rate: number | null;
         };
         /** L4CategoryEntry */
         L4CategoryEntry: {
@@ -1066,6 +1179,17 @@ export interface components {
             /** Providers */
             providers: components["schemas"]["ProviderResponse"][];
         };
+        /** PulseResponse */
+        PulseResponse: {
+            delta: components["schemas"]["TrendDeltaResponse"] | null;
+            latest: components["schemas"]["TrendPointResponse"] | null;
+            /** Points */
+            points: components["schemas"]["TrendPointResponse"][];
+            previous: components["schemas"]["TrendPointResponse"] | null;
+            sentiment: components["schemas"]["SentimentMovementResponse"];
+            /** Undated Calls */
+            undated_calls: number;
+        };
         /** ResolutionTimeResponse */
         ResolutionTimeResponse: {
             /** Bands */
@@ -1185,6 +1309,19 @@ export interface components {
             /** Value */
             value: number;
         };
+        /** SentimentMovementResponse */
+        SentimentMovementResponse: {
+            /** Improved */
+            improved: number;
+            /** Improved Rate */
+            improved_rate: number;
+            /** Unchanged */
+            unchanged: number;
+            /** Unclassified */
+            unclassified: number;
+            /** Worsened */
+            worsened: number;
+        };
         /** SignalEntryResponse */
         SignalEntryResponse: {
             /** Code */
@@ -1216,6 +1353,17 @@ export interface components {
             categories: components["schemas"]["SignalEntryResponse"][];
             /** Owners */
             owners: components["schemas"]["OwnerLoadResponse"][];
+        };
+        /** SpeedGroupResponse */
+        SpeedGroupResponse: {
+            /** Average Handle Minutes */
+            average_handle_minutes: number;
+            /** Average Score */
+            average_score: number;
+            /** Calls */
+            calls: number;
+            /** Label */
+            label: string;
         };
         /** StartRunRequest */
         StartRunRequest: {
@@ -1299,6 +1447,41 @@ export interface components {
             /** Unproductive Minutes */
             unproductive_minutes: number;
         };
+        /**
+         * TrendDeltaResponse
+         * @description The most recent week against the one before it.
+         */
+        TrendDeltaResponse: {
+            /** Calls */
+            calls: number;
+            /** Median Handle Minutes */
+            median_handle_minutes: number | null;
+            /** Median Score */
+            median_score: number | null;
+            /** Resolution Rate */
+            resolution_rate: number | null;
+        };
+        /** TrendPointResponse */
+        TrendPointResponse: {
+            /** Calls */
+            calls: number;
+            /** Label */
+            label: string;
+            /** Median Handle Minutes */
+            median_handle_minutes?: number | null;
+            /**
+             * Median Score
+             * @description Absent for a week with no calls, which is a gap not a zero.
+             */
+            median_score?: number | null;
+            /** Resolution Rate */
+            resolution_rate?: number | null;
+            /**
+             * Starting
+             * Format: date
+             */
+            starting: string;
+        };
         /** TurnResponse */
         TurnResponse: {
             /** Role */
@@ -1322,6 +1505,21 @@ export interface components {
             msg: string;
             /** Error Type */
             type: string;
+        };
+        /** WorkMixResponse */
+        WorkMixResponse: {
+            /** Busiest Hour */
+            busiest_hour: string | null;
+            /** Caller Total */
+            caller_total: number;
+            /** Callers */
+            callers: components["schemas"]["CallerBreakdownResponse"][];
+            /** Hours */
+            hours: components["schemas"]["HourlyPointResponse"][];
+            /** Unattributed Calls */
+            unattributed_calls: number;
+            /** Weakest Hour */
+            weakest_hour: string | null;
         };
     };
     responses: never;
@@ -1736,6 +1934,26 @@ export interface operations {
             };
         };
     };
+    get_handle_time_quality_api_v1_dashboard_handle_time_quality_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HandleTimeQualityResponse"];
+                };
+            };
+        };
+    };
     get_members_at_risk_api_v1_dashboard_members_at_risk_get: {
         parameters: {
             query?: never;
@@ -1772,6 +1990,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["OverviewResponse"];
+                };
+            };
+        };
+    };
+    get_pulse_api_v1_dashboard_pulse_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PulseResponse"];
                 };
             };
         };
@@ -1832,6 +2070,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["TimeValueResponse"];
+                };
+            };
+        };
+    };
+    get_work_mix_api_v1_dashboard_work_mix_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WorkMixResponse"];
                 };
             };
         };

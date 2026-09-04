@@ -79,6 +79,39 @@
         "title": "AgentResponse",
         "type": "object"
       },
+      "AgentSpeedResponse": {
+        "properties": {
+          "agent_name": {
+            "title": "Agent Name",
+            "type": "string"
+          },
+          "average_handle_minutes": {
+            "title": "Average Handle Minutes",
+            "type": "number"
+          },
+          "average_score": {
+            "title": "Average Score",
+            "type": "number"
+          },
+          "calls": {
+            "title": "Calls",
+            "type": "integer"
+          },
+          "is_comparable": {
+            "title": "Is Comparable",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "agent_name",
+          "calls",
+          "average_score",
+          "average_handle_minutes",
+          "is_comparable"
+        ],
+        "title": "AgentSpeedResponse",
+        "type": "object"
+      },
       "AnalysisResponse": {
         "properties": {
           "agent_name": {
@@ -633,6 +666,51 @@
         "title": "CallSummaryResponse",
         "type": "object"
       },
+      "CallerBreakdownResponse": {
+        "properties": {
+          "average_handle_minutes": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Average Handle Minutes"
+          },
+          "average_score": {
+            "title": "Average Score",
+            "type": "number"
+          },
+          "caller_type": {
+            "title": "Caller Type",
+            "type": "string"
+          },
+          "calls": {
+            "title": "Calls",
+            "type": "integer"
+          },
+          "resolution_rate": {
+            "title": "Resolution Rate",
+            "type": "number"
+          },
+          "share": {
+            "title": "Share",
+            "type": "number"
+          }
+        },
+        "required": [
+          "caller_type",
+          "calls",
+          "share",
+          "resolution_rate",
+          "average_score",
+          "average_handle_minutes"
+        ],
+        "title": "CallerBreakdownResponse",
+        "type": "object"
+      },
       "CallsPageResponse": {
         "properties": {
           "has_more": {
@@ -1067,6 +1145,60 @@
         "title": "HTTPValidationError",
         "type": "object"
       },
+      "HandleTimeQualityResponse": {
+        "properties": {
+          "agents": {
+            "items": {
+              "$ref": "#/components/schemas/AgentSpeedResponse"
+            },
+            "title": "Agents",
+            "type": "array"
+          },
+          "faster": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SpeedGroupResponse"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "flagged_agents": {
+            "title": "Flagged Agents",
+            "type": "integer"
+          },
+          "score_gap": {
+            "description": "Points the slower half scores above the faster half. Positive is the direction an average-handle-time target makes worse.",
+            "title": "Score Gap",
+            "type": "number"
+          },
+          "slower": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SpeedGroupResponse"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "split_minutes": {
+            "title": "Split Minutes",
+            "type": "number"
+          }
+        },
+        "required": [
+          "agents",
+          "faster",
+          "slower",
+          "split_minutes",
+          "score_gap",
+          "flagged_agents"
+        ],
+        "title": "HandleTimeQualityResponse",
+        "type": "object"
+      },
       "HealthResponse": {
         "properties": {
           "application": {
@@ -1169,6 +1301,59 @@
           "peak"
         ],
         "title": "HistogramResponse",
+        "type": "object"
+      },
+      "HourlyPointResponse": {
+        "properties": {
+          "average_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Average Score"
+          },
+          "calls": {
+            "title": "Calls",
+            "type": "integer"
+          },
+          "hour": {
+            "title": "Hour",
+            "type": "integer"
+          },
+          "is_thin": {
+            "description": "Too few calls in this hour to read anything into.",
+            "title": "Is Thin",
+            "type": "boolean"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "resolution_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resolution Rate"
+          }
+        },
+        "required": [
+          "hour",
+          "label",
+          "calls",
+          "average_score",
+          "resolution_rate",
+          "is_thin"
+        ],
+        "title": "HourlyPointResponse",
         "type": "object"
       },
       "L4CategoryEntry": {
@@ -1705,6 +1890,64 @@
         "title": "ProvidersResponse",
         "type": "object"
       },
+      "PulseResponse": {
+        "properties": {
+          "delta": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TrendDeltaResponse"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "latest": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TrendPointResponse"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "points": {
+            "items": {
+              "$ref": "#/components/schemas/TrendPointResponse"
+            },
+            "title": "Points",
+            "type": "array"
+          },
+          "previous": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TrendPointResponse"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "sentiment": {
+            "$ref": "#/components/schemas/SentimentMovementResponse"
+          },
+          "undated_calls": {
+            "title": "Undated Calls",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "points",
+          "latest",
+          "previous",
+          "delta",
+          "sentiment",
+          "undated_calls"
+        ],
+        "title": "PulseResponse",
+        "type": "object"
+      },
       "ResolutionTimeResponse": {
         "properties": {
           "bands": {
@@ -2056,6 +2299,39 @@
         "title": "ScoreResponse",
         "type": "object"
       },
+      "SentimentMovementResponse": {
+        "properties": {
+          "improved": {
+            "title": "Improved",
+            "type": "integer"
+          },
+          "improved_rate": {
+            "title": "Improved Rate",
+            "type": "number"
+          },
+          "unchanged": {
+            "title": "Unchanged",
+            "type": "integer"
+          },
+          "unclassified": {
+            "title": "Unclassified",
+            "type": "integer"
+          },
+          "worsened": {
+            "title": "Worsened",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "improved",
+          "unchanged",
+          "worsened",
+          "unclassified",
+          "improved_rate"
+        ],
+        "title": "SentimentMovementResponse",
+        "type": "object"
+      },
       "SignalEntryResponse": {
         "properties": {
           "code": {
@@ -2135,6 +2411,34 @@
           "owners"
         ],
         "title": "SignalsResponse",
+        "type": "object"
+      },
+      "SpeedGroupResponse": {
+        "properties": {
+          "average_handle_minutes": {
+            "title": "Average Handle Minutes",
+            "type": "number"
+          },
+          "average_score": {
+            "title": "Average Score",
+            "type": "number"
+          },
+          "calls": {
+            "title": "Calls",
+            "type": "integer"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          }
+        },
+        "required": [
+          "label",
+          "calls",
+          "average_score",
+          "average_handle_minutes"
+        ],
+        "title": "SpeedGroupResponse",
         "type": "object"
       },
       "StartRunRequest": {
@@ -2329,6 +2633,114 @@
         "title": "TimeValueResponse",
         "type": "object"
       },
+      "TrendDeltaResponse": {
+        "description": "The most recent week against the one before it.",
+        "properties": {
+          "calls": {
+            "title": "Calls",
+            "type": "integer"
+          },
+          "median_handle_minutes": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Median Handle Minutes"
+          },
+          "median_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Median Score"
+          },
+          "resolution_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resolution Rate"
+          }
+        },
+        "required": [
+          "calls",
+          "median_score",
+          "resolution_rate",
+          "median_handle_minutes"
+        ],
+        "title": "TrendDeltaResponse",
+        "type": "object"
+      },
+      "TrendPointResponse": {
+        "properties": {
+          "calls": {
+            "title": "Calls",
+            "type": "integer"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "median_handle_minutes": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Median Handle Minutes"
+          },
+          "median_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Absent for a week with no calls, which is a gap not a zero.",
+            "title": "Median Score"
+          },
+          "resolution_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resolution Rate"
+          },
+          "starting": {
+            "format": "date",
+            "title": "Starting",
+            "type": "string"
+          }
+        },
+        "required": [
+          "starting",
+          "label",
+          "calls"
+        ],
+        "title": "TrendPointResponse",
+        "type": "object"
+      },
       "TurnResponse": {
         "properties": {
           "role": {
@@ -2402,6 +2814,64 @@
           "type"
         ],
         "title": "ValidationError",
+        "type": "object"
+      },
+      "WorkMixResponse": {
+        "properties": {
+          "busiest_hour": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Busiest Hour"
+          },
+          "caller_total": {
+            "title": "Caller Total",
+            "type": "integer"
+          },
+          "callers": {
+            "items": {
+              "$ref": "#/components/schemas/CallerBreakdownResponse"
+            },
+            "title": "Callers",
+            "type": "array"
+          },
+          "hours": {
+            "items": {
+              "$ref": "#/components/schemas/HourlyPointResponse"
+            },
+            "title": "Hours",
+            "type": "array"
+          },
+          "unattributed_calls": {
+            "title": "Unattributed Calls",
+            "type": "integer"
+          },
+          "weakest_hour": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Weakest Hour"
+          }
+        },
+        "required": [
+          "callers",
+          "caller_total",
+          "unattributed_calls",
+          "hours",
+          "busiest_hour",
+          "weakest_hour"
+        ],
+        "title": "WorkMixResponse",
         "type": "object"
       }
     }
@@ -3136,6 +3606,27 @@
         ]
       }
     },
+    "/api/v1/dashboard/handle-time-quality": {
+      "get": {
+        "operationId": "get_handle_time_quality_api_v1_dashboard_handle_time_quality_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HandleTimeQualityResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "What speed costs, per agent",
+        "tags": [
+          "dashboard"
+        ]
+      }
+    },
     "/api/v1/dashboard/members-at-risk": {
       "get": {
         "operationId": "get_members_at_risk_api_v1_dashboard_members_at_risk_get",
@@ -3173,6 +3664,27 @@
           }
         },
         "summary": "What needs attention",
+        "tags": [
+          "dashboard"
+        ]
+      }
+    },
+    "/api/v1/dashboard/pulse": {
+      "get": {
+        "operationId": "get_pulse_api_v1_dashboard_pulse_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PulseResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Which way the centre is moving, week by week",
         "tags": [
           "dashboard"
         ]
@@ -3236,6 +3748,27 @@
           }
         },
         "summary": "What the time on calls bought, in minutes",
+        "tags": [
+          "dashboard"
+        ]
+      }
+    },
+    "/api/v1/dashboard/work-mix": {
+      "get": {
+        "operationId": "get_work_mix_api_v1_dashboard_work_mix_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkMixResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Who calls, and when the calls come",
         "tags": [
           "dashboard"
         ]

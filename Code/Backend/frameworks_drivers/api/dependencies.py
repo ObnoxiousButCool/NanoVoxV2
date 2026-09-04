@@ -17,11 +17,14 @@ from application.use_cases.get_dashboard import (
     GetAgentPerformance,
     GetBrokerScorecard,
     GetEffortMetrics,
+    GetHandleTimeQuality,
     GetMembersAtRisk,
     GetOverview,
+    GetPulse,
     GetResolutionTime,
     GetSignalDistribution,
     GetTimeValue,
+    GetWorkMix,
 )
 from application.use_cases.get_health import GetHealth
 from application.use_cases.list_providers import ListProviders
@@ -99,6 +102,18 @@ def get_signal_distribution_use_case(container: ContainerDep) -> GetSignalDistri
     return container.get_signal_distribution()
 
 
+def get_pulse_use_case(container: ContainerDep) -> GetPulse:
+    return container.get_pulse()
+
+
+def get_work_mix_use_case(container: ContainerDep) -> GetWorkMix:
+    return container.get_work_mix()
+
+
+def get_handle_time_quality_use_case(container: ContainerDep) -> GetHandleTimeQuality:
+    return container.get_handle_time_quality()
+
+
 def get_start_corpus_run_use_case(container: ContainerDep) -> StartCorpusRun:
     return container.start_corpus_run()
 
@@ -147,6 +162,9 @@ EffortMetricsDep = Annotated[GetEffortMetrics, Depends(get_effort_metrics_use_ca
 ResolutionTimeDep = Annotated[GetResolutionTime, Depends(get_resolution_time_use_case)]
 TimeValueDep = Annotated[GetTimeValue, Depends(get_time_value_use_case)]
 MembersAtRiskDep = Annotated[GetMembersAtRisk, Depends(get_members_at_risk_use_case)]
+PulseDep = Annotated[GetPulse, Depends(get_pulse_use_case)]
+WorkMixDep = Annotated[GetWorkMix, Depends(get_work_mix_use_case)]
+HandleTimeQualityDep = Annotated[GetHandleTimeQuality, Depends(get_handle_time_quality_use_case)]
 StartCorpusRunDep = Annotated[StartCorpusRun, Depends(get_start_corpus_run_use_case)]
 CancelCorpusRunDep = Annotated[CancelCorpusRun, Depends(get_cancel_corpus_run_use_case)]
 ResumeCorpusRunDep = Annotated[ResumeCorpusRun, Depends(get_resume_corpus_run_use_case)]
