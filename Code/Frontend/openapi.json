@@ -79,39 +79,6 @@
         "title": "AgentResponse",
         "type": "object"
       },
-      "AgentSpeedResponse": {
-        "properties": {
-          "agent_name": {
-            "title": "Agent Name",
-            "type": "string"
-          },
-          "average_handle_minutes": {
-            "title": "Average Handle Minutes",
-            "type": "number"
-          },
-          "average_score": {
-            "title": "Average Score",
-            "type": "number"
-          },
-          "calls": {
-            "title": "Calls",
-            "type": "integer"
-          },
-          "is_comparable": {
-            "title": "Is Comparable",
-            "type": "boolean"
-          }
-        },
-        "required": [
-          "agent_name",
-          "calls",
-          "average_score",
-          "average_handle_minutes",
-          "is_comparable"
-        ],
-        "title": "AgentSpeedResponse",
-        "type": "object"
-      },
       "AnalysisResponse": {
         "properties": {
           "agent_name": {
@@ -1145,60 +1112,6 @@
         "title": "HTTPValidationError",
         "type": "object"
       },
-      "HandleTimeQualityResponse": {
-        "properties": {
-          "agents": {
-            "items": {
-              "$ref": "#/components/schemas/AgentSpeedResponse"
-            },
-            "title": "Agents",
-            "type": "array"
-          },
-          "faster": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/SpeedGroupResponse"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "flagged_agents": {
-            "title": "Flagged Agents",
-            "type": "integer"
-          },
-          "score_gap": {
-            "description": "Points the slower half scores above the faster half. Positive is the direction an average-handle-time target makes worse.",
-            "title": "Score Gap",
-            "type": "number"
-          },
-          "slower": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/SpeedGroupResponse"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "split_minutes": {
-            "title": "Split Minutes",
-            "type": "number"
-          }
-        },
-        "required": [
-          "agents",
-          "faster",
-          "slower",
-          "split_minutes",
-          "score_gap",
-          "flagged_agents"
-        ],
-        "title": "HandleTimeQualityResponse",
-        "type": "object"
-      },
       "HealthResponse": {
         "properties": {
           "application": {
@@ -1549,6 +1462,14 @@
             "title": "Basis",
             "type": "string"
           },
+          "factor_vocabulary": {
+            "description": "Every factor this system can observe, in a fixed order, whether or not any member is currently showing it. A client drawing a column per factor takes them from here: a factor added to the domain and not to the client would otherwise go unread with nothing to show for it, and an absent column is indistinguishable from a column of no findings.",
+            "items": {
+              "$ref": "#/components/schemas/RiskFactorResponse"
+            },
+            "title": "Factor Vocabulary",
+            "type": "array"
+          },
           "members": {
             "items": {
               "$ref": "#/components/schemas/MemberAtRiskResponse"
@@ -1558,7 +1479,8 @@
           }
         },
         "required": [
-          "members"
+          "members",
+          "factor_vocabulary"
         ],
         "title": "MembersAtRiskResponse",
         "type": "object"
@@ -1994,6 +1916,30 @@
         "title": "ResolutionTimeResponse",
         "type": "object"
       },
+      "RiskFactorResponse": {
+        "description": "One column of the signal matrix.",
+        "properties": {
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "short_label": {
+            "title": "Short Label",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "label",
+          "short_label"
+        ],
+        "title": "RiskFactorResponse",
+        "type": "object"
+      },
       "RunItemResponse": {
         "properties": {
           "call_id": {
@@ -2411,34 +2357,6 @@
           "owners"
         ],
         "title": "SignalsResponse",
-        "type": "object"
-      },
-      "SpeedGroupResponse": {
-        "properties": {
-          "average_handle_minutes": {
-            "title": "Average Handle Minutes",
-            "type": "number"
-          },
-          "average_score": {
-            "title": "Average Score",
-            "type": "number"
-          },
-          "calls": {
-            "title": "Calls",
-            "type": "integer"
-          },
-          "label": {
-            "title": "Label",
-            "type": "string"
-          }
-        },
-        "required": [
-          "label",
-          "calls",
-          "average_score",
-          "average_handle_minutes"
-        ],
-        "title": "SpeedGroupResponse",
         "type": "object"
       },
       "StartRunRequest": {
@@ -3601,27 +3519,6 @@
           }
         },
         "summary": "What getting an answer costs a member",
-        "tags": [
-          "dashboard"
-        ]
-      }
-    },
-    "/api/v1/dashboard/handle-time-quality": {
-      "get": {
-        "operationId": "get_handle_time_quality_api_v1_dashboard_handle_time_quality_get",
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HandleTimeQualityResponse"
-                }
-              }
-            },
-            "description": "Successful Response"
-          }
-        },
-        "summary": "What speed costs, per agent",
         "tags": [
           "dashboard"
         ]

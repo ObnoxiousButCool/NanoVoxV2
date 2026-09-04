@@ -34,12 +34,6 @@ from domain.aggregation.attention import (
 )
 from domain.aggregation.caller_mix import CallerCall, CallerMix, caller_mix
 from domain.aggregation.effort import EffortMetrics, effort_metrics
-from domain.aggregation.handle_time_quality import (
-    AgentSpeed,
-    HandleTimeQuality,
-    TimedCall,
-    handle_time_quality,
-)
 from domain.aggregation.hourly import HourCall, HourlyLoad, hourly_load
 from domain.aggregation.member_risk import MemberAtRisk, members_at_risk
 from domain.aggregation.resolution_time import (
@@ -374,46 +368,6 @@ class GetWorkMix:
             hours=hourly_load(
                 HourCall(started_at=fact.started_at, score=fact.score, resolution=fact.resolution)
                 for fact in facts
-            ),
-        )
-
-
-class GetHandleTimeQuality:
-    """Builds the speed-against-quality comparison.
-
-    Agents below the rubric's significance threshold are carried through but
-    marked incomparable: a four-call average lands anywhere, and one of those in
-    the wrong corner reads as a counter-example to a real pattern.
-    """
-
-    def __init__(self, repository: ReadModelRepository, rubric: Rubric) -> None:
-        self._repository = repository
-        self._rubric = rubric
-
-    async def execute(self) -> HandleTimeQuality:
-        agents = await self._repository.agent_aggregates()
-        facts = await self._repository.call_facts()
-        return handle_time_quality(
-            (
-                AgentSpeed(
-                    agent_name=row.agent_name,
-                    calls=row.call_count,
-                    average_score=row.average_score,
-                    average_handle_minutes=row.average_handle_minutes or 0.0,
-                    is_comparable=is_tier_rated(
-                        row.call_count, self._rubric.min_calls_for_tier_rating
-                    ),
-                )
-                for row in agents
-                # An agent whose calls all lack a duration has no handle time,
-                # and plotting them at zero minutes would put them at the
-                # fast end of a chart they are not on.
-                if row.average_handle_minutes is not None
-            ),
-            (
-                TimedCall(duration_seconds=fact.duration_seconds, score=fact.score)
-                for fact in facts
-                if fact.duration_seconds
             ),
         )
 

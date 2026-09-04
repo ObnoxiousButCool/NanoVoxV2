@@ -16,7 +16,6 @@ import type {
   CorpusRunSummary,
   CorpusStatus,
   Effort,
-  HandleTimeQuality,
   Health,
   MembersAtRisk,
   Overview,
@@ -138,10 +137,6 @@ export function fetchPulse(signal?: AbortSignal): Promise<Pulse> {
 
 export function fetchWorkMix(signal?: AbortSignal): Promise<WorkMix> {
   return getJson<WorkMix>('/dashboard/work-mix', signal ? { signal } : {})
-}
-
-export function fetchHandleTimeQuality(signal?: AbortSignal): Promise<HandleTimeQuality> {
-  return getJson<HandleTimeQuality>('/dashboard/handle-time-quality', signal ? { signal } : {})
 }
 
 export function fetchSignals(signal?: AbortSignal): Promise<SignalDistribution> {

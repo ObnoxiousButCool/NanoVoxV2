@@ -184,8 +184,17 @@ const TIME_VALUE = {
   ],
 }
 
+const VOCABULARY = [
+  { code: 'unresolved', label: 'Issue unresolved', short_label: 'Unresolved' },
+  { code: 'escalated', label: 'Escalated without resolution', short_label: 'Escalated' },
+  { code: 'ended_unhappy', label: 'Ended the call unhappy', short_label: 'Unhappy' },
+  { code: 'repeat_contact', label: 'Has called more than once', short_label: 'Repeat' },
+  { code: 'low_score', label: 'Poorly handled', short_label: 'Low score' },
+]
+
 const MEMBERS = {
   basis: 'Observed warning signs, not a prediction.',
+  factor_vocabulary: VOCABULARY,
   members: [
     {
       member_id: 'CHM5519074',
@@ -307,35 +316,6 @@ const WORK_MIX = {
   weakest_hour: '13:00',
 }
 
-const SPEED = {
-  agents: [
-    {
-      agent_name: 'Sarah',
-      calls: 5,
-      average_score: 84.2,
-      average_handle_minutes: 10,
-      is_comparable: true,
-    },
-    {
-      agent_name: 'Brad',
-      calls: 4,
-      average_score: 57,
-      average_handle_minutes: 4.7,
-      is_comparable: false,
-    },
-  ],
-  faster: { label: 'under 6.7 min', calls: 25, average_score: 67.6, average_handle_minutes: 5.6 },
-  slower: {
-    label: 'at 6.7 min and over',
-    calls: 25,
-    average_score: 84.2,
-    average_handle_minutes: 9,
-  },
-  split_minutes: 6.7,
-  score_gap: 16.6,
-  flagged_agents: 1,
-}
-
 function renderOverview(
   overview: unknown = OVERVIEW,
   {
@@ -361,7 +341,6 @@ function renderOverview(
       if (url.includes('/dashboard/members-at-risk')) return Promise.resolve(json(members))
       if (url.includes('/dashboard/pulse')) return Promise.resolve(json(pulse))
       if (url.includes('/dashboard/work-mix')) return Promise.resolve(json(WORK_MIX))
-      if (url.includes('/dashboard/handle-time-quality')) return Promise.resolve(json(SPEED))
       return Promise.resolve(json({}))
     }),
   )
@@ -575,41 +554,6 @@ describe('OverviewPage', () => {
     })
   })
 
-  describe('what speed costs', () => {
-    it('states the gap between the two halves of the calls', async () => {
-      renderOverview()
-
-      expect(await screen.findByText(/gap of/)).toBeInTheDocument()
-      expect(screen.getByText('16.6')).toBeInTheDocument()
-    })
-
-    it('says the split is over calls, not over agents', async () => {
-      // The distinction the statistic depends on: thirteen agents is thirteen
-      // points and most of them have four calls.
-      renderOverview()
-
-      expect(
-        await screen.findByText(/measured over calls rather than over agents/),
-      ).toBeInTheDocument()
-    })
-
-    it('refuses to call the relationship a cause', async () => {
-      renderOverview()
-
-      expect(
-        await screen.findByText(/not which one causes the other/),
-      ).toBeInTheDocument()
-    })
-
-    it('plots an agent below the threshold and marks them', async () => {
-      renderOverview()
-
-      const table = await screen.findByRole('table', { name: /Average score and Average minutes/i })
-      expect(within(table).getByRole('row', { name: /Brad/ })).toBeInTheDocument()
-      expect(screen.getByText(/below the tier threshold/)).toBeInTheDocument()
-    })
-  })
-
   describe('who calls', () => {
     it('measures each population against itself, not against the queue', async () => {
       // Stacking by volume would say only that members call most.
@@ -653,10 +597,60 @@ describe('OverviewPage', () => {
       // invented, and would be acted on as though it were fact.
       renderOverview()
 
-      expect(await screen.findByText(/CHM5519074/)).toBeInTheDocument()
-      expect(screen.getByText('Issue unresolved')).toBeInTheDocument()
-      expect(screen.getByText('Ended the call unhappy')).toBeInTheDocument()
-      expect(screen.getByText('Has called more than once')).toBeInTheDocument()
+      await screen.findByText(/CHM5519074/)
+      // Scoped to the matrix: several of these words also name a metric
+      // elsewhere on the page.
+      const matrix = screen.getByRole('table', { name: 'Members showing warning signs' })
+      expect(within(matrix).getByText('Unresolved')).toBeInTheDocument()
+      expect(within(matrix).getByText('Unhappy')).toBeInTheDocument()
+      expect(within(matrix).getByText('Repeat')).toBeInTheDocument()
+    })
+
+    it('draws a column for a sign nobody is currently showing', async () => {
+      // An absent column is indistinguishable from a column of no findings, so
+      // the matrix draws every factor the system can observe. No member in the
+      // fixture has escalated.
+      renderOverview()
+
+      await screen.findByText(/CHM5519074/)
+      const matrix = screen.getByRole('table', { name: 'Members showing warning signs' })
+      expect(within(matrix).getByText('Escalated')).toBeInTheDocument()
+    })
+
+    it('takes its columns from the response, not from a list in the client', async () => {
+      // A factor added to the domain and not to the client would go unread with
+      // nothing on screen to say so.
+      renderOverview(OVERVIEW, {
+        members: {
+          ...MEMBERS,
+          factor_vocabulary: [
+            ...VOCABULARY,
+            { code: 'chased_us', label: 'Chased us for an answer', short_label: 'Chased' },
+          ],
+        },
+      })
+
+      const matrix = await screen.findByRole('table', { name: 'Members showing warning signs' })
+      expect(within(matrix).getByText('Chased')).toBeInTheDocument()
+    })
+
+    it('states each cell in words as well as in colour', async () => {
+      // The cells carry no text. A filled square and a colour are not readable
+      // by everyone, and they are the entire content of the row.
+      renderOverview()
+
+      const row = await screen.findByRole('row', { name: /CHM8817740/ })
+      expect(within(row).getByText('Poorly handled')).toBeInTheDocument()
+      expect(within(row).getByText('Not issue unresolved')).toBeInTheDocument()
+    })
+
+    it('shows the score that separates two members carrying the same signs', async () => {
+      // Ranking already used it and the card never drew it, so two rows could
+      // sit in a fixed order for a reason nothing on screen gave.
+      renderOverview()
+
+      const row = await screen.findByRole('row', { name: /CHM5519074/ })
+      expect(within(row).getByText('29')).toBeInTheDocument()
     })
 
     it('says plainly that it is not a prediction', async () => {
@@ -696,7 +690,7 @@ describe('OverviewPage', () => {
     })
 
     it('reports an empty list as a result, not an omission', async () => {
-      renderOverview(OVERVIEW, { members: { basis: 'x', members: [] } })
+      renderOverview(OVERVIEW, { members: { basis: 'x', factor_vocabulary: VOCABULARY, members: [] } })
 
       expect(await screen.findByText(/No member is showing a warning sign/)).toBeInTheDocument()
     })

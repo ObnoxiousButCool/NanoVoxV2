@@ -169,31 +169,6 @@ class TestWorkMixEndpoint:
         assert body["busiest_hour"] is not None
 
 
-class TestHandleTimeQualityEndpoint:
-    def test_the_split_is_counted_in_calls(self, seeded: TestClient) -> None:
-        # Not in agents: on a real corpus only one agent clears the tier
-        # threshold, and one agent is not a comparison.
-        body = seeded.get("/api/v1/dashboard/handle-time-quality").json()
-
-        assert body["faster"]["calls"] + body["slower"]["calls"] == TOTAL_CALLS
-        assert body["split_minutes"] > 0
-
-    def test_agents_below_the_threshold_are_flagged_not_dropped(self, seeded: TestClient) -> None:
-        body = seeded.get("/api/v1/dashboard/handle-time-quality").json()
-        names = {agent["agent_name"] for agent in body["agents"]}
-
-        # Priya has one call in the fixture and is still on the chart.
-        assert "Priya" in names
-        assert body["flagged_agents"] >= 1
-        assert any(not agent["is_comparable"] for agent in body["agents"])
-
-    def test_agents_are_ordered_slowest_first(self, seeded: TestClient) -> None:
-        body = seeded.get("/api/v1/dashboard/handle-time-quality").json()
-        minutes = [agent["average_handle_minutes"] for agent in body["agents"]]
-
-        assert minutes == sorted(minutes, reverse=True)
-
-
 class TestCallsEndpoint:
     def test_lists_calls_with_a_total_and_paging(self, seeded: TestClient) -> None:
         body = get(seeded, "/api/v1/calls", limit=4)

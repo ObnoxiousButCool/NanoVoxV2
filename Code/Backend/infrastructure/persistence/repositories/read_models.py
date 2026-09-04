@@ -164,10 +164,6 @@ class SqlReadModelRepository(ReadModelRepository):
                     _count_if(CallRow.resolution == Resolution.PARTIALLY_RESOLVED.value),
                     _count_if(CallRow.resolution == Resolution.ESCALATED.value),
                     _count_if(CallRow.resolution == Resolution.UNRESOLVED.value),
-                    # AVG skips NULLs, so an agent with some untimed calls gets
-                    # the average of the ones that were timed rather than a
-                    # figure dragged towards zero by the ones that were not.
-                    func.avg(CallRow.duration_seconds),
                 )
                 .where(CallRow.agent_name.is_not(None))
                 .group_by(CallRow.agent_name)
@@ -184,9 +180,6 @@ class SqlReadModelRepository(ReadModelRepository):
                     partially_resolved=int(partial or 0),
                     escalated=int(escalated or 0),
                     unresolved=int(unresolved or 0),
-                    average_handle_minutes=(
-                        round(float(seconds) / 60, 1) if seconds is not None else None
-                    ),
                 )
                 for (
                     name,
@@ -198,7 +191,6 @@ class SqlReadModelRepository(ReadModelRepository):
                     partial,
                     escalated,
                     unresolved,
-                    seconds,
                 ) in rows
             )
 

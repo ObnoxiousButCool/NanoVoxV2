@@ -28,7 +28,6 @@ import {
   fetchTimeValue,
   fetchPulse,
   fetchWorkMix,
-  fetchHandleTimeQuality,
   fetchSignals,
   fetchTaxonomy,
   resumeRun,
@@ -57,7 +56,6 @@ export const queryKeys = {
   membersAtRisk: ['dashboard', 'members-at-risk'] as const,
   pulse: ['dashboard', 'pulse'] as const,
   workMix: ['dashboard', 'work-mix'] as const,
-  handleTimeQuality: ['dashboard', 'handle-time-quality'] as const,
   corpus: ['corpus'] as const,
   runs: ['corpus', 'runs'] as const,
   run: (runId: number) => ['corpus', 'run', runId] as const,
@@ -149,13 +147,6 @@ export function usePulse() {
 
 export function useWorkMix() {
   return useQuery({ queryKey: queryKeys.workMix, queryFn: ({ signal }) => fetchWorkMix(signal) })
-}
-
-export function useHandleTimeQuality() {
-  return useQuery({
-    queryKey: queryKeys.handleTimeQuality,
-    queryFn: ({ signal }) => fetchHandleTimeQuality(signal),
-  })
 }
 
 export function useSignals() {

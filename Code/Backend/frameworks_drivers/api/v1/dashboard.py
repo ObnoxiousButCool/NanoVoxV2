@@ -18,12 +18,12 @@ from application.use_cases.get_dashboard import (
     Overview,
     SignalDistributionEntry,
 )
+from domain.aggregation.member_risk import RiskFactor
 from domain.aggregation.trend import TrendPoint
 from frameworks_drivers.api.dependencies import (
     AgentPerformanceDep,
     BrokerScorecardDep,
     EffortMetricsDep,
-    HandleTimeQualityDep,
     MembersAtRiskDep,
     OverviewDep,
     PulseDep,
@@ -284,8 +284,26 @@ class MemberAtRiskResponse(BaseModel):
     references: list[str]
 
 
+class RiskFactorResponse(BaseModel):
+    """One column of the signal matrix."""
+
+    code: str
+    label: str
+    short_label: str
+
+
 class MembersAtRiskResponse(BaseModel):
     members: list[MemberAtRiskResponse]
+    factor_vocabulary: list[RiskFactorResponse] = Field(
+        description=(
+            "Every factor this system can observe, in a fixed order, whether or "
+            "not any member is currently showing it. A client drawing a column "
+            "per factor takes them from here: a factor added to the domain and "
+            "not to the client would otherwise go unread with nothing to show "
+            "for it, and an absent column is indistinguishable from a column of "
+            "no findings."
+        )
+    )
     basis: str = Field(
         description=(
             "What this list is. Stated on the response because a client must not "
@@ -428,33 +446,6 @@ class WorkMixResponse(BaseModel):
     weakest_hour: str | None
 
 
-class AgentSpeedResponse(BaseModel):
-    agent_name: str
-    calls: int
-    average_score: float
-    average_handle_minutes: float
-    is_comparable: bool
-
-
-class SpeedGroupResponse(BaseModel):
-    label: str
-    calls: int
-    average_score: float
-    average_handle_minutes: float
-
-
-class HandleTimeQualityResponse(BaseModel):
-    agents: list[AgentSpeedResponse]
-    faster: SpeedGroupResponse | None
-    slower: SpeedGroupResponse | None
-    split_minutes: float
-    score_gap: float = Field(
-        description="Points the slower half scores above the faster half. Positive is the "
-        "direction an average-handle-time target makes worse."
-    )
-    flagged_agents: int
-
-
 @router.get("/overview", response_model=OverviewResponse, summary="What needs attention")
 async def get_overview(use_case: OverviewDep) -> OverviewResponse:
     return _overview_response(await use_case.execute())
@@ -565,7 +556,11 @@ async def get_members_at_risk(use_case: MembersAtRiskDep) -> MembersAtRiskRespon
                 references=list(member.references),
             )
             for member in members
-        ]
+        ],
+        factor_vocabulary=[
+            RiskFactorResponse(code=factor.value, label=factor.label, short_label=factor.short_label)
+            for factor in RiskFactor
+        ],
     )
 
 
@@ -672,30 +667,4 @@ async def get_work_mix(use_case: WorkMixDep) -> WorkMixResponse:
         ],
         busiest_hour=mix.hours.busiest.label if mix.hours.busiest else None,
         weakest_hour=mix.hours.weakest.label if mix.hours.weakest else None,
-    )
-
-
-@router.get(
-    "/handle-time-quality",
-    response_model=HandleTimeQualityResponse,
-    summary="What speed costs, per agent",
-)
-async def get_handle_time_quality(use_case: HandleTimeQualityDep) -> HandleTimeQualityResponse:
-    result = await use_case.execute()
-    return HandleTimeQualityResponse(
-        agents=[
-            AgentSpeedResponse(
-                agent_name=agent.agent_name,
-                calls=agent.calls,
-                average_score=agent.average_score,
-                average_handle_minutes=agent.average_handle_minutes,
-                is_comparable=agent.is_comparable,
-            )
-            for agent in result.agents
-        ],
-        faster=SpeedGroupResponse(**result.faster.__dict__) if result.faster else None,
-        slower=SpeedGroupResponse(**result.slower.__dict__) if result.slower else None,
-        split_minutes=result.split_minutes,
-        score_gap=result.score_gap,
-        flagged_agents=result.flagged_agents,
     )

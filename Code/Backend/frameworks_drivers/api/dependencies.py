@@ -17,7 +17,6 @@ from application.use_cases.get_dashboard import (
     GetAgentPerformance,
     GetBrokerScorecard,
     GetEffortMetrics,
-    GetHandleTimeQuality,
     GetMembersAtRisk,
     GetOverview,
     GetPulse,
@@ -110,10 +109,6 @@ def get_work_mix_use_case(container: ContainerDep) -> GetWorkMix:
     return container.get_work_mix()
 
 
-def get_handle_time_quality_use_case(container: ContainerDep) -> GetHandleTimeQuality:
-    return container.get_handle_time_quality()
-
-
 def get_start_corpus_run_use_case(container: ContainerDep) -> StartCorpusRun:
     return container.start_corpus_run()
 
@@ -164,7 +159,6 @@ TimeValueDep = Annotated[GetTimeValue, Depends(get_time_value_use_case)]
 MembersAtRiskDep = Annotated[GetMembersAtRisk, Depends(get_members_at_risk_use_case)]
 PulseDep = Annotated[GetPulse, Depends(get_pulse_use_case)]
 WorkMixDep = Annotated[GetWorkMix, Depends(get_work_mix_use_case)]
-HandleTimeQualityDep = Annotated[GetHandleTimeQuality, Depends(get_handle_time_quality_use_case)]
 StartCorpusRunDep = Annotated[StartCorpusRun, Depends(get_start_corpus_run_use_case)]
 CancelCorpusRunDep = Annotated[CancelCorpusRun, Depends(get_cancel_corpus_run_use_case)]
 ResumeCorpusRunDep = Annotated[ResumeCorpusRun, Depends(get_resume_corpus_run_use_case)]

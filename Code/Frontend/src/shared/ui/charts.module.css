@@ -219,61 +219,6 @@
   color: var(--slate-2);
 }
 
-/* --- Speed against quality ---------------------------------------------- */
-
-.scatter {
-  display: block;
-}
-
-.scatterFrame {
-  flex: 1;
-  min-width: 0;
-  position: relative;
-  height: 190px;
-  margin-top: 4px;
-  border-left: 1px solid var(--rule);
-  border-bottom: 1px solid var(--rule);
-}
-
-.scatterGrid {
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: 0;
-  border-top: 1px solid var(--rule);
-}
-
-/* Centred on its coordinate rather than hung from the corner, so a dot sits on
-   the value it reports. */
-.scatterDot {
-  position: absolute;
-  width: 11px;
-  height: 11px;
-  margin: 0 0 -5.5px -5.5px;
-  border-radius: 50%;
-  background: var(--accent);
-  border: 1.5px solid var(--panel);
-}
-
-/* An agent below the tier threshold. Present, because their volume is real;
-   faint, because a four-call average lands anywhere and a reader should not
-   weigh it the same. */
-.scatterDotFaint {
-  width: 8px;
-  height: 8px;
-  margin: 0 0 -4px -4px;
-  background: var(--slate-2);
-  opacity: 0.6;
-}
-
-.scatterSplit {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 0;
-  border-left: 1px dashed var(--sev-md);
-}
-
 /* --- The values behind a chart ------------------------------------------ */
 
 /* Every plot here is drawn in SVG with no text in it, which makes it unreadable
@@ -436,17 +381,4 @@
 .legendItem {
   display: inline-flex;
   align-items: center;
-}
-
-/* --- The split marker --------------------------------------------------- */
-
-.scatterSplitLabel {
-  position: absolute;
-  top: -2px;
-  left: 5px;
-  white-space: nowrap;
-  font: 500 9.5px/1 var(--font-body);
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--sev-md);
 }

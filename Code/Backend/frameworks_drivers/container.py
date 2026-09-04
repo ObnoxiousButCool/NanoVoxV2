@@ -26,7 +26,6 @@ from application.use_cases.get_dashboard import (
     GetAgentPerformance,
     GetBrokerScorecard,
     GetEffortMetrics,
-    GetHandleTimeQuality,
     GetMembersAtRisk,
     GetOverview,
     GetPulse,
@@ -161,9 +160,6 @@ class Container:
 
     def get_work_mix(self) -> GetWorkMix:
         return GetWorkMix(self.read_models())
-
-    def get_handle_time_quality(self) -> GetHandleTimeQuality:
-        return GetHandleTimeQuality(self.read_models(), self.rubric)
 
     def run_repository(self) -> SqlRunRepository:
         return SqlRunRepository(self.session_factory)

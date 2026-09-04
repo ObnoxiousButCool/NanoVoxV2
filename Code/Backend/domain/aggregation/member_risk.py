@@ -60,6 +60,21 @@ class RiskFactor(str, Enum):
             RiskFactor.ESCALATED: "Escalated without resolution",
         }[self]
 
+    @property
+    def short_label(self) -> str:
+        """The same fact in a column heading's worth of space.
+
+        A matrix reads down the column, where the full sentence would not fit
+        and would not need to: the heading is read once, the cells many times.
+        """
+        return {
+            RiskFactor.UNRESOLVED: "Unresolved",
+            RiskFactor.ENDED_UNHAPPY: "Unhappy",
+            RiskFactor.REPEAT_CONTACT: "Repeat",
+            RiskFactor.LOW_SCORE: "Low score",
+            RiskFactor.ESCALATED: "Escalated",
+        }[self]
+
 
 @dataclass(frozen=True)
 class MemberCalls:

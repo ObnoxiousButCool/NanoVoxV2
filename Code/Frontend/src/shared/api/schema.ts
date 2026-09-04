@@ -232,23 +232,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/dashboard/handle-time-quality": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** What speed costs, per agent */
-        get: operations["get_handle_time_quality_api_v1_dashboard_handle_time_quality_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/v1/dashboard/members-at-risk": {
         parameters: {
             query?: never;
@@ -450,19 +433,6 @@ export interface components {
             tier: string | null;
             /** Unresolved */
             unresolved: number;
-        };
-        /** AgentSpeedResponse */
-        AgentSpeedResponse: {
-            /** Agent Name */
-            agent_name: string;
-            /** Average Handle Minutes */
-            average_handle_minutes: number;
-            /** Average Score */
-            average_score: number;
-            /** Calls */
-            calls: number;
-            /** Is Comparable */
-            is_comparable: boolean;
         };
         /** AnalysisResponse */
         AnalysisResponse: {
@@ -873,22 +843,6 @@ export interface components {
             /** Detail */
             detail?: components["schemas"]["ValidationError"][];
         };
-        /** HandleTimeQualityResponse */
-        HandleTimeQualityResponse: {
-            /** Agents */
-            agents: components["schemas"]["AgentSpeedResponse"][];
-            faster: components["schemas"]["SpeedGroupResponse"] | null;
-            /** Flagged Agents */
-            flagged_agents: number;
-            /**
-             * Score Gap
-             * @description Points the slower half scores above the faster half. Positive is the direction an average-handle-time target makes worse.
-             */
-            score_gap: number;
-            slower: components["schemas"]["SpeedGroupResponse"] | null;
-            /** Split Minutes */
-            split_minutes: number;
-        };
         /** HealthResponse */
         HealthResponse: {
             /** Application */
@@ -1027,6 +981,11 @@ export interface components {
              * @default Observed warning signs, not a prediction. Ranked by how many signs a member shows. No weighting has been validated against real churn.
              */
             basis: string;
+            /**
+             * Factor Vocabulary
+             * @description Every factor this system can observe, in a fixed order, whether or not any member is currently showing it. A client drawing a column per factor takes them from here: a factor added to the domain and not to the client would otherwise go unread with nothing to show for it, and an absent column is indistinguishable from a column of no findings.
+             */
+            factor_vocabulary: components["schemas"]["RiskFactorResponse"][];
             /** Members */
             members: components["schemas"]["MemberAtRiskResponse"][];
         };
@@ -1211,6 +1170,18 @@ export interface components {
             /** Total Calls */
             total_calls: number;
         };
+        /**
+         * RiskFactorResponse
+         * @description One column of the signal matrix.
+         */
+        RiskFactorResponse: {
+            /** Code */
+            code: string;
+            /** Label */
+            label: string;
+            /** Short Label */
+            short_label: string;
+        };
         /** RunItemResponse */
         RunItemResponse: {
             /** Call Id */
@@ -1353,17 +1324,6 @@ export interface components {
             categories: components["schemas"]["SignalEntryResponse"][];
             /** Owners */
             owners: components["schemas"]["OwnerLoadResponse"][];
-        };
-        /** SpeedGroupResponse */
-        SpeedGroupResponse: {
-            /** Average Handle Minutes */
-            average_handle_minutes: number;
-            /** Average Score */
-            average_score: number;
-            /** Calls */
-            calls: number;
-            /** Label */
-            label: string;
         };
         /** StartRunRequest */
         StartRunRequest: {
@@ -1930,26 +1890,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["EffortResponse"];
-                };
-            };
-        };
-    };
-    get_handle_time_quality_api_v1_dashboard_handle_time_quality_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HandleTimeQualityResponse"];
                 };
             };
         };

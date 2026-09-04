@@ -25,7 +25,6 @@ import { Link, useNavigate } from 'react-router-dom'
 
 import {
   useAgents,
-  useHandleTimeQuality,
   useMembersAtRisk,
   useOverview,
   usePulse,
@@ -43,7 +42,6 @@ import {
   Legend,
   Metric,
   MetricStrip,
-  Scatter,
   TrendLine,
 } from '@/shared/ui/charts'
 import { Card, Chip, Failure, Loading, Note, PageHeader } from '@/shared/ui/primitives'
@@ -378,12 +376,20 @@ function TimeValueCard() {
 }
 
 /**
- * Members showing signs of leaving.
+ * Members showing signs of leaving, drawn as a matrix.
  *
  * Deliberately not a churn score. Nothing here has been measured against a real
  * departure, so the card names the signs each member is carrying and leaves the
  * judgement to whoever reads it — a percentage would be indistinguishable from a
  * measured one while being invented.
+ *
+ * A matrix rather than a list of chips because the vocabulary is small, fixed
+ * and heavily repeated: as a chip per member the word "unresolved" is printed
+ * once per row and reads as noise, while as a column it reads as the finding it
+ * is — most of this queue is one operational problem rather than eight separate
+ * member problems. The columns come from the response rather than from a list
+ * here, so a factor added to the domain arrives with a column of its own; an
+ * absent column would be indistinguishable from a column of no findings.
  */
 function MembersAtRisk() {
   const members = useMembersAtRisk()
@@ -395,51 +401,78 @@ function MembersAtRisk() {
     return <Note>No member is showing a warning sign. Shown as a result, not an omission.</Note>
   }
 
+  const vocabulary = members.data.factor_vocabulary
+
   return (
     <>
-      <div className={styles.memberList}>
-        {members.data.members.map((member) => (
-          <article key={member.member_id} className={styles.member}>
-            <div>
-              <h4>
-                {/* Filtered by member, not searched by reference: a search
-                    finds one call, and the point of this row is all of them. */}
-                <Link to={`/calls?member=${encodeURIComponent(member.member_id)}`}>
-                  {member.member_name ? (
-                    <>
-                      {member.member_name}{' '}
-                      {/* The identifier stays visible rather than being replaced:
-                          it is what the calls list filters on and what anyone
-                          looking the member up in another system will need. */}
-                      <span className={styles.memberId}>({member.member_id})</span>
-                    </>
-                  ) : (
-                    // No call of theirs stated a name. The identifier alone is
-                    // still true; a placeholder like "Unknown" would not be.
-                    member.member_id
-                  )}
-                </Link>
-              </h4>
-              <div className={styles.meta}>
-                {member.factor_labels.map((label) => (
-                  <Chip key={label} tone="high">
-                    {label}
-                  </Chip>
-                ))}
-              </div>
-            </div>
-            <div className={styles.count}>
-              <b>{member.factors.length}</b>
-              <span>
-                {member.call_count === 1 ? '1 CALL' : `${String(member.call_count)} CALLS`}
-              </span>
-            </div>
-          </article>
-        ))}
+      <div className={styles.matrixScroll}>
+        <table className={styles.matrix} aria-label="Members showing warning signs">
+          <thead>
+            <tr>
+              <th scope="col">Member</th>
+              {vocabulary.map((factor) => (
+                // The full sentence is the accessible name and the tooltip; the
+                // heading itself has a column's worth of room and no more.
+                <th key={factor.code} scope="col">
+                  <abbr title={factor.label}>{factor.short_label}</abbr>
+                </th>
+              ))}
+              <th scope="col">Score</th>
+            </tr>
+          </thead>
+          <tbody>
+            {members.data.members.map((member) => (
+              <tr key={member.member_id}>
+                <th scope="row">
+                  {/* Filtered by member, not searched by reference: a search
+                      finds one call, and the point of this row is all of them. */}
+                  <Link to={`/calls?member=${encodeURIComponent(member.member_id)}`}>
+                    {member.member_name ? (
+                      <>
+                        {member.member_name}{' '}
+                        {/* The identifier stays visible rather than being replaced:
+                            it is what the calls list filters on and what anyone
+                            looking the member up in another system will need. */}
+                        <span className={styles.memberId}>({member.member_id})</span>
+                      </>
+                    ) : (
+                      // No call of theirs stated a name. The identifier alone is
+                      // still true; a placeholder like "Unknown" would not be.
+                      member.member_id
+                    )}
+                  </Link>
+                  <span className={styles.matrixCalls}>
+                    {member.call_count === 1 ? '1 call' : `${String(member.call_count)} calls`}
+                  </span>
+                </th>
+                {vocabulary.map((factor) => {
+                  const shown = member.factors.includes(factor.code)
+                  return (
+                    <td key={factor.code}>
+                      {/* The mark carries no text, so the cell states in words
+                          what it means. Colour and a filled square are not
+                          readable by everyone, and this is the whole content of
+                          the row. */}
+                      <span className={shown ? styles.markOn : styles.markOff} aria-hidden="true" />
+                      <span className={styles.visuallyHidden}>
+                        {shown ? factor.label : `Not ${factor.label.toLowerCase()}`}
+                      </span>
+                    </td>
+                  )
+                })}
+                {/* The worst call this member had, which is what separates two
+                    members showing the same signs and was previously fetched
+                    and never drawn. */}
+                <td className={styles.matrixScore}>{member.lowest_score}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
       <Note>
         Ranked by how many warning signs a member shows, not by a predicted probability. No factor
-        here has yet been measured against a member who actually left.
+        here has yet been measured against a member who actually left. The score is the lowest any
+        one of their calls was given.
       </Note>
     </>
   )
@@ -624,54 +657,6 @@ function TrendCard() {
   )
 }
 
-function SpeedCard() {
-  const speed = useHandleTimeQuality()
-
-  if (speed.isPending) return <Loading what="handle time" />
-  if (speed.error) return <Failure error={speed.error} what="handle time against quality" />
-  const { agents, faster, slower, split_minutes, score_gap, flagged_agents } = speed.data
-  if (agents.length === 0) return null
-  const longest = Math.max(...agents.map((agent) => agent.average_handle_minutes), 1)
-
-  return (
-    <>
-      <Scatter
-        points={agents.map((agent) => ({
-          label: agent.agent_name,
-          x: agent.average_handle_minutes,
-          y: agent.average_score,
-          isProvisional: !agent.is_comparable,
-        }))}
-        xLabel="Average minutes"
-        yLabel="Average score"
-        xMax={Math.ceil(longest) + 1}
-        yMax={100}
-        splitAt={split_minutes}
-        splitLabel={`Median call ${String(split_minutes)} min`}
-      />
-      {faster && slower ? (
-        <Note>
-          The <b>{slower.calls}</b> calls {slower.label} average <b>{slower.average_score}</b>;
-          the <b>{faster.calls}</b> calls {faster.label} average <b>{faster.average_score}</b> — a
-          gap of <b>{score_gap}</b> points. Split at the median
-          call rather than at a target, and measured over calls rather than over agents, because
-          thirteen agents is thirteen points and most of them have four calls.
-          {flagged_agents > 0 ? (
-            <>
-              {' '}
-              <b>{flagged_agents}</b> agents marked <span aria-hidden="true">*</span> are below the
-              tier threshold; they are plotted because their volume is real, and faintly because a
-              four-call average lands anywhere.
-            </>
-          ) : null}{' '}
-          Slower calls may simply be harder ones — this says speed and quality move together here,
-          not which one causes the other.
-        </Note>
-      ) : null}
-    </>
-  )
-}
-
 function CallerMixCard() {
   const mix = useWorkMix()
 
@@ -804,15 +789,14 @@ export function OverviewPage() {
         <TrendCard />
       </Card>
 
-      {/* --- Why ------------------------------------------------------------ */}
-      <div className={styles.eyebrow}>Why</div>
-
-      <Card
-        title="What speed costs"
-        subtitle="Average score against average handle time, one point per agent."
-      >
-        <SpeedCard />
-      </Card>
+      {/* --- Where it is going wrong ----------------------------------------
+          The three cards under this heading each narrow the same question by a
+          different dimension: which calls went wrong, which callers fare worst,
+          and which hours are weakest. "Why" was accurate while the scatter sat
+          here and argued a cause; what is left locates a problem rather than
+          explaining one, and a one-word label between two phrases read as a
+          fragment rather than as a heading. */}
+      <div className={styles.eyebrow}>Where it is going wrong</div>
 
       <AttentionQueue items={attention} />
 
@@ -925,23 +909,26 @@ export function OverviewPage() {
         </Card>
       </div>
 
-      <div className={styles.grid}>
+      {/* Full width rather than half: the matrix is a column per warning sign
+          the system can observe, and at half width the member column collapses
+          to the point where a name and its identifier no longer fit on a line. */}
+      <div className={styles.solo}>
         <Card
           title="Members at risk"
           subtitle="Warning signs observed, not a prediction — no factor here is validated yet."
         >
           <MembersAtRisk />
         </Card>
+      </div>
 
+      <div className={styles.grid}>
         <Card
           title="How long an answer takes"
           subtitle="Resolved calls only — the quickest way to end a call is to solve nothing."
         >
           <ResolutionTimeCard />
         </Card>
-      </div>
 
-      <div className={styles.grid}>
         <Card
           title="What members call about"
           subtitle="Every configured category, including those with no calls."

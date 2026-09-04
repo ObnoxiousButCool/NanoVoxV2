@@ -112,10 +112,6 @@ class AgentAggregate:
     partially_resolved: int
     escalated: int
     unresolved: int
-    # Average handle time, where the agent's calls state one. Optional because
-    # a pasted transcript carries no duration, and an agent with only those has
-    # no handle time rather than a handle time of zero.
-    average_handle_minutes: float | None = None
 
 
 @dataclass(frozen=True)

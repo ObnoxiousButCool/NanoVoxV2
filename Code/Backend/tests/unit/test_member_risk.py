@@ -90,6 +90,18 @@ class TestNamingTheSigns:
             assert factor.label
             assert factor.label != factor.value
 
+    def test_each_factor_also_fits_a_column_heading(self) -> None:
+        """The matrix heads a column with each factor, where the sentence will not fit.
+
+        A factor added without one would head its column with an exception, so
+        the short form is required of every member of the vocabulary rather
+        than supplied for the ones that happened to need it.
+        """
+        for factor in RiskFactor:
+            assert factor.short_label
+            assert factor.short_label != factor.value
+            assert len(factor.short_label) <= len(factor.label)
+
 
 class TestTheQueue:
     def test_a_member_showing_nothing_is_left_off(self) -> None:

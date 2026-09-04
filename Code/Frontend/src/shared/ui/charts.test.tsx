@@ -8,7 +8,6 @@ import {
   Legend,
   Metric,
   MetricStrip,
-  Scatter,
   TrendLine,
 } from '@/shared/ui/charts'
 
@@ -175,74 +174,6 @@ describe('TrendLine', () => {
 
     const row = screen.getByRole('row', { name: /7 Sep/ })
     expect(within(row).getByText('—')).toBeInTheDocument()
-  })
-})
-
-describe('Scatter', () => {
-  const points = [
-    { label: 'Brad', x: 4.7, y: 57 },
-    { label: 'Sarah', x: 10, y: 84.2 },
-    { label: 'Priya', x: 9, y: 75, isProvisional: true },
-  ]
-
-  function renderScatter() {
-    return render(
-      <Scatter
-        points={points}
-        xLabel="Average minutes"
-        yLabel="Average score"
-        xMax={11}
-        yMax={100}
-        splitAt={6.7}
-        splitLabel="Median call 6.7 min"
-      />,
-    )
-  }
-
-  it('labels both axes', () => {
-    renderScatter()
-
-    expect(screen.getByText('100')).toBeInTheDocument()
-    expect(screen.getByText(/Horizontal: average minutes/)).toBeInTheDocument()
-  })
-
-  it('rounds the horizontal ceiling so the ticks are evenly spaced', () => {
-    // A ceiling of 11 gives 0, 3, 6, 8, 11 — gaps of 3, 3, 2, 3 on ticks that
-    // are equally spaced, which misstates the scale rather than looking untidy.
-    const { container } = renderScatter()
-    // Scoped to the axis: the values table repeats some of these numbers.
-    const axis = container.querySelector('[class*="axisX"]')
-
-    expect([...(axis?.children ?? [])].map((tick) => tick.textContent)).toEqual([
-      '0',
-      '3',
-      '6',
-      '9',
-      '12',
-    ])
-  })
-
-  it('places a point against the same ceiling the ticks describe', () => {
-    // Ten minutes of a twelve-minute axis is five sixths across. Placing dots
-    // against the raw maximum while labelling the rounded one would put every
-    // point slightly off the scale beneath it.
-    const { container } = renderScatter()
-    const sarah = container.querySelector('[title^="Sarah"]')
-
-    expect(sarah).toHaveStyle({ left: `${String((10 * 100) / 12)}%` })
-  })
-
-  it('marks the split and says what it is', () => {
-    renderScatter()
-
-    expect(screen.getByText('Median call 6.7 min')).toBeInTheDocument()
-  })
-
-  it('marks a provisional point in the values table', () => {
-    renderScatter()
-
-    const row = screen.getByRole('row', { name: /Priya/ })
-    expect(within(row).getByText('*')).toBeInTheDocument()
   })
 })
 
