@@ -1,5 +1,5 @@
 /**
- * Paste a transcript, choose a provider, run the five-layer analysis.
+ * Paste a transcript and run the five-layer analysis.
  *
  * The wait is the design problem here: a local model takes minutes on a full
  * transcript. The screen says so before the user commits, and keeps saying it
@@ -13,7 +13,6 @@ import { useAnalyzeTranscript } from '@/shared/api/queries'
 import { ApiError, NetworkError } from '@/shared/api/client'
 import { Alert, Button, Card, Note, PageHeader } from '@/shared/ui/primitives'
 import { countTurns, transcriptWarning } from './countTurns'
-import { ProviderPicker, type ProviderSelection } from './ProviderPicker'
 import styles from './AnalyzePage.module.css'
 
 const PLACEHOLDER = `Agent Sarah: Choice Administrators member services, this is Sarah.
@@ -39,7 +38,6 @@ function AnalysisFailure({ error }: { error: Error }) {
 
 export function AnalyzePage() {
   const [transcript, setTranscript] = useState('')
-  const [selection, setSelection] = useState<ProviderSelection>({ provider: null, model: null })
   const navigate = useNavigate()
   const analyse = useAnalyzeTranscript()
 
@@ -52,7 +50,7 @@ export function AnalyzePage() {
 
   const submit = () => {
     analyse.mutate(
-      { transcript, provider: selection.provider, model: selection.model },
+      { transcript, provider: null, model: null },
       {
         onSuccess: (analysis) => {
           navigate(`/calls/${String(analysis.id)}`)
@@ -149,11 +147,7 @@ export function AnalyzePage() {
         </Card>
 
         <aside>
-          <Card title="Provider">
-            <ProviderPicker selection={selection} onChange={setSelection} disabled={running} />
-          </Card>
-
-          <Card title="What runs" className="stackTop">
+          <Card title="What runs">
             <dl>
               {[
                 ['L1', 'Speakers, tone, flags'],
