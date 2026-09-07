@@ -343,7 +343,6 @@ export function CallsPage() {
     <>
       <PageHeader
         title="Calls"
-        subtitle="In call order by default. Press a column to sort by it — Score surfaces the calls that need action first."
         actions={
           <div className={styles.filters}>
             <Dropdown

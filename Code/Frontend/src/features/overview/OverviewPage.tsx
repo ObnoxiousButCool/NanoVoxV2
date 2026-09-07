@@ -120,16 +120,6 @@ function scoreBandCeiling(
 }
 
 /**
- * How many calls the owner bars account for.
- *
- * Each call is attributed to exactly one owner, so this is the number of calls
- * carrying at least one signal — not a sum of findings.
- */
-function ownerTotal(owners: readonly { count: number }[]): number {
-  return owners.reduce((sum, owner) => sum + owner.count, 0)
-}
-
-/**
  * What getting an answer costs a member.
  *
  * Effort is the churn signal members rarely voice — somebody can report being
@@ -704,11 +694,6 @@ function HourlyCard() {
           },
         }))}
       />
-      {weakest ? (
-        <Note>
-          The <b>{weakest}</b> hour scores lowest of the hours with enough calls to read.
-        </Note>
-      ) : null}
     </>
   )
 }
@@ -744,22 +729,17 @@ export function OverviewPage() {
 
   return (
     <>
-      <PageHeader
-        title="Operations dashboard"
-        subtitle={`${String(metrics.total_calls)} analyzed calls. Read top to bottom: where we stand, then who is affected, then the detail behind it.`}
-      />
+      <PageHeader title="Operations dashboard" />
 
       {/* --- Where we stand -------------------------------------------------
           The first viewport answers "which way are we going", which is what a
           leader manages against. It used to answer "who is at risk" — a
           scrolling list of member identifiers — while the totals sat fifteen
           hundred pixels below it and carried no direction at all. */}
-      <div className={styles.eyebrow}>Where we stand — most recent week</div>
       <PulseStrip />
 
       <Card
         title="Five weeks of resolution and quality"
-        subtitle="Every other figure here is an all-time total. This is the only one that says which way it is moving."
         hint="Both series are drawn to the same 0–100 box so their shapes can be compared. A week with no calls breaks the line rather than being drawn through, so a gap is missing data and not a collapse. A call that states no start time belongs to no week and is left out of the series entirely."
       >
         <TrendCard />
@@ -774,8 +754,6 @@ export function OverviewPage() {
           the figures are computed; three of these sat under "the detail behind
           it" below the coaching charts, and churn risk and wasted hours are
           not detail. */}
-      <div className={styles.eyebrow}>Who is affected</div>
-
       {/* Full width rather than half: the matrix is a column per warning sign
           the system can observe, and at half width the member column collapses
           to the point where a name and its identifier no longer fit on a line. */}
@@ -828,12 +806,6 @@ export function OverviewPage() {
                   />
                 ))}
               </BarRows>
-              <Note>
-                {/* Counted from the bars rather than stated, so the sentence cannot
-                    drift from the chart above it as the corpus changes. */}
-                <b>{ownerTotal(signals.data.owners)}</b> of {metrics.total_calls} calls raise at
-                least one signal; the rest raise none.
-              </Note>
             </>
           ) : null}
         </Card>
@@ -841,7 +813,6 @@ export function OverviewPage() {
 
       <Card
         title="Productive and unproductive minutes"
-        subtitle="Counted in minutes, not calls — the hours a resolution cost, and the hours that bought none."
         hint="The two failure modes need opposite responses. Ending early and unresolved is a member brushed off, which is a coaching signal; running long and still unresolved is a process problem, where coaching the agent would be the wrong response. They are split at the median length of a call that did resolve — derived from this corpus rather than configured, so the line stays comparable as the mix of work changes. Calls with no recorded duration are left out entirely rather than counted as zero, which would understate the minutes."
       >
         <TimeValueCard />
@@ -850,7 +821,6 @@ export function OverviewPage() {
       {/* --- The detail behind it -------------------------------------------
           Kept in full and demoted. Nothing here is wrong; it is simply the
           second question, and it was being asked first. */}
-      <div className={styles.eyebrow}>The detail behind it</div>
       <MetricStrip>
         <Metric label="Calls analyzed" value={metrics.total_calls} sub="From stored analyses" />
         <Metric
@@ -929,7 +899,6 @@ export function OverviewPage() {
       <div className={styles.grid}>
         <Card
           title="Score distribution"
-          subtitle="Reporting one average would hide the low cluster."
           hint="Coach the cluster below the threshold; the rest needs no intervention. Bins are half-open — 70–80 holds 70 to 79 — except the last, which runs to 100 inclusive so the top score has somewhere to sit. Press a bar to open the calls in it."
         >
           <Histogram
@@ -949,12 +918,6 @@ export function OverviewPage() {
             })}
             peak={histogram.peak}
           />
-          <Note>
-            <b>{histogram.below_threshold_count}</b> call
-            {histogram.below_threshold_count === 1 ? '' : 's'}{' '}
-            {histogram.below_threshold_count === 1 ? 'falls' : 'fall'} below the coaching
-            threshold.
-          </Note>
         </Card>
 
         <Card
@@ -988,14 +951,10 @@ export function OverviewPage() {
               />
             ))}
           </BarRows>
-          <Note>
-            Taxonomy coverage <b>{overview.data.taxonomy_coverage}%</b>.
-          </Note>
         </Card>
 
         <Card
           title="Hourly call distribution"
-          subtitle="Load by hour, with the weakest staffed hour marked."
           hint="Calls by the hour they started. The marked hour is a staffing question rather than a coaching one. Hours with fewer than four calls are drawn but carry no finding: a rota changed on two calls is a rota changed on noise."
         >
           <HourlyCard />

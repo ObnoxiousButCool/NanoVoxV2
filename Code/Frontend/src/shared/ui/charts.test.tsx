@@ -153,10 +153,14 @@ describe('TrendLine', () => {
     expect(screen.getAllByText('Resolved first time').length).toBeGreaterThan(1)
   })
 
-  it('says what the axes are', () => {
+  it('names every period along the horizontal axis', () => {
+    // The labels are the axis now that the caption explaining them is gone, so
+    // a period losing its label would leave the plot unreadable.
     render(<TrendLine series={series} labels={['31 Aug', '7 Sep', '14 Sep']} />)
 
-    expect(screen.getByText(/Week beginning, left to right/)).toBeInTheDocument()
+    for (const label of ['31 Aug', '7 Sep', '14 Sep']) {
+      expect(screen.getAllByText(label).length).toBeGreaterThan(0)
+    }
   })
 
   it('breaks the line where a period measured nothing', () => {

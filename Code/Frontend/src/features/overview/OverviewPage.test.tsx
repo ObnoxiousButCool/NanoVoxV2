@@ -385,14 +385,16 @@ async function timeCard(): Promise<HTMLElement> {
 }
 
 describe('OverviewPage', () => {
-  it('says how many calls the owner bars account for', async () => {
-    // The bars total flagged calls, not findings, so the card states the figure
-    // rather than leaving the reader to wonder why it is under the call count.
+  it('carries each owner count on its own bar', async () => {
+    // The prose total is gone; the counts themselves are what the reader has.
     // 4 + 0 owner counts against a 12-call corpus.
     renderOverview()
 
-    const note = await screen.findByText(/raise at least one signal/)
-    expect(note).toHaveTextContent('4 of 12 calls raise at least one signal')
+    const row = await screen.findByText('Member Communications')
+    const card = row.closest('section')
+    if (!card) throw new Error('owner card has no containing section')
+    expect(within(card).getByText('4')).toBeInTheDocument()
+    expect(within(card).getByText('—')).toBeInTheDocument()
   })
 
   it('keeps the double-counting rule reachable, behind the card hint', async () => {
@@ -443,11 +445,12 @@ describe('OverviewPage', () => {
     expect(screen.getByText(/65–75%/)).toBeInTheDocument()
   })
 
-  it('marks how many calls fall below the coaching threshold', async () => {
+  it('keeps the calls below the coaching threshold reachable from their bar', async () => {
+    // The sentence counting them is gone, so the bar is the only route to them.
     renderOverview()
 
-    const note = await screen.findByText(/below the coaching threshold/)
-    expect(note).toHaveTextContent('5 calls fall below the coaching threshold')
+    const bar = await screen.findByRole('button', { name: /Show the 5 calls scoring 0/ })
+    expect(bar).toBeInTheDocument()
   })
 
   it('opens a category from the demand chart', async () => {
@@ -538,11 +541,15 @@ describe('OverviewPage', () => {
   describe('where we stand', () => {
     it('leads with the week, not with the all-time total', async () => {
       // The screen used to open on a scrolling list of member identifiers, with
-      // every total below three tall cards and no direction anywhere.
+      // every total below three tall cards and no direction anywhere. The
+      // heading that announced this section is gone, so position is the claim:
+      // the week has to come before the five-week trend.
       renderOverview()
 
-      expect(await screen.findByText('Where we stand — most recent week')).toBeInTheDocument()
-      expect(await screen.findByText('Calls this week')).toBeInTheDocument()
+      const week = await screen.findByText('Calls this week')
+      const trend = await screen.findByText('Five weeks of resolution and quality')
+
+      expect(week.compareDocumentPosition(trend)).toBe(Node.DOCUMENT_POSITION_FOLLOWING)
     })
 
     it('says which way each figure moved and by how much', async () => {
@@ -637,13 +644,13 @@ describe('OverviewPage', () => {
       ).toBeInTheDocument()
     })
 
-    it('names the weakest staffed hour as a staffing question', async () => {
+    it('keeps the staffing reading of the marked hour reachable', async () => {
+      // The sentence naming 13:00 was removed, so the marking is now carried by
+      // the bar's colour alone and only the hint says what it means.
       renderOverview()
 
-      const note = await screen.findByText(/scores lowest of the hours/)
-      expect(note).toHaveTextContent('13:00')
-
-      const card = note.closest('section')
+      const heading = await screen.findByText('Hourly call distribution')
+      const card = heading.closest('section')
       if (!card) throw new Error('hourly card has no containing section')
       expect(within(card).getByRole('note', { hidden: true })).toHaveTextContent(
         'a staffing question rather than a coaching one',

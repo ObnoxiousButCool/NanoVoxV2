@@ -371,12 +371,6 @@
   color: var(--slate-2);
 }
 
-.axisNote {
-  margin-top: 8px;
-  font: 400 11px/1.5 var(--font-body);
-  color: var(--slate-2);
-}
-
 /* --- Legend ------------------------------------------------------------- */
 
 /* Above the plot, not only in the table header beneath it: a reader looking at

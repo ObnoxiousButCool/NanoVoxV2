@@ -284,10 +284,6 @@ export function TrendLine({
           ))}
         </div>
       </div>
-      <div className={styles.axisNote}>
-        Week beginning, left to right. Both series read against the same 0–{ceiling} scale.
-      </div>
-
       <div className={styles.dataScroll}>
       <table className={styles.dataTable}>
         <caption className={styles.visuallyHidden}>The weekly series, as values</caption>

@@ -101,14 +101,10 @@ export function InferencesPage() {
   if (overview.error) return <Failure error={overview.error} what="the inferences" />
 
   const items = overview.data.attention
-  const total = overview.data.metrics.total_calls
 
   return (
     <>
-      <PageHeader
-        title="Inferences"
-        subtitle={`What ${String(total)} analyzed calls add up to, most serious first. Every item opens the calls it counted.`}
-      />
+      <PageHeader title="Inferences" />
 
       {items.length === 0 ? (
         <Card title="Nothing has crossed a threshold">
@@ -130,16 +126,6 @@ export function InferencesPage() {
               <InferenceItem key={`${item.rule_id}-${item.subject}`} item={item} />
             ))}
           </div>
-          <Note>
-            Ranked by severity, then by how many calls are affected. Every figure is counted from
-            stored analyses; nothing on this page is written by a model. An item can cover calls
-            another item also covers — these are findings about calls, not a division of them.{' '}
-            {/* Said rather than left to be noticed. A reader who knows brokers get named in
-                these calls and sees nothing about them here would reasonably conclude nobody
-                is watching, which is the opposite of the case. */}
-            Broker conduct is not raised here — it has its own screen, in more detail, on{' '}
-            <Link to="/brokers">Brokers</Link>.
-          </Note>
         </>
       )}
     </>

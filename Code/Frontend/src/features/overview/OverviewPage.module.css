@@ -25,15 +25,6 @@
 
    Adjoining margins collapse, so the first eyebrow takes this rather than
    stacking it on top of the page header's own bottom margin. */
-.eyebrow {
-  font: 600 10px/1 var(--font-body);
-  letter-spacing: 0.11em;
-  text-transform: uppercase;
-  color: var(--slate-2);
-  margin-top: 26px;
-  margin-bottom: 9px;
-}
-
 /* Effort figures: three numbers that answer "what did this cost the member?" */
 .effortRow {
   display: flex;
