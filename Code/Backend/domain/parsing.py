@@ -176,8 +176,8 @@ def parse_transcript(text: str) -> Transcript:
             speakers.append(_role_and_name(speaker))
             bodies.append([body])
 
-    for index, ((role, name), body) in enumerate(zip(speakers, bodies, strict=True)):
-        joined = " ".join(part for part in body if part).strip()
+    for index, ((role, name), parts) in enumerate(zip(speakers, bodies, strict=True)):
+        joined = " ".join(part for part in parts if part).strip()
         if not joined:
             # A prefix with nothing after it carries no evidence; keeping it would
             # shift every later turn index.

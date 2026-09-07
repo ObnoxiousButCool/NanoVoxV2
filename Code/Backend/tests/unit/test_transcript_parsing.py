@@ -132,7 +132,10 @@ class TestLabelsInsideALine:
     """
 
     def test_a_flattened_conversation_recovers_its_turns(self) -> None:
-        flat = "Agent Sarah: Thank you for calling. Caller: Why do I owe $340? Agent Sarah: Let me check."
+        flat = (
+            "Agent Sarah: Thank you for calling. Caller: Why do I owe $340? "
+            "Agent Sarah: Let me check."
+        )
 
         transcript = parse_transcript(flat)
 

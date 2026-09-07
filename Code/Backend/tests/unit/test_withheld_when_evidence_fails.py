@@ -25,6 +25,7 @@ import pytest
 from domain.entities.score_marker import ScoreMarker
 from domain.parsing import parse_transcript
 from domain.scoring.marker_validation import MarkerValidator
+from domain.scoring.rubric import Rubric
 from domain.scoring.rubric_engine import RubricEngine
 from domain.value_objects.polarity import Polarity
 from domain.value_objects.score import ScoreStatus
@@ -38,12 +39,12 @@ FLATTENED = "Sarah: Thank you for calling. Why do I owe $340? Let me check that 
 
 
 @pytest.fixture
-def rubric():
+def rubric() -> Rubric:
     return load_rubric(Path("config/rubric.yaml"))
 
 
 @pytest.fixture
-def engine(rubric):
+def engine(rubric: Rubric) -> RubricEngine:
     return RubricEngine(rubric)
 
 
@@ -64,7 +65,7 @@ class TestEvidenceAllRejected:
         # remains reachable and the rule below remains necessary.
         assert parse_transcript(FLATTENED).turn_count == 1
 
-    def test_markers_citing_absent_turns_are_all_refused(self, rubric) -> None:
+    def test_markers_citing_absent_turns_are_all_refused(self, rubric: Rubric) -> None:
         transcript = parse_transcript(FLATTENED)
         dimension = next(iter(rubric.dimensions))
 
@@ -76,7 +77,9 @@ class TestEvidenceAllRejected:
         assert len(validation.rejected) == 5
         assert validation.evidence_all_rejected
 
-    def test_the_score_is_withheld_rather_than_confirmed(self, rubric, engine) -> None:
+    def test_the_score_is_withheld_rather_than_confirmed(
+        self, rubric: Rubric, engine: RubricEngine
+    ) -> None:
         transcript = parse_transcript(FLATTENED)
         dimension = next(iter(rubric.dimensions))
         validation = MarkerValidator(rubric, transcript).validate(
@@ -92,7 +95,7 @@ class TestEvidenceAllRejected:
         assert result.score.value == rubric.base_score
         assert result.status is ScoreStatus.PROVISIONAL
 
-    def test_a_quiet_call_is_still_confirmed(self, rubric, engine) -> None:
+    def test_a_quiet_call_is_still_confirmed(self, rubric: Rubric, engine: RubricEngine) -> None:
         # Nothing proposed is not the same as nothing surviving. A call the model
         # read and had no criticism of is a real result, and withholding it would
         # make the withheld count meaningless.
@@ -105,7 +108,9 @@ class TestEvidenceAllRejected:
         )
         assert result.status is ScoreStatus.CONFIRMED
 
-    def test_one_surviving_marker_is_enough_to_confirm(self, rubric, engine) -> None:
+    def test_one_surviving_marker_is_enough_to_confirm(
+        self, rubric: Rubric, engine: RubricEngine
+    ) -> None:
         # Partial rejection already had a home: the notes record it and the
         # score stands on what was left.
         transcript = parse_transcript(FLATTENED)
