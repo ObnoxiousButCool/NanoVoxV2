@@ -517,21 +517,21 @@ function PulseStrip() {
         goodDirection="neutral"
       />
       <DeltaMetric
-        label="Resolved first time"
+        label="First Call Resolution (FCR)"
         value={latest.resolution_rate === null ? '—' : `${String(latest.resolution_rate)}%`}
         delta={delta?.resolution_rate}
         format={(value) => `${String(value)} pts`}
         goodDirection="up"
       />
       <DeltaMetric
-        label="Median score"
+        label="Average Call Score"
         value={latest.median_score ?? '—'}
         delta={delta?.median_score}
         format={(value) => `${String(value)} pts`}
         goodDirection="up"
       />
       <DeltaMetric
-        label="Median handle time"
+        label="Average Handling Time (AHT)"
         value={
           latest.median_handle_minutes === null
             ? '—'
@@ -545,11 +545,15 @@ function PulseStrip() {
         goodDirection="neutral"
       />
       <Metric
-        label="Left better off"
+        label="Sentiment improved"
         value={`${String(sentiment.improved_rate)}%`}
         sub={
           <>
-            <b>{sentiment.improved}</b> improved, <b>{sentiment.worsened}</b> worse — all weeks
+            {/* All three buckets, so the percentage can be checked against them.
+                Naming only the improved and the worse left the calls that ended
+                in the same state unaccounted for, and the figure unverifiable. */}
+            <b>{sentiment.improved}</b> better · <b>{sentiment.unchanged}</b> same ·{' '}
+            <b>{sentiment.worsened}</b> worse
           </>
         }
       />
@@ -574,7 +578,7 @@ function TrendCard() {
         labels={points.map((point) => point.label)}
         series={[
           {
-            label: 'Resolved first time',
+            label: 'First Call Resolution (FCR)',
             color: TREND_COLOURS.resolution,
             // A field the API may omit and a field it may send as null both
             // mean the same thing — that week has no figure — and the chart
@@ -585,7 +589,7 @@ function TrendCard() {
             format: (value) => `${String(value)}%`,
           },
           {
-            label: 'Median score',
+            label: 'Average Call Score',
             color: TREND_COLOURS.score,
             values: points.map((point) => point.median_score ?? null),
             max: 100,
@@ -641,12 +645,12 @@ function CallerMixCard() {
               {
                 value: caller.resolution_rate,
                 color: OUTCOME_COLOURS.resolved,
-                label: 'Resolved first time',
+                label: 'First Call Resolution (FCR)',
               },
               {
                 value: Math.max(100 - caller.resolution_rate, 0),
                 color: OUTCOME_COLOURS.unresolved,
-                label: 'Not resolved first time',
+                label: 'Not resolved on first call',
               },
             ]}
             value={caller.calls === 0 ? '—' : `${String(caller.resolution_rate)}%`}
@@ -739,6 +743,7 @@ export function OverviewPage() {
       <PulseStrip />
 
       <Card
+        className={styles.solo}
         title="Five weeks of resolution and quality"
         hint="Both series are drawn to the same 0–100 box so their shapes can be compared. A week with no calls breaks the line rather than being drawn through, so a gap is missing data and not a collapse. A call that states no start time belongs to no week and is left out of the series entirely."
       >
@@ -760,7 +765,6 @@ export function OverviewPage() {
       <div className={styles.solo}>
         <Card
           title="Members at risk"
-          subtitle="Warning signs observed, not a prediction — no factor here is validated yet."
           hint="Ranked by how many warning signs a member shows, not by a predicted probability: no factor here has yet been measured against a member who actually left. The score is the lowest any one of their calls was given, which is what separates two members showing the same signs."
         >
           <MembersAtRisk />
@@ -774,7 +778,6 @@ export function OverviewPage() {
       <div className={styles.grid}>
         <Card
           title="Who calls, and who gets an answer"
-          subtitle="Three populations reach the same queue and fare differently."
           hint="Bars are the share of each population resolved first time, not their share of the queue — the three are different sizes, and stacking them by volume would say only that members call most. An employer is a whole group’s coverage and a broker is a distribution channel; averaging all three into one resolution rate describes none of them."
         >
           <CallerMixCard />
@@ -782,7 +785,6 @@ export function OverviewPage() {
 
         <Card
           title="Signals by owner"
-          subtitle="Each call counts once, under the owner of its most serious finding."
           hint="A call raising findings for two teams is counted for the team owning the more serious one, so no call appears twice. Owners with no signals are drawn so the absence is visible rather than implied."
         >
           {signals.isPending ? <Loading what="signals" /> : null}
@@ -812,6 +814,7 @@ export function OverviewPage() {
       </div>
 
       <Card
+        className={styles.solo}
         title="Productive and unproductive minutes"
         hint="The two failure modes need opposite responses. Ending early and unresolved is a member brushed off, which is a coaching signal; running long and still unresolved is a process problem, where coaching the agent would be the wrong response. They are split at the median length of a call that did resolve — derived from this corpus rather than configured, so the line stays comparable as the mix of work changes. Calls with no recorded duration are left out entirely rather than counted as zero, which would understate the minutes."
       >
@@ -824,11 +827,11 @@ export function OverviewPage() {
       <MetricStrip>
         <Metric label="Calls analyzed" value={metrics.total_calls} sub="From stored analyses" />
         <Metric
-          label="Median agent score"
+          label="Average Call Score"
           value={metrics.median_score}
           sub={
             <>
-              Mean <b>{metrics.mean_score}</b>
+              Median of every call; mean <b>{metrics.mean_score}</b>
               {metrics.median_score === metrics.mean_score
                 ? ' — distribution is even'
                 : ' — distribution is split'}
@@ -877,7 +880,6 @@ export function OverviewPage() {
       <div className={styles.grid}>
         <Card
           title="Resolution by agent"
-          subtitle="Proportional, so volume does not distort the picture."
           hint="Every agent's average is shown; a starred one is not tier-rated, because the agent has fewer calls than the significance threshold. The average is real arithmetic either way — what is withheld is the GOOD, AVERAGE or POOR label, since one call moves a four-call average by four points and a tier boundary should not turn on that. The bars are outcomes, not the score: they show how the agent's calls ended."
         >
           {agents.isPending ? <Loading what="agents" /> : null}
@@ -887,7 +889,6 @@ export function OverviewPage() {
 
         <Card
           title="How long an answer takes"
-          subtitle="Resolved calls only — the quickest way to end a call is to solve nothing."
           hint="Median minutes to resolve, slowest category first, over the calls that reached a resolution. A category that has resolved nothing shows a dash rather than a zero, because no time was measured — not a fast one."
         >
           <ResolutionTimeCard />
@@ -922,7 +923,6 @@ export function OverviewPage() {
 
         <Card
           title="What members call about"
-          subtitle="Every configured category, including those with no calls."
           hint="A zero-count category is drawn rather than omitted: an absent bar reads as “this does not happen” rather than “this did not happen here”. If coverage drops below 90% the categories need revising, not the chart."
         >
           <BarRows>

@@ -279,8 +279,14 @@
   border: 0;
 }
 
-/* A card that takes the whole row. Used where the content is wider than it is
-   tall — a matrix with a column per category will not compress into half. */
+/* A block that takes the whole row, and the 14px every other block on this
+   page leaves under itself: a full-width card, or a wrapper around one whose
+   content is wider than it is tall — a matrix with a column per category will
+   not compress into half.
+
+   A bare Card carries no bottom margin of its own, so a full-width one needs
+   this. The space used to arrive from the tier heading that followed it; with
+   those headings gone, two cards sat flush against the block beneath them. */
 .solo {
   margin-bottom: 14px;
 }

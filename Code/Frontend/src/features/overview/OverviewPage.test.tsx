@@ -428,12 +428,14 @@ describe('OverviewPage', () => {
     expect(within(card).getByRole('note')).toBeVisible()
   })
 
-  it('shows the median and the mean together', async () => {
-    // One number alone sits in the gap between the two clusters.
+  it('shows the median and the mean together, and says which is which', async () => {
+    // One number alone sits in the gap between the two clusters. The card is
+    // headed "Average Call Score", so the sub-line has to name the average it
+    // shows or the two figures read as a contradiction.
     renderOverview()
 
     await screen.findByText('65')
-    expect(screen.getByText(/Mean/)).toHaveTextContent('64.4')
+    expect(screen.getByText(/Median of every call/)).toHaveTextContent('64.4')
     expect(screen.getByText(/distribution is split/)).toBeInTheDocument()
   })
 

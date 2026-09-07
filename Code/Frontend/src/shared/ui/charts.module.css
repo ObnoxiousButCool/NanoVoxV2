@@ -258,7 +258,7 @@
 }
 
 /* Every value column the same width, whatever its heading is called.
-   Sized by content, "Resolved first time" claimed 537px and "Median score"
+   Sized by content, the resolution heading claimed 537px and the score heading
    399px, so two figures meant to be read against each other sat 140px apart
    with the wider one stranded mid-card. The label column takes the surplus. */
 .dataTable thead th:not(:first-child) {

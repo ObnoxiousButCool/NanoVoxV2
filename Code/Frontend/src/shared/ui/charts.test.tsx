@@ -128,7 +128,7 @@ describe('Metric', () => {
 describe('TrendLine', () => {
   const series = [
     {
-      label: 'Resolved first time',
+      label: 'First Call Resolution (FCR)',
       color: '#14514F',
       values: [87.5, null, 33.3],
       max: 100,
@@ -150,7 +150,7 @@ describe('TrendLine', () => {
     // Colour alone is not a label, and the table is below the fold.
     render(<TrendLine series={series} labels={['31 Aug', '7 Sep', '14 Sep']} />)
 
-    expect(screen.getAllByText('Resolved first time').length).toBeGreaterThan(1)
+    expect(screen.getAllByText('First Call Resolution (FCR)').length).toBeGreaterThan(1)
   })
 
   it('names every period along the horizontal axis', () => {
@@ -187,7 +187,7 @@ describe('DeltaMetric', () => {
     // red from green, so the arrow and the sentence do the work colour does.
     render(
       <DeltaMetric
-        label="Resolved first time"
+        label="First Call Resolution (FCR)"
         value="57%"
         delta={-23.8}
         format={(value) => `${String(value)} pts`}
