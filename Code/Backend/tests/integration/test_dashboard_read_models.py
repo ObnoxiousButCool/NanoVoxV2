@@ -291,7 +291,7 @@ class TestAgentPerformance:
         assert priya.average_score == 96.0
         assert not priya.rating.is_rated
         assert priya.rating.tier is None
-        assert priya.rating.note == "Below n=5 significance threshold"
+        assert priya.rating.note == "Below n=4 significance threshold"
 
 
 class TestMemberAggregates:
