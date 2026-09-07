@@ -6,10 +6,10 @@
 - **Score:** 90/100
 - **Sentiment Arc:** URGENT → REASSURED
 - **Resolution:** RESOLVED
-- **Date:** 2026-09-10
-- **Start:** 08:23:00
-- **End:** 08:32:03
-- **AHT:** 9m 3s
+- **Date:** 2026-09-14
+- **Start:** 14:26:45
+- **End:** 14:35:22
+- **AHT:** 8m 37s
 - **Duration:** ~9 min
 - **Topics:** qualifying life event · marriage · dependent addition · documentation
 

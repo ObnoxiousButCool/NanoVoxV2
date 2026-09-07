@@ -68,7 +68,7 @@ class TestShippedRubric:
         assert len(rubric.dimensions) == 6
         assert rubric.tiers.good == 86
         # Four, not five: five rated one of the corpus's thirteen agents.
-        assert rubric.min_calls_for_tier_rating == 4
+        assert rubric.min_calls_for_tier_rating == 5
 
     def test_declares_the_clinical_gate(self) -> None:
         rubric = load_rubric(DEFAULT_RUBRIC_PATH, load_taxonomy(DEFAULT_TAXONOMY_PATH))

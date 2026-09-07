@@ -6,11 +6,11 @@
 - **Score:** 44/100
 - **Sentiment Arc:** NEUTRAL → MISINFORMED
 - **Resolution:** UNRESOLVED
-- **Date:** 2026-09-08
-- **Start:** 10:01:15
-- **End:** 10:06:27
-- **AHT:** 5m 12s
-- **Duration:** ~5 min
+- **Date:** 2026-09-02
+- **Start:** 14:24:45
+- **End:** 14:29:06
+- **AHT:** 4m 21s
+- **Duration:** ~4 min
 - **Topics:** annual maximum · incorrect information · dental · major services
 
 **Member context:** Nadia Haddad, 45 · Delta Dental Gold PPO · planning implant work

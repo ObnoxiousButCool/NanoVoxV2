@@ -6,11 +6,11 @@
 - **Score:** 78/100
 - **Sentiment Arc:** NEUTRAL → INFORMED
 - **Resolution:** RESOLVED
-- **Date:** 2026-09-01
-- **Start:** 11:21:00
-- **End:** 11:29:49
-- **AHT:** 8m 49s
-- **Duration:** ~9 min
+- **Date:** 2026-09-28
+- **Start:** 10:28:00
+- **End:** 10:36:19
+- **AHT:** 8m 19s
+- **Duration:** ~8 min
 - **Topics:** new hire · waiting period · effective date · onboarding
 
 **Member context:** Pacific Dental Partners · 22 employees · HR Coordinator Tanya Brooks

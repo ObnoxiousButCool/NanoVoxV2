@@ -7,9 +7,9 @@
 - **Sentiment Arc:** NEUTRAL → SATISFIED
 - **Resolution:** RESOLVED
 - **Date:** 2026-09-15
-- **Start:** 11:42:00
-- **End:** 11:50:19
-- **AHT:** 8m 19s
+- **Start:** 12:05:00
+- **End:** 12:12:44
+- **AHT:** 7m 44s
 - **Duration:** ~8 min
 - **Topics:** quoting · multi-carrier · package · proposal
 

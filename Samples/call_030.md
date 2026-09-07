@@ -6,11 +6,11 @@
 - **Score:** 73/100
 - **Sentiment Arc:** FRUSTRATED → PARTIALLY SATISFIED
 - **Resolution:** PARTIALLY RESOLVED
-- **Date:** 2026-09-07
-- **Start:** 10:42:45
-- **End:** 10:52:38
-- **AHT:** 9m 53s
-- **Duration:** ~10 min
+- **Date:** 2026-09-22
+- **Start:** 10:56:00
+- **End:** 11:04:52
+- **AHT:** 8m 52s
+- **Duration:** ~9 min
 - **Topics:** billing error · termination · credit · retro adjustment
 
 **Member context:** Willow Creek Services · 48 employees · HR Director George Nakamura

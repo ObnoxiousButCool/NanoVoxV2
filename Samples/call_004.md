@@ -6,11 +6,11 @@
 - **Score:** 41/100
 - **Sentiment Arc:** WORRIED → DISMISSED
 - **Resolution:** UNRESOLVED
-- **Date:** 2026-09-24
-- **Start:** 11:58:30
-- **End:** 12:03:58
-- **AHT:** 5m 28s
-- **Duration:** ~5 min
+- **Date:** 2026-09-08
+- **Start:** 09:43:15
+- **End:** 09:48:46
+- **AHT:** 5m 31s
+- **Duration:** ~6 min
 - **Topics:** termination · coverage expiry · employer · reinstatement
 
 **Member context:** Terrence Boyd, 47 · ChoiceBuilder dental and vision · received a termination notice

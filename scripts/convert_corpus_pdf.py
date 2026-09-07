@@ -7,7 +7,7 @@ because a PDF text layer is lossy — the arrows and middle dots in this one com
 back mangled under some encodings — and a conversion you can read, diff and
 correct by hand is worth more than one that happens invisibly at ingest.
 
-The v4 header is a five-line block:
+The header is a five-line block:
 
     Call #1 — Why Am I Paying a Copay When I Have Dental Insurance?
     Thu 24 Sep 2026 · 10:41:15 – 10:46:36 · AHT 5m 21s
@@ -16,7 +16,16 @@ The v4 header is a five-line block:
     Topics: copay · preventive · dental · cost share · Delta Dental
 
 which is rewritten as the bullet header the corpus parser reads, carrying the
-new fields — date, start, end, handle time and caller type — as further bullets.
+fields — date, start, end, handle time and caller type — as further bullets.
+
+v5 adds a sixth line to the eighteen calls that carry a broker, sitting between
+Context and Topics:
+
+    BROKER SIGNAL — Anthony Salerno: Told member dental had no waiting period
+
+v5 also ends some sentiment arcs in a churn state rather than a mood — ``ANGRY →
+RETAINED``, ``FRUSTRATED → CHURN RISK``. Both are recorded as authored, because
+the arc is ground truth to compare against and not a value this script judges.
 
     python scripts/convert_corpus_pdf.py Documents/corpus.pdf Samples
     python scripts/convert_corpus_pdf.py Documents/corpus.pdf Samples --dry-run
@@ -49,11 +58,22 @@ _HEADER = re.compile(
     rf"(?P<resolution>{_UPPER})\s*\|\s*(?P<start_mood>{_UPPER})\s*→\s*(?P<end_mood>{_UPPER})\s*\|\s*"
     r"Agent:\s*(?P<agent>[^\n]+)\n"
     r"Context:\s*(?P<context>[^\n]+)\n"
+    # v5 only, and only on the eighteen calls that carry one. Optional rather
+    # than a second pattern because the line sits *inside* the header block: a
+    # regex demanding Context and Topics back to back matches 82 of the 100
+    # calls and drops the other 18 without saying so — and those 18 are exactly
+    # the broker calls, the most valuable ones in the corpus.
+    r"(?:BROKER SIGNAL\s*[—–-]\s*(?P<broker>[^\n]+)\n)?"  # noqa: RUF001
     r"Topics:\s*(?P<topics>[^\n]+)$",
     re.MULTILINE,
 )
 
 _AHT = re.compile(r"^(?:(?P<minutes>\d+)\s*m)?\s*(?:(?P<seconds>\d+)\s*s)?$")
+
+# Just the first line of a header, matched on its own so the count of calls the
+# document *claims* can be compared with the count the full pattern accepts.
+# Without this the v5 corpus converted quietly at 82 of 100.
+_HEADER_FIRST_LINE = re.compile(r"^Call #(?P<number>\d+)\s*[—–-]", re.MULTILINE)  # noqa: RUF001
 
 
 @dataclass(frozen=True)
@@ -75,6 +95,8 @@ class Call:
     agent: str
     context: str
     topics: str
+    #: ``Name: what they did``, or empty where the call carries no broker.
+    broker: str
     transcript: str
     panel: str
 
@@ -114,6 +136,18 @@ def parse_calls(text: str) -> list[Call]:
     if not matches:
         raise SystemExit("No call headers found. Is this the timestamped corpus PDF?")
 
+    # A header the full pattern cannot read is a call that would vanish from the
+    # conversion while the summary line still reported success. Refuse the whole
+    # document instead, naming the calls, because a partial corpus is worse than
+    # none: the run succeeds and the dashboard is quietly missing evidence.
+    claimed = {int(m.group("number")) for m in _HEADER_FIRST_LINE.finditer(text)}
+    read = {int(m.group("number")) for m in matches}
+    if unread := sorted(claimed - read):
+        raise SystemExit(
+            f"{len(unread)} of {len(claimed)} call headers could not be read: {unread}\n"
+            "The header block has changed shape. Compare one of these against _HEADER."
+        )
+
     calls: list[Call] = []
     for index, match in enumerate(matches):
         # The body runs to the next header, or to the end of the document.
@@ -145,6 +179,7 @@ def parse_calls(text: str) -> list[Call]:
                 agent=match.group("agent").strip(),
                 context=match.group("context").strip(),
                 topics=match.group("topics").strip(),
+                broker=(match.group("broker") or "").strip(),
                 transcript=transcript,
                 panel=panel,
             )
@@ -171,6 +206,9 @@ def render(call: Call) -> str:
             # rounded minutes keep the field readable beside the older files.
             f"- **AHT:** {call.handle_time}",
             f"- **Duration:** ~{round(call.handle_seconds / 60)} min",
+            # The bullet the corpus parser already reads: it takes the name from
+            # before the colon and leaves the rest as the author's account.
+            *([f"- **Broker Signal:** {call.broker}"] if call.broker else []),
             f"- **Topics:** {call.topics}",
             "",
             f"**Member context:** {call.context}",
@@ -215,6 +253,8 @@ def main(argv: list[str] | None = None) -> int:
     total = sum(call.handle_seconds for call in calls)
     print(f"handle time: {total / 3600:.1f} h total, {total / len(calls) / 60:.1f} min average")
     print(f"callers: {', '.join(sorted({call.caller for call in calls}))}")
+    brokered = [call.number for call in calls if call.broker]
+    print(f"broker signals: {len(brokered)} calls {brokered}")
     print(
         "dates: "
         f"{min(call.call_date for call in calls)} to {max(call.call_date for call in calls)}"

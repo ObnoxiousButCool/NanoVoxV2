@@ -6,10 +6,10 @@
 - **Score:** 40/100
 - **Sentiment Arc:** FRUSTRATED → HOSTILE
 - **Resolution:** UNRESOLVED
-- **Date:** 2026-09-21
-- **Start:** 13:24:15
-- **End:** 13:30:42
-- **AHT:** 6m 27s
+- **Date:** 2026-09-23
+- **Start:** 16:36:15
+- **End:** 16:42:12
+- **AHT:** 5m 57s
 - **Duration:** ~6 min
 - **Topics:** commission · broker support · statement · payment
 

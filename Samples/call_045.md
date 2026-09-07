@@ -6,11 +6,11 @@
 - **Score:** 93/100
 - **Sentiment Arc:** ANXIOUS → REASSURED
 - **Resolution:** RESOLVED
-- **Date:** 2026-09-23
-- **Start:** 10:42:45
-- **End:** 10:52:12
-- **AHT:** 9m 27s
-- **Duration:** ~9 min
+- **Date:** 2026-09-29
+- **Start:** 10:46:30
+- **End:** 10:56:18
+- **AHT:** 9m 48s
+- **Duration:** ~10 min
 - **Topics:** visit limit · chiropractic · Landmark · annual maximum · planning
 
 **Member context:** Thomas Andrews, 48 · Landmark Healthplan · 18 of 20 visits used

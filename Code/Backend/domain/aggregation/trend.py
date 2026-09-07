@@ -4,10 +4,12 @@ Every other figure on this dashboard is an all-time total. That answers "how are
 we doing" and not "are we getting better or worse", which is the question a
 leader actually manages against — and the two can point in opposite directions.
 On the shipped corpus they do: resolution reads 54% overall, and the weekly
-series behind it runs 88, 70, 43, 33, 57. A single number reported the centre as
-mildly below benchmark while it was halving.
+series behind it runs 80, 52, 43, 50, 62. A single number reported the centre as
+mildly below benchmark through a month in which resolution first fell by nearly
+half and then recovered — two movements a manager would act on, and the average
+of the two is the one thing that describes neither.
 
-**Weekly, not daily.** Fifty calls over a month is one to five a day, and a
+**Weekly, not daily.** A hundred calls over a month is three to five a day, and a
 median over three calls moves on noise. A week is the shortest bucket in which a
 change here is a change rather than a coin flip. Buckets start on Monday, so a
 week is the working week a manager already thinks in.

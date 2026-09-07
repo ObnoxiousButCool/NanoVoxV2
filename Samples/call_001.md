@@ -6,10 +6,10 @@
 - **Score:** 38/100
 - **Sentiment Arc:** CONFUSED → FRUSTRATED
 - **Resolution:** UNRESOLVED
-- **Date:** 2026-09-24
-- **Start:** 10:41:15
-- **End:** 10:46:36
-- **AHT:** 5m 21s
+- **Date:** 2026-09-03
+- **Start:** 11:55:15
+- **End:** 12:00:06
+- **AHT:** 4m 51s
 - **Duration:** ~5 min
 - **Topics:** copay · preventive · dental · cost share · Delta Dental
 

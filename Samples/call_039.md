@@ -6,10 +6,10 @@
 - **Score:** 45/100
 - **Sentiment Arc:** NEUTRAL → MISINFORMED
 - **Resolution:** UNRESOLVED
-- **Date:** 2026-09-01
-- **Start:** 08:53:15
-- **End:** 08:56:42
-- **AHT:** 3m 27s
+- **Date:** 2026-09-14
+- **Start:** 10:26:00
+- **End:** 10:29:26
+- **AHT:** 3m 26s
 - **Duration:** ~3 min
 - **Topics:** exclusions · cosmetic · incorrect information · dental
 

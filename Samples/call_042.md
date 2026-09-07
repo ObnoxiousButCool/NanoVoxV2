@@ -6,11 +6,11 @@
 - **Score:** 36/100
 - **Sentiment Arc:** URGENT → ABANDONED
 - **Resolution:** UNRESOLVED
-- **Date:** 2026-09-28
-- **Start:** 14:46:45
-- **End:** 14:52:34
-- **AHT:** 5m 49s
-- **Duration:** ~6 min
+- **Date:** 2026-09-08
+- **Start:** 11:06:00
+- **End:** 11:10:58
+- **AHT:** 4m 58s
+- **Duration:** ~5 min
 - **Topics:** reinstatement · suspension · payment posted · grace period
 
 **Member context:** Bayside Cleaning · 34 employees · Owner Alice Fontaine · payment made, still suspended

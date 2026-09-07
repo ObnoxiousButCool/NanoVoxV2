@@ -6,10 +6,10 @@
 - **Score:** 79/100
 - **Sentiment Arc:** NEUTRAL → INFORMED
 - **Resolution:** RESOLVED
-- **Date:** 2026-09-22
-- **Start:** 14:30:15
-- **End:** 14:39:04
-- **AHT:** 8m 49s
+- **Date:** 2026-09-11
+- **Start:** 11:11:30
+- **End:** 11:20:02
+- **AHT:** 8m 32s
 - **Duration:** ~9 min
 - **Topics:** renewal · carrier change · vision · open enrollment · lock date
 

@@ -6,11 +6,11 @@
 - **Score:** 97/100
 - **Sentiment Arc:** GRIEVING → SUPPORTED
 - **Resolution:** RESOLVED
-- **Date:** 2026-09-07
-- **Start:** 09:46:45
-- **End:** 09:58:15
-- **AHT:** 11m 30s
-- **Duration:** ~12 min
+- **Date:** 2026-09-18
+- **Start:** 10:47:15
+- **End:** 10:58:26
+- **AHT:** 11m 11s
+- **Duration:** ~11 min
 - **Topics:** life insurance · beneficiary claim · Assurity · bereavement
 
 **Member context:** Harold Brennan, 71 · Assurity Life via ChoiceBuilder · wife died three weeks ago

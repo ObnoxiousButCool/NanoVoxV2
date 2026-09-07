@@ -6,11 +6,11 @@
 - **Score:** 95/100
 - **Sentiment Arc:** WORRIED → REASSURED
 - **Resolution:** RESOLVED
-- **Date:** 2026-09-02
-- **Start:** 11:41:00
-- **End:** 11:50:25
-- **AHT:** 9m 25s
-- **Duration:** ~9 min
+- **Date:** 2026-09-08
+- **Start:** 15:49:15
+- **End:** 15:59:01
+- **AHT:** 9m 46s
+- **Duration:** ~10 min
 - **Topics:** COBRA · continuation · life conversion · coverage loss · offboarding
 
 **Member context:** Derek Foster, 38 · ChoiceBuilder dental, vision, life · position eliminated

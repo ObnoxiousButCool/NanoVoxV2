@@ -1,10 +1,13 @@
 """Statistical significance for agent-level reporting.
 
-Four of the thirteen agents in the corpus have four calls each. Publishing a tier
-for an agent on that evidence would be unfair to the agent and misleading to the
-manager reading it, so agents below the threshold are shown — the volume is real
-— but not tier-rated. The prototype states this rule on the chart; it is enforced
-here so it cannot be forgotten by a caller.
+Publishing a tier for an agent on three or four calls would be unfair to the
+agent and misleading to the manager reading it, so agents below the threshold are
+shown — the volume is real — but not tier-rated. The prototype states this rule
+on the chart; it is enforced here so it cannot be forgotten by a caller.
+
+The shipped corpus no longer exercises the rule: all thirteen of its agents carry
+six calls or more. The rule is kept for the corpus that will, and the threshold
+itself lives in ``rubric.yaml`` rather than here.
 """
 
 from __future__ import annotations

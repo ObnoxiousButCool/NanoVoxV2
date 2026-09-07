@@ -6,10 +6,10 @@
 - **Score:** 93/100
 - **Sentiment Arc:** ANXIOUS → REASSURED
 - **Resolution:** RESOLVED
-- **Date:** 2026-09-01
-- **Start:** 10:30:15
-- **End:** 10:39:51
-- **AHT:** 9m 36s
+- **Date:** 2026-09-17
+- **Start:** 16:16:45
+- **End:** 16:26:39
+- **AHT:** 9m 54s
 - **Duration:** ~10 min
 - **Topics:** waiting period · major services · denial · Ameritas · enrollment disclosure
 

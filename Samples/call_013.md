@@ -6,10 +6,10 @@
 - **Score:** 39/100
 - **Sentiment Arc:** NEUTRAL → FRUSTRATED
 - **Resolution:** UNRESOLVED
-- **Date:** 2026-09-28
-- **Start:** 11:20:15
-- **End:** 11:26:19
-- **AHT:** 6m 4s
+- **Date:** 2026-09-07
+- **Start:** 10:46:45
+- **End:** 10:52:50
+- **AHT:** 6m 5s
 - **Duration:** ~6 min
 - **Topics:** portal access · password reset · MFA · technical support
 

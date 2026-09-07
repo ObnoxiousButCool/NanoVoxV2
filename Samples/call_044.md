@@ -6,11 +6,11 @@
 - **Score:** 41/100
 - **Sentiment Arc:** NEUTRAL → FRUSTRATED
 - **Resolution:** UNRESOLVED
-- **Date:** 2026-09-25
-- **Start:** 15:25:00
-- **End:** 15:30:37
-- **AHT:** 5m 37s
-- **Duration:** ~6 min
+- **Date:** 2026-09-24
+- **Start:** 08:55:15
+- **End:** 09:00:34
+- **AHT:** 5m 19s
+- **Duration:** ~5 min
 - **Topics:** portal permissions · user access · admin rights · technical
 
 **Member context:** Summit Electronics · 63 employees · Payroll Manager Earl Thomas

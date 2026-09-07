@@ -6,11 +6,11 @@
 - **Score:** 75/100
 - **Sentiment Arc:** NEUTRAL → SATISFIED
 - **Resolution:** RESOLVED
-- **Date:** 2026-09-09
-- **Start:** 10:18:15
-- **End:** 10:24:26
-- **AHT:** 6m 11s
-- **Duration:** ~6 min
+- **Date:** 2026-09-28
+- **Start:** 15:33:45
+- **End:** 15:40:28
+- **AHT:** 6m 43s
+- **Duration:** ~7 min
 - **Topics:** split commission · co-broker · agency · commission structure
 
 **Member context:** Okonkwo Benefits · Broker Sandra Okonkwo · co-brokered group

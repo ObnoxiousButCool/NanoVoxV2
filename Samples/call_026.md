@@ -6,11 +6,11 @@
 - **Score:** 77/100
 - **Sentiment Arc:** NEUTRAL → INFORMED
 - **Resolution:** RESOLVED
-- **Date:** 2026-09-01
-- **Start:** 15:49:30
-- **End:** 15:56:00
-- **AHT:** 6m 30s
-- **Duration:** ~6 min
+- **Date:** 2026-09-28
+- **Start:** 11:53:15
+- **End:** 12:01:01
+- **AHT:** 7m 46s
+- **Duration:** ~8 min
 - **Topics:** participation requirements · voluntary · employer-sponsored · quoting
 
 **Member context:** Fontaine & Associates · Broker Derek Fontaine · 40-life prospect considering voluntary

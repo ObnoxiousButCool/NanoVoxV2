@@ -6,10 +6,10 @@
 - **Score:** 40/100
 - **Sentiment Arc:** NEUTRAL → FRUSTRATED
 - **Resolution:** UNRESOLVED
-- **Date:** 2026-09-21
-- **Start:** 13:43:00
-- **End:** 13:47:42
-- **AHT:** 4m 42s
+- **Date:** 2026-09-25
+- **Start:** 13:53:30
+- **End:** 13:58:56
+- **AHT:** 5m 26s
 - **Duration:** ~5 min
 - **Topics:** pending claim · claim status · COB hold · no explanation
 

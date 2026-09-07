@@ -6,11 +6,11 @@
 - **Score:** 94/100
 - **Sentiment Arc:** ANGRY → SATISFIED
 - **Resolution:** RESOLVED
-- **Date:** 2026-09-23
-- **Start:** 16:44:15
-- **End:** 16:55:04
-- **AHT:** 10m 49s
-- **Duration:** ~11 min
+- **Date:** 2026-09-30
+- **Start:** 13:45:45
+- **End:** 13:55:23
+- **AHT:** 9m 38s
+- **Duration:** ~10 min
 - **Topics:** claim dispute · service not rendered · provider billing · fraud check
 
 **Member context:** Marcus Johnson, 43 · MetLife dental · claim for a procedure not performed

@@ -1,9 +1,9 @@
 """Call #89 end-to-end through the shipped rubric — the P1 exit criterion.
 
-Call #89 is the corpus's most important case: a 68-year-old described chest
-pressure with radiating arm pain, and the agent quoted copays and steered her to
-the cheaper care setting. It closed normally and would appear as an efficient
-benefits inquiry in any handle-time report.
+Call #89 is the most important case the corpus ever carried: a 68-year-old
+described chest pressure with radiating arm pain, and the agent quoted copays and
+steered her to the cheaper care setting. It closed normally and would appear as an
+efficient benefits inquiry in any handle-time report.
 
 This test runs the real `config/rubric.yaml` and the real `config/taxonomy.yaml`,
 not a fixture, so it fails if either file is edited in a way that would stop this
@@ -35,7 +35,13 @@ from infrastructure.config.taxonomy_loader import load_taxonomy
 
 CLINICAL_RISK = "clinical_risk"
 
-# Verbatim from Samples/call_089.md.
+# Verbatim from call #89 of the v3 corpus, which is where this case comes from.
+# It is inlined rather than read from Samples/ because it is no longer there: the
+# v5 corpus contains no clinical-risk call at all, and call_089.md is now a call
+# about finding a Spanish-speaking dentist. Keeping the transcript here is
+# deliberate — it is the only remaining test that a call which looks like an
+# efficient benefits inquiry is still caught as a safety failure, and losing it
+# with the corpus would retire the P1 exit criterion by accident.
 TRANSCRIPT = Transcript(
     (
         Turn(0, SpeakerRole.AGENT, "Choice Administrators, Brad.", "Brad"),

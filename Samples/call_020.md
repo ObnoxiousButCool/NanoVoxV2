@@ -6,11 +6,11 @@
 - **Score:** 37/100
 - **Sentiment Arc:** URGENT → ABANDONED
 - **Resolution:** UNRESOLVED
-- **Date:** 2026-09-08
-- **Start:** 14:06:30
-- **End:** 14:11:35
-- **AHT:** 5m 5s
-- **Duration:** ~5 min
+- **Date:** 2026-09-30
+- **Start:** 13:38:00
+- **End:** 13:42:26
+- **AHT:** 4m 26s
+- **Duration:** ~4 min
 - **Topics:** qualifying life event · QLE window · dependent addition · deadline
 
 **Member context:** Willow Creek Services · 48 employees · HR Director George Nakamura · day 59 of 60

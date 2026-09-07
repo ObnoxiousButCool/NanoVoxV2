@@ -6,11 +6,11 @@
 - **Score:** 42/100
 - **Sentiment Arc:** CONCERNED → FRUSTRATED
 - **Resolution:** UNRESOLVED
-- **Date:** 2026-09-30
-- **Start:** 13:07:15
-- **End:** 13:13:44
-- **AHT:** 6m 29s
-- **Duration:** ~6 min
+- **Date:** 2026-09-21
+- **Start:** 14:31:30
+- **End:** 14:39:24
+- **AHT:** 7m 54s
+- **Duration:** ~8 min
 - **Topics:** grace period · late payment · auto-draft · group suspension
 
 **Member context:** Clearwater Staffing · 31 employees · Office Manager Doris Chen · bank details changed

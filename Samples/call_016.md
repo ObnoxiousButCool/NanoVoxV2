@@ -6,10 +6,10 @@
 - **Score:** 94/100
 - **Sentiment Arc:** ANXIOUS → RELIEVED
 - **Resolution:** RESOLVED
-- **Date:** 2026-09-07
-- **Start:** 13:59:45
-- **End:** 14:09:01
-- **AHT:** 9m 16s
+- **Date:** 2026-09-01
+- **Start:** 16:43:15
+- **End:** 16:51:52
+- **AHT:** 8m 37s
 - **Duration:** ~9 min
 - **Topics:** EOB · member education · first-time · not a bill
 

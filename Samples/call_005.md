@@ -6,10 +6,10 @@
 - **Score:** 77/100
 - **Sentiment Arc:** CONFUSED → INFORMED
 - **Resolution:** RESOLVED
-- **Date:** 2026-09-29
-- **Start:** 14:16:15
-- **End:** 14:24:04
-- **AHT:** 7m 49s
+- **Date:** 2026-09-11
+- **Start:** 16:31:00
+- **End:** 16:38:45
+- **AHT:** 7m 45s
 - **Duration:** ~8 min
 - **Topics:** multi-carrier · network confusion · dental · ID card · Delta Dental
 

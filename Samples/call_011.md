@@ -6,11 +6,11 @@
 - **Score:** 92/100
 - **Sentiment Arc:** FRUSTRATED → SATISFIED
 - **Resolution:** RESOLVED
-- **Date:** 2026-09-25
-- **Start:** 16:15:30
-- **End:** 16:25:06
-- **AHT:** 9m 36s
-- **Duration:** ~10 min
+- **Date:** 2026-09-28
+- **Start:** 09:29:30
+- **End:** 09:38:59
+- **AHT:** 9m 29s
+- **Duration:** ~9 min
 - **Topics:** orthodontia · lifetime maximum · pre-treatment estimate · dental
 
 **Member context:** Ibrahim Nasser, 34 · MetLife dental · quoted $6,400 for adult braces

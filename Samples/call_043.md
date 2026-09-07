@@ -6,10 +6,10 @@
 - **Score:** 74/100
 - **Sentiment Arc:** NEUTRAL → INFORMED
 - **Resolution:** RESOLVED
-- **Date:** 2026-09-22
-- **Start:** 10:30:30
-- **End:** 10:37:18
-- **AHT:** 6m 48s
+- **Date:** 2026-09-15
+- **Start:** 10:41:30
+- **End:** 10:48:19
+- **AHT:** 6m 49s
 - **Duration:** ~7 min
 - **Topics:** EOI · evidence of insurability · life insurance · underwriting · form status
 

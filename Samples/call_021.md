@@ -6,11 +6,11 @@
 - **Score:** 76/100
 - **Sentiment Arc:** NEUTRAL → SATISFIED
 - **Resolution:** RESOLVED
-- **Date:** 2026-09-21
-- **Start:** 16:16:45
-- **End:** 16:23:12
-- **AHT:** 6m 27s
-- **Duration:** ~6 min
+- **Date:** 2026-09-14
+- **Start:** 13:43:15
+- **End:** 13:50:05
+- **AHT:** 6m 50s
+- **Duration:** ~7 min
 - **Topics:** termination · end of month · premium · offboarding
 
 **Member context:** Summit Electronics · 63 employees · Payroll Manager Earl Thomas

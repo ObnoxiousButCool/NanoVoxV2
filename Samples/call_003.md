@@ -6,11 +6,11 @@
 - **Score:** 74/100
 - **Sentiment Arc:** CONFUSED → INFORMED
 - **Resolution:** RESOLVED
-- **Date:** 2026-09-07
-- **Start:** 16:42:45
-- **End:** 16:49:07
-- **AHT:** 6m 22s
-- **Duration:** ~6 min
+- **Date:** 2026-09-11
+- **Start:** 11:17:15
+- **End:** 11:24:43
+- **AHT:** 7m 28s
+- **Duration:** ~7 min
 - **Topics:** frequency limit · vision · VSP · exam · denial
 
 **Member context:** Rosa Delgado, 52 · VSP vision plan · second exam in a calendar year denied

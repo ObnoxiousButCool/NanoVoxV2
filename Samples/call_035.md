@@ -6,11 +6,11 @@
 - **Score:** 71/100
 - **Sentiment Arc:** ANNOYED → INFORMED
 - **Resolution:** RESOLVED
-- **Date:** 2026-09-18
-- **Start:** 11:54:30
-- **End:** 12:00:44
-- **AHT:** 6m 14s
-- **Duration:** ~6 min
+- **Date:** 2026-09-14
+- **Start:** 15:38:45
+- **End:** 15:44:12
+- **AHT:** 5m 27s
+- **Duration:** ~5 min
 - **Topics:** out of network · balance billing · PPO · allowed amount
 
 **Member context:** Owen Blackwood, 47 · Delta Dental PPO · saw an out-of-network dentist

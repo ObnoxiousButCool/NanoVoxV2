@@ -6,11 +6,11 @@
 - **Score:** 92/100
 - **Sentiment Arc:** CONFUSED → INFORMED
 - **Resolution:** RESOLVED
-- **Date:** 2026-09-03
-- **Start:** 15:24:15
-- **End:** 15:32:41
-- **AHT:** 8m 26s
-- **Duration:** ~8 min
+- **Date:** 2026-09-14
+- **Start:** 08:04:00
+- **End:** 08:12:50
+- **AHT:** 8m 50s
+- **Duration:** ~9 min
 - **Topics:** retroactive termination · credit limits · compliance · billing
 
 **Member context:** Trident Financial · 55 employees · Controller Sam Patel

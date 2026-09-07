@@ -7,10 +7,10 @@
 - **Sentiment Arc:** NEUTRAL → FRUSTRATED
 - **Resolution:** UNRESOLVED
 - **Date:** 2026-09-14
-- **Start:** 16:34:15
-- **End:** 16:39:17
-- **AHT:** 5m 2s
-- **Duration:** ~5 min
+- **Start:** 15:09:30
+- **End:** 15:13:52
+- **AHT:** 4m 22s
+- **Duration:** ~4 min
 - **Topics:** open enrollment · materials · communication failure · deadline
 
 **Member context:** Eastside Dental Group · 26 employees · Practice Manager Gina Rossi

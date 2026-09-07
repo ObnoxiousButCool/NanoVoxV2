@@ -6,11 +6,11 @@
 - **Score:** 79/100
 - **Sentiment Arc:** CONFUSED → INFORMED
 - **Resolution:** RESOLVED
-- **Date:** 2026-09-22
-- **Start:** 09:48:15
-- **End:** 09:55:30
-- **AHT:** 7m 15s
-- **Duration:** ~7 min
+- **Date:** 2026-09-21
+- **Start:** 11:27:15
+- **End:** 11:34:55
+- **AHT:** 7m 40s
+- **Duration:** ~8 min
 - **Topics:** deductible · copay · coinsurance · cost share · member education
 
 **Member context:** Wendy Castellanos, 38 · Ameritas dental · three different charges in one year

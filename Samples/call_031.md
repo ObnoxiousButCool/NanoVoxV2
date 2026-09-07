@@ -6,11 +6,11 @@
 - **Score:** 72/100
 - **Sentiment Arc:** CONFUSED → INFORMED
 - **Resolution:** RESOLVED
-- **Date:** 2026-09-07
-- **Start:** 09:58:30
-- **End:** 10:06:59
-- **AHT:** 8m 29s
-- **Duration:** ~8 min
+- **Date:** 2026-09-21
+- **Start:** 11:48:45
+- **End:** 11:56:07
+- **AHT:** 7m 22s
+- **Duration:** ~7 min
 - **Topics:** coordination of benefits · dual coverage · birthday rule · secondary
 
 **Member context:** Carlos Rivera, 45 · ChoiceBuilder dental plus spouse's employer dental

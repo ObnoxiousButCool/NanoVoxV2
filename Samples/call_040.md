@@ -6,11 +6,11 @@
 - **Score:** 76/100
 - **Sentiment Arc:** CONCERNED → INFORMED
 - **Resolution:** RESOLVED
-- **Date:** 2026-09-23
-- **Start:** 11:11:45
-- **End:** 11:19:23
-- **AHT:** 7m 38s
-- **Duration:** ~8 min
+- **Date:** 2026-09-21
+- **Start:** 10:48:00
+- **End:** 10:54:30
+- **AHT:** 6m 30s
+- **Duration:** ~6 min
 - **Topics:** renewal · rate increase · plan design · cost control
 
 **Member context:** Rossi Benefits client · Bayside Cleaning · 34 employees · Owner Alice Fontaine

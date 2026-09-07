@@ -6,11 +6,11 @@
 - **Score:** 92/100
 - **Sentiment Arc:** FRUSTRATED → SATISFIED
 - **Resolution:** RESOLVED
-- **Date:** 2026-09-15
-- **Start:** 14:18:15
-- **End:** 14:27:40
-- **AHT:** 9m 25s
-- **Duration:** ~9 min
+- **Date:** 2026-09-21
+- **Start:** 08:31:15
+- **End:** 08:39:39
+- **AHT:** 8m 24s
+- **Duration:** ~8 min
 - **Topics:** commission · agency coding · broker of record · reconciliation
 
 **Member context:** Drummond & Partners · Broker Richard Drummond · six groups missing from statement

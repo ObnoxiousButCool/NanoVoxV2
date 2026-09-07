@@ -6,10 +6,10 @@
 - **Score:** 36/100
 - **Sentiment Arc:** WORRIED → ABANDONED
 - **Resolution:** UNRESOLVED
-- **Date:** 2026-09-17
-- **Start:** 13:30:45
-- **End:** 13:34:28
-- **AHT:** 3m 43s
+- **Date:** 2026-09-24
+- **Start:** 11:16:00
+- **End:** 11:19:55
+- **AHT:** 3m 55s
 - **Duration:** ~4 min
 - **Topics:** eligibility · hours reduction · coverage continuation · part-time
 

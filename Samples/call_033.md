@@ -6,11 +6,11 @@
 - **Score:** 75/100
 - **Sentiment Arc:** NEUTRAL → SATISFIED
 - **Resolution:** RESOLVED
-- **Date:** 2026-09-01
-- **Start:** 11:00:30
-- **End:** 11:04:58
-- **AHT:** 4m 28s
-- **Duration:** ~4 min
+- **Date:** 2026-09-22
+- **Start:** 16:27:45
+- **End:** 16:32:37
+- **AHT:** 4m 52s
+- **Duration:** ~5 min
 - **Topics:** portal · dependent · visibility · enrollment lag
 
 **Member context:** Michelle Torres, 34 · ChoiceBuilder dental · daughter added but not visible

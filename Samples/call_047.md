@@ -6,10 +6,10 @@
 - **Score:** 77/100
 - **Sentiment Arc:** NEUTRAL → INFORMED
 - **Resolution:** RESOLVED
-- **Date:** 2026-09-17
-- **Start:** 10:58:15
-- **End:** 11:04:45
-- **AHT:** 6m 30s
+- **Date:** 2026-09-07
+- **Start:** 10:33:00
+- **End:** 10:39:29
+- **AHT:** 6m 29s
 - **Duration:** ~6 min
 - **Topics:** employer contribution · defined contribution · mid-year change · participation
 

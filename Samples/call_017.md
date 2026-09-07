@@ -7,10 +7,10 @@
 - **Sentiment Arc:** FRUSTRATED → SATISFIED
 - **Resolution:** RESOLVED
 - **Date:** 2026-09-28
-- **Start:** 12:22:00
-- **End:** 12:32:26
-- **AHT:** 10m 26s
-- **Duration:** ~10 min
+- **Start:** 09:52:45
+- **End:** 10:04:01
+- **AHT:** 11m 16s
+- **Duration:** ~11 min
 - **Topics:** consolidated billing · reconciliation · retro adjustment · multi-carrier
 
 **Member context:** Bayside Restaurant Group · 74 employees · HR Manager Victor Salinas · invoice up $1,840

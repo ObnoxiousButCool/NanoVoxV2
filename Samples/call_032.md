@@ -7,10 +7,10 @@
 - **Sentiment Arc:** WORRIED → ABANDONED
 - **Resolution:** UNRESOLVED
 - **Date:** 2026-09-24
-- **Start:** 16:36:45
-- **End:** 16:42:27
-- **AHT:** 5m 42s
-- **Duration:** ~6 min
+- **Start:** 09:22:15
+- **End:** 09:27:28
+- **AHT:** 5m 13s
+- **Duration:** ~5 min
 - **Topics:** termination · COBRA · continuation · offboarding
 
 **Member context:** Steven Nakamura, 29 · ChoiceBuilder dental, vision · last day next Friday

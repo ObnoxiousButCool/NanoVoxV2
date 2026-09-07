@@ -221,7 +221,7 @@ class TestTaxonomyEndpoint:
         assert len(body["l4_categories"]) == 6
         assert "UNRESOLVED" in body["resolutions"]
         assert body["tiers"]["good"] == 86
-        assert body["tiers"]["min_calls_for_tier_rating"] == 4
+        assert body["tiers"]["min_calls_for_tier_rating"] == 5
         assert body["rubric_version"]
 
 

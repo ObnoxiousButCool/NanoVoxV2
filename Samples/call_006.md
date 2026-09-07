@@ -6,11 +6,11 @@
 - **Score:** 34/100
 - **Sentiment Arc:** NEUTRAL → ANNOYED
 - **Resolution:** UNRESOLVED
-- **Date:** 2026-09-23
-- **Start:** 09:51:45
-- **End:** 09:57:17
-- **AHT:** 5m 32s
-- **Duration:** ~6 min
+- **Date:** 2026-09-22
+- **Start:** 11:17:00
+- **End:** 11:21:42
+- **AHT:** 4m 42s
+- **Duration:** ~5 min
 - **Topics:** chiropractic · Landmark · network verification · carrier confusion
 
 **Member context:** Grace Liu, 44 · ChoiceBuilder with Landmark chiro/acupuncture rider

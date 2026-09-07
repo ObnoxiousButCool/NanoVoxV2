@@ -6,11 +6,11 @@
 - **Score:** 43/100
 - **Sentiment Arc:** NEUTRAL → FRUSTRATED
 - **Resolution:** UNRESOLVED
-- **Date:** 2026-09-22
-- **Start:** 10:04:00
-- **End:** 10:10:21
-- **AHT:** 6m 21s
-- **Duration:** ~6 min
+- **Date:** 2026-09-28
+- **Start:** 10:39:00
+- **End:** 10:45:47
+- **AHT:** 6m 47s
+- **Duration:** ~7 min
 - **Topics:** cross-carrier comparison · orthodontia · waiting period · quoting
 
 **Member context:** Reyes & Gallardo Benefits · Broker Nina Reyes · client needs adult ortho with no wait

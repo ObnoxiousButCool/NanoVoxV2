@@ -6,11 +6,11 @@
 - **Score:** 76/100
 - **Sentiment Arc:** URGENT → RESOLVED
 - **Resolution:** RESOLVED
-- **Date:** 2026-09-29
-- **Start:** 13:04:15
-- **End:** 13:10:02
-- **AHT:** 5m 47s
-- **Duration:** ~6 min
+- **Date:** 2026-09-10
+- **Start:** 11:32:00
+- **End:** 11:37:03
+- **AHT:** 5m 3s
+- **Duration:** ~5 min
 - **Topics:** ID card · VSP · point of service · digital card · portal
 
 **Member context:** Diane Kowalski, 49 · VSP vision · appointment in progress

@@ -6,10 +6,10 @@
 - **Score:** 91/100
 - **Sentiment Arc:** FRUSTRATED → SATISFIED
 - **Resolution:** RESOLVED
-- **Date:** 2026-09-04
-- **Start:** 15:50:15
-- **End:** 15:57:49
-- **AHT:** 7m 34s
+- **Date:** 2026-09-17
+- **Start:** 11:50:45
+- **End:** 11:58:28
+- **AHT:** 7m 43s
 - **Duration:** ~8 min
 - **Topics:** Landmark · acupuncture · network verification · provider name mismatch
 

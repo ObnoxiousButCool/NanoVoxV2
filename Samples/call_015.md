@@ -6,10 +6,10 @@
 - **Score:** 75/100
 - **Sentiment Arc:** NEUTRAL → SATISFIED
 - **Resolution:** RESOLVED
-- **Date:** 2026-09-24
-- **Start:** 15:11:15
-- **End:** 15:17:04
-- **AHT:** 5m 49s
+- **Date:** 2026-09-03
+- **Start:** 09:18:45
+- **End:** 09:25:03
+- **AHT:** 6m 18s
 - **Duration:** ~6 min
 - **Topics:** beneficiary change · life insurance · divorce · QLE
 
