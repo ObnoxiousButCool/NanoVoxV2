@@ -20,12 +20,24 @@ CLINICAL_RISK = "clinical_risk"
 
 
 class TestShippedTaxonomy:
-    def test_loads_the_seven_categories_from_the_corpus_index(self) -> None:
+    def test_loads_the_categories_from_the_corpus_index_and_the_two_added_since(
+        self,
+    ) -> None:
         taxonomy = load_taxonomy(DEFAULT_TAXONOMY_PATH)
 
-        # DEC-02: seven, matching call_corpus_v3_index.xlsx.
-        assert len(taxonomy.categories) == 7
+        # DEC-02: seven from call_corpus_v3_index.xlsx, plus copay and
+        # coverage_termination, which the index folded into Coverage & Benefits.
+        assert len(taxonomy.categories) == 9
         assert taxonomy.category("coverage_benefits").label == "Coverage & Benefits"
+        assert taxonomy.category("copay").label == "Copay & Cost Share"
+        assert taxonomy.category("coverage_termination").label == "Coverage Termination"
+
+    def test_every_category_says_what_it_covers(self) -> None:
+        # The description is not decoration: it is sent to the model as the
+        # definition of the code, and a code with none is chosen on its name.
+        taxonomy = load_taxonomy(DEFAULT_TAXONOMY_PATH)
+
+        assert all(category.description for category in taxonomy.categories)
 
     def test_defines_the_six_l4_categories_each_with_an_owner(self) -> None:
         taxonomy = load_taxonomy(DEFAULT_TAXONOMY_PATH)

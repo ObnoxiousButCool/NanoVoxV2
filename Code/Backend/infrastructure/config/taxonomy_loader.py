@@ -60,6 +60,7 @@ def _l4_categories(reader: YamlReader) -> list[L4Category]:
                 default_severity=entry.enum(
                     "default_severity", Severity, expected=f"one of {_SEVERITY_VALUES}"
                 ),
+                description=entry.optional_string("description"),
             )
         )
     return categories

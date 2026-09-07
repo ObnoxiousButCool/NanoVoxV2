@@ -10,7 +10,10 @@
 version: "1.0.0"
 
 # --- Call categories -------------------------------------------------------
-# The seven categories from Documents/call_corpus_v3_index.xlsx (DEC-02).
+# Seven categories come from Documents/call_corpus_v3_index.xlsx (DEC-02);
+# copay and coverage_termination were added afterwards, for two topics the
+# source index folded into Coverage & Benefits despite their needing different
+# answers — what a visit costs, and whether the member still has a plan at all.
 #
 # Note on "Broker Conduct" (code: broker_attributed): it is kept here because it
 # is a category in the
@@ -21,7 +24,9 @@ version: "1.0.0"
 categories:
   - code: coverage_benefits
     label: Coverage & Benefits
-    description: Plan design, what is covered, cost sharing, prior authorisation.
+    description: >-
+      Plan design, what is and is not covered, prior authorisation. Use copay
+      instead when the member is asking what a covered service will cost.
   - code: claims_eob
     label: Claims & EOB
     description: Claim status, denials, explanations of benefits, appeals.
@@ -36,7 +41,21 @@ categories:
     description: Enrolment, life events, tier changes, member identification.
   - code: pharmacy
     label: Pharmacy
-    description: Formulary, pharmacy prior authorisation, refills, cost.
+    description: >-
+      Formulary, pharmacy prior authorisation, refills. Prescriptions stay here
+      even when the question is what the drug costs.
+  - code: copay
+    label: Copay & Cost Share
+    description: >-
+      What the member owes for a specific service — copay, coinsurance,
+      deductible or annual maximum. Use this when the question is the amount
+      rather than whether the service is covered at all.
+  - code: coverage_termination
+    label: Coverage Termination
+    description: >-
+      Coverage that has ended, lapsed or is about to — cancellation,
+      non-payment, loss of eligibility, or a termination the member disputes.
+      Use this when the member's plan itself is in question, not the benefit.
   # The code stays 'broker_attributed': it is stored on every call, so changing
   # it would orphan them. Only the label a person reads is renamed — "Attributed"
   # read as "a broker was named", which is the far larger broker-signal count,
@@ -55,26 +74,51 @@ l4_categories:
     label: Process Breakdown
     owner: { code: operations, name: Operations }
     default_severity: HIGH
+    description: >-
+      A step in the plan's own process failed or is missing — work not done,
+      a handoff dropped, a record wrong, a system that could not answer. The
+      agent handled it correctly and the process defeated them.
   - code: broker_attribution
     label: Broker Attribution
     owner: { code: broker_relations, name: Broker Relations }
     default_severity: HIGH
+    description: >-
+      The member's problem originates with what a broker told them, sold them
+      or failed to do. Only where the member names the broker aloud; the same
+      evidence rule as broker_signals.
   - code: member_communication_gap
     label: Member Communication Gap
     owner: { code: member_communications, name: Member Communications }
     default_severity: MEDIUM
+    description: >-
+      The member did not know something the plan should have told them — a
+      benefit, a deadline, a cost, a rule. Nothing was done wrong on the call;
+      the call should not have been needed.
   - code: compliance_risk
     label: Compliance & Risk
     owner: { code: compliance, name: Compliance }
     default_severity: CRITICAL
+    description: >-
+      A regulatory or legal exposure: a required disclosure omitted, a
+      notification deadline missed, language access not offered, PHI handled
+      wrongly, a clinical urgency not recognised, or advice given that the
+      administrator is not permitted to give.
   - code: agent_coaching
     label: Agent Coaching
     owner: { code: call_centre_management, name: Call Centre Management }
     default_severity: MEDIUM
+    description: >-
+      Something the agent could have done differently — the process worked and
+      the handling did not. Use this where a person needs coaching, and
+      process_breakdown where coaching would be the wrong response.
   - code: provider_performance
     label: Provider Performance
     owner: { code: provider_relations, name: Provider Relations }
     default_severity: MEDIUM
+    description: >-
+      A doctor, dentist, pharmacy or clinic is the source of the problem —
+      wrong information given to the member, a directory listing that is
+      inaccurate, billing the member incorrectly, or refusing valid coverage.
 
 # --- Signal types ----------------------------------------------------------
 # Named conditions a call can raise. `clinical_risk` is referenced by a rubric

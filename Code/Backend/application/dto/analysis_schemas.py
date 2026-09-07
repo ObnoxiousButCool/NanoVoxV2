@@ -22,8 +22,9 @@ empty list and normalised afterwards.
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from dataclasses import dataclass
-from typing import Any, Literal
+from typing import Any, Literal, Protocol
 
 from pydantic import BaseModel, Field, create_model
 
@@ -48,6 +49,29 @@ def _one_of(values: tuple[str, ...]) -> Any:
     return Literal[values]
 
 
+def _glossary(instruction: str, entries: Sequence[Described]) -> str:
+    """An instruction followed by what each code in the vocabulary means.
+
+    The ``Literal`` constrains *which* codes may be answered; it carries no hint
+    as to what any of them stands for. A model choosing from bare snake_case has
+    to infer the meaning from the code, and it infers wrongly: one corpus call
+    about changing a life-insurance beneficiary after a divorce was filed as
+    ``broker_attributed`` — nothing in the transcript mentions a broker, but the
+    product is broker-sold and none of the other codes read like a fit. The
+    description that would have ruled it out ("the member's issue originates
+    with broker conduct or advice") lives in the taxonomy and was never sent.
+
+    Sending the glossary costs a few hundred tokens once per call and makes
+    ``taxonomy.yaml`` the whole definition of a category, rather than the code
+    being the definition and the file being documentation.
+    """
+    lines = [instruction, "", "The codes, and what each one covers:"]
+    for entry in entries:
+        meaning = entry.description or entry.label
+        lines.append(f"- {entry.code} ({entry.label}): {' '.join(meaning.split())}")
+    return "\n".join(lines)
+
+
 def _list_of(model: Any) -> Any:
     """``list[model]`` for a model class built at runtime.
 
@@ -55,6 +79,19 @@ def _list_of(model: Any) -> Any:
     scattered as ignores across every field below.
     """
     return list[model]
+
+
+class Described(Protocol):
+    """A taxonomy record that can define itself: a call category or an L4 one."""
+
+    @property
+    def code(self) -> str: ...
+
+    @property
+    def label(self) -> str: ...
+
+    @property
+    def description(self) -> str | None: ...
 
 
 @dataclass(frozen=True)
@@ -148,7 +185,12 @@ def build_analysis_schemas(taxonomy: Taxonomy, rubric: Rubric) -> AnalysisSchema
             str,
             Field(description="What happened and how it ended, in two or three sentences."),
         ),
-        category=(categories, Field(description="The single best-fitting call category.")),
+        category=(
+            categories,
+            Field(
+                description=_glossary("The single best-fitting call category.", taxonomy.categories)
+            ),
+        ),
         resolution=(resolutions, Field(description="The outcome for the member.")),
         topics=(list[str], Field(description="Up to six topic keywords.")),
         key_moments=(
@@ -200,7 +242,15 @@ def build_analysis_schemas(taxonomy: Taxonomy, rubric: Rubric) -> AnalysisSchema
 
     l4_signal = create_model(
         "L4SignalOut",
-        category=(l4_categories, Field(description="The action category this finding belongs to.")),
+        category=(
+            l4_categories,
+            Field(
+                description=_glossary(
+                    "The action category this finding belongs to.",
+                    taxonomy.l4_categories,
+                )
+            ),
+        ),
         severity=(severities, Field(description="How serious this finding is.")),
         narrative=(str, Field(description="What was found and why it matters.")),
         recommended_action=(str, Field(description="What the owning team should do.")),

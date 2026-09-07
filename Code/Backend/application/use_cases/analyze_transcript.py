@@ -437,10 +437,20 @@ class AnalyzeTranscript:
         )
 
     def _describe_l4_categories(self) -> str:
-        return "\n".join(
-            f"- {category.code}: {category.label} (owner: {category.owner.name})"
-            for category in self._taxonomy.l4_categories
-        )
+        """The action categories, with what each one covers.
+
+        The label and the owner were always sent; the description was not, and a
+        category with no definition is chosen on whatever its name suggests.
+        Three of the six were never chosen once across the corpus —
+        compliance_risk, agent_coaching and broker_attribution — against an
+        authored expectation of nine, eight and nineteen findings.
+        """
+        lines: list[str] = []
+        for category in self._taxonomy.l4_categories:
+            lines.append(f"- {category.code}: {category.label} (owner: {category.owner.name})")
+            if category.description:
+                lines.append(f"    {category.description.strip()}")
+        return "\n".join(lines)
 
     def _prompt_versions(self) -> str:
         versions = {

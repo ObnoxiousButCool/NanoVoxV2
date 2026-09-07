@@ -47,6 +47,10 @@ class L4Category:
     label: str
     owner: Owner
     default_severity: Severity
+    #: What this category covers. Sent to the model as the definition of the
+    #: code, so a category with none is chosen on the strength of its name —
+    #: which is how three of the six came to be chosen never at all.
+    description: str | None = None
 
     def __post_init__(self) -> None:
         if not self.code.strip():
