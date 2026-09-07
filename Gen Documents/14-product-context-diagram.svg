@@ -1,0 +1,137 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1880 1060" width="1880" height="1060" role="img" aria-label="Product context: integration points, three deployment options compared, and data retention by class">
+<defs>
+  <filter id="sh" x="-6%" y="-10%" width="112%" height="122%">
+    <feDropShadow dx="0" dy="1.6" stdDeviation="2.6" flood-color="#0d2242"
+                  flood-opacity="0.10"/></filter>
+  <marker id="aN" viewBox="0 0 10 10" refX="8.6" refY="5" markerWidth="6.2"
+          markerHeight="6.2" orient="auto-start-reverse">
+    <path d="M 0 1.6 L 9 5 L 0 8.4 z" fill="#8fa0b3"/></marker>
+  <marker id="aS" viewBox="0 0 10 10" refX="8.6" refY="5" markerWidth="6.2"
+          markerHeight="6.2" orient="auto">
+    <path d="M 0 1.6 L 9 5 L 0 8.4 z" fill="#8fa0b3"/></marker>
+</defs>
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="24.0" y="46.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="22" fill="#16212e" font-weight="600" text-anchor="start">NanoVox — Product Context</text>
+<text x="24.0" y="70.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="13" fill="#61707e" font-weight="400" text-anchor="start">What it connects to, how it can be deployed, and what it holds — the three questions a capability diagram cannot answer</text>
+<rect x="24.0" y="100.0" width="1832.0" height="430.0" rx="14" fill="#ffffff" stroke="#dfe5ec" stroke-width="1.4" filter="url(#sh)"/>
+<text x="50.0" y="138.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="14.5" fill="#143a6b" font-weight="600" text-anchor="start" letter-spacing="0.07em">INTEGRATION POINTS</text>
+<text x="261.5" y="138.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="14.5" fill="#143a6b" font-weight="600" text-anchor="start">·</text>
+<text x="277.5" y="138.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="12.5" fill="#61707e" font-weight="400" text-anchor="start">what it must talk to</text>
+<rect x="94.0" y="168.0" width="380.0" height="76.0" rx="10" fill="#ffffff" stroke="#dde4ec" stroke-width="1.4" stroke-dasharray="6 5"/>
+<text x="110.0" y="194.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="12.5" fill="#9aa8b6" font-weight="600" text-anchor="start" letter-spacing="0.02em">CONTACT CENTRE · TELEPHONY</text>
+<text x="110.0" y="216.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11.5" fill="#61707e" font-weight="400" text-anchor="start">Media stream + CTI events —</text>
+<text x="110.0" y="233.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11.5" fill="#61707e" font-weight="400" text-anchor="start">Connect, Genesys, Five9</text>
+<path d="M 482.0 206.0 L 754.0 206.0" fill="none" stroke="#8fa0b3" stroke-width="2.0" stroke-linecap="round" marker-end="url(#aN)" marker-start="url(#aS)"/>
+<text x="619.0" y="198.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="10.5" fill="#61707e" font-weight="400" text-anchor="middle">media + events</text>
+<rect x="94.0" y="254.0" width="380.0" height="76.0" rx="10" fill="#ffffff" stroke="#dde4ec" stroke-width="1.4" stroke-dasharray="6 5"/>
+<text x="110.0" y="280.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="12.5" fill="#9aa8b6" font-weight="600" text-anchor="start" letter-spacing="0.02em">MICROSOFT 365 · OUTLOOK</text>
+<text x="110.0" y="302.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11.5" fill="#61707e" font-weight="400" text-anchor="start">Graph delta on shared</text>
+<text x="110.0" y="319.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11.5" fill="#61707e" font-weight="400" text-anchor="start">mailboxes; thread-level</text>
+<path d="M 482.0 292.0 L 754.0 292.0" fill="none" stroke="#8fa0b3" stroke-width="2.0" stroke-linecap="round" marker-end="url(#aN)"/>
+<text x="619.0" y="284.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="10.5" fill="#61707e" font-weight="400" text-anchor="middle">email threads</text>
+<rect x="94.0" y="340.0" width="380.0" height="76.0" rx="10" fill="#ffffff" stroke="#dde4ec" stroke-width="1.4" stroke-dasharray="6 5"/>
+<text x="110.0" y="366.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="12.5" fill="#9aa8b6" font-weight="600" text-anchor="start" letter-spacing="0.02em">KNOWLEDGE SOURCES</text>
+<text x="110.0" y="388.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11.5" fill="#61707e" font-weight="400" text-anchor="start">SharePoint, Confluence,</text>
+<text x="110.0" y="405.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11.5" fill="#61707e" font-weight="400" text-anchor="start">approved-content library</text>
+<path d="M 482.0 378.0 L 754.0 378.0" fill="none" stroke="#8fa0b3" stroke-width="2.0" stroke-linecap="round" marker-end="url(#aN)"/>
+<text x="619.0" y="370.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="10.5" fill="#61707e" font-weight="400" text-anchor="middle">documents</text>
+<rect x="94.0" y="426.0" width="380.0" height="76.0" rx="10" fill="#ffffff" stroke="#dde4ec" stroke-width="1.4" stroke-dasharray="6 5"/>
+<text x="110.0" y="452.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="12.5" fill="#9aa8b6" font-weight="600" text-anchor="start" letter-spacing="0.02em">ENTRA ID · SSO</text>
+<text x="110.0" y="474.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11.5" fill="#61707e" font-weight="400" text-anchor="start">OIDC; roles from group</text>
+<text x="110.0" y="491.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11.5" fill="#61707e" font-weight="400" text-anchor="start">claims; no local accounts</text>
+<path d="M 482.0 464.0 L 754.0 464.0" fill="none" stroke="#8fa0b3" stroke-width="2.0" stroke-linecap="round" marker-end="url(#aN)" marker-start="url(#aS)"/>
+<text x="619.0" y="456.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="10.5" fill="#61707e" font-weight="400" text-anchor="middle">identity</text>
+<rect x="764.0" y="168.0" width="380.0" height="334.0" rx="12" fill="#f3f6fa" stroke="#143a6b" stroke-width="1.8" filter="url(#sh)"/>
+<text x="954.0" y="298.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="20" fill="#143a6b" font-weight="600" text-anchor="middle" letter-spacing="0.08em">NANOVOX</text>
+<text x="954.0" y="330.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="12.5" fill="#33414f" font-weight="400" text-anchor="middle">Five-layer analysis, scoring,</text>
+<text x="954.0" y="349.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="12.5" fill="#33414f" font-weight="400" text-anchor="middle">dashboards and actions</text>
+<rect x="1400.0" y="298.0" width="380.0" height="94.0" rx="10" fill="#ffffff" stroke="#dde4ec" stroke-width="1.4" stroke-dasharray="6 5"/>
+<text x="1416.0" y="324.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="12.5" fill="#9aa8b6" font-weight="600" text-anchor="start" letter-spacing="0.02em">ENTERPRISE DATA PLATFORM</text>
+<text x="1416.0" y="346.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11.5" fill="#61707e" font-weight="400" text-anchor="start">Export only — analyses, scores</text>
+<text x="1416.0" y="363.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11.5" fill="#61707e" font-weight="400" text-anchor="start">and signals to the lakehouse,</text>
+<text x="1416.0" y="380.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11.5" fill="#61707e" font-weight="400" text-anchor="start">read by Power BI</text>
+<path d="M 1152.0 345.0 L 1390.0 345.0" fill="none" stroke="#8fa0b3" stroke-width="2.0" stroke-linecap="round" marker-end="url(#aN)"/>
+<text x="1272.0" y="337.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="10.5" fill="#61707e" font-weight="400" text-anchor="middle">one set of numbers</text>
+<text x="1830.0" y="508.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11.5" fill="#61707e" font-weight="400" text-anchor="end">None of these are built today. The product ingests pasted transcripts only.</text>
+<rect x="24.0" y="560.0" width="900.0" height="470.0" rx="14" fill="#ffffff" stroke="#dfe5ec" stroke-width="1.4" filter="url(#sh)"/>
+<text x="50.0" y="598.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="14.5" fill="#1c7a4b" font-weight="600" text-anchor="start" letter-spacing="0.07em">DEPLOYMENT OPTIONS</text>
+<text x="261.5" y="598.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="14.5" fill="#1c7a4b" font-weight="600" text-anchor="start">·</text>
+<text x="277.5" y="598.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="12.5" fill="#61707e" font-weight="400" text-anchor="start">three shapes, one set of interfaces</text>
+<rect x="213.0" y="622.0" width="84.0" height="17.0" rx="8.5" fill="#1c7a4b"/>
+<text x="255.0" y="634.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="9.5" fill="#ffffff" font-weight="600" text-anchor="middle" letter-spacing="0.06em">THIS BUILD</text>
+<text x="213.0" y="660.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="10.5" fill="#61707e" font-weight="600" text-anchor="start" letter-spacing="0.1em">OPTION 1</text>
+<text x="213.0" y="680.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="14" fill="#1c7a4b" font-weight="600" text-anchor="start" letter-spacing="0.03em">POC</text>
+<rect x="446.0" y="622.0" width="91.6" height="17.0" rx="8.5" fill="#e8791a"/>
+<text x="491.8" y="634.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="9.5" fill="#ffffff" font-weight="600" text-anchor="middle" letter-spacing="0.06em">RECOMMENDED</text>
+<text x="446.0" y="660.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="10.5" fill="#61707e" font-weight="600" text-anchor="start" letter-spacing="0.1em">OPTION 2</text>
+<text x="446.0" y="680.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="14" fill="#1c7a4b" font-weight="600" text-anchor="start" letter-spacing="0.03em">HYBRID</text>
+<text x="679.0" y="660.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="10.5" fill="#61707e" font-weight="600" text-anchor="start" letter-spacing="0.1em">OPTION 3</text>
+<text x="679.0" y="680.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="14" fill="#1c7a4b" font-weight="600" text-anchor="start" letter-spacing="0.03em">ENTERPRISE</text>
+<path d="M 48.0 702.0 L 900.0 702.0" stroke="#dfe5ec" stroke-width="1.2"/>
+<text x="48.0" y="728.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#16212e" font-weight="600" text-anchor="start">Where models run</text>
+<text x="213.0" y="728.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#33414f" font-weight="400" text-anchor="start">All local — Ollama or</text>
+<text x="213.0" y="744.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#33414f" font-weight="400" text-anchor="start">vLLM on one machine</text>
+<text x="446.0" y="728.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#33414f" font-weight="400" text-anchor="start">Fast lane self-hosted,</text>
+<text x="446.0" y="744.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#33414f" font-weight="400" text-anchor="start">deep lane managed</text>
+<text x="679.0" y="728.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#33414f" font-weight="400" text-anchor="start">Fully managed —</text>
+<text x="679.0" y="744.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#33414f" font-weight="400" text-anchor="start">Azure OpenAI + Speech</text>
+<path d="M 48.0 764.0 L 900.0 764.0" stroke="#dfe5ec" stroke-width="1.2"/>
+<text x="48.0" y="790.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#16212e" font-weight="600" text-anchor="start">Where member data sits</text>
+<text x="213.0" y="790.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#33414f" font-weight="400" text-anchor="start">Never leaves the</text>
+<text x="213.0" y="806.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#33414f" font-weight="400" text-anchor="start">machine</text>
+<text x="446.0" y="790.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#33414f" font-weight="400" text-anchor="start">In the tenant; only</text>
+<text x="446.0" y="806.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#33414f" font-weight="400" text-anchor="start">redacted text goes out</text>
+<text x="679.0" y="790.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#33414f" font-weight="400" text-anchor="start">Managed, CMK-encrypted,</text>
+<text x="679.0" y="806.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#33414f" font-weight="400" text-anchor="start">DLP available</text>
+<path d="M 48.0 826.0 L 900.0 826.0" stroke="#dfe5ec" stroke-width="1.2"/>
+<text x="48.0" y="852.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#16212e" font-weight="600" text-anchor="start">Cost per month</text>
+<text x="213.0" y="852.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#33414f" font-weight="400" text-anchor="start">≈ $0.5k–1.2k</text>
+<text x="446.0" y="852.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#33414f" font-weight="400" text-anchor="start">≈ $2.4k–3.1k</text>
+<text x="679.0" y="852.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#33414f" font-weight="400" text-anchor="start">≈ $7k–11k</text>
+<path d="M 48.0 888.0 L 900.0 888.0" stroke="#dfe5ec" stroke-width="1.2"/>
+<text x="48.0" y="914.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#16212e" font-weight="600" text-anchor="start">Security posture</text>
+<text x="213.0" y="914.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#33414f" font-weight="400" text-anchor="start">Strong isolation,</text>
+<text x="213.0" y="930.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#33414f" font-weight="400" text-anchor="start">weak operations</text>
+<text x="446.0" y="914.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#33414f" font-weight="400" text-anchor="start">Private endpoints, SSO,</text>
+<text x="446.0" y="930.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#33414f" font-weight="400" text-anchor="start">BAA on the deep lane</text>
+<text x="679.0" y="914.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#33414f" font-weight="400" text-anchor="start">Strongest — tenant</text>
+<text x="679.0" y="930.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#33414f" font-weight="400" text-anchor="start">isolation, managed DLP</text>
+<path d="M 48.0 950.0 L 900.0 950.0" stroke="#dfe5ec" stroke-width="1.2"/>
+<text x="48.0" y="976.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#16212e" font-weight="600" text-anchor="start">Best for</text>
+<text x="213.0" y="976.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#33414f" font-weight="400" text-anchor="start">Calibrating the rubric</text>
+<text x="213.0" y="992.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#33414f" font-weight="400" text-anchor="start">on real calls</text>
+<text x="446.0" y="976.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#33414f" font-weight="400" text-anchor="start">Production pilot</text>
+<text x="446.0" y="992.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#33414f" font-weight="400" text-anchor="start">and beyond</text>
+<text x="679.0" y="976.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#33414f" font-weight="400" text-anchor="start">Multi-region, SLA-backed</text>
+<text x="679.0" y="992.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#33414f" font-weight="400" text-anchor="start">operation</text>
+<rect x="956.0" y="560.0" width="900.0" height="470.0" rx="14" fill="#ffffff" stroke="#dfe5ec" stroke-width="1.4" filter="url(#sh)"/>
+<text x="982.0" y="598.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="14.5" fill="#e8791a" font-weight="600" text-anchor="start" letter-spacing="0.07em">DATA LIFECYCLE</text>
+<text x="1149.7" y="598.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="14.5" fill="#e8791a" font-weight="600" text-anchor="start">·</text>
+<text x="1165.7" y="598.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="12.5" fill="#61707e" font-weight="400" text-anchor="start">what is held, and for how long</text>
+<text x="982.0" y="660.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="12" fill="#16212e" font-weight="600" text-anchor="start">Raw audio</text>
+<rect x="1146.0" y="647.0" width="420.0" height="14.0" rx="7" fill="#f7f9fb"/>
+<rect x="1146.0" y="647.0" width="50.4" height="14.0" rx="7" fill="#d92b2b"/>
+<text x="1582.0" y="659.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#33414f" font-weight="400" text-anchor="start">30–90 days</text>
+<text x="982.0" y="680.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="10.5" fill="#61707e" font-weight="400" text-anchor="start">Highest risk, least value once transcribed</text>
+<text x="982.0" y="722.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="12" fill="#16212e" font-weight="600" text-anchor="start">Logs</text>
+<rect x="1146.0" y="709.0" width="420.0" height="14.0" rx="7" fill="#f7f9fb"/>
+<rect x="1146.0" y="709.0" width="126.0" height="14.0" rx="7" fill="#9aa8b6"/>
+<text x="1582.0" y="721.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#33414f" font-weight="400" text-anchor="start">1 yr hot · 7 yr archive</text>
+<text x="982.0" y="784.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="12" fill="#16212e" font-weight="600" text-anchor="start">Transcripts</text>
+<rect x="1146.0" y="771.0" width="420.0" height="14.0" rx="7" fill="#f7f9fb"/>
+<rect x="1146.0" y="771.0" width="189.0" height="14.0" rx="7" fill="#e8791a"/>
+<text x="1582.0" y="783.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#33414f" font-weight="400" text-anchor="start">2 years</text>
+<text x="982.0" y="846.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="12" fill="#16212e" font-weight="600" text-anchor="start">Analyses</text>
+<rect x="1146.0" y="833.0" width="420.0" height="14.0" rx="7" fill="#f7f9fb"/>
+<rect x="1146.0" y="833.0" width="336.0" height="14.0" rx="7" fill="#143a6b"/>
+<text x="1582.0" y="845.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#33414f" font-weight="400" text-anchor="start">7 years</text>
+<text x="982.0" y="908.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="12" fill="#16212e" font-weight="600" text-anchor="start">Aggregates</text>
+<rect x="1146.0" y="895.0" width="420.0" height="14.0" rx="7" fill="#f7f9fb"/>
+<rect x="1146.0" y="895.0" width="420.0" height="14.0" rx="7" fill="#1c7a4b"/>
+<text x="1582.0" y="907.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#33414f" font-weight="400" text-anchor="start">Indefinite</text>
+<text x="982.0" y="928.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="10.5" fill="#61707e" font-weight="400" text-anchor="start">Carries no member identity</text>
+<path d="M 982.0 960.0 L 1830.0 960.0" stroke="#dfe5ec" stroke-width="1.2"/>
+<text x="982.0" y="984.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11.5" fill="#33414f" font-weight="400" text-anchor="start">Right-to-delete is honoured across the database, the lake, the vector store and</text>
+<text x="982.0" y="1001.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11.5" fill="#33414f" font-weight="400" text-anchor="start">object storage. Retention is configurable per class and enforced by a scheduled job.</text>
+<text x="982.0" y="1018.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11.5" fill="#61707e" font-weight="400" text-anchor="start">None of it is implemented in this build — the POC keeps everything, in one SQLite file.</text>
+</svg>
