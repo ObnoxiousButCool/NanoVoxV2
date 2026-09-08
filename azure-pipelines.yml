@@ -1,0 +1,135 @@
+# NanoVox CI — the lint gate a pull request has to pass.
+#
+# Replaces .github/workflows/ci.yml, which described this same chain but never
+# ran: it was a GitHub Actions pipeline and this repository's only remote is
+# Azure DevOps, so Actions never picked it up. Until this file, nothing verified
+# a push or a pull request.
+#
+# ---------------------------------------------------------------------------
+# IMPORTANT: this file does not, by itself, block a merge.
+#
+# The `pr:` trigger below is honoured for GitHub and Bitbucket repositories and
+# IGNORED for Azure Repos. On Azure DevOps a pull request is gated by a *branch
+# policy*, configured against the target branch:
+#
+#   Repos -> Branches -> main -> Branch policies -> Build Validation -> +
+#     Build pipeline : NanoVox CI
+#     Trigger        : Automatic
+#     Policy         : Required          <- anything else only advises
+#     Build expiry   : Immediately when main is updated
+#
+# Without that policy this pipeline still runs and still reports, and a red
+# result is merely visible rather than blocking. `pr: none` is set explicitly so
+# the absence of a PR trigger reads as deliberate rather than forgotten.
+# ---------------------------------------------------------------------------
+
+# Every branch, not just main. A lint gate is worth a minute on any push, and
+# `main` alone had a practical problem: work happens on branches, so nothing
+# ever ran until a merge — the opposite of catching a problem on the pull
+# request that introduces it.
+#
+# The quotes around `*` are required. Unquoted, YAML reads a leading asterisk
+# as an alias reference and the file fails to parse.
+trigger:
+  branches:
+    include:
+      - '*'
+
+pr: none
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  # Matches the floor in pyproject.toml and the interpreter developers actually
+  # run. Not a detail: `datetime.UTC` is 3.11+, and writing it here would have
+  # passed on a 3.12 agent while breaking every developer on 3.10.
+  pythonVersion: '3.10'
+  nodeVersion: '20'
+
+  # Where npm keeps its cache, set as a variable rather than left at its
+  # default. npm reads every `npm_config_*` variable as configuration, so this
+  # both moves the cache somewhere the Cache task can address and gives that
+  # task an absolute path.
+  #
+  # The absolute path is the point. Cache@2 does NOT expand `~`: given
+  # `path: ~/.npm` it resolves the string against the working directory and
+  # tries to tar `/home/vsts/work/1/s/~/.npm`, a literal `~` directory that
+  # does not exist, and the task fails with "Cannot open: No such file or
+  # directory" — a red build caused entirely by its own cache step.
+  npm_config_cache: $(Pipeline.Workspace)/.npm
+
+  # pip reads PIP_CACHE_DIR the same way, which keeps the caching of both
+  # ecosystems the same shape: a variable naming an absolute path, and a Cache
+  # task pointed at that variable. Neither path exists on a first run, and that
+  # is fine — the tool creates it and the post-job save picks it up.
+  PIP_CACHE_DIR: $(Pipeline.Workspace)/.pip
+
+jobs:
+  - job: backend_lint
+    displayName: Backend lint
+    steps:
+      - task: UsePythonVersion@0
+        displayName: Use Python $(pythonVersion)
+        inputs:
+          versionSpec: $(pythonVersion)
+
+      # A pull-request gate is only obeyed if it is fast. Without the cache the
+      # install dominates the run and the whole job is mostly pip.
+      - task: Cache@2
+        displayName: Cache pip
+        inputs:
+          key: 'pip | "$(Agent.OS)" | "$(pythonVersion)" | Code/Backend/requirements-dev.txt'
+          restoreKeys: |
+            pip | "$(Agent.OS)" | "$(pythonVersion)"
+          path: $(PIP_CACHE_DIR)
+
+      - script: pip install -r requirements-dev.txt
+        displayName: Install tooling
+        workingDirectory: Code/Backend
+
+      # Format before lint, deliberately. `ruff format --check` only reports;
+      # it is `ruff format` that rewrites. Reading a format failure as a lint
+      # failure and re-running the reporting command is a loop that has already
+      # cost this project two round trips.
+      - script: ruff format --check .
+        displayName: 'ruff format --check'
+        workingDirectory: Code/Backend
+
+      - script: ruff check .
+        displayName: 'ruff check'
+        workingDirectory: Code/Backend
+
+      # The Clean Architecture contracts: domain <- application <-
+      # infrastructure <- frameworks_drivers. A violation here is not a style
+      # preference, it is a dependency pointing the wrong way, and it is
+      # cheapest to catch on the pull request that introduces it.
+      - script: lint-imports
+        displayName: Architecture contracts
+        workingDirectory: Code/Backend
+
+  - job: frontend_lint
+    displayName: Frontend lint
+    steps:
+      - task: NodeTool@0
+        displayName: Use Node $(nodeVersion)
+        inputs:
+          versionSpec: $(nodeVersion)
+
+      - task: Cache@2
+        displayName: Cache npm
+        inputs:
+          key: 'npm | "$(Agent.OS)" | Code/Frontend/package-lock.json'
+          restoreKeys: |
+            npm | "$(Agent.OS)"
+          path: $(npm_config_cache)
+
+      # `ci` rather than `install`: it installs the lockfile exactly, so the
+      # gate cannot pass against a dependency tree no developer has.
+      - script: npm ci
+        displayName: Install dependencies
+        workingDirectory: Code/Frontend
+
+      - script: npm run lint
+        displayName: eslint
+        workingDirectory: Code/Frontend
