@@ -11,6 +11,7 @@ defect, and it is invisible at runtime because the model still answers.
 from __future__ import annotations
 
 import pathlib
+from typing import get_args
 
 import pytest
 
@@ -37,8 +38,13 @@ def taxonomy() -> Taxonomy:
 
 
 def signal_code_field(schemas: AnalysisSchemas) -> str:
-    """The ``code`` field of the signal model nested in L1."""
-    raised = schemas.l1.model_fields["signals"].annotation.__args__[0]
+    """The ``code`` field of the signal model nested in L1.
+
+    ``get_args`` rather than ``.__args__``: the field annotation is
+    ``list[RaisedSignalOut]`` built at runtime, so its type is only ever
+    ``type[Any] | None`` as far as a checker is concerned.
+    """
+    raised = get_args(schemas.l1.model_fields["signals"].annotation)[0]
     return str(raised.model_fields["code"].description)
 
 

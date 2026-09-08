@@ -61,3 +61,17 @@ Samples/imported/
 # as its own rule so the whole directory stays out even if something that is
 # not a .db is written into it.
 Data/backup/
+
+# --- Local tooling ----------------------------------------------------------
+# Neither of these is shared configuration any more.
+#
+# .github/workflows/ci.yml described a GitHub Actions pipeline, and this repo's
+# only remote is Azure DevOps — Actions never runs there, so the file has never
+# executed a single check. Note what that means: there is no CI on this
+# repository at all, and no azure-pipelines.yml either, so ruff, mypy,
+# lint-imports, pytest and the frontend suite run only when somebody runs them.
+#
+# .claude/ is per-developer editor and agent configuration, including a dev
+# server port that is a local choice.
+.github/
+.claude/

@@ -127,11 +127,7 @@ def build_analysis_schemas(taxonomy: Taxonomy, rubric: Rubric) -> AnalysisSchema
         "RaisedSignalOut",
         code=(
             signal_codes,
-            Field(
-                description=_glossary(
-                    "The condition this call raises.", taxonomy.signal_types
-                )
-            ),
+            Field(description=_glossary("The condition this call raises.", taxonomy.signal_types)),
         ),
         evidence_turn_seq=(
             int,
@@ -213,11 +209,7 @@ def build_analysis_schemas(taxonomy: Taxonomy, rubric: Rubric) -> AnalysisSchema
         ),
         resolution=(
             resolutions,
-            Field(
-                description=_glossary(
-                    "The outcome for the member.", tuple(Resolution)
-                )
-            ),
+            Field(description=_glossary("The outcome for the member.", tuple(Resolution))),
         ),
         topics=(list[str], Field(description="Up to six topic keywords.")),
         key_moments=(

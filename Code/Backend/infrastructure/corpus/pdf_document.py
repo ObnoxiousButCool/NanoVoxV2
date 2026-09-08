@@ -29,6 +29,7 @@ else.
 from __future__ import annotations
 
 import re
+from collections import Counter
 from datetime import date, datetime, timedelta
 
 from application.ports.corpus_document import CorpusDocumentReader, ImportedCall
@@ -334,10 +335,11 @@ def extract_calls(text: str) -> list[ImportedCall]:
 
 def _reject_duplicates(calls: list[ImportedCall]) -> None:
     """Two calls sharing a number would overwrite one another silently."""
-    seen: set[int] = set()
-    clashes = sorted(
-        {call.number for call in calls if call.number in seen or seen.add(call.number)}
-    )
+    # Counted rather than the set-and-`add` trick this used to use: that relied
+    # on `set.add` returning None to keep the `or` falsy, which reads as a bug
+    # even when it is not, and mypy flags it as one.
+    seen = Counter(call.number for call in calls)
+    clashes = sorted(number for number, count in seen.items() if count > 1)
     if clashes:
         raise ValidationError(
             "The document numbers two calls the same.",

@@ -100,8 +100,7 @@ class TestThingsThatWrap:
         )
 
         assert one(wrapped).broker == (
-            "Anthony Salerno: Unresponsive to the group for three weeks "
-            "on a billing correction."
+            "Anthony Salerno: Unresponsive to the group for three weeks on a billing correction."
         )
 
     def test_ignores_page_furniture_landing_inside_a_header(self) -> None:
@@ -205,6 +204,10 @@ class TestRendering:
         assert call.reference == "C0001"
         assert call.caller_type == "EMPLOYER"
         assert call.duration_seconds == 331
+        # Asserted before it is read: ground truth is optional on a parsed call,
+        # and without this a render that stopped emitting the authored panel
+        # would fail on a missing attribute rather than on the absent panel.
+        assert call.ground_truth is not None
         assert call.ground_truth.score == 36
         assert call.ground_truth.agent_name == "Tiffany"
         assert call.started_at is not None
@@ -230,9 +233,7 @@ class TestTranscriptFormatting:
         )
 
         assert formatted == (
-            "Agent Tiffany: Go ahead.\n\n"
-            "Caller: I submitted it twice.\n\n"
-            "Agent Tiffany: I see."
+            "Agent Tiffany: Go ahead.\n\nCaller: I submitted it twice.\n\nAgent Tiffany: I see."
         )
 
     def test_leaves_the_turns_the_pipeline_reads_exactly_as_they_were(self) -> None:
