@@ -1,0 +1,9 @@
+/* The screen is a single column of blocks, so the gap lives here rather than as
+   a bottom margin on each block. `.queue` carries its own 14px for the pages
+   that use it standalone; a grid gap does not double it, where a second margin
+   would. Matched to the 14px the dashboard leaves between its cards, so the two
+   screens scroll at the same rhythm. */
+.stack {
+  display: grid;
+  gap: 14px;
+}

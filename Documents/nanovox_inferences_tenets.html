@@ -1,0 +1,296 @@
+<meta charset="utf-8">
+<title>NanoVox — Inferences</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0E1420;--slate:#5A6478;--slate2:#8A93A3;--canvas:#F6F7F9;--rule:#E4E8EF;
+  --accent:#14514F;--accent-soft:#E6F0EF;
+  --hi:#C8322B;--hi-bg:#FCEEED;--md:#B26A00;--md-bg:#FDF4E7;--lo:#1F7A4D;--lo-bg:#EAF5EF;
+  --brk:#6B3FA0;--brk-bg:#F2ECF9;--r:6px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font:400 14px/1.55 Inter,system-ui,sans-serif;color:var(--ink);background:var(--canvas)}
+h1,h2,h3,h4{font-family:Archivo,sans-serif;letter-spacing:-.015em}
+.mono{font-family:'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums}
+.app{display:grid;grid-template-columns:236px 1fr;min-height:100vh}
+.rail{background:var(--ink);color:#fff;padding:20px 0;position:sticky;top:0;height:100vh;display:flex;flex-direction:column}
+.brand{padding:0 20px 20px;border-bottom:1px solid #23304a}
+.brand b{font:700 19px Archivo;display:block;letter-spacing:-.02em}
+.brand span{font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:#7C8AA5;font-weight:500}
+.nav{padding:14px 12px;display:flex;flex-direction:column;gap:2px}
+.nav a{text-decoration:none;padding:9px 12px;border-radius:var(--r);font-size:13.5px;font-weight:500;color:#A8B2C4;display:block}
+.nav a:hover{background:#182236;color:#fff}
+.nav a.on{background:var(--accent);color:#fff}
+.rail footer{margin-top:auto;padding:14px 20px;border-top:1px solid #23304a;font-size:11px;color:#7C8AA5;line-height:1.5}
+.dot{width:6px;height:6px;border-radius:50%;background:#3FBF7F;display:inline-block;margin-right:6px}
+.main{padding:26px 30px 70px;max-width:1420px}
+.ph h1{font-size:24px;font-weight:600}
+.ph p{color:var(--slate);font-size:13.5px;margin-top:4px}
+.sec{margin-top:30px}
+.sec>h2{font-size:16px;font-weight:600;margin-bottom:3px}
+.sec>p.sub{font-size:12.5px;color:var(--slate2);margin-bottom:14px}
+.eyebrow{font:600 10px Inter;letter-spacing:.11em;text-transform:uppercase;color:var(--slate2);margin-bottom:10px}
+
+/* headline strip */
+.head{display:grid;grid-template-columns:auto 1fr;gap:26px;background:#fff;border:1px solid var(--rule);
+  border-left:4px solid var(--accent);border-radius:var(--r);padding:20px 24px;align-items:center}
+.head .big{font:600 46px/1 'IBM Plex Mono',monospace;color:var(--accent)}
+.head .cap{font:600 10px Inter;letter-spacing:.1em;text-transform:uppercase;color:var(--slate2);margin-top:6px}
+.head p{font-size:13.5px;color:var(--slate);max-width:74ch}
+.head p b{color:var(--ink);font-weight:600}
+
+/* tenets */
+.tenets{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+.tn{background:#fff;border:1px solid var(--rule);border-radius:var(--r);padding:15px 16px;
+  display:flex;flex-direction:column;gap:0;position:relative;overflow:hidden;text-decoration:none;color:inherit}
+.tn:hover{border-color:var(--slate2)}
+.tn::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px}
+.tn.r1::before{background:var(--hi)}.tn.r2::before{background:var(--hi)}
+.tn.r3::before{background:var(--md)}.tn.r4::before{background:var(--md)}.tn.r5::before{background:var(--lo)}
+.tn h4{font-size:14px;font-weight:600;margin-bottom:2px}
+.tn .q{font-size:11.5px;color:var(--slate2);line-height:1.4;min-height:31px}
+.tn .bar{height:5px;background:var(--canvas);border-radius:3px;margin:12px 0 9px;overflow:hidden}
+.tn .bar i{display:block;height:100%}
+.tn .clean{font:600 25px/1 'IBM Plex Mono',monospace}
+.tn .cleanlbl{font-size:10.5px;color:var(--slate2);margin-top:3px}
+.tn .foot{margin-top:11px;padding-top:9px;border-top:1px solid #F0F2F6;display:flex;justify-content:space-between;
+  font-size:11px;color:var(--slate)}
+.tn .foot b{font-family:'IBM Plex Mono',monospace;font-weight:600;color:var(--ink)}
+
+.note{font-size:11.5px;color:var(--slate2);margin-top:11px;line-height:1.55}
+.note a{color:var(--accent)}
+
+/* callout */
+.call{background:#fff;border:1px solid var(--rule);border-left:4px solid var(--md);border-radius:var(--r);
+  padding:16px 20px;margin-top:14px}
+.call h4{font-size:14.5px;font-weight:600;margin-bottom:5px}
+.call p{font-size:13px;color:var(--slate);max-width:96ch}
+.call p+p{margin-top:7px}
+.call b{color:var(--ink);font-weight:600}
+
+/* findings */
+.find{display:flex;flex-direction:column;gap:9px}
+.f{background:#fff;border:1px solid var(--rule);border-left:4px solid var(--slate2);border-radius:var(--r);
+  padding:14px 18px;display:grid;grid-template-columns:1fr auto;gap:18px;align-items:start}
+.f.hi{border-left-color:var(--hi)}.f.md{border-left-color:var(--md)}.f.brk{border-left-color:var(--brk)}
+.f h4{font-size:14.5px;font-weight:600;margin-bottom:3px}
+.f .why{font-size:12.8px;color:var(--slate);margin-bottom:9px;max-width:100ch}
+.f .meta{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.f .num{text-align:right;min-width:96px}
+.f .num b{font:600 24px/1 'IBM Plex Mono',monospace;display:block}
+.f .num span{font-size:10px;color:var(--slate2);letter-spacing:.04em}
+.chip{display:inline-block;font:500 10.5px 'IBM Plex Mono',monospace;padding:3px 7px;border-radius:3px;
+  border:1px solid var(--rule);color:var(--slate);background:#fff}
+.chip.hi{background:var(--hi-bg);color:var(--hi);border-color:#F2C9C6}
+.chip.md{background:var(--md-bg);color:var(--md);border-color:#EFD9B4}
+.chip.brk{background:var(--brk-bg);color:var(--brk);border-color:#DDCCF0}
+.owner{font:500 11px Inter;color:var(--accent);background:var(--accent-soft);padding:3px 8px;border-radius:3px}
+.lnk{font-size:12px;color:var(--accent);text-decoration:none}
+.lnk:hover{text-decoration:underline}
+@media(max-width:1180px){.tenets{grid-template-columns:repeat(2,1fr)}.app{grid-template-columns:1fr}.rail{position:static;height:auto}}
+</style>
+
+<div class="app">
+<nav class="rail">
+  <div class="brand"><b>NanoVox</b><span>Call Intelligence</span></div>
+  <div class="nav">
+    <a href="#">Dashboard</a>
+    <a href="#" class="on">Inferences</a>
+    <a href="#">Calls</a>
+    <a href="#">Brokers</a>
+    <a href="#">Analyze new</a>
+    <a href="#">Corpus run</a>
+  </div>
+  <footer><span class="dot"></span>Local model · on-prem<br>rubric v1.0.0</footer>
+</nav>
+
+<main class="main">
+<div class="ph">
+  <h1>Inferences</h1>
+  <p>What 100 analyzed calls add up to. Quality first, then the findings behind it. Every figure opens the calls it counted.</p>
+</div>
+
+<!-- ============ HEADLINE ============ -->
+<div class="sec">
+  <div class="head">
+    <div>
+      <div class="big">80.8</div>
+      <div class="cap">Mean score</div>
+    </div>
+    <p>Across 100 calls the rubric deducted <b>1,921 points</b> — an average of <b>19.2 points lost per call</b>.
+    Those deductions are not spread evenly. Two of the five quality tenets account for
+    <b>69% of everything lost</b>, and neither of them is about agents knowing the wrong answer.</p>
+  </div>
+</div>
+
+<!-- ============ TENETS ============ -->
+<div class="sec">
+  <h2>Five quality tenets</h2>
+  <p class="sub">Every rubric marker rolls up to one of these. Ordered by how much score each destroys, not alphabetically.</p>
+
+  <div class="tenets">
+    <a class="tn r1" href="#">
+      <h4>Follow-Through</h4>
+      <div class="q">Did we own the outcome?</div>
+      <div class="bar"><i style="width:49%;background:#C8322B"></i></div>
+      <div class="clean">49%</div>
+      <div class="cleanlbl">of calls clean</div>
+      <div class="foot"><span>Score lost</span><b>690 · 36%</b></div>
+      <div class="foot" style="border:0;padding-top:4px"><span>Calls affected</span><b>51</b></div>
+    </a>
+
+    <a class="tn r2" href="#">
+      <h4>Duty of Care</h4>
+      <div class="q">Did we act when it mattered, and meet our obligations?</div>
+      <div class="bar"><i style="width:74%;background:#C8322B"></i></div>
+      <div class="clean">74%</div>
+      <div class="cleanlbl">of calls clean</div>
+      <div class="foot"><span>Score lost</span><b>625 · 33%</b></div>
+      <div class="foot" style="border:0;padding-top:4px"><span>Calls affected</span><b>26</b></div>
+    </a>
+
+    <a class="tn r3" href="#">
+      <h4>Initiative</h4>
+      <div class="q">Did we go beyond the question asked?</div>
+      <div class="bar"><i style="width:59%;background:#B26A00"></i></div>
+      <div class="clean">59%</div>
+      <div class="cleanlbl">of calls clean</div>
+      <div class="foot"><span>Score lost</span><b>342 · 18%</b></div>
+      <div class="foot" style="border:0;padding-top:4px"><span>Calls affected</span><b>41</b></div>
+    </a>
+
+    <a class="tn r4" href="#">
+      <h4>Information Accuracy</h4>
+      <div class="q">Did we tell them the right thing?</div>
+      <div class="bar"><i style="width:86%;background:#B26A00"></i></div>
+      <div class="clean">86%</div>
+      <div class="cleanlbl">of calls clean</div>
+      <div class="foot"><span>Score lost</span><b>192 · 10%</b></div>
+      <div class="foot" style="border:0;padding-top:4px"><span>Calls affected</span><b>14</b></div>
+    </a>
+
+    <a class="tn r5" href="#">
+      <h4>Communication</h4>
+      <div class="q">Did we treat them like a person?</div>
+      <div class="bar"><i style="width:91%;background:#1F7A4D"></i></div>
+      <div class="clean">91%</div>
+      <div class="cleanlbl">of calls clean</div>
+      <div class="foot"><span>Score lost</span><b>72 · 4%</b></div>
+      <div class="foot" style="border:0;padding-top:4px"><span>Calls affected</span><b>9</b></div>
+    </a>
+  </div>
+
+  <p class="note">Tenets are groupings of the six rubric dimensions, not a second scoring system — the arithmetic is
+  unchanged and every point shown here traces to a quoted marker in a stored analysis. Duty of Care combines
+  <span class="mono">escalation_appropriateness</span> and <span class="mono">compliance_disclosure</span>, the two
+  dimensions whose consequences leave the call. <a href="#">See the rubric →</a></p>
+</div>
+
+<!-- ============ THE READ ============ -->
+<div class="sec">
+  <div class="call">
+    <h4>The pattern behind the numbers</h4>
+    <p>Agents are <b>not getting the facts wrong</b>. Information Accuracy is the second cleanest tenet at 86%, and
+    across the corpus accuracy earned <b>70 positive markers against 17 negative</b> — a four-to-one ratio. They know
+    the annual maximum, the waiting period, the frequency limit.</p>
+    <p>What they don't do is <b>finish</b>. Follow-Through is the single largest destroyer of score: 690 points across
+    51 calls, and it carries a four-to-one ratio in the opposite direction — <b>69 negative markers against 4 positive</b>.
+    No case number, no callback, referred to the employer, told to call back later.</p>
+    <p>That distinction changes what you do about it. A knowledge problem is fixed with training. This is a
+    <b>process and accountability problem</b> — agents closing calls they have not resolved, because nothing in the
+    workflow requires them to.</p>
+  </div>
+</div>
+
+<!-- ============ FINDINGS ============ -->
+<div class="sec">
+  <h2>Findings</h2>
+  <p class="sub">Ranked by severity, then by calls affected. An item can cover calls another item also covers.</p>
+
+  <div class="find">
+    <div class="f hi">
+      <div>
+        <h4>Calls are being closed without resolution or a route back</h4>
+        <p class="why">51 of 100 calls carry a Follow-Through failure. In 31 of them the member was given no case
+        number, no callback and no owner — the call simply ended. Members with no route back call again, which is why
+        this pattern also drives repeat contact.</p>
+        <div class="meta"><span class="owner">Call Centre Management</span><span class="chip hi">Follow-Through</span>
+        <span class="chip mono">C0004 C0006 C0010 C0013 C0020</span>
+        <a class="lnk" href="#">Open 51 calls →</a></div>
+      </div>
+      <div class="num"><b>51</b><span>CALLS · 690 PTS</span></div>
+    </div>
+
+    <div class="f hi">
+      <div>
+        <h4>Urgency is recognised late or not at all</h4>
+        <p class="why">23 calls contain a deadline, a coverage lapse or a stated intent to cancel that the agent did
+        not act on. Escalation carries the heaviest penalty in the rubric at −20 because the consequence leaves the
+        call: a missed enrollment window cannot be reopened by the next agent.</p>
+        <div class="meta"><span class="owner">Operations · Quality</span><span class="chip hi">Duty of Care</span>
+        <span class="chip mono">C0020 C0042 C0060 C0062 C0092</span>
+        <a class="lnk" href="#">Open 23 calls →</a></div>
+      </div>
+      <div class="num"><b>23</b><span>CALLS · 580 PTS</span></div>
+    </div>
+
+    <div class="f brk">
+      <div>
+        <h4>Broker failures are surfacing as member churn</h4>
+        <p class="why">18 calls name a broker as the cause of the member's problem, and 12 contain explicit
+        cancellation or market-exit language. The member attributes the failure to Choice, not to the broker whose
+        name never appears in any existing report.</p>
+        <div class="meta"><span class="owner">Broker Relations</span><span class="chip brk">Attribution</span>
+        <span class="chip mono">C0051 C0053 C0060 C0075 C0100</span>
+        <a class="lnk" href="#">Open on Brokers →</a></div>
+      </div>
+      <div class="num"><b>18</b><span>CALLS · 12 CHURN</span></div>
+    </div>
+
+    <div class="f md">
+      <div>
+        <h4>Known benefits are not being offered</h4>
+        <p class="why">41 calls carry an Initiative failure. The most repeated: post-maximum contracted network rates
+        never mentioned, mail-order savings never raised on chronic medication calls, pre-treatment estimates never
+        offered before major work. Each is a benefit the member is entitled to and did not receive.</p>
+        <div class="meta"><span class="owner">Training · Member Communications</span><span class="chip md">Initiative</span>
+        <span class="chip mono">C0033 C0058 C0065 C0071 C0083</span>
+        <a class="lnk" href="#">Open 41 calls →</a></div>
+      </div>
+      <div class="num"><b>41</b><span>CALLS · 342 PTS</span></div>
+    </div>
+
+    <div class="f md">
+      <div>
+        <h4>Coverage stated confidently and incorrectly</h4>
+        <p class="why">14 calls contain a factual error the member acted on. Three concern services that are excluded
+        or not elected — whitening confirmed as covered, orthodontia confirmed on a group without the rider, no annual
+        maximum stated where one applies. Low in volume, high in consequence.</p>
+        <div class="meta"><span class="owner">Training · Quality</span><span class="chip md">Accuracy</span>
+        <span class="chip mono">C0008 C0039 C0063 C0077</span>
+        <a class="lnk" href="#">Open 14 calls →</a></div>
+      </div>
+      <div class="num"><b>14</b><span>CALLS · 192 PTS</span></div>
+    </div>
+
+    <div class="f">
+      <div>
+        <h4>Required disclosures omitted</h4>
+        <p class="why">3 calls closed without a disclosure the member was entitled to — external review rights after
+        appeal exhaustion, and language-access interpretation. Small in number and non-negotiable in nature: these are
+        statutory obligations, not service quality.</p>
+        <div class="meta"><span class="owner">Compliance</span><span class="chip hi">Duty of Care</span>
+        <span class="chip mono">C0091 C0094</span>
+        <a class="lnk" href="#">Open 3 calls →</a></div>
+      </div>
+      <div class="num"><b>3</b><span>CALLS · 45 PTS</span></div>
+    </div>
+  </div>
+
+  <p class="note">Every figure is counted from stored analyses; nothing on this page is written by a model at render
+  time. Tenet totals apply the rubric's per-dimension caps, so the same criticism phrased five ways cannot inflate a
+  finding. Scores shown are under <span class="mono">rubric v1.0.0</span>.</p>
+</div>
+
+</main>
+</div>

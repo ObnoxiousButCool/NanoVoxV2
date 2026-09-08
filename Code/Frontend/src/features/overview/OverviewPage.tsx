@@ -32,7 +32,6 @@ import { Link, useNavigate } from 'react-router-dom'
 
 import {
   useAgents,
-  useMembersAtRisk,
   useOverview,
   usePulse,
   useResolutionTime,
@@ -52,7 +51,6 @@ import {
   MetricStrip,
   DualLineTrend,
 } from '@/shared/ui/charts'
-import { maskMemberId, maskedMemberIdLabel } from '@/shared/ui/memberId'
 import { Card, Failure, Loading, Note, PageHeader } from '@/shared/ui/primitives'
 import { GraphPeriodFilter, type GraphFilterMode } from './GraphPeriodFilter'
 import { PeriodFilter, type Granularity } from './PeriodFilter'
@@ -327,111 +325,6 @@ function TimeValueCard() {
   )
 }
 
-/**
- * Members showing signs of leaving, drawn as a matrix.
- *
- * Deliberately not a churn score. Nothing here has been measured against a real
- * departure, so the card names the signs each member is carrying and leaves the
- * judgement to whoever reads it — a percentage would be indistinguishable from a
- * measured one while being invented.
- *
- * A matrix rather than a list of chips because the vocabulary is small, fixed
- * and heavily repeated: as a chip per member the word "unresolved" is printed
- * once per row and reads as noise, while as a column it reads as the finding it
- * is — most of this queue is one operational problem rather than eight separate
- * member problems. The columns come from the response rather than from a list
- * here, so a factor added to the domain arrives with a column of its own; an
- * absent column would be indistinguishable from a column of no findings.
- */
-function MembersAtRisk() {
-  const members = useMembersAtRisk()
-
-  if (members.isPending) return <Loading what="members at risk" />
-  if (members.error) return <Failure error={members.error} what="members at risk" />
-
-  if (members.data.members.length === 0) {
-    return <Note>No member is showing a warning sign. Shown as a result, not an omission.</Note>
-  }
-
-  const vocabulary = members.data.factor_vocabulary
-
-  return (
-    <>
-      <div className={styles.matrixScroll}>
-        <table className={styles.matrix} aria-label="Members showing warning signs">
-          <thead>
-            <tr>
-              <th scope="col">Member</th>
-              {vocabulary.map((factor) => (
-                // The full sentence is the accessible name and the tooltip; the
-                // heading itself has a column's worth of room and no more.
-                <th key={factor.code} scope="col">
-                  <abbr title={factor.label}>{factor.short_label}</abbr>
-                </th>
-              ))}
-              <th scope="col">Score</th>
-            </tr>
-          </thead>
-          <tbody>
-            {members.data.members.map((member) => (
-              <tr key={member.member_id}>
-                <th scope="row">
-                  {/* Filtered by member, not searched by reference: a search
-                      finds one call, and the point of this row is all of them. */}
-                  <Link to={`/calls?member=${encodeURIComponent(member.member_id)}`}>
-                    {member.member_name ? (
-                      <>
-                        {member.member_name}{' '}
-                        {/* Kept beside the name rather than dropped: two members
-                            can share a name, and the last four characters are
-                            what tells them apart. */}
-                        <span
-                          className={styles.memberId}
-                          title={maskedMemberIdLabel(member.member_id)}
-                        >
-                          ({maskMemberId(member.member_id)})
-                        </span>
-                      </>
-                    ) : (
-                      // No call of theirs stated a name. The identifier alone is
-                      // still true; a placeholder like "Unknown" would not be.
-                      <span title={maskedMemberIdLabel(member.member_id)}>
-                        {maskMemberId(member.member_id)}
-                      </span>
-                    )}
-                  </Link>
-                  <span className={styles.matrixCalls}>
-                    {member.call_count === 1 ? '1 call' : `${String(member.call_count)} calls`}
-                  </span>
-                </th>
-                {vocabulary.map((factor) => {
-                  const shown = member.factors.includes(factor.code)
-                  return (
-                    <td key={factor.code}>
-                      {/* The mark carries no text, so the cell states in words
-                          what it means. Colour and a filled square are not
-                          readable by everyone, and this is the whole content of
-                          the row. */}
-                      <span className={shown ? styles.markOn : styles.markOff} aria-hidden="true" />
-                      <span className={styles.visuallyHidden}>
-                        {shown ? factor.label : `Not ${factor.label.toLowerCase()}`}
-                      </span>
-                    </td>
-                  )
-                })}
-                {/* The worst call this member had, which is what separates two
-                    members showing the same signs and was previously fetched
-                    and never drawn. */}
-                <td className={styles.matrixScore}>{member.lowest_score}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </>
-  )
-}
-
 function ResolutionByAgent({ agents }: { agents: readonly AgentPerformance[] }) {
   if (agents.length === 0) {
     return <Note>No agents have been named in an analyzed call yet.</Note>
@@ -587,6 +480,16 @@ function QualityVsHandlingTimeCard({ params }: { params: PulseParams }) {
 
   return (
     <DualLineTrend
+      // Taller than the shared default of 220, because this is the one place
+      // the chart is drawn full width. The plot stretches to its box
+      // (`preserveAspectRatio="none"`), so at roughly 1180px wide and 220 tall
+      // it was a 5:1 letterbox: a fifteen-point swing in quality arrived as a
+      // line a few pixels off flat, and the whole reason the card exists is to
+      // say which way the figures are moving. At 340 the box is nearer 3.5:1
+      // and the same swing is legible. Safe to change freely — both lines carry
+      // `vector-effect: non-scaling-stroke`, so stroke weight does not stretch
+      // with the box.
+      height={340}
       points={points.map((point) => ({
         label: point.label,
         quality: point.median_score ?? null,
@@ -850,24 +753,15 @@ export function OverviewPage() {
       {/* --- Who is affected -------------------------------------------------
           What used to be "where it is going wrong", minus the queue that named
           the problems — that is its own screen now, at /inferences. What is
-          left says who is on the receiving end: the members showing warning
-          signs, the population being failed, the team who owns it, and the
-          hours it burns. Ordered by what a leader acts on rather than by how
-          the figures are computed; three of these sat under "the detail behind
-          it" below the coaching charts, and churn risk and wasted hours are
-          not detail. */}
-      {/* Full width rather than half: the matrix is a column per warning sign
-          the system can observe, and at half width the member column collapses
-          to the point where a name and its identifier no longer fit on a line. */}
-      <div className={styles.solo}>
-        <Card
-          title="Members at risk"
-          hint="Ranked by how many warning signs a member shows, not by a predicted probability: no factor here has yet been measured against a member who actually left. The score is the lowest any one of their calls was given, which is what separates two members showing the same signs."
-        >
-          <MembersAtRisk />
-        </Card>
-      </div>
+          left says who is on the receiving end: the population being failed,
+          the team who owns it, and the hours it burns. Ordered by what a leader
+          acts on rather than by how the figures are computed.
 
+          The members-at-risk matrix used to open this section and now lives on
+          /inferences beside the findings. It was the one card here that named
+          individuals and asked for follow-up on each, which is a worklist
+          rather than a reading — and at eight members against five warning
+          signs it was never answering "is anything wrong" in a glance. */}
       {/* Paired because they answer the same question from opposite ends —
           which callers are failed, and which team owns the failure. They are
           also within fifty pixels of each other in height, so neither card
