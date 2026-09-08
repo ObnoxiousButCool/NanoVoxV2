@@ -54,7 +54,14 @@ from domain.aggregation.statistics import (
     percentage,
 )
 from domain.aggregation.time_value import TimeValue, time_value
-from domain.aggregation.trend import Trend, TrendCall, month_window, trend, windowed
+from domain.aggregation.trend import (
+    Trend,
+    TrendCall,
+    centred_window,
+    month_window,
+    trend,
+    windowed,
+)
 from domain.scoring.rubric import Rubric
 from domain.taxonomy import Taxonomy
 from domain.value_objects.caller_type import CallerType
@@ -321,13 +328,19 @@ class WorkMix:
 
 
 class GetPulse:
-    """Builds the weekly trend, windowed to end at ``anchor`` or, if ``month``
-    is given instead, narrowed to that calendar month's own weeks."""
+    """Builds the weekly trend: a trailing window ending at ``anchor``, a
+    window centred on ``centre``, or a whole calendar ``month`` — whichever
+    one of the three is given."""
 
     def __init__(self, repository: ReadModelRepository) -> None:
         self._repository = repository
 
-    async def execute(self, anchor: date | None = None, month: date | None = None) -> Pulse:
+    async def execute(
+        self,
+        anchor: date | None = None,
+        month: date | None = None,
+        centre: date | None = None,
+    ) -> Pulse:
         facts = await self._repository.call_facts()
         full_trend = trend(
             TrendCall(
@@ -338,12 +351,16 @@ class GetPulse:
             )
             for fact in facts
         )
-        # A month takes precedence over an anchor rather than the two being
-        # rejected together: the two callers that build this request — the
-        # trailing-window view and the whole-month view — never send both.
-        selected = (
-            month_window(full_trend, month) if month is not None else windowed(full_trend, anchor)
-        )
+        # Exactly one of the three ever arrives on a real request — each
+        # caller (the trailing-window filter, the centred-window graph, the
+        # whole-month graph) builds its own request shape and never mixes
+        # them — so precedence between them is academic, not load-bearing.
+        if month is not None:
+            selected = month_window(full_trend, month)
+        elif centre is not None:
+            selected = centred_window(full_trend, centre)
+        else:
+            selected = windowed(full_trend, anchor)
         return Pulse(
             trend=selected,
             # commented out as no longer needed on frontend.

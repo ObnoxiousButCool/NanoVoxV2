@@ -58,7 +58,13 @@ export const queryKeys = {
   timeValue: ['dashboard', 'time-value'] as const,
   membersAtRisk: ['dashboard', 'members-at-risk'] as const,
   pulse: (params: PulseParams = {}) =>
-    ['dashboard', 'pulse', params.month ?? 'no-month', params.anchor ?? 'latest'] as const,
+    [
+      'dashboard',
+      'pulse',
+      params.month ?? 'no-month',
+      params.centre ?? 'no-centre',
+      params.anchor ?? 'latest',
+    ] as const,
   workMix: ['dashboard', 'work-mix'] as const,
   corpus: ['corpus'] as const,
   corpusImports: ['corpus', 'imports'] as const,

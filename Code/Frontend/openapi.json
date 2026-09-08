@@ -3914,7 +3914,7 @@
             }
           },
           {
-            "description": "Every week of this date's calendar month, instead of a trailing window. Takes precedence over `anchor` if both are given.",
+            "description": "Every week of this date's calendar month, instead of a trailing window.",
             "in": "query",
             "name": "month",
             "required": false,
@@ -3928,8 +3928,27 @@
                   "type": "null"
                 }
               ],
-              "description": "Every week of this date's calendar month, instead of a trailing window. Takes precedence over `anchor` if both are given.",
+              "description": "Every week of this date's calendar month, instead of a trailing window.",
               "title": "Month"
+            }
+          },
+          {
+            "description": "The week either side of this date's own week, instead of a trailing window. Empty if this date does not fall in any week the corpus has.",
+            "in": "query",
+            "name": "centre",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "The week either side of this date's own week, instead of a trailing window. Empty if this date does not fall in any week the corpus has.",
+              "title": "Centre"
             }
           }
         ],

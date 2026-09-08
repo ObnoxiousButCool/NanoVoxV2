@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from datetime import date, datetime
 
-from domain.aggregation.trend import TrendCall, month_window, trend
+from domain.aggregation.trend import TrendCall, centred_window, month_window, trend
 
 
 def call(
@@ -194,3 +194,67 @@ class TestMonthWindow:
         result = month_window(full, date(2026, 9, 1))
 
         assert result.undated_calls == 1
+
+
+_FIVE_WEEKS = [
+    "2026-08-31T09:00:00",
+    "2026-09-07T09:00:00",
+    "2026-09-14T09:00:00",
+    "2026-09-21T09:00:00",
+    "2026-09-28T09:00:00",
+]
+
+
+class TestCentredWindow:
+    """The bug this exists to fix: a trailing count has no way to say a
+    requested week is nowhere near the data — "the last 3 weeks at or
+    before November" is always answerable if any week exists at all, and
+    answers with whichever weeks that happen to be, mislabelled as if they
+    were November's."""
+
+    def test_a_week_the_corpus_has_returns_it_with_a_neighbour_either_side(self) -> None:
+        full = trend([call(day) for day in _FIVE_WEEKS])
+
+        result = centred_window(full, date(2026, 9, 9))  # inside the 7 Sep week
+
+        assert [point.label for point in result.points] == ["31 Aug", "7 Sep", "14 Sep"]
+
+    def test_a_date_long_after_every_week_the_corpus_has_is_empty_not_the_latest(self) -> None:
+        # The exact regression: picking a date past the data used to fall
+        # back to the trailing 3 weeks (14/21/28 Sep) instead of admitting
+        # there is nothing there.
+        full = trend([call(day) for day in _FIVE_WEEKS])
+
+        result = centred_window(full, date(2026, 11, 9))
+
+        assert result.points == ()
+
+    def test_a_date_long_before_every_week_the_corpus_has_is_empty(self) -> None:
+        full = trend([call(day) for day in _FIVE_WEEKS])
+
+        result = centred_window(full, date(2026, 8, 12))
+
+        assert result.points == ()
+
+    def test_a_date_the_day_after_the_last_weeks_range_is_still_empty(self) -> None:
+        # 28 Sep's own week runs 28 Sep - 4 Oct inclusive; 5 Oct is the first
+        # date that is genuinely outside every week the corpus has.
+        full = trend([call(day) for day in _FIVE_WEEKS])
+
+        result = centred_window(full, date(2026, 10, 5))
+
+        assert result.points == ()
+
+    def test_the_first_week_has_no_week_before_it_to_include(self) -> None:
+        full = trend([call(day) for day in _FIVE_WEEKS])
+
+        result = centred_window(full, date(2026, 9, 2))  # inside the 31 Aug week
+
+        assert [point.label for point in result.points] == ["31 Aug", "7 Sep"]
+
+    def test_the_last_week_has_no_week_after_it_to_include(self) -> None:
+        full = trend([call(day) for day in _FIVE_WEEKS])
+
+        result = centred_window(full, date(2026, 9, 30))  # inside the 28 Sep week
+
+        assert [point.label for point in result.points] == ["21 Sep", "28 Sep"]

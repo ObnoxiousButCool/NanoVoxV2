@@ -2113,8 +2113,10 @@ export interface operations {
             query?: {
                 /** @description End the window on the week containing this date. */
                 anchor?: string | null;
-                /** @description Every week of this date's calendar month, instead of a trailing window. Takes precedence over `anchor` if both are given. */
+                /** @description Every week of this date's calendar month, instead of a trailing window. */
                 month?: string | null;
+                /** @description The week either side of this date's own week, instead of a trailing window. Empty if this date does not fall in any week the corpus has. */
+                centre?: string | null;
             };
             header?: never;
             path?: never;

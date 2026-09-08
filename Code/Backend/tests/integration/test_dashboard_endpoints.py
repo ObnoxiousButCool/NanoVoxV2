@@ -180,6 +180,24 @@ class TestPulseEndpoint:
 
         assert [point["label"] for point in body["points"]] == ["27 Jul"]
 
+    def test_a_centre_returns_the_week_either_side_of_its_own_week(
+        self, seeded: TestClient
+    ) -> None:
+        body = seeded.get("/api/v1/dashboard/pulse", params={"centre": "2026-08-05"}).json()
+
+        assert [point["label"] for point in body["points"]] == ["27 Jul", "3 Aug", "10 Aug"]
+
+    def test_a_centre_far_past_the_corpus_is_empty_rather_than_the_latest_window(
+        self, seeded: TestClient
+    ) -> None:
+        # The bug this guards: a centre nowhere near the data used to fall
+        # back to the trailing window instead of admitting there is nothing
+        # there, mislabelling it as the requested (out of range) period.
+        body = seeded.get("/api/v1/dashboard/pulse", params={"centre": "2026-12-25"}).json()
+
+        assert body["points"] == []
+        assert body["latest"] is None
+
 
 class TestWorkMixEndpoint:
     def test_every_configured_caller_gets_a_row(self, seeded: TestClient) -> None:

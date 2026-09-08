@@ -45,6 +45,13 @@ coverage/
 Thumbs.db
 Desktop.ini
 
+# --- Assistant session context -----------------------------------------------
+# A running log of what's been done in Claude sessions on this repo, kept so a
+# fresh session (or a different machine) can pick up context without it being
+# re-derived. Personal working notes, not project documentation — never meant
+# to be shared or reviewed, so it stays local and untracked.
+context-so-far.md
+
 # Imported corpora. A byproduct of the Corpus import screen: the same calls
 # the tracked Samples/ files hold, kept per-upload so an import cannot
 # overwrite the corpus a stored analysis was made from.
