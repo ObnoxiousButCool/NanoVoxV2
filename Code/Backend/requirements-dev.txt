@@ -9,9 +9,6 @@ ruff>=0.8,<1.0
 mypy>=1.13,<2.0
 import-linter>=2.1,<3.0
 
-# Reads the corpus PDF in scripts/convert_corpus_pdf.py. A build-time tool,
-# not a runtime one: the application only ever sees the converted files.
-pypdf>=5.1,<7.0
 types-PyYAML>=6.0,<7.0
 # The openai SDK is built on httpx (v1) while anthropic uses httpx2; tests
 # construct each SDK's error types with its own HTTP objects.

@@ -1,59 +1,74 @@
-# Call #25 — Commission Short-Paid — Group Coded to the Wrong Agency
+# Call #25 — Coverage Is Expiring — Member Does Not Know Why
 
-- **Agent:** Sarah
-- **Caller:** BROKER
-- **Tier:** GOOD
-- **Score:** 92/100
-- **Sentiment Arc:** FRUSTRATED → SATISFIED
-- **Resolution:** RESOLVED
-- **Date:** 2026-09-21
-- **Start:** 08:31:15
-- **End:** 08:39:39
-- **AHT:** 8m 24s
-- **Duration:** ~8 min
-- **Topics:** commission · agency coding · broker of record · reconciliation
+- **Agent:** Kayla
+- **Caller:** MEMBER
+- **Tier:** POOR
+- **Score:** 41/100
+- **Sentiment Arc:** WORRIED → DISMISSED
+- **Resolution:** UNRESOLVED
+- **Date:** 2026-09-08
+- **Start:** 09:43:15
+- **End:** 09:48:46
+- **AHT:** 5m 31s
+- **Duration:** ~6 min
+- **Queue:** Cost Share & Policy
+- **Topics:** termination · coverage expiry · employer · reinstatement
 
-**Member context:** Drummond & Partners · Broker Richard Drummond · six groups missing from statement
+**Member context:** Terrence Boyd, 47 · ChoiceBuilder dental and vision · received a termination notice
 
 ## Transcript
 
-Agent Sarah: Thank you for calling Choice Administrators, this is Sarah.
- Caller: Richard Drummond, agency AG-3004. My Q3 statement is short by about six groups. They're on my book but they're not on
-the statement.
-Agent Sarah: Let me pull your agency record and cross-reference against the groups you believe should be there. Can you name a
-couple?
- Caller: Navarro Group and Clearpoint Logistics for a start.
-Agent Sarah: Checking... Navarro Group is showing agency code AG-3040, not AG-3004. Those digits are transposed.
- Caller: So the commission went to a different agency?
-Agent Sarah: AG-3040 isn't an active agency code, so it hasn't been paid out to anyone — it's sitting unallocated. That's better than it
-having gone elsewhere.
- Caller: How did that happen?
-Agent Sarah: It came through on the original group submission. Clearpoint shows the same transposition, so it's likely a single data entry
-error repeated across a batch.
- Caller: Can you check the other four?
-Agent Sarah: All six carry AG-3040. Same batch, same error. I'm submitting a correction to reassign all six to AG-3004 and requesting a
-retroactive commission adjustment back to their effective dates.
- Caller: How long?
-Agent Sarah: Corrections process in five business days, and the adjustment appears on the next commission cycle. Your reference is
-CM-2026-00448.
- Caller: I appreciate you actually finding the cause rather than telling me to wait.
-Agent Sarah: It would have kept recurring every quarter otherwise. I'm also flagging the batch for review in case other agencies were
-affected.
+Agent Kayla: Choice Administrators, this is Kayla. This call may be recorded for quality and training. Can I take your name and member ID?
+
+Caller: Terrence Boyd, member ID CB-5519074.
+
+Agent Kayla: Thank you. I have the record open — go ahead.
+
+Caller: I got a letter saying my coverage ends on the 31st. Nobody told me anything. I still work here.
+
+Agent Kayla: Let me look... yes, your coverage is showing a termination date of the 31st.
+
+Caller: Why?
+
+Agent Kayla: It came through from your employer.
+
+Caller: My employer terminated my dental insurance? I didn't resign, I haven't changed anything.
+
+Agent Kayla: That's what's in the system.
+
+Caller: Can you tell me the reason code or whatever it says?
+
+Agent Kayla: It just says terminated.
+
+Caller: So what do I do?
+
+Agent Kayla: You'd need to talk to your HR department. We only process what they send us.
+
+Caller: Is there any chance this is an error? Because I have a dental appointment on the 2nd.
+
+Agent Kayla: I can't say. It'd be up to your employer to correct it if it's wrong.
+
+Caller: And if they fix it, does my coverage come back automatically?
+
+Agent Kayla: They'd have to resubmit.
+
+Caller: Okay. Thanks.
 
 ## AI Insights Panel — NanoVox 5-Layer Output
 
-L1 — Transcription & understanding: Call type: Commission discrepancy — agency coding error. Caller: BROKER. Tone: frustrated →
-satisfied. Duration: 9 min. Six groups affected.
-L2 — Call insights: Six groups on the broker's book were coded to a transposed agency number (AG-3040 vs AG-3004), leaving
-commission unallocated. Agent identified the pattern as a single batch error, submitted a correction with retroactive adjustment, and flagged
-the batch for wider review. Resolution: RESOLVED.
-L3 — Agent quality: Agent Score: 92/100. POSITIVE: cross-referenced rather than accepting the statement at face value (+), identified the
-transposition and confirmed the pattern across all six (+), reassured that funds had not been misdirected (+), submitted correction with
-retroactive adjustment (+), escalated the batch for wider review (+).
-L4 — Operational BI: PROCESS BREAKDOWN · Owner: Operations — agency codes are entered manually at group submission with no
-validation against the active agency register. A transposition silently diverts commission to a non-existent code. Recommend validating
-agency codes at entry and running a periodic unallocated-commission report.
-L5 — Real-time assist: Fired at 2:00 — agency code mismatch detected on group cross-reference. Batch pattern surfaced automatically
-across all six groups. Agent used both.
-
-— BROKER: PRODUCT RULES —
+L1 — Transcription & understanding: Call type: Coverage termination inquiry. Caller: MEMBER. Tone: worried → dismissed. Agent tone:
+minimal, deflecting. Duration: 6 min. Member has care scheduled after termination date.
+L2 — Call insights: Member received a termination notice he did not expect and could not explain. Agent confirmed the termination
+originated from the employer, could not provide a reason code, and directed the member to HR without further action. Resolution:
+UNRESOLVED.
+L3 — Agent quality: Agent Score: 41/100. NEGATIVE: did not retrieve or explain the termination reason (-), did not check whether the
+termination was a full group action or individual (-), did not flag that the member has care scheduled after the termination date (-), did not
+offer to contact the employer or open a verification case (-), no reinstatement path explained beyond 'they'd have to resubmit' (-).
+POSITIVE: correctly identified the source as employer-submitted (+).
+L4 — Operational BI: PROCESS BREAKDOWN · Owner: Operations — employer-submitted terminations generate no member-facing
+explanation and no verification step. Members discover coverage loss by letter and cannot get a reason from either side. Recommend:
+(1) termination reason captured and visible to agents, (2) member notification includes the reason and an HR contact, (3) agent-initiated
+employer verification for disputed terminations.
+L5 — Real-time assist: SHOULD HAVE FIRED at 1:30 — disputed termination plus scheduled care after the termination date is a
+verification trigger. Should have surfaced employer contact, termination reason code, and a coverage-verification case. No rule
+configured.

@@ -1,59 +1,70 @@
-# Call #86 — Member Told There Was No Cap — Retained by Explaining Actual Value
+# Call #86 — Member Asks If Coverage Continues After Reducing Hours
 
-- **Agent:** Carlos
+- **Agent:** Brad
 - **Caller:** MEMBER
-- **Tier:** GOOD
-- **Score:** 92/100
-- **Sentiment Arc:** FRUSTRATED → RETAINED
-- **Resolution:** RESOLVED
-- **Date:** 2026-09-07
-- **Start:** 10:00:15
-- **End:** 10:09:37
-- **AHT:** 9m 22s
-- **Duration:** ~9 min
-- **Broker Signal:** Marcus Trent: Told member the plan had no annual maximum
-- **Topics:** annual maximum · broker misselling · retention · contracted rates · churn risk
+- **Tier:** POOR
+- **Score:** 36/100
+- **Sentiment Arc:** WORRIED → ABANDONED
+- **Resolution:** UNRESOLVED
+- **Date:** 2026-09-24
+- **Start:** 11:16:00
+- **End:** 11:19:55
+- **AHT:** 3m 55s
+- **Duration:** ~4 min
+- **Queue:** Cost Share & Policy
+- **Repeat Contact:** follows an unresolved call on Tue 15 Sep 2026: Member Asks Which Carrier They Have and Cannot Get an Answer
+- **Topics:** eligibility · hours reduction · coverage continuation · part-time
 
-**Member context:** Gordon Achebe, 55 · Member ID CB-4419028 · Delta Dental · maximum reached
+**Member context:** Harold Winters, 58 · ChoiceBuilder dental, vision, life · going part-time
 
 ## Transcript
 
-Agent Carlos: Choice Administrators, this is Carlos.
- Caller: Gordon Achebe, CB-4419028. I've hit a maximum I didn't know existed. My broker, Marcus Trent, told me this plan had no
-annual cap.
-Agent Carlos: Let me confirm what you have. Delta Dental PPO, $1,500 annual maximum, and you've used it in full as of last month.
- Caller: He was quite specific. He said unlimited.
-Agent Carlos: No ancillary dental plan on our exchange is unlimited, so that representation was incorrect. I'm logging it with broker
-relations under your reference, because if he's saying that generally it will keep happening.
- Caller: At least someone's recording it. But I still have $2,000 of work outstanding and no coverage until January.
-Agent Carlos: You have less coverage, not none, and the difference matters. Your dentist remains contracted at network rates. Anything
-you pay yourself is at the negotiated rate, not his full fee — typically 20 to 35% below.
- Caller: So on $2,000 of work?
-Agent Carlos: The billed figure might be $2,600 or more at his full fee. You're paying the contracted rate because you're still an active
-member. That's several hundred dollars of value you'd lose entirely if you dropped the plan.
- Caller: I hadn't understood that at all. I assumed hitting the maximum meant the card was worthless.
-Agent Carlos: It's the most misunderstood part of dental coverage. And second — if any of that work can wait until January, a fresh
-$1,500 becomes available.
- Caller: Some of it can.
-Agent Carlos: Then phase it. Urgent work now at contracted rates, the rest after January against the new maximum.
- Caller: That completely changes my position. I was going to cancel.
-Agent Carlos: I'd rather you decide on the numbers. Reference BM-2026-00744 for the broker log.
+Agent Brad: Choice Administrators, Brad. This call may be recorded for quality and training. Can I take your name and member ID?
+
+Caller: Harold Winters, member ID CB-2214408.
+
+Agent Brad: Thank you Harold, I have you. Go ahead.
+
+Caller: Second time calling in a fortnight. The 15th call about carrier identification went nowhere. I'm going from full-time to twenty hours a week next month. Do I keep my dental and vision?
+
+Agent Brad: That depends on your employer's eligibility rules.
+
+Caller: What are they?
+
+Agent Brad: I'd have to check. Most groups require thirty hours.
+
+Caller: Can you check mine specifically?
+
+Agent Brad: It's set at the group level. Your HR would know.
+
+Caller: You administer the plan though. Doesn't the eligibility rule sit in your system?
+
+Agent Brad: It's more of an employer thing.
+
+Caller: So you can't tell me whether I'll have dental insurance in a month.
+
+Agent Brad: Not really, no. Ask HR.
+
+Caller: And if I lose it, is there anything I can do?
+
+Agent Brad: There might be COBRA. HR would set that up.
+
+Caller: Alright.
 
 ## AI Insights Panel — NanoVox 5-Layer Output
 
-L1 — Transcription & understanding: Call type: Annual maximum with broker misrepresentation. Caller: MEMBER (Gordon Achebe,
-CB-4419028). Tone: frustrated → retained. Duration: 9 min. ■ Cancellation intent expressed and reversed.
-L2 — Call insights: Member reached his annual maximum after being told the plan was unlimited. Agent logged the broker
-misrepresentation, explained that contracted network rates persist beyond the maximum, quantified the value, and advised phasing
-remaining work into the new plan year. Resolution: RESOLVED — member retained.
-L3 — Agent quality: Agent Score: 92/100. POSITIVE: stated plainly that no plan on the exchange is unlimited, validating the member (+),
-logged the broker misrepresentation with a reference (+), explained post-maximum contracted rates and quantified them (+), gave the
-phasing strategy (+), explicitly reframed the cancellation decision around numbers (+).
-L4 — Operational BI: BROKER ATTRIBUTION · Owner: Broker Relations — Marcus Trent represented the plan as having no annual
-maximum. Fifth flagged issue for this broker. RETENTION SUCCESS: member arrived intending to cancel and was retained by explaining
-post-maximum value that had never been communicated. Recommend making post-maximum contracted rates standard messaging at
-maximum exhaustion.
-L5 — Real-time assist: Fired at 1:30 — maximum exhaustion with named broker surfaced both the misrepresentation log and the
-post-maximum value package. Agent used both.
-
-— PLATFORM & FORMS —
+L1 — Transcription & understanding: Call type: Eligibility inquiry — hours reduction. Caller: MEMBER. Tone: worried → abandoned.
+Agent tone: deflecting. Duration: 4 min. Repeat contact — prior call in period closed unresolved.
+L2 — Call insights: Member reducing to 20 hours asked whether coverage continues. Agent did not retrieve the group's eligibility
+threshold, did not confirm whether the reduction triggers a loss of coverage, and gave a vague COBRA reference. Resolution:
+UNRESOLVED.
+L3 — Agent quality: Agent Score: 36/100. NEGATIVE: group eligibility rules are held in the administration system and were not retrieved
+(-), stated 'most groups require thirty hours' as a guess rather than checking (-), did not explain that hours reduction is a qualifying event
+for continuation (-), no case opened, no callback (-). POSITIVE: correctly identified COBRA as relevant, though without detail (+).
+L4 — Operational BI: AGENT KNOWLEDGE GAP · Owner: Call Centre Management — group eligibility thresholds are visible in the
+platform and agents are treating them as employer-only information. PROCESS BREAKDOWN · Owner: Operations — hours reduction
+is a predictable coverage-loss trigger and should route to a continuation conversation, not a referral to HR. REPEAT CONTACT: same
+member (CB-2214408) called on Tue 15 Sep 2026 and that call closed unresolved. Repeat contact within the period is a retention signal
+in its own right and should be counted against the earlier call, not this one.
+L5 — Real-time assist: SHOULD HAVE FIRED at 0:45 — hours reduction below a group eligibility threshold is a coverage-loss trigger.
+Should have surfaced the group's minimum hours rule, the projected loss date, and continuation options. No rule configured.

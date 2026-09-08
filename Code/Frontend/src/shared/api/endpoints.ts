@@ -5,16 +5,18 @@
  * the response type are decided once, together.
  */
 
-import { deleteJson, getJson, postJson } from '@/shared/api/client'
+import { deleteJson, getJson, postFormData, postJson } from '@/shared/api/client'
 import { getConfig } from '@/shared/config/env'
 import type {
   AgentPerformance,
   Analysis,
   BrokerScorecard,
   CallsPage,
+  CorpusImport,
   CorpusRun,
   CorpusRunSummary,
   CorpusStatus,
+  CorpusVersion,
   Effort,
   Health,
   MembersAtRisk,
@@ -210,4 +212,20 @@ export function clearCorpus(): Promise<ClearedCorpus> {
  *  served from this origin; EventSource resolves it against the page. */
 export function runStreamUrl(runId: number): string {
   return `${getConfig().apiBaseUrl}/corpus/runs/${String(runId)}/stream`
+}
+
+/**
+ * Convert an uploaded corpus PDF into sample call files.
+ *
+ * Saved under its own name in the import library, never over the corpus in use.
+ * Nothing is analysed: this produces files, and a run spends money.
+ */
+export function importCorpusDocument(file: File): Promise<CorpusImport> {
+  const body = new FormData()
+  body.append('file', file)
+  return postFormData<CorpusImport>('/corpus/imports', body)
+}
+
+export function fetchCorpusImports(signal?: AbortSignal): Promise<CorpusVersion[]> {
+  return getJson<CorpusVersion[]>('/corpus/imports', signal ? { signal } : {})
 }

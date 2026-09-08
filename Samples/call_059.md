@@ -1,59 +1,70 @@
-# Call #59 — Member Checks a Large Treatment Plan Before Committing
+# Call #59 — Dentist Left the Network Mid-Treatment
 
-- **Agent:** Priya
+- **Agent:** Tony
 - **Caller:** MEMBER
-- **Tier:** GOOD
-- **Score:** 93/100
-- **Sentiment Arc:** WORRIED → REASSURED
-- **Resolution:** RESOLVED
-- **Date:** 2026-09-07
-- **Start:** 16:15:15
-- **End:** 16:24:16
-- **AHT:** 9m 1s
-- **Duration:** ~9 min
-- **Broker Signal:** Patricia Nunez: POSITIVE — member arrived with an accurate benefit summary from her broker
-- **Topics:** pre-treatment estimate · annual maximum · treatment planning · broker positive
+- **Tier:** AVERAGE
+- **Score:** 70/100
+- **Sentiment Arc:** FRUSTRATED → PARTIALLY SATISFIED
+- **Resolution:** PARTIALLY RESOLVED
+- **Date:** 2026-09-17
+- **Start:** 11:53:45
+- **End:** 12:00:55
+- **AHT:** 7m 10s
+- **Duration:** ~7 min
+- **Queue:** Networks & Providers
+- **Topics:** network exit · continuity · mid-treatment · dental
 
-**Member context:** Sophie Martinez, 29 · Member ID CB-9021445 · Delta Dental · $4,200 treatment plan
+**Member context:** Lucia Ferreira, 39 · Ameritas dental · crown work in progress
 
 ## Transcript
 
-Agent Priya: Thank you for calling Choice Administrators, this is Priya.
- Caller: Sophie Martinez, CB-9021445. My dentist has proposed $4,200 of work across several visits. My broker, Patricia Nunez, gave
-me a benefit summary at enrollment and it says my annual maximum is $1,500. I want to check I'm reading it right before I agree to
-anything.
-Agent Priya: You're reading it correctly, and it's genuinely useful that you have that summary — most members don't. Let me confirm
-against your record. Annual maximum $1,500, and you've used $290 so far this year.
- Caller: So the plan will pay at most $1,210 more this year.
-Agent Priya: Exactly right. On a $4,200 plan of treatment, that leaves substantial member cost regardless of coinsurance levels.
- Caller: Is there anything I can do about that?
-Agent Priya: Yes, and this is worth doing. Ask your dentist to phase the treatment across two plan years. If roughly half is done before
-December 31st and half after January 1st, you draw on two annual maximums instead of one.
- Caller: So potentially $1,210 this year and up to $1,500 next year.
-Agent Priya: That's the arithmetic. Whether it's clinically appropriate to phase is your dentist's call, but many treatment plans divide
-sensibly.
- Caller: That could be $1,500 of difference. Nobody mentioned it.
-Agent Priya: It's the single most valuable thing to know about an annual maximum. Second thing — ask for a pre-treatment estimate.
-We return a written statement of what the plan will pay on each procedure, so you can sequence with actual numbers rather than
-estimates.
- Caller: I'll ask for both.
-Agent Priya: Reference PT-2026-01044 for the estimate. And your broker did well giving you that summary — it's why you called before
-committing rather than after.
+Agent Tony: Choice Administrators, this is Tony. This call may be recorded for quality and training. Can I take your name and member ID?
+
+Caller: Lucia Ferreira, member ID CB-5548820.
+
+Agent Tony: Got it, thanks Lucia. What can I do for you?
+
+Caller: My dentist told me he's leaving the Ameritas network at the end of the month. I'm halfway through crown work — the temporary is in and the permanent is due in three weeks.
+
+Agent Tony: Let me check. Yes, I can see the network termination effective the 31st.
+
+Caller: So what happens to my crown?
+
+Agent Tony: The preparation and temporary were done in network, so those processed at network rates. The permanent placement in three weeks would fall after the termination date and would process out of network.
+
+Caller: So I pay substantially more for the second half of a treatment I started in network.
+
+Agent Tony: That's the exposure, yes. There are two things worth trying. First, ask whether he can bring the permanent placement forward before the 31st. Many dentists will accommodate that if the lab work is back.
+
+Caller: That's practical. And second?
+
+Agent Tony: A continuity of care request. For treatment already in progress at the time of a network termination, some carriers will honour network rates through completion. I need to check whether Ameritas offers it on your plan.
+
+Caller: Can you check now?
+
+Agent Tony: I don't have that in front of me. I'd need to request it from the carrier and come back to you.
+
+Caller: How long?
+
+Agent Tony: Usually two to three business days.
+
+Caller: That's cutting it close but alright. Reference?
+
+Agent Tony: CN-2026-00814. Try the earlier appointment in the meantime — that's the more certain route.
 
 ## AI Insights Panel — NanoVox 5-Layer Output
 
-L1 — Transcription & understanding: Call type: Treatment plan cost planning. Caller: MEMBER (Sophie Martinez, CB-9021445). Tone:
-worried → reassured. Duration: 9 min.
-L2 — Call insights: Member evaluating a $4,200 treatment plan against a $1,500 annual maximum. Agent confirmed remaining benefit,
-advised phasing treatment across two plan years to access two annual maximums, and directed her to obtain a pre-treatment estimate.
-Resolution: RESOLVED.
-L3 — Agent quality: Agent Score: 93/100. POSITIVE: confirmed the member's own reading rather than re-explaining (+), gave the
-two-plan-year phasing strategy — potentially $1,500 of member value (+), was clear that clinical sequencing is the dentist's decision (+),
-surfaced pre-treatment estimate with a reference (+), acknowledged the broker's good preparation (+).
-L4 — Operational BI: BROKER ATTRIBUTION · POSITIVE · Owner: Broker Relations — Patricia Nunez supplied a benefit summary at
-enrollment that the member still held and used. Members from this broker call before committing rather than after a denial, which materially
-reduces downstream dispute volume. Recommend capturing positive broker attribution and replicating her enrollment summary format.
-L5 — Real-time assist: Fired at 2:00 — large treatment plan against remaining annual maximum surfaced the phasing strategy and
-pre-treatment estimate pathway. Agent used both.
-
-— ID CARDS & PORTAL —
+L1 — Transcription & understanding: Call type: Network exit mid-treatment — dental. Caller: MEMBER. Tone: frustrated → partially
+satisfied. Duration: 7 min.
+L2 — Call insights: Member's dentist exiting the network between crown preparation and permanent placement. Agent explained the
+cost exposure, suggested bringing the appointment forward, and opened a continuity of care query with the carrier. Resolution:
+PARTIALLY RESOLVED — carrier response pending.
+L3 — Agent quality: Agent Score: 70/100. POSITIVE: explained the split-treatment exposure clearly (+), suggested the practical fix of an
+earlier appointment first (+), opened a continuity query with a reference (+). NEGATIVE: could not state whether continuity of care
+applies on this carrier — core knowledge (-), no committed callback date (-), did not proactively identify other members mid-treatment
+with the same dentist (-).
+L4 — Operational BI: PROCESS BREAKDOWN · Owner: Network Management — network terminations are not cross-referenced
+against members with treatment in progress. Recommend identifying members with open treatment plans at any exiting provider and
+contacting them before the termination date rather than waiting for them to call.
+L5 — Real-time assist: SHOULD HAVE FIRED at 2:00 — network termination with member treatment in progress should surface
+continuity of care eligibility by carrier and a cohort query for other affected members. Neither fired.

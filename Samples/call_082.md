@@ -1,53 +1,65 @@
-# Call #82 — Coordination Between Dental and Medical for the Same Procedure
+# Call #82 — Employee on Unpaid Leave — Does Coverage Continue
 
-- **Agent:** Michael
-- **Caller:** MEMBER
+- **Agent:** James
+- **Caller:** EMPLOYER
 - **Tier:** AVERAGE
-- **Score:** 73/100
-- **Sentiment Arc:** CONFUSED → INFORMED
+- **Score:** 77/100
+- **Sentiment Arc:** NEUTRAL → SATISFIED
 - **Resolution:** RESOLVED
-- **Date:** 2026-09-01
-- **Start:** 13:29:15
-- **End:** 13:36:05
-- **AHT:** 6m 50s
+- **Date:** 2026-09-23
+- **Start:** 16:54:15
+- **End:** 17:01:17
+- **AHT:** 7m 2s
 - **Duration:** ~7 min
-- **Topics:** medical dental crossover · oral surgery · coordination · claims
+- **Queue:** Employer: Terminations
+- **Topics:** leave of absence · unpaid leave · continuation · eligibility
 
-**Member context:** Ibrahim Nasser, 39 · Member ID CB-4416628 · dental plus separate medical
+**Member context:** Meridian Staffing · 66 employees · HR Business Partner Karen Diaz · GRP-462201
 
 ## Transcript
 
-Agent Michael: Choice Administrators, Michael speaking.
- Caller: Ibrahim Nasser, CB-4416628. I'm having jaw surgery and the surgeon says it might be billed to medical rather than dental.
-Which is it?
-Agent Michael: It depends on the reason for the procedure. Procedures done for a medical reason — trauma, a pathological condition,
-or a functional jaw problem — usually bill to medical. Procedures for a dental reason bill to dental.
- Caller: It's a functional issue. I can't chew properly.
-Agent Michael: Then medical is likely the correct primary payer. Do you have medical coverage separately?
- Caller: Yes, through the same employer but a different carrier.
-Agent Michael: Then your surgeon should submit to medical first. If medical denies it as dental in nature, they resubmit to us with the
-medical denial attached, and we'd assess it under your dental benefit.
- Caller: So there's a sequence.
-Agent Michael: There is, and doing it in the wrong order wastes weeks. Medical first, then dental with the denial if needed.
- Caller: What if dental also denies it?
-Agent Michael: Then you'd appeal, and the medical denial becomes useful evidence — it establishes that at least one payer considered
-it the other's responsibility. That's a stronger appeal than starting from nothing.
- Caller: Good to understand the order. Thank you.
+Agent James: Choice Administrators member services, this is James. This call may be recorded for quality and training. Can I take your name and group number?
+
+Caller: Karen Diaz, HR Business Partner at Meridian Staffing, group GRP-462201.
+
+Agent James: Thank you. I have the record open — go ahead.
+
+Caller: We have an employee going on three months unpaid leave. Does his dental and vision continue?
+
+Agent James: That depends on your group's leave policy as recorded with us. Let me check... your group is set to continue coverage during approved unpaid leave for up to 12 weeks, provided premium continues to be paid.
+
+Caller: Who pays it while he's not on payroll?
+
+Agent James: That's the practical issue. There's no payroll to deduct from, so the employer either fronts the employee share and recovers it on return, or collects directly from the employee during the leave.
+
+Caller: Which do most groups do?
+
+Agent James: Direct collection is more common for voluntary lines, because fronting several months of premium and recovering it creates its own problems if the employee doesn't return.
+
+Caller: And if we don't collect and don't front?
+
+Agent James: Coverage lapses for non-payment and he'd need to re-enroll on return, potentially re-serving any waiting period. That's the outcome to avoid.
+
+Caller: Definitely. So we should agree collection arrangements with him before he goes.
+
+Agent James: In writing, ideally. It avoids a dispute later about who owed what.
+
+Caller: And if the leave runs past 12 weeks?
+
+Agent James: Beyond 12 weeks coverage terminates and COBRA applies from that point. Worth diarising the date now.
 
 ## AI Insights Panel — NanoVox 5-Layer Output
 
-L1 — Transcription & understanding: Call type: Medical-dental crossover. Caller: MEMBER (Ibrahim Nasser, CB-4416628). Tone:
-confused → informed. Duration: 6 min.
-L2 — Call insights: Member facing jaw surgery unclear whether medical or dental applies. Agent explained the medical-reason test,
-established that functional impairment points to medical primary, set out the correct submission sequence, and explained how a medical
-denial strengthens a subsequent dental appeal. Resolution: RESOLVED.
-L3 — Agent quality: Agent Score: 73/100. POSITIVE: applied the medical-reason test to the member's actual situation (+), gave the correct
-submission sequence, which saves weeks (+), explained how a denial becomes appeal evidence (+). NEGATIVE: did not offer written
-guidance for the surgeon's billing office (-), no reference number (-), did not note the account in anticipation of a crossover claim (-).
-L4 — Operational BI: MEMBER COMMUNICATION GAP · Owner: Member Communications — medical-dental crossover procedures are
-frequently submitted in the wrong order, delaying treatment. Recommend provider-facing guidance and a member explainer covering the
-sequence.
-L5 — Real-time assist: Fired at 2:00 — crossover inquiry surfaced the medical-reason criteria and submission sequence. Written provider
-guidance not available; recommend creating.
-
-— BROKER: PRODUCT RULES —
+L1 — Transcription & understanding: Call type: Coverage during unpaid leave. Caller: EMPLOYER (Karen Diaz, GRP-462201). Tone:
+neutral → satisfied. Duration: 7 min.
+L2 — Call insights: Employer asked whether coverage continues during a three-month unpaid leave. Agent confirmed the group's
+12-week continuation provision, explained premium collection options, warned about lapse and waiting period re-service, and flagged
+the COBRA trigger beyond 12 weeks. Resolution: RESOLVED.
+L3 — Agent quality: Agent Score: 77/100. POSITIVE: retrieved the group's specific leave provision (+), addressed the practical premium
+collection problem rather than only the policy (+), warned about waiting period re-service on lapse (+), flagged the 12-week COBRA
+boundary (+). NEGATIVE: did not offer a written summary for the employee agreement (-), no reference number (-), did not offer to
+diarise the 12-week date on the group record (-).
+L4 — Operational BI: PROCESS OPPORTUNITY · Owner: Operations — leave-of-absence premium collection is a recurring source of
+unintended lapses. Recommend a standard employer leave guide and an automated alert at week 10 of any recorded leave.
+L5 — Real-time assist: Fired at 1:30 — leave inquiry surfaced the group's continuation provision and COBRA boundary. Premium
+collection guidance was agent-supplied.

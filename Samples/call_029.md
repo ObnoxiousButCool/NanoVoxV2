@@ -1,59 +1,65 @@
-# Call #29 — Employee Married Last Week — Adding a Spouse Mid-Year
+# Call #29 — Provider Says the Plan Was Terminated — It Was Not
 
-- **Agent:** Danielle
-- **Caller:** EMPLOYER
+- **Agent:** Priya
+- **Caller:** MEMBER
 - **Tier:** GOOD
-- **Score:** 90/100
-- **Sentiment Arc:** URGENT → REASSURED
+- **Score:** 91/100
+- **Sentiment Arc:** FRUSTRATED → SATISFIED
 - **Resolution:** RESOLVED
-- **Date:** 2026-09-14
-- **Start:** 14:26:45
-- **End:** 14:35:22
-- **AHT:** 8m 37s
-- **Duration:** ~9 min
-- **Topics:** qualifying life event · marriage · dependent addition · documentation
+- **Date:** 2026-09-08
+- **Start:** 13:07:00
+- **End:** 13:14:56
+- **AHT:** 7m 56s
+- **Duration:** ~8 min
+- **Queue:** Networks & Providers
+- **Topics:** eligibility verification · provider system · point of service · false termination
 
-**Member context:** Hillside Tech · 90 employees · HR Generalist David Kim
+**Member context:** Victor Salinas, 47 · Member ID CB-402210 · Delta Dental · eligibility rejection at office
 
 ## Transcript
 
-Agent Danielle: Thank you for calling Choice Administrators, this is Danielle.
- Caller: David Kim, Hillside Tech, GRP-188500. An employee got married on the 4th and wants to add his spouse to dental and vision.
-What do I need?
-Agent Danielle: Marriage is a qualifying event so he has 60 days from the 4th — that gives him until early November. Three things: the
-completed change form, a copy of the marriage certificate, and the spouse's date of birth and Social Security number.
- Caller: Does the coverage backdate to the marriage date?
-Agent Danielle: That's the employee's choice within limits. Most groups default to first of the month following the event, so November
-1st. Some allow retroactive to the event date. Your group is set to first of month following.
- Caller: So November 1st.
-Agent Danielle: Yes. Worth telling him explicitly, because people often assume coverage starts the day they marry and then get a
-surprise if the spouse visits a dentist in October.
- Caller: Good point. I'll make that clear.
-Agent Danielle: One more thing that catches people. If his spouse has her own dental coverage through her employer, they'll want to
-think about whether dual coverage makes sense. It can, because of coordination of benefits — but it also means two premiums and two
-sets of frequency limits that don't always align.
- Caller: He hasn't mentioned it. I'll ask.
-Agent Danielle: Worth a conversation. If she keeps her own and he adds her anyway, coordination applies and the combined benefit
-can be higher than either alone. If money is tight it may not be worth the second premium.
- Caller: That's genuinely useful. Anything else?
-Agent Danielle: Submit through the employer portal under Life Events. Upload the certificate there. Processing is three to five days.
-Your reference is LE-2026-01144, and I'm emailing the checklist.
+Agent Priya: Thank you for calling Choice Administrators, this is Priya. This call may be recorded for quality and training. Can I take your name and member ID?
+
+Caller: Victor Salinas, member ID CB-402210.
+
+Agent Priya: Thank you. I have the record open — go ahead.
+
+Caller: I'm at the dentist and they say my coverage terminated in July. I've been paying every month.
+
+Agent Priya: Let me check your record right now. Your coverage is active, continuously, with no termination on file. Premium current through this month.
+
+Caller: So why are they seeing termination?
+
+Agent Priya: Let me look at what changed in July... your group changed dental carriers at renewal, from MetLife to Delta Dental effective July 1st. If the office is checking MetLife, they'd see a July termination — which is accurate for MetLife but not for your coverage.
+
+Caller: So I'm covered, just with a different company.
+
+Agent Priya: Exactly. Ask them to verify with Delta Dental instead. Your Delta subscriber ID is DD-88214470.
+
+Caller: Hold on, I'll tell them. ... They found me. Active.
+
+Agent Priya: Good. Did you receive a new card in July?
+
+Caller: I don't think so.
+
+Agent Priya: That's the underlying problem then. I'm sending a digital card now and ordering a physical replacement. If you're carrying a MetLife card, every office will see the same thing.
+
+Caller: That would have kept happening.
+
+Agent Priya: It would. I'm also flagging that you didn't receive the carrier transition card, because if it affected you it likely affected others in your group.
 
 ## AI Insights Panel — NanoVox 5-Layer Output
 
-L1 — Transcription & understanding: Call type: QLE dependent addition — marriage. Caller: EMPLOYER (HR Generalist). Tone: urgent
-→ reassured. Duration: 9 min.
-L2 — Call insights: Employer adding a spouse following an employee's marriage. Agent gave the 60-day window and deadline, confirmed
-the group's first-of-month effective date rule, warned about the common assumption that coverage starts on the wedding date, and raised
-dual-coverage coordination considerations. Resolution: RESOLVED.
-L3 — Agent quality: Agent Score: 90/100. POSITIVE: gave the exact deadline rather than the generic window (+), checked the group's
-specific effective date configuration (+), pre-empted the wedding-date coverage assumption that generates complaints (+), raised
-coordination of benefits proactively (+), reference and emailed checklist (+). NEGATIVE: did not mention the spouse may also be eligible for
-life coverage election (-).
-L4 — Operational BI: MEMBER COMMUNICATION GAP · Owner: Member Communications — employees consistently assume QLE
-coverage starts on the event date rather than the plan's effective date rule. Recommend the QLE confirmation notice state the effective date
-prominently.
-L5 — Real-time assist: Fired at 2:00 — marriage QLE surfaced deadline calculation, group effective date rule, and documentation
-checklist. Coordination of benefits guidance was agent-supplied; worth adding to the playbook.
-
-— EMPLOYER: BILLING —
+L1 — Transcription & understanding: Call type: False termination at point of service after carrier change. Caller: MEMBER (Victor
+Salinas, CB-402210). Tone: frustrated → satisfied. Duration: 8 min.
+L2 — Call insights: Provider saw a July termination because the group changed dental carriers from MetLife to Delta at renewal and the
+member still held a MetLife card. Agent identified the carrier transition, supplied the Delta subscriber ID, resolved verification at point of
+service, sent a replacement card, and flagged the group-level card distribution failure. Resolution: RESOLVED.
+L3 — Agent quality: Agent Score: 91/100. POSITIVE: diagnosed the carrier transition as the cause rather than accepting the termination
+report (+), supplied the correct subscriber ID and resolved at point of service (+), identified the missing transition card as the root cause
+(+), escalated the group-level card distribution issue (+).
+L4 — Operational BI: PROCESS BREAKDOWN · Owner: Operations — members do not reliably receive new cards on a carrier
+transition at renewal, producing point-of-service eligibility failures that look like terminations. Recommend confirming card fulfilment for
+every member on any group carrier change, and a transition notice explaining that the previous carrier will show a termination.
+L5 — Real-time assist: Fired at 2:00 — reported termination against active coverage surfaced the carrier change history and new
+subscriber ID. Card fulfilment gap surfaced. Agent used all three.

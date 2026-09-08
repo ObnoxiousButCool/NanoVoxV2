@@ -16,6 +16,7 @@ from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
 
 from application.dto.analysis_schemas import AnalysisSchemas, build_analysis_schemas
 from application.ports.clock import Clock
+from application.ports.corpus_document import CorpusDocumentReader, CorpusLibrary
 from application.ports.corpus_source import CorpusSource
 from application.ports.health_probe import HealthProbe
 from application.ports.llm_provider import LLMProvider
@@ -35,6 +36,7 @@ from application.use_cases.get_dashboard import (
     GetWorkMix,
 )
 from application.use_cases.get_health import GetHealth
+from application.use_cases.import_corpus_document import ImportCorpusDocument
 from application.use_cases.list_providers import ListProviders
 from application.use_cases.run_corpus import (
     CancelCorpusRun,
@@ -54,7 +56,9 @@ from infrastructure.config.dashboard_loader import DashboardConfig, load_dashboa
 from infrastructure.config.rubric_loader import load_rubric
 from infrastructure.config.settings import Settings
 from infrastructure.config.taxonomy_loader import load_taxonomy
+from infrastructure.corpus.library import FileSystemCorpusLibrary
 from infrastructure.corpus.markdown_corpus import MarkdownCorpusSource
+from infrastructure.corpus.pdf_document import PdfCorpusDocumentReader
 from infrastructure.llm.prompt_source import FilePromptSource
 from infrastructure.llm.prompts import PromptLibrary
 from infrastructure.llm.provider_probe import RegistryProviderProbe
@@ -90,6 +94,10 @@ class Container:
     redaction: RedactionPort
     dashboard: DashboardConfig
     corpus: CorpusSource
+    # Import is stateless and its store is a directory, so both are built
+    # once at startup rather than per request.
+    document_reader: CorpusDocumentReader
+    corpus_library: CorpusLibrary
     # One event bus and one runner per process: a subscriber and the worker
     # publishing to it must be looking at the same object, and a per-request
     # instance would leave every stream permanently silent.
@@ -197,6 +205,12 @@ class Container:
             runs=self.run_repository(),
         )
 
+    def import_corpus_document(self) -> ImportCorpusDocument:
+        return ImportCorpusDocument(
+            reader=self.document_reader,
+            library=self.corpus_library,
+        )
+
     def corpus_run_worker(self) -> CorpusRunWorker:
         return CorpusRunWorker(
             corpus=self.corpus,
@@ -253,6 +267,8 @@ def build_container(settings: Settings) -> Container:
         redaction=NoRedaction(),
         dashboard=load_dashboard_config(settings.dashboard_path, taxonomy),
         corpus=MarkdownCorpusSource(settings.corpus_path, settings.corpus_glob),
+        document_reader=PdfCorpusDocumentReader(),
+        corpus_library=FileSystemCorpusLibrary(settings.corpus_path, settings.corpus_glob),
         events=InMemoryRunEventBus(),
         runner=BackgroundRunner(),
         member_id_pattern=(

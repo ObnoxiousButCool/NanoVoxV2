@@ -1,57 +1,67 @@
-# Call #31 — Dual Coverage — Which Dental Plan Pays First
+# Call #31 — Claim Paid at the Wrong Coinsurance Level
 
-- **Agent:** James
+- **Agent:** Nicole
 - **Caller:** MEMBER
 - **Tier:** AVERAGE
-- **Score:** 72/100
-- **Sentiment Arc:** CONFUSED → INFORMED
+- **Score:** 77/100
+- **Sentiment Arc:** ANNOYED → SATISFIED
 - **Resolution:** RESOLVED
-- **Date:** 2026-09-21
-- **Start:** 11:48:45
-- **End:** 11:56:07
-- **AHT:** 7m 22s
-- **Duration:** ~7 min
-- **Topics:** coordination of benefits · dual coverage · birthday rule · secondary
+- **Date:** 2026-09-08
+- **Start:** 15:58:15
+- **End:** 16:04:37
+- **AHT:** 6m 22s
+- **Duration:** ~6 min
+- **Queue:** Claims & EOB
+- **Repeat Contact:** follows an unresolved call on Mon 07 Sep 2026: Portal Lockout — Agent Cannot Reset and Does Not Escalate
+- **Topics:** coinsurance error · service category · reprocessing · basic vs major
 
-**Member context:** Carlos Rivera, 45 · ChoiceBuilder dental plus spouse's employer dental
+**Member context:** Ahmed Bakri, 42 · Member ID CB-6602274 · Delta Dental · filling paid at 50%
 
 ## Transcript
 
-Agent James: Choice Administrators member services, this is James.
- Caller: Carlos Rivera, CB-3305671. I have dental here and my wife has dental through her job that covers me too. The dentist billed
-one and now says the other should pay. I don't understand the order.
-Agent James: This is coordination of benefits. For you as an employee, your own employer's plan is primary — the plan where you're
-the subscriber pays first. Your wife's plan, where you're a dependent, is secondary.
- Caller: So mine first, always?
-Agent James: For you, yes. For your wife it's the reverse — her own plan is primary for her. For children, it's different again: the parent
-whose birthday falls earlier in the calendar year is primary.
- Caller: The birthday rule. I've heard of it.
-Agent James: That one only applies to dependent children, not to you or your wife as subscribers on your own plans.
- Caller: So the dentist should bill ChoiceBuilder first for me.
-Agent James: Correct. Then submit the remaining balance with our explanation of benefits to your wife's plan as secondary.
- Caller: Will the second one cover the rest?
-Agent James: Often most of it, but not always all. Secondary plans coordinate up to what they would have paid as primary, not up to the
-full balance. So you can still have a residual share.
- Caller: Right. And do I need to tell you about the other coverage?
-Agent James: Yes — that's important. If we don't have the other coverage recorded, claims can hold pending a coordination
-questionnaire. Let me record it now. Carrier and policy holder name?
- Caller: Anthem, under my wife Elena Rivera.
-Agent James: Recorded. That should prevent future holds.
+Agent Nicole: Choice Administrators, Nicole speaking. This call may be recorded for quality and training. Can I take your name and member ID?
+
+Caller: Ahmed Bakri, member ID CB-6602274.
+
+Agent Nicole: Thanks Ahmed. Tell me what's happening.
+
+Caller: This is my second call this month. The portal access issue on the 7th was never sorted. Separate thing today. My filling was paid at 50%. Fillings should be 80% on my plan.
+
+Agent Nicole: Let me look at how it categorised. You're right that fillings are basic at 80%. This claim processed under major services at 50%.
+
+Caller: So it's been categorised wrong.
+
+Agent Nicole: It looks that way. Let me check the procedure code... it was submitted as an onlay rather than a filling. An onlay is classified as major on your plan.
+
+Caller: My dentist said filling.
+
+Agent Nicole: Then either the terminology differed or the code is wrong. An onlay is a lab-fabricated restoration, more involved than a standard filling — clinically they're different procedures with different costs.
+
+Caller: How do I tell which I actually had?
+
+Agent Nicole: Ask the office directly. If it was fabricated in a lab and placed at a second visit, it's an onlay and the 50% is correct. If it was done in one visit with composite material, it's a filling and the code is wrong.
+
+Caller: It was one visit.
+
+Agent Nicole: Then it's likely miscoded. Ask them to review and resubmit as a filling if that's what was done. It should reprocess at 80%.
+
+Caller: That's a $90 difference.
+
+Agent Nicole: Worth the phone call. I'm noting the account so a corrected resubmission is expected. Reference CR-2026-00918.
 
 ## AI Insights Panel — NanoVox 5-Layer Output
 
-L1 — Transcription & understanding: Call type: Coordination of benefits — dual dental coverage. Caller: MEMBER. Tone: confused →
-informed. Duration: 8 min.
-L2 — Call insights: Member with dual dental coverage unclear on billing order. Agent explained subscriber-primary rule, distinguished it
-from the birthday rule for children, explained secondary coordination limits, and recorded the other coverage to prevent claim holds.
+L1 — Transcription & understanding: Call type: Coinsurance level dispute. Caller: MEMBER (Ahmed Bakri, CB-6602274). Tone:
+annoyed → satisfied. Duration: 6 min. Repeat contact — prior call in period closed unresolved.
+L2 — Call insights: Filling paid at 50% because it was submitted as an onlay. Agent identified the code, explained the clinical distinction,
+gave the member a test to determine which procedure was performed, and annotated the account for the expected resubmission.
 Resolution: RESOLVED.
-L3 — Agent quality: Agent Score: 72/100. POSITIVE: distinguished subscriber-primary from the birthday rule clearly (+), set correct
-expectations that secondary may not cover the full balance (+), recorded the other coverage proactively to prevent future holds (+).
-NEGATIVE: did not check whether existing claims are already held pending coordination (-), no written summary offered (-), did not explain
-how to submit the secondary claim practically (-).
-L4 — Operational BI: PROCESS BREAKDOWN · Owner: Operations — other coverage is captured only when a member volunteers it or a
-claim holds. Recommend a coordination question at enrollment and an annual refresh, reducing silent claim holds.
-L5 — Real-time assist: Fired at 2:00 — dual coverage inquiry surfaced COB rules and the other-coverage recording action. Did not check
-for existing held claims; recommend adding.
-
-— COST SHARE & POLICY —
+L3 — Agent quality: Agent Score: 77/100. POSITIVE: identified the specific code causing the variance (+), explained the clinical
+distinction so the member could self-verify (+), gave a practical single-visit test (+), annotated the account and issued a reference (+).
+NEGATIVE: no empathy at open (-), did not offer to contact the practice (-), did not quantify the difference until the member did (-).
+L4 — Operational BI: PROVIDER PERFORMANCE · Owner: Provider Relations — onlay coding on single-visit composite restorations
+shifts cost from the plan to the member and inflates the practice's reimbursement. Recommend monitoring practices with unusual
+onlay-to-filling ratios. REPEAT CONTACT: same member (CB-6602274) called on Mon 07 Sep 2026 and that call closed unresolved.
+Repeat contact within the period is a retention signal in its own right and should be counted against the earlier call, not this one.
+L5 — Real-time assist: Fired at 2:00 — coinsurance variance surfaced the submitted code and its service category classification. Agent
+used it.

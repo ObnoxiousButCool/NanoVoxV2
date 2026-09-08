@@ -1,55 +1,67 @@
-# Call #62 — Renewal Rates Arrived With No Broker Contact
+# Call #62 — Open Enrollment Closing and Twelve Employees Have Not Elected
 
-- **Agent:** Brad
+- **Agent:** Carlos
 - **Caller:** EMPLOYER
-- **Tier:** POOR
-- **Score:** 40/100
-- **Sentiment Arc:** NEUTRAL → CHURN RISK
-- **Resolution:** UNRESOLVED
-- **Date:** 2026-09-17
-- **Start:** 09:19:30
-- **End:** 09:25:06
-- **AHT:** 5m 36s
-- **Duration:** ~6 min
-- **Broker Signal:** Denise Whitfield: No renewal contact — employer received rates with no broker guidance
-- **Topics:** renewal · broker absent · rate increase · churn risk
+- **Tier:** GOOD
+- **Score:** 92/100
+- **Sentiment Arc:** URGENT → RESOLVED
+- **Resolution:** RESOLVED
+- **Date:** 2026-09-18
+- **Start:** 10:39:00
+- **End:** 10:48:42
+- **AHT:** 9m 42s
+- **Duration:** ~10 min
+- **Queue:** Employer: Enrollment
+- **Topics:** open enrollment · participation · default election · deadline
 
-**Member context:** Clearwater Staffing · 31 employees · Office Manager Doris Chen · GRP-310092
+**Member context:** Sunrise Tech · 84 employees · HR Manager Yvette Chambers · GRP-339201
 
 ## Transcript
 
-Agent Brad: Choice Administrators, Brad.
- Caller: Doris Chen, Clearwater Staffing, GRP-310092. Our renewal came in at 19% up. Our broker, Denise Whitfield, hasn't contacted
-us at all. Can you talk me through options?
-Agent Brad: Renewal options would normally go through your broker.
- Caller: She hasn't called. Renewal is in three weeks.
-Agent Brad: You could try contacting her.
- Caller: I've left four messages.
-Agent Brad: Hmm.
- Caller: Can you tell me what alternative plans are available at least?
-Agent Brad: There are different tiers.
- Caller: Which ones, and what would they cost?
-Agent Brad: I'd have to look at each.
- Caller: Please.
-Agent Brad: It's really a broker function, quoting alternatives.
- Caller: So a broker who won't respond, and you won't quote. We'll go to market then. There are other exchanges.
-Agent Brad: Okay.
+Agent Carlos: Choice Administrators, this is Carlos. This call may be recorded for quality and training. Can I take your name and group number?
+
+Caller: Yvette Chambers, HR Manager at Sunrise Tech, group GRP-339201.
+
+Agent Carlos: Thanks Yvette. Tell me what's happening.
+
+Caller: Open enrollment closes Friday and twelve employees haven't made an election. What happens to them?
+
+Agent Carlos: On your group, non-election defaults to declining coverage rather than rolling forward, so those twelve would have no ancillary coverage from January 1st.
+
+Caller: They'd almost all want it. They're just not reading emails.
+
+Agent Carlos: Then it's worth pushing. Two things you can do. First, I can send you the list of non-electors so you can chase individually rather than blanket-emailing everyone.
+
+Caller: That would help enormously.
+
+Agent Carlos: Second — check whether your group has a passive renewal option available. Some groups are configured so existing enrollees roll forward automatically unless they actively change. Yours is set to active election, which is why everyone has to re-elect.
+
+Caller: Can that be changed?
+
+Agent Carlos: At renewal, not now. But it's worth doing — active election groups consistently lose enrollees to inertia rather than intent, and it puts participation at risk.
+
+Caller: Our participation minimum is what, 25%?
+
+Agent Carlos: On voluntary lines, yes. You're well above it currently, but losing twelve would move you closer.
+
+Caller: Send me the list and I'll chase today.
+
+Agent Carlos: Sending now. And if any of them elect after Friday, contact me — late elections outside the window need an exception, but a documented employer chase can support one.
+
+Caller: That's really useful to know.
 
 ## AI Insights Panel — NanoVox 5-Layer Output
 
-L1 — Transcription & understanding: Call type: Renewal with absent broker. Caller: EMPLOYER (Doris Chen, GRP-310092). Tone:
-neutral → churn risk. Duration: 5 min. ■ Employer stated intent to go to market. Renewal in 3 weeks.
-L2 — Call insights: Employer facing a 19% renewal increase with no broker contact after four messages. Agent declined to discuss
-alternative plan tiers, treated quoting as strictly a broker function, and did not escalate. Employer stated intent to move to market.
-Resolution: UNRESOLVED.
-L3 — Agent quality: Agent Score: 40/100. NEGATIVE: a 31-life group three weeks from renewal with an absent broker was not escalated
-(-), refused to describe available plan tiers, which is product information not quoting (-), did not log broker unresponsiveness (-), no account
-management referral (-), no response to explicit market-exit language (-). POSITIVE: none identified.
-L4 — Operational BI: BROKER ATTRIBUTION · CRITICAL · Owner: Broker Relations / Account Management — Denise Whitfield has not
-contacted a group facing a 19% increase three weeks from renewal, after four member-initiated attempts. CHURN SIGNAL: employer
-stated intent to go to market. This is an imminent, preventable group loss. Recommend: (1) immediate account management outreach, (2)
-broker responsiveness SLA, (3) agents empowered to describe plan tiers when a broker is unreachable.
-L5 — Real-time assist: SHOULD HAVE FIRED at 1:00 — renewal within 30 days plus reported broker unresponsiveness is a retention
-trigger requiring account management routing. At 4:00 — market-exit language. Neither fired.
-
-— NETWORKS & PROVIDERS —
+L1 — Transcription & understanding: Call type: Open enrollment non-election. Caller: EMPLOYER (Yvette Chambers, GRP-339201).
+Tone: urgent → resolved. Duration: 9 min.
+L2 — Call insights: Twelve employees had not elected with enrollment closing in days. Agent explained the group's active-election
+default to decline, supplied a targeted non-elector list, recommended passive renewal configuration at next renewal, and outlined the
+late-election exception path. Resolution: RESOLVED.
+L3 — Agent quality: Agent Score: 92/100. POSITIVE: gave a targeted list rather than generic advice (+), identified the active-election
+configuration as the structural cause (+), connected it to participation risk (+), pre-emptively explained the late-election exception route
+(+).
+L4 — Operational BI: PROCESS OPPORTUNITY · Owner: Account Management — groups configured for active election lose enrollees
+to inertia every year. Recommend flagging active-election groups before open enrollment with a non-elector report at the halfway point,
+rather than waiting for HR to notice in the final week.
+L5 — Real-time assist: Fired at 1:30 — enrollment window closing with outstanding non-electors surfaced the non-elector list and default
+election rule. Agent used both.

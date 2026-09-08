@@ -1,53 +1,74 @@
-# Call #1 — Why Am I Paying a Copay When I Have Dental Insurance?
+# Call #1 — Enrollment Form Submitted Twice, Neither Processed
 
-- **Agent:** Brad
-- **Caller:** MEMBER
+- **Agent:** Tiffany
+- **Caller:** EMPLOYER
 - **Tier:** POOR
-- **Score:** 38/100
-- **Sentiment Arc:** CONFUSED → FRUSTRATED
+- **Score:** 36/100
+- **Sentiment Arc:** NEUTRAL → FRUSTRATED
 - **Resolution:** UNRESOLVED
-- **Date:** 2026-09-03
-- **Start:** 11:55:15
-- **End:** 12:00:06
-- **AHT:** 4m 51s
-- **Duration:** ~5 min
-- **Topics:** copay · preventive · dental · cost share · Delta Dental
+- **Date:** 2026-09-01
+- **Start:** 08:52:00
+- **End:** 08:57:31
+- **AHT:** 5m 31s
+- **Duration:** ~6 min
+- **Queue:** Platform & Forms
+- **Topics:** form submission · processing failure · no confirmation · enrollment
 
-**Member context:** Alicia Ferrara, 34 · Delta Dental PPO via ChoiceBuilder · billed $48 at a cleaning
+**Member context:** Pacific Garden Supply · 29 employees · Owner Lucy Wong · GRP-388120
 
 ## Transcript
 
-Agent Brad: Choice Administrators, Brad.
- Caller: Hi, I went in for a cleaning and the office charged me $48. I thought cleanings were covered at a hundred percent. Member ID
-CB-4471203.
-Agent Brad: Let me look. You're on the Delta Dental PPO.
- Caller: Right. So why am I paying?
-Agent Brad: It says here you had a cleaning and x-rays.
- Caller: Yes. Is that a problem?
-Agent Brad: The x-rays might be the charge.
- Caller: Might be? Can you tell me what the $48 is actually for?
-Agent Brad: I'd have to see the claim. It might not be processed yet.
- Caller: So I should call back?
-Agent Brad: Yeah, once the claim processes you'll get an EOB and it'll show on there.
- Caller: But I've already paid the $48. If it turns out I shouldn't have, how do I get it back?
-Agent Brad: You'd have to take that up with the dental office.
- Caller: Okay. And you can't tell me now whether the charge is correct.
-Agent Brad: Not until it processes, no.
- Caller: Fine.
+Agent Tiffany: Choice Administrators, Tiffany speaking. This call may be recorded for quality and training. Can I take your name and group number?
+
+Caller: Lucy Wong, Owner at Pacific Garden Supply, group GRP-388120.
+
+Agent Tiffany: That's you found. Go ahead, Lucy.
+
+Caller: I submitted an enrollment form for a new employee twice, three weeks apart. Neither has been processed.
+
+Agent Tiffany: Let me look for it... I don't see any pending enrollments for your group.
+
+Caller: So both submissions vanished.
+
+Agent Tiffany: They might not have gone through.
+
+Caller: I got a confirmation screen both times.
+
+Agent Tiffany: Sometimes the confirmation appears but the submission fails.
+
+Caller: That's alarming. How would I know?
+
+Agent Tiffany: You'd see it in the pending queue.
+
+Caller: I don't have visibility of a pending queue.
+
+Agent Tiffany: It's in the portal somewhere.
+
+Caller: Can you tell me where, or can you submit it manually?
+
+Agent Tiffany: I can't submit enrollments.
+
+Caller: So I try a third time and hope?
+
+Agent Tiffany: I suppose so.
+
+Caller: And if it fails again?
+
+Agent Tiffany: Call back I guess.
 
 ## AI Insights Panel — NanoVox 5-Layer Output
 
-L1 — Transcription & understanding: Call type: Cost-share dispute — dental preventive. Caller: MEMBER. Tone: confused → frustrated.
-Agent tone: passive, deferring. Duration: 5 min.
-L2 — Call insights: Member charged $48 at a routine cleaning on a plan she believed covered preventive at 100%. Agent could not identify
-the charge, did not check whether x-ray frequency limits applied, and deferred to a future EOB. Resolution: UNRESOLVED.
-L3 — Agent quality: Agent Score: 38/100. NEGATIVE: did not check the plan's preventive schedule or x-ray frequency limit (-), did not
-explain the difference between a covered service and a frequency-limited one (-), told the member to call back rather than resolving (-), no
-offer to review once processed (-), no case reference (-). POSITIVE: correctly identified the plan (+).
-L4 — Operational BI: MEMBER COMMUNICATION GAP · Owner: Member Communications — 'why am I paying when it's covered' is the
-single most common cost-share question. Root cause is that members read 'preventive covered 100%' without seeing frequency limits
-(bitewing x-rays typically once per 12 months). Recommend a plain-language cost-share explainer at enrollment and on the member portal.
-PROCESS: agents cannot see pending charges before claim adjudication, so they cannot answer the member's actual question at the point
-she asks it.
-L5 — Real-time assist: SHOULD HAVE FIRED at 1:00 — dental preventive cost-share query should surface the member's plan preventive
-schedule, x-ray frequency limits, and last service dates. All three were available. No rule configured.
+L1 — Transcription & understanding: Call type: Enrollment submission failure. Caller: EMPLOYER (Lucy Wong, GRP-388120). Tone:
+neutral → frustrated. Duration: 5 min. ■ Two failed submissions with false confirmations.
+L2 — Call insights: Employer submitted a new hire enrollment twice with confirmation screens both times; neither appears in the system.
+Agent acknowledged that confirmations can display despite submission failure, could not locate the pending queue, could not submit
+manually, and advised a third attempt. Resolution: UNRESOLVED.
+L3 — Agent quality: Agent Score: 36/100. NEGATIVE: acknowledged a false-confirmation defect without escalating it (-), could not
+direct the employer to the pending queue (-), no technical escalation raised on a repeated platform failure (-), advised a third blind
+attempt (-), no case created (-), no callback (-). POSITIVE: confirmed no pending enrollment exists (+).
+L4 — Operational BI: PROCESS BREAKDOWN · CRITICAL · Owner: Digital — the employer portal is displaying submission
+confirmations for enrollments that do not persist. This is a silent data-loss defect affecting statutory enrollment windows. IMMEDIATE:
+reproduce, quantify how many submissions have been lost, and contact affected groups. AGENT: repeated platform failure must
+escalate, never be met with 'try again'.
+L5 — Real-time assist: SHOULD HAVE FIRED at 1:30 — two reported submissions with no record is a platform defect trigger requiring
+technical escalation and manual submission authority. No rule configured.

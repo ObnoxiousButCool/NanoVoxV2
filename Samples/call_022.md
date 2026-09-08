@@ -1,62 +1,64 @@
-# Call #22 — COBRA on Ancillary Lines — Employer Assumed It Only Applied to Medical
+# Call #22 — Agent States Orthodontia Is Covered for Children When the Group Declined the Rider
 
-- **Agent:** Carlos
-- **Caller:** EMPLOYER
-- **Tier:** GOOD
-- **Score:** 91/100
-- **Sentiment Arc:** CONFUSED → INFORMED
-- **Resolution:** RESOLVED
-- **Date:** 2026-09-03
-- **Start:** 15:25:30
-- **End:** 15:34:51
-- **AHT:** 9m 21s
-- **Duration:** ~9 min
-- **Topics:** COBRA · ancillary continuation · dental · vision · compliance
+- **Agent:** Ryan
+- **Caller:** MEMBER
+- **Tier:** POOR
+- **Score:** 41/100
+- **Sentiment Arc:** NEUTRAL → MISINFORMED
+- **Resolution:** UNRESOLVED
+- **Date:** 2026-09-07
+- **Start:** 15:19:45
+- **End:** 15:24:02
+- **AHT:** 4m 17s
+- **Duration:** ~4 min
+- **Queue:** Cost Share & Policy
+- **Topics:** orthodontia rider · not elected · incorrect information · dental
 
-**Member context:** Redwood Manufacturing · 118 employees · Benefits Administrator Nancy Chow
+**Member context:** Alonso Rivera, 45 · Member ID CB-3305671 · Delta Dental · asking about child braces
 
 ## Transcript
 
-Agent Carlos: Choice Administrators, this is Carlos.
- Caller: Nancy Chow, Redwood Manufacturing, GRP-345008. We're handling COBRA for our medical plan through a third-party
-administrator. Does dental and vision go through them too, or through you?
-Agent Carlos: Good question, and this catches a lot of employers out. COBRA applies to dental and vision the same way it applies to
-medical — they're group health plans under the statute.
- Caller: We've been treating ancillary as outside COBRA.
-Agent Carlos: That's a common assumption and it creates exposure. Every terminating employee should receive an election notice
-covering all their group health coverage, including dental and vision. Life insurance is different — that's usually conversion rather than
-COBRA.
- Caller: How far back does this go for us?
-Agent Carlos: I can see your termination submissions. Let me check whether ancillary COBRA notices have been generating... they
-have been, actually. Your notices from our side include dental and vision.
- Caller: So we've been compliant without realising it.
-Agent Carlos: On the notice side, yes, because the platform generates it from the termination submission automatically. Where the risk
-sits is if your third-party administrator is also sending a notice covering only medical — a terminated employee could receive two notices
-with different scope and get confused about what they're electing.
- Caller: That is almost certainly happening.
-Agent Carlos: Worth aligning. I'd suggest a conversation between your TPA and us so one notice covers everything or the two are
-clearly delineated.
- Caller: Can you help set that up?
-Agent Carlos: I can flag it to your account manager with the context. Reference CB-2026-00771. What's the TPA?
- Caller: Benefit Solutions Group.
-Agent Carlos: Noted. Your account manager will reach out within three business days to coordinate.
- Caller: That's really helpful. I came in with a simple question and found a real problem.
+Agent Ryan: Choice Administrators, Ryan. This call may be recorded for quality and training. Can I take your name and member ID?
+
+Caller: Alonso Rivera, member ID CB-3305671.
+
+Agent Ryan: Thanks Alonso. Tell me what's happening.
+
+Caller: My daughter needs braces. Is orthodontia covered?
+
+Agent Ryan: Child orthodontia is usually covered on dental plans.
+
+Caller: At what level?
+
+Agent Ryan: Typically 50% with a lifetime maximum.
+
+Caller: So around $1,500 or $2,000 toward it?
+
+Agent Ryan: Something in that range.
+
+Caller: Good. The quote is $5,800 so that helps.
+
+Agent Ryan: Yeah.
+
+Caller: Do I need to do anything first?
+
+Agent Ryan: Just have them submit it.
+
+Caller: Great, thanks.
 
 ## AI Insights Panel — NanoVox 5-Layer Output
 
-L1 — Transcription & understanding: Call type: COBRA scope on ancillary lines. Caller: EMPLOYER (Benefits Administrator). Tone:
-confused → informed. Agent tone: knowledgeable, consultative. Duration: 10 min. Compliance dimension.
-L2 — Call insights: Employer believed COBRA applied only to medical. Agent confirmed dental and vision are group health plans subject
-to COBRA, verified the platform is generating compliant notices, and identified a genuine risk of duplicate conflicting notices from the
-employer's separate medical TPA. Escalated to the account manager. Resolution: RESOLVED — coordination initiated.
-L3 — Agent quality: Agent Score: 91/100. POSITIVE: corrected a compliance misunderstanding clearly (+), distinguished life insurance
-conversion from COBRA (+), verified actual notice generation rather than assuming (+), identified the duplicate-notice risk the employer had
-not seen (+), escalated with context and reference (+). NEGATIVE: did not offer to send the employer a copy of a sample generated notice
-for their records (-).
-L4 — Operational BI: PROCESS OPPORTUNITY · Owner: Account Management / Compliance — employers running medical COBRA
-through a separate TPA are a structural source of duplicate or conflicting election notices. Recommend identifying all groups with an
-external medical TPA and proactively coordinating notice scope.
-L5 — Real-time assist: Fired at 3:00 — COBRA scope inquiry surfaced ancillary COBRA applicability, life conversion distinction, and the
-group's notice generation history. Duplicate-notice risk was agent-identified, not system-surfaced; recommend adding an external-TPA flag.
-
-— BROKER: COMMISSIONS —
+L1 — Transcription & understanding: Call type: Orthodontia coverage inquiry. Caller: MEMBER (Alonso Rivera, CB-3305671). Tone:
+neutral, satisfied at close. Duration: 4 min. ■ Member misinformed on a $5,800 decision.
+L2 — Call insights: Member asked whether child orthodontia is covered. Agent answered from general knowledge that it is typically
+covered at 50%. ■ ACCURACY FAILURE: this member's group did not elect the orthodontia rider, so no orthodontia benefit exists. The
+member expects roughly $1,500 against an actual benefit of zero. Resolution: UNRESOLVED — member will proceed on false
+information.
+L3 — Agent quality: Agent Score: 41/100. CRITICAL NEGATIVE: confirmed a benefit the group never elected (-), answered from
+general market knowledge rather than the member's own plan (-), used hedging language while giving a definitive impression (-), did not
+suggest a pre-treatment estimate that would have caught the error (-). POSITIVE: none identified.
+L4 — Operational BI: AGENT COACHING · CRITICAL · Owner: Call Centre Management — orthodontia is an optional rider and its
+presence varies by group. Answering from market norms rather than the member's record is the single most damaging error pattern in
+this corpus. PROCESS: elected riders should display prominently on the member record so absence is visible, not inferred.
+L5 — Real-time assist: SHOULD HAVE FIRED at 0:30 — orthodontia inquiry should return the group's rider election status immediately.
+Group did not elect the rider. A single lookup would have prevented the entire call.

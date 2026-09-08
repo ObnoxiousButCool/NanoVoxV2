@@ -1,56 +1,78 @@
-# Call #45 — Chiropractic Visit Limit — Member Mid-Course of Care
+# Call #45 — Member Cannot Reach Broker and Cannot Get Answers Here Either
 
-- **Agent:** Priya
+- **Agent:** Kayla
 - **Caller:** MEMBER
-- **Tier:** GOOD
-- **Score:** 93/100
-- **Sentiment Arc:** ANXIOUS → REASSURED
-- **Resolution:** RESOLVED
-- **Date:** 2026-09-29
-- **Start:** 10:46:30
-- **End:** 10:56:18
-- **AHT:** 9m 48s
-- **Duration:** ~10 min
-- **Topics:** visit limit · chiropractic · Landmark · annual maximum · planning
+- **Tier:** POOR
+- **Score:** 34/100
+- **Sentiment Arc:** NEUTRAL → CHURN RISK
+- **Resolution:** UNRESOLVED
+- **Date:** 2026-09-14
+- **Start:** 10:49:15
+- **End:** 10:54:01
+- **AHT:** 4m 46s
+- **Duration:** ~5 min
+- **Queue:** ID Cards & Portal
+- **Broker Signal:** Anthony Salerno: named aloud by the caller
+- **Repeat Contact:** follows an unresolved call on Tue 08 Sep 2026: Filling Denied at Month Four — Basic Services Also Had a Wait
+- **Topics:** broker unresponsive · dependent · service gap · churn risk
 
-**Member context:** Thomas Andrews, 48 · Landmark Healthplan · 18 of 20 visits used
+**Member context:** Michelle Torres, 34 · Member ID CB-9904512 · questions about adding a dependent
 
 ## Transcript
 
-Agent Priya: Thank you for calling Choice Administrators, this is Priya.
- Caller: I've been having chiropractic treatment and my provider says I'm close to my visit limit. I want to understand where I stand.
-Member ID CB-5512890.
-Agent Priya: Let me check your Landmark benefit. You have 20 visits per calendar year and you've used 18.
- Caller: So two left, and it's October.
-Agent Priya: Two remaining, and they reset January 1st.
- Caller: My provider recommended eight more sessions. What are my options?
-Agent Priya: Three, realistically. First, use your remaining two and pause until January when the benefit resets — that's the no-cost
-route if your provider is comfortable with the gap.
- Caller: And if not?
-Agent Priya: Second, continue on a self-pay basis. Landmark network providers offer a discounted rate to members beyond the visit
-limit — usually meaningfully below their standard fee. Ask your provider for the Landmark member rate, not the cash rate.
- Caller: I didn't know that was different.
-Agent Priya: Most members don't ask, so most don't get it. Third, and worth checking — if the treatment relates to an injury with a
-medical necessity basis, some plans allow an extension request. Yours does not, so that route isn't available here.
- Caller: At least you checked.
-Agent Priya: Better to rule it out than leave you wondering. My suggestion, practically: use your two remaining visits in December rather
-than now, so you carry momentum into January when twenty more become available.
- Caller: That's a genuinely good idea.
-Agent Priya: I'm emailing you your visit count, the reset date, and the discounted rate guidance to share with your provider.
+Agent Kayla: Choice Administrators, this is Kayla. Can I take your name and member ID?
+
+Caller: Michelle Torres, member ID CB-9904512.
+
+Agent Kayla: Thank you Michelle, I have you. Go ahead.
+
+Caller: I called on the 8th about waiting period and nobody came back to me, so you should know I'm already on my second attempt. I've been trying to reach my broker, Anthony Salerno, for three weeks about adding my son. He doesn't return calls. Can you help?
+
+Agent Kayla: Dependent additions go through your employer, not us directly.
+
+Caller: My employer told me to ask the broker. The broker doesn't answer.
+
+Agent Kayla: It would still be an employer submission.
+
+Caller: I understand who submits it. I'm asking what I need to provide and whether I'm still inside the window. My son was born in July.
+
+Agent Kayla: There's usually a 60 day window.
+
+Caller: July 9th. Is that inside or outside?
+
+Agent Kayla: You'd have to check with your employer.
+
+Caller: You have my record. Can you not tell me whether a dependent has been added?
+
+Agent Kayla: I can see there's no dependent on the account.
+
+Caller: So it wasn't submitted. And the window is probably closed.
+
+Agent Kayla: Possibly.
+
+Caller: Between a broker who won't answer and this, I don't see what I'm paying for.
+
+Agent Kayla: Sorry.
 
 ## AI Insights Panel — NanoVox 5-Layer Output
 
-L1 — Transcription & understanding: Call type: Visit limit planning — chiropractic. Caller: MEMBER. Tone: anxious → reassured.
-Duration: 9 min.
-L2 — Call insights: Member at 18 of 20 chiropractic visits with eight more recommended. Agent confirmed the count and reset date,
-explained three options including the Landmark discounted member rate, ruled out an extension after checking, and advised timing the
-remaining visits to bridge into the new plan year. Resolution: RESOLVED.
-L3 — Agent quality: Agent Score: 93/100. POSITIVE: gave the exact count and reset date (+), surfaced the Landmark discounted member
-rate most members never ask for (+), checked and honestly ruled out the extension route (+), gave practical sequencing advice (+), emailed
-a summary the member can hand to the provider (+).
-L4 — Operational BI: MEMBER COMMUNICATION GAP · Owner: Member Communications — visit-limit benefits (chiro, acupuncture)
-generate late-year exhaustion calls. Recommend a portal counter showing visits used and remaining, plus a notification at 75% utilisation.
-L5 — Real-time assist: Fired at 1:30 — visit accumulator and reset date surfaced. Discounted member rate guidance and extension
-eligibility check surfaced. Agent used all three.
-
-— NETWORKS & PROVIDERS —
+L1 — Transcription & understanding: Call type: Dependent addition blocked by unresponsive broker. Caller: MEMBER (Michelle Torres,
+CB-9904512). Tone: neutral → churn risk. Duration: 5 min. ■ Newborn likely outside QLE window. No call recording disclosure in the
+agent greeting. Repeat contact — prior call in period closed unresolved.
+L2 — Call insights: Member unable to reach her broker for three weeks regarding a newborn dependent addition. Agent did not
+calculate the QLE deadline, did not confirm whether the window had closed, did not log the broker unresponsiveness, and did not
+escalate a probable missed enrollment. Resolution: UNRESOLVED — newborn likely uninsured.
+L3 — Agent quality: Agent Score: 34/100. NEGATIVE: no call recording disclosure made at the point of answer (-), had the birth date
+and did not calculate the 60-day deadline (-), confirmed no dependent on record without recognising the implication (-), did not log a
+named unresponsive broker (-), no escalation on a probable missed newborn enrollment (-), no employer contact initiated (-), no
+response to churn language (-). POSITIVE: confirmed dependent status on the record (+).
+L4 — Operational BI: BROKER ATTRIBUTION · Owner: Broker Relations — Anthony Salerno unresponsive across three weeks,
+resulting in a probable missed newborn QLE window. CHURN SIGNAL: 'I don't see what I'm paying for' following combined broker and
+service failure. PROCESS: agents can see dependent records and birth dates and should calculate QLE deadlines rather than referring
+out. Recommend broker responsiveness tracking and escalation for member-reported unresponsiveness. COMPLIANCE: call answered
+without a recording disclosure — California is a two-party consent state and the disclosure is a scored, deterministic requirement, not a
+courtesy. REPEAT CONTACT: same member (CB-9904512) called on Tue 08 Sep 2026 and that call closed unresolved. Repeat
+contact within the period is a retention signal in its own right and should be counted against the earlier call, not this one.
+L5 — Real-time assist: SHOULD HAVE FIRED at 2:30 — birth date with no dependent on record is a QLE deadline trigger. At 4:30 —
+churn language is a retention trigger. Neither fired. — COST SHARE & POLICY — SHOULD HAVE FIRED at 0:05 — greeting
+completed with no recording disclosure detected.

@@ -1,67 +1,81 @@
-# Call #100 — Member Ready to Cancel Everything After a Year of Broker Problems
+# Call #100 — Charged for a Service the Member Never Received
 
 - **Agent:** Sarah
 - **Caller:** MEMBER
 - **Tier:** GOOD
-- **Score:** 96/100
-- **Sentiment Arc:** ANGRY → RETAINED
-- **Resolution:** RESOLVED
-- **Date:** 2026-09-28
-- **Start:** 12:37:45
-- **End:** 12:49:20
-- **AHT:** 11m 35s
-- **Duration:** ~12 min
-- **Broker Signal:** Denise Whitfield: Multiple failures — member considering dropping all coverage
-- **Topics:** churn risk · retention · broker failure · cumulative · save
+- **Score:** 94/100
+- **Sentiment Arc:** ANGRY → SATISFIED
+- **Resolution:** ESCALATED
+- **Date:** 2026-09-30
+- **Start:** 13:45:45
+- **End:** 13:55:23
+- **AHT:** 9m 38s
+- **Duration:** ~10 min
+- **Queue:** Claims & EOB
+- **Repeat Contact:** follows an unresolved call on Tue 22 Sep 2026: Annual Maximum Exhausted With No Warning
+- **Topics:** claim dispute · service not rendered · provider billing · fraud check
 
-**Member context:** Doris Chen, 45 · Member ID CB-310092 · dental, vision, life · cumulative frustration
+**Member context:** Marcus Johnson, 43 · MetLife dental · claim for a procedure not performed
 
 ## Transcript
 
-Agent Sarah: Thank you for calling Choice Administrators, this is Sarah.
- Caller: Doris Chen, CB-310092. I want to cancel everything. Dental, vision, life. All of it.
-Agent Sarah: I can help with that, but before I do — would you tell me what's brought you here? If something's gone wrong I'd rather
-understand it.
- Caller: Where do I start. My broker, Denise Whitfield, put me on the wrong plan tier. My vision was never added despite me asking
-twice. And I was told there was no waiting period when there was.
-Agent Sarah: That's three separate failures. Let me look at each rather than take that at face value — not because I doubt you, but
-because some of it may be fixable.
- Caller: Nobody has offered to fix anything yet.
-Agent Sarah: Let me start. Plan tier — you're on Bronze, and I can see a note from your enrollment call requesting Gold. That's a
-documented instruction not followed, which supports a retroactive correction rather than waiting for renewal.
- Caller: Retroactive?
-Agent Sarah: If approved, back to your effective date, with any claims reprocessed at Gold coinsurance. Second, vision — there's no
-vision election on file at all. Do you have anything showing you requested it?
- Caller: An email from March.
-Agent Sarah: Then that's the same category. Documented request, not submitted. Third, the waiting period — that one I can't undo, the
-wait is real. But I can check whether you had prior dental coverage, which would credit against it.
- Caller: I did, at my last job until January.
-Agent Sarah: Then that's likely creditable, and it may mean your waiting period should already have been satisfied. That would make
-any denial during the wait reviewable.
- Caller: So all three might actually be fixable.
-Agent Sarah: Two clearly, and the third probably. I'd rather you cancel after I've tried than before. Send me the March email and I'll build
-all three into one case. Reference MC-2026-01001.
- Caller: I came in ready to walk away.
-Agent Sarah: I know. And if it doesn't get resolved you still can. But let me try first.
- Caller: Alright. Send me what you need.
+Agent Sarah: Thank you for calling Choice Administrators, this is Sarah. This call may be recorded for quality and training. Can I take your name and member ID?
+
+Caller: Marcus Johnson, member ID CB-4401298.
+
+Agent Sarah: Thanks Marcus. Tell me what's happening.
+
+Caller: This is my second call this month. The annual maximum issue on the 22nd was never sorted. Separate thing today. There's a claim on my account for a deep cleaning I never had. I had a regular cleaning.
+
+Agent Sarah: That's worth looking at carefully. Let me pull the claim. I have it — scaling and root planing, four quadrants, billed on the 12th.
+
+Caller: I had a standard cleaning. Twenty minutes. Nothing like that.
+
+Agent Sarah: Scaling and root planing is a periodontal procedure — typically multiple appointments, usually with anaesthetic. It's materially different from a prophylaxis, which is the routine cleaning code.
+
+Caller: Then it's wrong.
+
+Agent Sarah: It may be a coding error rather than anything deliberate, but either way it needs correcting — and it matters beyond the money, because periodontal treatment carries its own frequency limits. If this stands, it could restrict what you're eligible for later.
+
+Caller: I hadn't thought of that.
+
+Agent Sarah: Here's what I'm doing. I'm opening a claim dispute for services not rendered, which routes to our claims integrity team. They contact the practice directly and request the chart notes.
+
+Caller: Do I need to do anything?
+
+Agent Sarah: Don't pay any balance on that claim while it's disputed. And if you have anything showing the appointment length or what was done, keep it. Your reference is CD-2026-00518.
+
+Caller: What if the dentist insists?
+
+Agent Sarah: Then the chart notes settle it. A periodontal procedure requires documentation. If it isn't there, the claim gets reversed and your benefit is restored.
+
+Caller: So the practice billed for something that never happened.
+
+Agent Sarah: That's what the record shows, and it isn't something I close on a phone call. A billed service the member says was not delivered goes to Provider Relations as a review, not to me as an adjustment.
+
+Caller: What does that mean in practice?
+
+Agent Sarah: I'm reversing the member liability now so you are not carrying it while it's looked at, and I'm escalating the claim line to Provider Relations with a named reviewer today. If a pattern shows up across that practice, it goes further than your claim.
+
+Caller: Thank you for taking it seriously.
+
+Caller: Good. Thank you for taking it seriously.
 
 ## AI Insights Panel — NanoVox 5-Layer Output
 
-L1 — Transcription & understanding: Call type: Cancellation request driven by cumulative broker failures. Caller: MEMBER (Doris Chen,
-CB-310092). Tone: angry → retained. Duration: 11 min. ■ Full cancellation intent reversed.
-L2 — Call insights: Member called to cancel all three coverage lines citing three broker failures: wrong plan tier, vision never added despite
-requests, and an undisclosed waiting period. Agent asked why before processing, found documented evidence supporting retroactive
-correction on two, identified a likely prior-coverage credit on the third, and consolidated all three into a single case. Resolution: RESOLVED
-— member retained pending case outcome.
-L3 — Agent quality: Agent Score: 96/100. POSITIVE: asked why before processing the cancellation — the single most important retention
-behaviour (+), examined each complaint rather than accepting or dismissing (+), distinguished documented instructions from changes of
-mind, unlocking retroactive remedies (+), was honest that the waiting period itself could not be undone while finding the credit route (+),
-consolidated three issues into one case (+), explicitly preserved the member's right to cancel (+).
-
-L4 — Operational BI: BROKER ATTRIBUTION · CRITICAL · Owner: Broker Relations — Denise Whitfield accumulated three documented
-failures for a single member: wrong tier submitted against a recorded instruction, vision election never submitted despite written request,
-and waiting period misrepresented. Sixth flagged issue for this broker across the corpus. CHURN: this member reached full cancellation
-intent on all lines. Recommend a full audit of Whitfield's book against member instruction records, and a retention flag on every member she
-has enrolled.
-L5 — Real-time assist: Fired at 1:00 — cancellation request with multiple complaints surfaced the retention protocol and pulled enrollment
-instruction history. Documented-instruction mismatch surfaced on two lines. Prior coverage credit pathway surfaced. Agent used all four.
+L1 — Transcription & understanding: Call type: Claim dispute — service not rendered. Caller: MEMBER. Tone: angry → satisfied.
+Duration: 10 min. Potential provider billing integrity issue. Repeat contact — prior call in period closed unresolved.
+L2 — Call insights: Member disputed a scaling and root planing claim, having received a routine cleaning. Agent explained the clinical
+and coding distinction, flagged the downstream frequency-limit consequence, opened a claims integrity dispute, and advised
+non-payment pending review. Resolution: RESOLVED — dispute opened.
+L3 — Agent quality: Agent Score: 94/100. POSITIVE: escalated to the correct owner rather than absorbing a decision outside her
+authority (+), took the report seriously without requiring proof first (+), explained the coding distinction so the member understood the
+significance (+), identified the frequency-limit consequence the member had not considered (+), routed to claims integrity rather than
+treating it as a billing query (+), advised non-payment and evidence retention (+).
+L4 — Operational BI: PROVIDER PERFORMANCE · Owner: Provider Relations / Claims Integrity — upcoding from prophylaxis to
+periodontal scaling is a known billing integrity pattern with a direct member impact through frequency limits. Recommend reviewing this
+practice's ratio of periodontal to routine cleaning claims against network norms. REPEAT CONTACT: same member (CB-4401298)
+called on Tue 22 Sep 2026 and that call closed unresolved. Repeat contact within the period is a retention signal in its own right and
+should be counted against the earlier call, not this one.
+L5 — Real-time assist: Fired at 2:30 — procedure code versus visit pattern flagged an upcoding candidate. Claims integrity dispute
+pathway surfaced. Agent used both. — BROKER: QUOTING — Fired on escalation trigger — routing surfaced and used.

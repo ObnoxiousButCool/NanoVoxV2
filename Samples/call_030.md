@@ -1,58 +1,78 @@
-# Call #30 — Billed for a Terminated Employee Two Months Running
+# Call #30 — Member Losing Coverage — Full Continuation Walkthrough
 
-- **Agent:** Linda
-- **Caller:** EMPLOYER
-- **Tier:** AVERAGE
-- **Score:** 73/100
-- **Sentiment Arc:** FRUSTRATED → PARTIALLY SATISFIED
-- **Resolution:** PARTIALLY RESOLVED
-- **Date:** 2026-09-22
-- **Start:** 10:56:00
-- **End:** 11:04:52
-- **AHT:** 8m 52s
-- **Duration:** ~9 min
-- **Topics:** billing error · termination · credit · retro adjustment
+- **Agent:** Sarah
+- **Caller:** MEMBER
+- **Tier:** GOOD
+- **Score:** 95/100
+- **Sentiment Arc:** WORRIED → REASSURED
+- **Resolution:** RESOLVED
+- **Date:** 2026-09-08
+- **Start:** 15:49:15
+- **End:** 15:59:01
+- **AHT:** 9m 46s
+- **Duration:** ~10 min
+- **Queue:** Cost Share & Policy
+- **Topics:** COBRA · continuation · life conversion · coverage loss · offboarding
 
-**Member context:** Willow Creek Services · 48 employees · HR Director George Nakamura
+**Member context:** Derek Foster, 38 · ChoiceBuilder dental, vision, life · position eliminated
 
 ## Transcript
 
-Agent Linda: Choice Administrators, this is Linda.
- Caller: George Nakamura, Willow Creek, GRP-390044. We're being billed for an employee who left in July. This is the second month.
-Agent Linda: Let me look. I can see the employee, and I can see a termination submitted on August 22nd with a July 31st termination
-date.
- Caller: So it was submitted.
-Agent Linda: It was, but after the August invoice generated on the 15th. So August billed in full, and September should have picked up
-the credit.
- Caller: September has him on it too.
-Agent Linda: I see that. The termination is recorded but the credit hasn't applied. That's a processing issue on our side.
- Caller: So what happens now?
-Agent Linda: I'm submitting a billing correction requesting a two-month credit — August and September — back to the July 31st
-termination date.
- Caller: How will it appear?
-Agent Linda: As a credit line on your next invoice.
- Caller: Our finance team would rather have a credit memo than a line item. It's cleaner for their reconciliation.
-Agent Linda: I can note the preference on the request but I can't guarantee the format — that's determined by billing operations.
- Caller: Can you find out and let me know?
-Agent Linda: I'll add it to the request. Reference BC-2026-00733.
- Caller: And if it doesn't apply again next month?
-Agent Linda: Call back with that reference and it escalates.
+Agent Sarah: Thank you for calling Choice Administrators, this is Sarah. This call may be recorded for quality and training. Can I take your name and member ID?
+
+Caller: Derek Foster, member ID CB-5578812.
+
+Agent Sarah: Thank you Derek, I have you. Go ahead.
+
+Caller: My position was eliminated. Last day is the 30th. I have dental, vision and life through you and I'm mid-way through some dental work.
+
+Agent Sarah: I'm sorry to hear about the position. Let me walk you through all three lines so you know exactly where you stand, because they don't all work the same way.
+
+Caller: Please.
+
+Agent Sarah: Coverage runs to the end of the month of termination, so through the 31st. After that, dental and vision are both COBRA-eligible. Your employer notifies us within 30 days, then you receive an election notice within 14 days of that.
+
+Caller: How long do I have to decide?
+
+Agent Sarah: 60 days from the later of the notice date or your coverage end date. And it's retroactive — if you elect on day 55, coverage backdates to the 1st with no gap. So you can wait and see whether you need it.
+
+Caller: That's useful, because I might get another job quickly.
+
+Agent Sarah: Exactly the situation it's designed for. Now, the dental work in progress — what stage?
+
+Caller: Crown prep done, permanent due in November.
+
+Agent Sarah: Then COBRA matters more than it might otherwise. If you elect, the November placement is covered as normal. If you don't, it's self-pay.
+
+Caller: And the cost of COBRA?
+
+Agent Sarah: Full premium plus up to 2% administration. For dental and vision on your tier that's likely $60 to $80 a month combined — considerably less than most people expect, because ancillary premiums are low.
+
+Caller: That's very manageable. I assumed it would be hundreds.
+
+Agent Sarah: People often confuse it with medical COBRA, which is a different order of magnitude. Now, life insurance is the one that works differently — it isn't COBRA, it's conversion. You typically have 31 days from coverage end to convert to an individual policy without evidence of insurability.
+
+Caller: 31 days, not 60.
+
+Agent Sarah: And that one is genuinely time-limited with no retroactive election. If you want to keep life cover, act on it promptly. Assurity handles the conversion directly.
+
+Caller: That's the piece I'd have missed entirely.
+
+Agent Sarah: It's the most commonly missed. I'm emailing you a summary of all three lines with the deadlines. Your reference is CT-2026-00944.
 
 ## AI Insights Panel — NanoVox 5-Layer Output
 
-L1 — Transcription & understanding: Call type: Billing error — terminated employee still billed. Caller: EMPLOYER (HR Director). Tone:
-frustrated → partially satisfied. Duration: 9 min. Second consecutive month.
-L2 — Call insights: Employer billed two months for an employee terminated July 31st. Termination was submitted after the August invoice
-generated, and the September credit failed to apply. Agent submitted a two-month credit correction. Resolution: PARTIALLY RESOLVED —
-credit pending, format unconfirmed.
-L3 — Agent quality: Agent Score: 73/100. POSITIVE: traced the timing between submission and invoice generation (+), identified the failed
-September credit as a processing issue rather than blaming the employer (+), submitted the correction with reference (+). NEGATIVE: could
-not confirm credit format for a reasonable finance request (-), no escalation despite this being a second-month recurrence (-), no proactive
-check for other unapplied credits on the group (-).
-L4 — Operational BI: PROCESS BREAKDOWN · Owner: Billing Operations — a recorded termination failed to generate a credit in the
-following cycle. This is a silent failure: the employer only discovers it by reading the invoice. Recommend an exception report for
-terminations recorded without a corresponding credit within one billing cycle.
-L5 — Real-time assist: Fired at 2:30 — termination date versus billing history comparison surfaced the missing credit. Did not surface other
-unapplied credits on the group; recommend adding.
-
-— CLAIMS & EOB —
+L1 — Transcription & understanding: Call type: Coverage loss — full continuation walkthrough. Caller: MEMBER. Tone: worried →
+reassured. Duration: 10 min.
+L2 — Call insights: Member losing employment covered all three benefit lines. Agent explained end-of-month coverage, COBRA
+election mechanics including retroactivity, the impact on in-progress dental treatment, realistic ancillary COBRA cost, and the distinct
+31-day life conversion deadline. Resolution: RESOLVED.
+L3 — Agent quality: Agent Score: 95/100. POSITIVE: separated the three lines rather than answering generically (+), explained
+retroactive election so the member can defer the decision (+), connected COBRA directly to the in-progress crown (+), corrected the
+assumption that ancillary COBRA is expensive (+), surfaced the 31-day life conversion deadline that has no retroactive option (+),
+emailed a deadline summary (+).
+L4 — Operational BI: MEMBER COMMUNICATION GAP · Owner: Member Communications — life conversion rights are the most
+frequently missed benefit at termination, with a shorter deadline and no retroactive election. Recommend the termination packet lead
+with conversion deadlines rather than burying them behind COBRA content.
+L5 — Real-time assist: Fired at 2:00 — pending termination surfaced COBRA eligibility by line, election windows, and the life conversion
+deadline. In-progress treatment flag surfaced. Agent used all four.

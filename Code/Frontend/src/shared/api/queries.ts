@@ -16,8 +16,10 @@ import {
   fetchBrokers,
   fetchCall,
   fetchCalls,
+  fetchCorpusImports,
   fetchCorpusStatus,
   fetchHealth,
+  importCorpusDocument,
   fetchOverview,
   fetchProviders,
   fetchRun,
@@ -57,6 +59,7 @@ export const queryKeys = {
   pulse: ['dashboard', 'pulse'] as const,
   workMix: ['dashboard', 'work-mix'] as const,
   corpus: ['corpus'] as const,
+  corpusImports: ['corpus', 'imports'] as const,
   runs: ['corpus', 'runs'] as const,
   run: (runId: number) => ['corpus', 'run', runId] as const,
 }
@@ -247,6 +250,32 @@ export function useAnalyzeTranscript() {
       client.setQueryData(queryKeys.call(analysis.id), analysis)
       void client.invalidateQueries({ queryKey: ['calls'] })
       void client.invalidateQueries({ queryKey: ['dashboard'] })
+    },
+  })
+}
+
+/** Corpora that have been imported, newest first. */
+export function useCorpusImports() {
+  return useQuery({
+    queryKey: queryKeys.corpusImports,
+    queryFn: ({ signal }) => fetchCorpusImports(signal),
+  })
+}
+
+/**
+ * Import a corpus document.
+ *
+ * Only the import list is invalidated. Nothing else changes: the import writes
+ * to its own directory and analyses nothing, so calls and dashboard figures are
+ * exactly as they were.
+ */
+export function useImportCorpusDocument() {
+  const client = useQueryClient()
+
+  return useMutation({
+    mutationFn: importCorpusDocument,
+    onSuccess: () => {
+      void client.invalidateQueries({ queryKey: queryKeys.corpusImports })
     },
   })
 }

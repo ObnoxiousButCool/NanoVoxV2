@@ -1,54 +1,76 @@
-# Call #63 — Vision Materials Bought Out of Network
+# Call #63 — Filing a Life Insurance Claim After a Spouse's Death
 
-- **Agent:** Linda
+- **Agent:** Danielle
 - **Caller:** MEMBER
-- **Tier:** AVERAGE
-- **Score:** 74/100
-- **Sentiment Arc:** CONFUSED → INFORMED
+- **Tier:** GOOD
+- **Score:** 97/100
+- **Sentiment Arc:** GRIEVING → SUPPORTED
 - **Resolution:** RESOLVED
-- **Date:** 2026-09-29
-- **Start:** 14:00:15
-- **End:** 14:07:16
-- **AHT:** 7m 1s
-- **Duration:** ~7 min
-- **Topics:** vision materials · out of network · allowance · reimbursement · EyeMed
+- **Date:** 2026-09-18
+- **Start:** 10:47:15
+- **End:** 10:58:26
+- **AHT:** 11m 11s
+- **Duration:** ~11 min
+- **Queue:** Life & Beneficiary
+- **Topics:** life insurance · beneficiary claim · Assurity · bereavement
 
-**Member context:** James Thompson, 51 · Member ID CB-6641087 · EyeMed · glasses from an online retailer
+**Member context:** Harold Brennan, 71 · Assurity Life via ChoiceBuilder · wife died three weeks ago
 
 ## Transcript
 
-Agent Linda: Choice Administrators, this is Linda.
- Caller: James Thompson, CB-6641087. I bought glasses online because they were cheaper. Can I claim anything back?
-Agent Linda: You can. EyeMed reimburses out-of-network materials at a set allowance rather than a percentage. For frames the
-out-of-network allowance is typically well below the in-network benefit.
- Caller: How much?
-Agent Linda: Let me check your plan... $45 toward frames and $40 toward single vision lenses out of network. In network you'd have
-had a $150 frame allowance.
- Caller: So I lost about $100 of benefit by going online.
-Agent Linda: Depending on what you paid, possibly. Online retailers are often cheaper than the retail price but the in-network allowance
-usually beats the saving.
- Caller: Useful to know for next time. How do I claim the $85?
-Agent Linda: Out-of-network claims are submitted by you directly to EyeMed, not through us. You'll need the itemised receipt showing
-frames and lenses separately, and a copy of your prescription.
- Caller: Separately? The receipt shows one total.
-Agent Linda: Then ask the retailer for an itemised version. EyeMed will reject a combined total because the allowances are separate.
- Caller: Good to know before I submit and get rejected.
-Agent Linda: Exactly. The claim form is on the EyeMed member site. Deadline is usually 12 months from purchase.
+Agent Danielle: Thank you for calling Choice Administrators, this is Danielle. This call may be recorded for quality and training. Can I take your name and member ID?
+
+Caller: Harold Brennan, member ID CB-3301189.
+
+Agent Danielle: Thank you. I have the record open — go ahead.
+
+Caller: My wife passed away three weeks ago. She had a life policy through her work. I don't know where to start. Her member ID was.
+
+Agent Danielle: Mr. Brennan, I'm very sorry for your loss. I'll make this as straightforward as I can, and you don't need to have everything ready today.
+
+Caller: Thank you.
+
+Agent Danielle: Let me confirm the policy first. I can see term life coverage through Assurity Life, active, with a benefit amount on file. Can you confirm your name so I can check the beneficiary designation?
+
+Caller: Harold Brennan. I'm her husband.
+
+Agent Danielle: You're listed as the primary beneficiary. That makes this simpler — no competing claims to resolve.
+
+Caller: What do I need to do?
+
+Agent Danielle: Three things, and they can come in any order. A certified copy of the death certificate. A completed claim form, which I'll send you. And a copy of your photo ID.
+
+Caller: I have death certificates. How many?
+
+Agent Danielle: One certified copy for us. Keep the others — you'll need them for banks and other accounts.
+
+Caller: How long does it take?
+
+Agent Danielle: Assurity typically processes a straightforward beneficiary claim within 10 to 15 business days of receiving complete documentation. Because you're the named primary beneficiary and the policy was active, I don't expect complications.
+
+Caller: Is there anything that would hold it up?
+
+Agent Danielle: The most common delay is an incomplete claim form, so I'll mark the fields you need to complete and leave the rest. And I'm noting the account so that if you call back, whoever answers has the context and you won't have to explain again.
+
+Caller: That's the part I was dreading.
+
+Agent Danielle: You won't have to. Your reference is LC-2026-00219. And Mr. Brennan — her dental and vision coverage will also need to close out. I'll handle that from this call so it isn't a separate conversation for you.
+
+Caller: Thank you. That's very kind.
 
 ## AI Insights Panel — NanoVox 5-Layer Output
 
-L1 — Transcription & understanding: Call type: Out-of-network vision materials reimbursement. Caller: MEMBER (James Thompson,
-CB-6641087). Tone: confused → informed. Duration: 7 min.
-L2 — Call insights: Member purchased glasses online and sought reimbursement. Agent explained the out-of-network allowance structure,
-quantified the benefit lost versus in-network, and flagged the itemised receipt requirement that commonly causes rejections. Resolution:
-RESOLVED.
-L3 — Agent quality: Agent Score: 74/100. POSITIVE: gave specific allowance figures (+), quantified the in-network versus out-of-network
-difference (+), pre-empted the itemised receipt rejection (+), gave the submission deadline (+). NEGATIVE: did not send the claim form link
-(-), no reference number (-), did not check whether the member's lens benefit was still available in network (-).
-L4 — Operational BI: MEMBER COMMUNICATION GAP · Owner: Member Communications — members regularly assume online
-purchase savings exceed the in-network allowance. Recommend a simple in-network versus online comparison in vision onboarding,
-showing the allowance in cash terms.
-L5 — Real-time assist: Fired at 2:00 — out-of-network materials inquiry surfaced allowance schedule and submission requirements. Claim
-form link not surfaced; recommend adding.
-
-— EMPLOYER: TERMINATIONS —
+L1 — Transcription & understanding: Call type: Life insurance beneficiary claim. Caller: MEMBER (surviving spouse). Tone: grieving →
+supported. Agent tone: gentle, organising. Duration: 11 min. ■ Bereavement.
+L2 — Call insights: Surviving spouse initiating a life claim. Agent confirmed the policy and primary beneficiary designation, listed the
+three required documents, set expectations on timing, annotated the account to prevent re-explanation, and closed out the deceased's
+dental and vision coverage in the same call. Resolution: RESOLVED.
+L3 — Agent quality: Agent Score: 97/100. POSITIVE: condolence before administration (+), confirmed beneficiary status early,
+removing the biggest source of uncertainty (+), told him he did not need everything today (+), advised keeping additional death
+certificates for other institutions (+), account annotated to spare repetition (+), handled the ancillary coverage close-out without making it
+a second call (+).
+L4 — Operational BI: PROCESS OPPORTUNITY · Owner: Operations — a death notification currently requires the survivor to contact
+multiple benefit lines separately. Recommend a single bereavement workflow that closes all coverage lines and initiates the life claim
+from one contact, plus a 90-day suppression on routine and renewal communications to the account.
+L5 — Real-time assist: Fired at 2:00 — bereavement indicators surfaced condolence prompt, beneficiary verification, claim
+documentation checklist, and linked-coverage close-out. Agent used all four.

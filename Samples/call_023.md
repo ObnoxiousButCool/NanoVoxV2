@@ -1,56 +1,67 @@
-# Call #23 — Missing Commission Statement — Agent Offers No Path
+# Call #23 — Member Checks a Large Treatment Plan Before Committing
 
-- **Agent:** Brad
-- **Caller:** BROKER
-- **Tier:** POOR
-- **Score:** 40/100
-- **Sentiment Arc:** FRUSTRATED → HOSTILE
-- **Resolution:** UNRESOLVED
-- **Date:** 2026-09-23
-- **Start:** 16:36:15
-- **End:** 16:42:12
-- **AHT:** 5m 57s
-- **Duration:** ~6 min
-- **Topics:** commission · broker support · statement · payment
+- **Agent:** Priya
+- **Caller:** MEMBER
+- **Tier:** GOOD
+- **Score:** 93/100
+- **Sentiment Arc:** WORRIED → REASSURED
+- **Resolution:** RESOLVED
+- **Date:** 2026-09-07
+- **Start:** 16:15:15
+- **End:** 16:24:16
+- **AHT:** 9m 1s
+- **Duration:** ~9 min
+- **Queue:** Claims & EOB
+- **Broker Signal:** Patricia Nunez: named aloud by the caller
+- **Topics:** pre-treatment estimate · annual maximum · treatment planning · broker positive
 
-**Member context:** Cornerstone Benefits · Broker Jennifer Torres · Q3 statement not received
+**Member context:** Sophie Martinez, 26 · Member ID CB-9021445 · Delta Dental · $4,200 treatment plan
 
 ## Transcript
 
-Agent Brad: Choice Administrators, Brad.
- Caller: Jennifer Torres, Cornerstone Benefits, agency code AG-4471. My Q3 commission statement hasn't come through. It's three
-weeks late.
-Agent Brad: Commission statements go out from a different team.
- Caller: I understand. Can you tell me the status or connect me?
-Agent Brad: I don't have visibility into commissions.
- Caller: Is there a number for that team?
-Agent Brad: Let me see... there's a broker services line.
- Caller: I called it. It rang out twice.
-Agent Brad: Hmm.
- Caller: Can you take a message, log a case, anything?
-Agent Brad: I can put a note on the agency record.
- Caller: Will anyone action a note?
-Agent Brad: I'm not sure who monitors those.
- Caller: So the note goes nowhere. I've got three weeks of missing commission across a book of forty groups and there's no process
-for me to get an answer.
-Agent Brad: You could try the broker line again tomorrow.
- Caller: Unbelievable.
+Agent Priya: Thank you for calling Choice Administrators, this is Priya. This call may be recorded for quality and training. Can I take your name and member ID?
+
+Caller: Sophie Martinez, member ID CB-9021445.
+
+Agent Priya: Thank you. I have the record open — go ahead.
+
+Caller: My dentist has proposed $4,200 of work across several visits. My broker, Patricia Nunez, gave me a benefit summary at enrollment and it says my annual maximum is $1,500. I want to check I'm reading it right before I agree to anything.
+
+Agent Priya: You're reading it correctly, and it's genuinely useful that you have that summary — most members don't. Let me confirm against your record. Annual maximum $1,500, and you've used $290 so far this year.
+
+Caller: So the plan will pay at most $1,210 more this year.
+
+Agent Priya: Exactly right. On a $4,200 plan of treatment, that leaves substantial member cost regardless of coinsurance levels.
+
+Caller: Is there anything I can do about that?
+
+Agent Priya: Yes, and this is worth doing. Ask your dentist to phase the treatment across two plan years. If roughly half is done before December 31st and half after January 1st, you draw on two annual maximums instead of one.
+
+Caller: So potentially $1,210 this year and up to $1,500 next year.
+
+Agent Priya: That's the arithmetic. Whether it's clinically appropriate to phase is your dentist's call, but many treatment plans divide sensibly.
+
+Caller: That could be $1,500 of difference. Nobody mentioned it.
+
+Agent Priya: It's the single most valuable thing to know about an annual maximum. Second thing — ask for a pre-treatment estimate. We return a written statement of what the plan will pay on each procedure, so you can sequence with actual numbers rather than estimates.
+
+Caller: I'll ask for both.
+
+Agent Priya: Reference PT-2026-01044 for the estimate. And your broker did well giving you that summary — it's why you called before committing rather than after.
 
 ## AI Insights Panel — NanoVox 5-Layer Output
 
-L1 — Transcription & understanding: Call type: Commission statement inquiry. Caller: BROKER. Tone: frustrated → hostile. Agent tone:
-unhelpful, no ownership. Duration: 6 min. Broker relationship at risk.
-L2 — Call insights: Broker chasing a Q3 commission statement three weeks overdue. Agent had no commission visibility, offered only an
-unmonitored account note, and directed the broker back to a line she had already tried unsuccessfully. Resolution: UNRESOLVED.
-L3 — Agent quality: Agent Score: 40/100. NEGATIVE: no warm transfer attempted (-), acknowledged that account notes may not be
-monitored yet offered one anyway (-), sent the broker back to a channel she reported as unresponsive (-), no case created (-), no callback
-commitment (-), no recognition that a broker with a 40-group book is a high-value relationship (-). POSITIVE: correctly identified
-commissions as a separate team (+).
-L4 — Operational BI: PROCESS BREAKDOWN · CRITICAL · Owner: Broker Relations — brokers have no reliable route to commission
-support. The dedicated line is going unanswered and member services has no visibility or escalation path. This directly threatens distribution
-relationships. Recommend: (1) audit broker services line answer rates, (2) commission case creation available to all agents, (3) SLA on
-commission statement issuance with proactive notification when delayed.
-L5 — Real-time assist: SHOULD HAVE FIRED at 1:00 — broker caller with a commission issue should surface agency record,
-commission cycle status, and a broker relations case creation action. No broker-specific rules configured at all.
-
-— BROKER: QUOTING —
+L1 — Transcription & understanding: Call type: Treatment plan cost planning. Caller: MEMBER (Sophie Martinez, CB-9021445). Tone:
+worried → reassured. Duration: 9 min.
+L2 — Call insights: Member evaluating a $4,200 treatment plan against a $1,500 annual maximum. Agent confirmed remaining benefit,
+advised phasing treatment across two plan years to access two annual maximums, and directed her to obtain a pre-treatment estimate.
+Resolution: RESOLVED.
+L3 — Agent quality: Agent Score: 93/100. POSITIVE: confirmed the member's own reading rather than re-explaining (+), gave the
+two-plan-year phasing strategy — potentially $1,500 of member value (+), was clear that clinical sequencing is the dentist's decision (+),
+surfaced pre-treatment estimate with a reference (+), acknowledged the broker's good preparation (+).
+L4 — Operational BI: BROKER ATTRIBUTION · POSITIVE · Owner: Broker Relations — Patricia Nunez supplied a benefit summary at
+enrollment that the member still held and used. Members from this broker call before committing rather than after a denial, which
+materially reduces downstream dispute volume. Recommend capturing positive broker attribution and replicating her enrollment
+summary format.
+L5 — Real-time assist: Fired at 2:00 — large treatment plan against remaining annual maximum surfaced the phasing strategy and
+pre-treatment estimate pathway. Agent used both.

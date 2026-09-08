@@ -1,57 +1,69 @@
-# Call #95 — Member Discovers She Has Duplicate Dental Coverage
+# Call #95 — Increasing Life Coverage After a Second Child
 
-- **Agent:** Ryan
+- **Agent:** Sarah
 - **Caller:** MEMBER
-- **Tier:** POOR
-- **Score:** 36/100
-- **Sentiment Arc:** NEUTRAL → CHURN RISK
-- **Resolution:** UNRESOLVED
-- **Date:** 2026-09-21
-- **Start:** 10:12:30
-- **End:** 10:16:33
-- **AHT:** 4m 3s
-- **Duration:** ~4 min
-- **Broker Signal:** Marcus Trent: Sold coverage to a member whose spouse already covered the family
-- **Topics:** duplicate coverage · coordination · broker misselling · churn risk · waste
+- **Tier:** GOOD
+- **Score:** 94/100
+- **Sentiment Arc:** NEUTRAL → SATISFIED
+- **Resolution:** RESOLVED
+- **Date:** 2026-09-29
+- **Start:** 09:16:00
+- **End:** 09:23:49
+- **AHT:** 7m 49s
+- **Duration:** ~8 min
+- **Queue:** Life & Beneficiary
+- **Topics:** life insurance · coverage increase · QLE · guarantee issue · EOI
 
-**Member context:** Angela Kim, 38 · Member ID CB-6671039 · also covered on spouse's plan
+**Member context:** Kevin Walsh, 35 · Member ID CB-6607441 · Assurity Life · life event increase
 
 ## Transcript
 
-Agent Ryan: Choice Administrators, Ryan.
- Caller: Angela Kim, CB-6671039. I've realised I'm covered for dental twice — here and on my husband's plan. I've been paying for
-both for a year.
-Agent Ryan: That's possible, dual coverage happens.
- Caller: My broker, Marcus Trent, enrolled me. I told him my husband had family dental. He said having both was better.
-Agent Ryan: It can coordinate.
- Caller: Coordinate meaning what? Have I got more back?
-Agent Ryan: Sometimes secondary pays some of what primary doesn't.
- Caller: Can you tell me whether it actually has, in my case?
-Agent Ryan: I'd only see claims processed through us.
- Caller: Then look at those. Has this plan paid anything meaningful?
-Agent Ryan: There are two claims. Small amounts.
- Caller: How small?
-Agent Ryan: $40 and $28.
- Caller: So $68 of benefit for around $340 of premium.
-Agent Ryan: Looks like it.
- Caller: Then it wasn't better. I'll drop it.
-Agent Ryan: Okay.
+Agent Sarah: Thank you for calling Choice Administrators, this is Sarah. This call may be recorded for quality and training. Can I take your name and member ID?
+
+Caller: Kevin Walsh, member ID CB-6607441.
+
+Agent Sarah: That's you found. Go ahead, Kevin.
+
+Caller: We just had our second child and I want to increase my life cover. Currently at $50,000.
+
+Agent Sarah: Congratulations. Birth of a child is a qualifying event, so you can increase outside open enrollment. You have 60 days from the birth date.
+
+Caller: She was born on the 2nd, so I have time.
+
+Agent Sarah: You do. The important thing to understand is guarantee issue. On a qualifying event you can typically increase by one or two increments without medical underwriting. Beyond that requires Evidence of Insurability.
+
+Caller: How much can I take without underwriting?
+
+Agent Sarah: Let me check your group's provisions... your guarantee issue limit is $150,000, and you're at $50,000. So you can go to $150,000 with no medical questions, on a qualifying event.
+
+Caller: And beyond that?
+
+Agent Sarah: Above $150,000 requires an EOI form and Assurity underwriting, which takes several weeks and can be declined or rated.
+
+Caller: $150,000 is probably right for now.
+
+Agent Sarah: Then take it without underwriting while the qualifying event window is open. That's the clean route.
+
+Caller: What about coverage for my wife and children?
+
+Agent Sarah: Dependent life is a separate election if your group offers it. Yours does — spouse coverage up to $25,000 and child coverage at $10,000 each. Both are also available on this qualifying event.
+
+Caller: I didn't know that existed.
+
+Agent Sarah: Most people don't ask. I'm emailing you the election form covering all three.
 
 ## AI Insights Panel — NanoVox 5-Layer Output
 
-L1 — Transcription & understanding: Call type: Duplicate dental coverage. Caller: MEMBER (Angela Kim, CB-6671039). Tone: neutral
-→ churn risk. Duration: 4 min. ■ Cancellation intent stated.
-L2 — Call insights: Member discovered duplicate dental coverage after her broker advised that holding both was beneficial. Actual
-coordination benefit was $68 against roughly $340 of premium. Agent did the arithmetic only when pressed, did not log the broker advice,
-and did not respond to cancellation intent. Resolution: UNRESOLVED.
-L3 — Agent quality: Agent Score: 36/100. NEGATIVE: did not proactively assess whether dual coverage was delivering value (-), gave
-claim figures only under repeated questioning (-), no broker log despite a named specific recommendation (-), no explanation of how
-coordination actually works (-), no retention response (-). POSITIVE: claim figures accurate (+).
-L4 — Operational BI: BROKER ATTRIBUTION · Owner: Broker Relations — Marcus Trent advised a member with existing family dental
-coverage that duplicate enrollment was beneficial, producing $68 of benefit against $340 of premium. Sixth flagged issue for this broker.
-This is a suitability concern rather than a factual misstatement. Recommend reviewing Trent's enrollments for members with declared
-existing coverage.
-L5 — Real-time assist: SHOULD HAVE FIRED at 1:00 — member-reported dual coverage should surface coordination value analysis
-comparing benefit paid against premium. At 3:30 — cancellation intent. Neither fired.
-
-— EMPLOYER: RENEWAL —
+L1 — Transcription & understanding: Call type: Life coverage increase on qualifying event. Caller: MEMBER (Kevin Walsh,
+CB-6607441). Tone: neutral → satisfied. Duration: 7 min.
+L2 — Call insights: Member increasing life coverage after the birth of a second child. Agent confirmed the 60-day QLE window,
+explained guarantee issue versus EOI, identified $150,000 available without underwriting, and surfaced spouse and child life coverage
+the member did not know existed. Resolution: RESOLVED.
+L3 — Agent quality: Agent Score: 94/100. POSITIVE: explained guarantee issue clearly, which determines whether underwriting is
+needed (+), checked the group's specific limit rather than a generic figure (+), advised taking the guarantee issue amount while the
+window is open (+), surfaced dependent life coverage unprompted (+), emailed a single form covering all elections (+).
+L4 — Operational BI: MEMBER COMMUNICATION GAP · Owner: Member Communications — dependent life coverage is consistently
+unknown to members and is only elected when an agent raises it. Recommend including it explicitly in life-event communications rather
+than only in the enrollment pack.
+L5 — Real-time assist: Fired at 2:30 — QLE life increase surfaced guarantee issue limit, current coverage, and available dependent life
+options. Agent used all three.

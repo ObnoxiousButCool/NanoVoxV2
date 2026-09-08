@@ -1,47 +1,68 @@
-# Call #33 — Adding a Newly Enrolled Dependent to the Portal View
+# Call #33 — Enrollment File Rejects With No Reason — HR Blocked Before the Deadline
 
-- **Agent:** Nicole
-- **Caller:** MEMBER
+- **Agent:** Michael
+- **Caller:** EMPLOYER
 - **Tier:** AVERAGE
-- **Score:** 75/100
-- **Sentiment Arc:** NEUTRAL → SATISFIED
+- **Score:** 76/100
+- **Sentiment Arc:** STRESSED → RELIEVED
 - **Resolution:** RESOLVED
-- **Date:** 2026-09-22
-- **Start:** 16:27:45
-- **End:** 16:32:37
-- **AHT:** 4m 52s
-- **Duration:** ~5 min
-- **Topics:** portal · dependent · visibility · enrollment lag
+- **Date:** 2026-09-09
+- **Start:** 09:31:10
+- **End:** 09:39:48
+- **AHT:** 8m 38s
+- **Duration:** ~9 min
+- **Queue:** Employer: Enrollment
+- **Topics:** census upload · portal error · open enrollment deadline · file template
 
-**Member context:** Michelle Torres, 34 · ChoiceBuilder dental · daughter added but not visible
+**Member context:** Meridian Group Services · 52 employees · HR Manager Lisa Patel · GRP-274190
 
 ## Transcript
 
-Agent Nicole: Choice Administrators, Nicole speaking.
- Caller: I added my daughter to my dental last month but she's not showing in my portal. Member ID CB-9904512.
-Agent Nicole: Let me check the enrollment record. She's there — effective the 1st, on the Delta Dental PPO with you.
- Caller: So why can't I see her?
-Agent Nicole: Dependent visibility in the portal refreshes on a weekly cycle rather than in real time. Her enrollment posted on the 3rd, so
-she should appear after this weekend's refresh.
- Caller: Is she covered in the meantime?
-Agent Nicole: Yes. Coverage is active from the 1st regardless of what the portal displays. If she needs to be seen before the refresh,
-give the provider her name, date of birth, and your subscriber ID and they can verify directly with Delta.
- Caller: Good. That's what I needed.
-Agent Nicole: I'll also send you a digital card that includes her, so you have something in hand.
+Agent Michael: Choice Administrators member services, Michael speaking. This call may be recorded for quality and training.
+
+Caller: Lisa Patel, HR manager at Meridian Group Services, group GRP-274190.
+
+Agent Michael: Thanks Lisa. What's happening?
+
+Caller: I'm trying to upload our open enrollment file — 52 lives — and the portal says 'upload unsuccessful.' That's the whole message. No line number, no field, nothing. I've tried six times.
+
+Agent Michael: That message covers about eight different failures, which isn't helpful to you. Let me ask a few things and we'll narrow it. Are you using the ChoiceBuilder enrollment template or your own payroll export?
+
+Caller: Our payroll export. It's got all the same columns.
+
+Agent Michael: That's very likely it. The upload validates on column order and header spelling, not just presence. A payroll export with the right data in the wrong order fails silently.
+
+Caller: Nobody has ever told me that. We've done this three years.
+
+Agent Michael: Previous years may have gone through your broker rather than the portal. I'm emailing you the current template now — it's a spreadsheet with the headers locked. Paste your data under them and it should take.
+
+Caller: Okay. Our deadline is Friday. If this doesn't work I'm stuck.
+
+Agent Michael: Understood. Two things so Friday isn't at risk. First, try the template now while I'm on the line. Second, if it fails again, email the file to enrollment support and reference case EN-2026-01142 and they will load it manually before the deadline.
+
+Caller: Loading it... it's accepted. 52 records.
+
+Agent Michael: Good. You'll see them in eligibility within one business day.
+
+Caller: Thank you. That took eight minutes and I've lost two days on it.
+
+Agent Michael: That's fair and I'll log it. The error message should tell you what failed.
 
 ## AI Insights Panel — NanoVox 5-Layer Output
 
-L1 — Transcription & understanding: Call type: Portal dependent visibility. Caller: MEMBER. Tone: neutral → satisfied. Duration: 4 min.
-Root cause: weekly portal refresh cycle.
-L2 — Call insights: Newly enrolled dependent not visible in the member portal due to a weekly refresh cycle. Agent confirmed active
-coverage, explained the lag, gave a manual verification route, and sent a digital card. Resolution: RESOLVED.
-L3 — Agent quality: Agent Score: 75/100. POSITIVE: confirmed coverage is active independent of portal display — the member's real
-concern (+), gave a workaround for immediate provider verification (+), sent a card unprompted (+). NEGATIVE: did not flag the refresh lag
-as a product issue (-), no note that the same lag will affect claims visibility (-).
-L4 — Operational BI: PROCESS OPPORTUNITY · Owner: Digital — a weekly portal refresh produces a predictable stream of 'my
-dependent isn't showing' calls in the days after enrollment. Recommend either real-time posting or an in-portal message stating when newly
-added dependents will appear.
-L5 — Real-time assist: Fired at 1:00 — enrollment record versus portal sync status surfaced the refresh lag. Digital card action surfaced.
-Agent used both.
-
-— NETWORKS & PROVIDERS —
+L1 — Transcription & understanding: Call type: Portal enrollment upload failure. Caller: EMPLOYER. Tone: stressed → relieved. Agent
+tone: diagnostic, structured. Duration: 9 min. Deadline pressure stated.
+L2 — Call insights: Employer's open enrollment file was rejecting with an undiagnostic error. Agent identified column order and header
+validation as the likely cause, supplied the correct template, resolved the upload live on the call, and provided a manual-load fallback
+with a case reference against a Friday deadline. Resolution: RESOLVED.
+L3 — Agent quality: Agent Score: 76/100. POSITIVE: diagnosed a non-obvious validation failure from a generic error (+), resolved live
+on the call rather than promising a callback (+), gave a fallback path with a case reference and a named deadline (+), acknowledged the
+two days lost without deflecting (+). NEGATIVE: did not check whether other groups had failed the same way this cycle (-), did not offer
+to walk the file through if the second attempt failed (-), no written confirmation of the successful load (-).
+L4 — Operational BI: PROCESS BREAKDOWN · Owner: Digital — the enrollment upload returns a single undiagnostic string for at
+least eight distinct validation failures, and the required template is not signposted at the point of upload. This lands hardest during open
+enrollment, when the cost of a two-day delay is a missed deadline. Recommend: (1) field-level validation messages, (2) the template
+linked on the upload screen, (3) a self-serve dry-run validator. OPPORTUNITY: employers moving from broker-mediated to self-serve
+enrollment are a growing population and the portal is not built for them.
+L5 — Real-time assist: Fired at 2:30 — portal error code lookup returned the template mismatch as the most common cause. Agent
+used it. Did not surface the enrollment-support manual-load path; agent supplied that from experience. Worth adding to the playbook.

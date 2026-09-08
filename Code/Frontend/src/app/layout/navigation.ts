@@ -70,6 +70,16 @@ export const NAVIGATION: readonly NavigationItem[] = [
     flag: 'showCorpusRun',
   },
   {
+    to: '/corpus-import',
+    label: 'Corpus import',
+    glyph: '↥',
+    description: 'Turn a corpus PDF into sample call files',
+    // The same flag as the corpus run. Both are operator tools that spend or
+    // rewrite something, and there is no case for showing one to a demo
+    // audience while hiding the other.
+    flag: 'showCorpusRun',
+  },
+  {
     to: '/diagnostics',
     label: 'Diagnostics',
     glyph: '◍',

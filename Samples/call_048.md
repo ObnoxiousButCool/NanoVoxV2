@@ -1,53 +1,73 @@
-# Call #48 — Claim Pending for Six Weeks — Agent Cannot Say Why
+# Call #48 — Employer Wants a Renewal Analysis Their Broker Did Not Provide
 
-- **Agent:** Kayla
-- **Caller:** MEMBER
-- **Tier:** POOR
-- **Score:** 40/100
-- **Sentiment Arc:** NEUTRAL → FRUSTRATED
-- **Resolution:** UNRESOLVED
-- **Date:** 2026-09-25
-- **Start:** 13:53:30
-- **End:** 13:58:56
-- **AHT:** 5m 26s
-- **Duration:** ~5 min
-- **Topics:** pending claim · claim status · COB hold · no explanation
+- **Agent:** Priya
+- **Caller:** EMPLOYER
+- **Tier:** GOOD
+- **Score:** 90/100
+- **Sentiment Arc:** CONCERNED → RETAINED
+- **Resolution:** RESOLVED
+- **Date:** 2026-09-14
+- **Start:** 15:09:30
+- **End:** 15:19:05
+- **AHT:** 9m 35s
+- **Duration:** ~10 min
+- **Queue:** Employer: Renewal
+- **Broker Signal:** Anthony Salerno: named aloud by the caller
+- **Repeat Contact:** follows an unresolved call on Mon 07 Sep 2026: Open Enrollment Materials Never Arrived
+- **Topics:** renewal · utilisation · plan design · broker absent · retention
 
-**Member context:** Elena Petrova, 40 · Delta Dental · claim in pending status
+**Member context:** Eastside Dental Group · 26 employees · Practice Manager Gina Rossi · GRP-300421
 
 ## Transcript
 
-Agent Kayla: Choice Administrators, this is Kayla.
- Caller: I have a claim from August that's still showing pending. It's been six weeks. Member ID CB-5540118.
-Agent Kayla: Let me look. Yes, it's pending.
- Caller: Why?
-Agent Kayla: It just says pending.
- Caller: There's no reason code or note?
-Agent Kayla: Not that I can see.
- Caller: Six weeks seems long. Is that normal?
-Agent Kayla: Sometimes claims take a while.
- Caller: Is there something I need to do? Have you asked me for anything?
-Agent Kayla: I don't see any letters.
- Caller: So it's just sitting there.
-Agent Kayla: Looks like it.
- Caller: Can you find out why or push it along?
-Agent Kayla: It'd process when it processes.
- Caller: That isn't an answer.
-Agent Kayla: Sorry, I don't have more detail.
+Agent Priya: Thank you for calling Choice Administrators, this is Priya. This call may be recorded for quality and training. Can I take your name and group number?
+
+Caller: Gina Rossi, Practice Manager at Eastside Dental Group, group GRP-300421.
+
+Agent Priya: That's you found. Go ahead, Gina.
+
+Caller: I called on the 7th about open enrollment and nobody came back to me, so you should know I'm already on my second attempt. Eastside Dental, Renewal is up 11%. I asked our broker, Anthony Salerno, for a utilisation analysis six weeks ago and haven't received it. Can you help me understand whether the increase is justified?
+
+Agent Priya: I can give you the picture, yes. Let me pull your group's utilisation for the plan year.
+
+Caller: Thank you.
+
+Agent Priya: Your group's paid claims came to roughly 76% of premium collected. Anything above about 70% typically drives an increase, so an 11% adjustment is consistent with your experience rather than a broad market move.
+
+Caller: So it's us, not a general increase.
+
+Agent Priya: Largely. And the detail is useful — 62% of your paid claims were basic and major services, which is high for a 26-life group. Preventive utilisation was low.
+
+Caller: Meaning people are coming in when something's wrong rather than for check-ups.
+
+Agent Priya: That's exactly the pattern, and it's the expensive one. Groups with high preventive uptake tend to have lower claims cost over time because problems get caught early.
+
+Caller: Can we do anything about that?
+
+Agent Priya: Two things. Communication — a lot of members don't realise preventive is covered at 100% with no deductible, so they avoid the dentist to save money they wouldn't have spent. Second, some employers run a short internal campaign at plan year start. It sounds small but it moves the number.
+
+Caller: We've never communicated anything beyond the enrollment pack.
+
+Agent Priya: Then there's room. I'm emailing you the utilisation summary and a preventive communication template you can send to staff.
+
+Caller: That's more than I asked for and considerably more than I got from our broker.
+
+Agent Priya: I'll note that the analysis was requested and not provided. Reference UR-2026-00811.
 
 ## AI Insights Panel — NanoVox 5-Layer Output
 
-L1 — Transcription & understanding: Call type: Pending claim status. Caller: MEMBER. Tone: neutral → frustrated. Duration: 5 min.
-L2 — Call insights: Member's claim pending six weeks with no explanation. Agent confirmed the pending status but could identify no
-reason code, took no action to investigate, and did not escalate. Note: pending claims of this duration are most commonly held on an
-unreturned coordination of benefits questionnaire — the agent did not check. Resolution: UNRESOLVED.
-L3 — Agent quality: Agent Score: 40/100. NEGATIVE: did not check for a coordination of benefits hold, the most common cause of
-extended pending status (-), accepted 'pending' as a complete answer (-), 'it'd process when it processes' is dismissive (-), no escalation on
-a claim well beyond standard turnaround (-), no case created (-). POSITIVE: confirmed no member correspondence was outstanding (+).
-L4 — Operational BI: PROCESS BREAKDOWN · Owner: Operations — pending reason codes are either not populated or not visible in the
-agent view, making extended pending claims unexplainable at first contact. Recommend surfacing the hold reason and an aging alert on
-any claim pending beyond 30 days.
-L5 — Real-time assist: SHOULD HAVE FIRED at 1:00 — claim pending beyond 30 days should surface the hold reason, most commonly
-a COB questionnaire, and offer verbal attestation to release it. No rule configured. A single rule would have resolved this call in two minutes.
-
-— BROKER: COMMISSIONS —
+L1 — Transcription & understanding: Call type: Renewal utilisation analysis. Caller: EMPLOYER (Gina Rossi, GRP-300421). Tone:
+concerned → retained. Duration: 10 min. Repeat contact — prior call in period closed unresolved.
+L2 — Call insights: Employer sought a utilisation analysis her broker had not supplied after six weeks. Agent explained the 76% loss
+ratio driving the increase, identified low preventive uptake as the underlying pattern, and supplied a utilisation summary plus a
+preventive communication template. Resolution: RESOLVED.
+L3 — Agent quality: Agent Score: 90/100. POSITIVE: gave the loss ratio and explained the threshold that drives increases (+), identified
+the preventive-versus-restorative mix as the root pattern (+), gave two actionable interventions rather than only analysis (+), supplied
+materials directly (+), logged the broker service failure (+).
+L4 — Operational BI: BROKER ATTRIBUTION · Owner: Broker Relations — Anthony Salerno did not supply a requested utilisation
+analysis after six weeks, and the employer obtained it directly from the carrier. Fifth flagged issue for this broker. RETENTION: employer
+explicitly contrasted the service favourably against her broker, which is a relationship risk for the broker and an opportunity for direct
+account management. REPEAT CONTACT: same group (GRP-300421) called on Mon 07 Sep 2026 and that call closed unresolved.
+Repeat contact within the period is a retention signal in its own right and should be counted against the earlier call, not this one.
+L5 — Real-time assist: Fired at 2:00 — renewal increase inquiry surfaced loss ratio and claims mix by service category. Preventive
+communication template surfaced. Agent used both.

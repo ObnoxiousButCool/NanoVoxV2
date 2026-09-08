@@ -1,55 +1,68 @@
-# Call #40 — Rate Increase at Renewal — Employer Wants Options
+# Call #40 — Swapping the Vision Carrier at Renewal
 
 - **Agent:** Michael
 - **Caller:** EMPLOYER
 - **Tier:** AVERAGE
-- **Score:** 76/100
-- **Sentiment Arc:** CONCERNED → INFORMED
+- **Score:** 79/100
+- **Sentiment Arc:** NEUTRAL → INFORMED
 - **Resolution:** RESOLVED
-- **Date:** 2026-09-21
-- **Start:** 10:48:00
-- **End:** 10:54:30
-- **AHT:** 6m 30s
-- **Duration:** ~6 min
-- **Topics:** renewal · rate increase · plan design · cost control
+- **Date:** 2026-09-11
+- **Start:** 11:11:30
+- **End:** 11:20:02
+- **AHT:** 8m 32s
+- **Duration:** ~9 min
+- **Queue:** Employer: Renewal
+- **Topics:** renewal · carrier change · vision · open enrollment · lock date
 
-**Member context:** Rossi Benefits client · Bayside Cleaning · 34 employees · Owner Alice Fontaine
+**Member context:** Lighthouse Media · 72 employees · HR Director Kevin Walsh · moving VSP to EyeMed
 
 ## Transcript
 
-Agent Michael: Choice Administrators, Michael speaking.
- Caller: Alice Fontaine, Bayside Cleaning, GRP-415088. Our dental renewal came in 14% up. That's a lot for a small business.
-Agent Michael: It is, and I understand. Let me look at what's driving it and what levers you have. Your group is on the Platinum PPO with
-a $2,100 annual maximum and 100/80/50 coverage.
- Caller: We picked the best one when we set it up.
-Agent Michael: That's often where the saving sits. Moving from Platinum to Gold reduces the annual maximum to $1,500 and shifts
-major services from 80% to 50%. For most groups that's a 15 to 20% premium reduction.
- Caller: Would employees notice?
-Agent Michael: Only those having major work done. Preventive stays at 100% on both, and the majority of your employees will use
-preventive and basic only. Your utilisation report would show how many hit major services last year.
- Caller: Can I see that?
-Agent Michael: Your broker can pull it. It's the right basis for the decision rather than guessing.
- Caller: And the other option?
-Agent Michael: Shifting some cost to employees — moving from full employer-sponsored to a defined contribution where you pay a
-fixed dollar amount and employees pay the difference. It caps your exposure regardless of future increases.
- Caller: That's appealing actually. Predictable.
-Agent Michael: It is, and it's what most groups your size move to eventually. Talk to your broker about modelling both before the lock
-date.
+Agent Michael: Choice Administrators, Michael speaking. This call may be recorded for quality and training. Can I take your name and group number?
+
+Caller: Kevin Walsh, HR Director at Lighthouse Media, group GRP-291005.
+
+Agent Michael: That's you found. Go ahead, Kevin.
+
+Caller: We want to move our vision from VSP to EyeMed at renewal. What's the process and when do we need to decide?
+
+Agent Michael: Your renewal is January 1st. The lock date for carrier changes is November 15th — after that the renewal processes as-is.
+
+Caller: So six weeks from now.
+
+Agent Michael: Yes. The change itself is straightforward — it's an election on the renewal worksheet, submitted through your broker or directly in the employer portal.
+
+Caller: What should I be thinking about before deciding?
+
+Agent Michael: Two things practically. Network overlap — check whether your employees' current optometrists are in the EyeMed network, because VSP and EyeMed have meaningfully different provider lists. And frequency schedules reset on carrier change, so anyone mid-cycle on lenses or frames may find their availability shifts.
+
+Caller: That second one could cause complaints.
+
+Agent Michael: It does. If someone used their frame benefit in June under VSP, the EyeMed clock may start fresh or may recognise the prior use depending on how the transition is set up. Worth confirming before you commit.
+
+Caller: Can you confirm it?
+
+Agent Michael: I can request it from the carrier transition team and come back to you. It depends on the specific plan pairing.
+
+Caller: Please. And can you send me a network comparison?
+
+Agent Michael: I'll send the EyeMed provider directory link and the transition FAQ. For a proper overlap analysis your broker can run it against your employee zip codes.
+
+Caller: Good. Thank you.
 
 ## AI Insights Panel — NanoVox 5-Layer Output
 
-L1 — Transcription & understanding: Call type: Renewal rate increase — options. Caller: EMPLOYER (Owner). Tone: concerned →
-informed. Duration: 7 min.
-L2 — Call insights: Employer facing a 14% dental renewal increase. Agent explained the plan tier structure, quantified the likely saving
-from a tier change, recommended pulling the utilisation report as the decision basis, and introduced defined contribution as a cost-capping
-structure. Resolution: RESOLVED.
-L3 — Agent quality: Agent Score: 76/100. POSITIVE: gave concrete alternatives with expected impact rather than sympathy (+), pointed to
-utilisation data as the decision basis rather than guesswork (+), introduced defined contribution appropriately (+). NEGATIVE: did not offer
-to request the utilisation report directly (-), no lock date given (-), no broker named despite twice recommending broker contact (-).
-L4 — Operational BI: PROCESS OPPORTUNITY · Owner: Account Management — small groups facing double-digit increases are a
-retention risk and are being sent to their broker without a warm handoff. Recommend flagging groups with renewals above 10% for
-proactive broker and account manager coordination before the employer calls.
-L5 — Real-time assist: Fired at 2:00 — renewal increase above threshold surfaced plan tier comparison and defined contribution option.
-Utilisation report request action not surfaced; recommend adding.
-
-— EMPLOYER: TERMINATIONS —
+L1 — Transcription & understanding: Call type: Carrier change at renewal — vision. Caller: EMPLOYER (HR Director). Tone: neutral →
+informed. Duration: 8 min.
+L2 — Call insights: Employer considering a VSP to EyeMed switch at January renewal. Agent gave the November 15 lock date, flagged
+network overlap and frequency-schedule reset as the two practical risks, and committed to confirm the transition treatment with the
+carrier team. Resolution: RESOLVED with follow-up pending.
+L3 — Agent quality: Agent Score: 79/100. POSITIVE: gave the lock date immediately (+), raised network overlap and frequency reset
+unprompted — the two things that generate member complaints post-switch (+), was honest that transition treatment needs confirmation
+(+). NEGATIVE: no reference number for the follow-up (-), no committed date for the carrier response (-), did not offer to loop in the
+broker directly (-).
+L4 — Operational BI: PROCESS OPPORTUNITY · Owner: Account Management — carrier switches at renewal reliably generate
+member frequency-benefit complaints in the following quarter. Recommend a standard transition brief issued to any employer changing
+carriers, covering network overlap and frequency treatment, before the lock date rather than after.
+L5 — Real-time assist: Fired at 1:30 — renewal lock date and carrier change workflow surfaced. Frequency transition treatment was not
+available in the agent view; flagged as a knowledge gap.

@@ -14,6 +14,7 @@ import { BrokersPage } from '@/features/brokers/BrokersPage'
 import { InferencesPage } from '@/features/inferences/InferencesPage'
 import { CallsPage } from '@/features/calls/CallsPage'
 import { CorpusPage } from '@/features/corpus/CorpusPage'
+import { ImportPage } from '@/features/corpus-import/ImportPage'
 import { CallDetailPage } from '@/features/call-detail/CallDetailPage'
 import { DiagnosticsPage } from '@/features/diagnostics/DiagnosticsPage'
 import { OverviewPage } from '@/features/overview/OverviewPage'
@@ -28,6 +29,7 @@ export function App() {
         <Route path="/brokers" element={<BrokersPage />} />
         <Route path="/analyze" element={<AnalyzePage />} />
         <Route path="/corpus" element={<CorpusPage />} />
+        <Route path="/corpus-import" element={<ImportPage />} />
         <Route path="/calls/:callId" element={<CallDetailPage />} />
         <Route path="/diagnostics" element={<DiagnosticsPage />} />
         <Route path="*" element={<Navigate to="/overview" replace />} />

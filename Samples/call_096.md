@@ -1,55 +1,69 @@
-# Call #96 — Adding a Line at Renewal Rather Than Mid-Year
+# Call #96 — Chiropractic Visit Limit — Member Mid-Course of Care
 
-- **Agent:** Michael
-- **Caller:** EMPLOYER
-- **Tier:** AVERAGE
-- **Score:** 76/100
-- **Sentiment Arc:** NEUTRAL → INFORMED
+- **Agent:** Priya
+- **Caller:** MEMBER
+- **Tier:** GOOD
+- **Score:** 93/100
+- **Sentiment Arc:** ANXIOUS → REASSURED
 - **Resolution:** RESOLVED
-- **Date:** 2026-09-23
-- **Start:** 14:06:30
-- **End:** 14:13:13
-- **AHT:** 6m 43s
-- **Duration:** ~7 min
-- **Topics:** line addition · renewal · chiropractic · participation
+- **Date:** 2026-09-29
+- **Start:** 10:46:30
+- **End:** 10:56:18
+- **AHT:** 9m 48s
+- **Duration:** ~10 min
+- **Queue:** Cost Share & Policy
+- **Topics:** visit limit · chiropractic · Landmark · annual maximum · planning
 
-**Member context:** Hillside Tech · 90 employees · HR Generalist David Kim · GRP-188500
+**Member context:** Thomas Andrews, 48 · Landmark Healthplan · 18 of 20 visits used
 
 ## Transcript
 
-Agent Michael: Choice Administrators, Michael speaking.
- Caller: David Kim, Hillside Tech, GRP-188500. Employees have been asking for chiropractic. Can we add it now or wait for renewal?
-Agent Michael: You can add a line mid-year — ChoiceBuilder allows it, unlike medical. But there are reasons to consider timing.
- Caller: Go on.
-Agent Michael: If you add mid-year, the new line runs to your existing renewal date rather than a full twelve months. So adding in
-October with a January renewal gives employees three months before they re-elect.
- Caller: That seems disruptive.
-Agent Michael: It can be. It also means employees enroll twice in quick succession, which affects take-up — people who join in October
-may not re-elect in January simply through fatigue.
- Caller: So better to fold it into the renewal.
-Agent Michael: For a benefit that isn't urgent, generally yes. You get a full plan year, one enrollment communication, and cleaner
-participation measurement.
- Caller: And if employees are asking now?
-Agent Michael: Tell them it's coming at renewal. That's a positive message and it builds anticipation, which usually improves take-up
-when it launches.
- Caller: That's a better answer than I expected. What do I need to do?
-Agent Michael: Raise it with your broker before the renewal lock date so it's included on the worksheet. Chiropractic through Landmark
-is quotable alongside your existing lines.
+Agent Priya: Thank you for calling Choice Administrators, this is Priya. This call may be recorded for quality and training. Can I take your name and member ID?
+
+Caller: Thomas Andrews, member ID CB-5512890.
+
+Agent Priya: Thank you Thomas, I have you. Go ahead.
+
+Caller: I've been having chiropractic treatment and my provider says I'm close to my visit limit. I want to understand where I stand.
+
+Agent Priya: Let me check your Landmark benefit. You have 20 visits per calendar year and you've used 18.
+
+Caller: So two left, and it's October.
+
+Agent Priya: Two remaining, and they reset January 1st.
+
+Caller: My provider recommended eight more sessions. What are my options?
+
+Agent Priya: Three, realistically. First, use your remaining two and pause until January when the benefit resets — that's the no-cost route if your provider is comfortable with the gap.
+
+Caller: And if not?
+
+Agent Priya: Second, continue on a self-pay basis. Landmark network providers offer a discounted rate to members beyond the visit limit — usually meaningfully below their standard fee. Ask your provider for the Landmark member rate, not the cash rate.
+
+Caller: I didn't know that was different.
+
+Agent Priya: Most members don't ask, so most don't get it. Third, and worth checking — if the treatment relates to an injury with a medical necessity basis, some plans allow an extension request. Yours does not, so that route isn't available here.
+
+Caller: At least you checked.
+
+Agent Priya: Better to rule it out than leave you wondering. My suggestion, practically: use your two remaining visits in December rather than now, so you carry momentum into January when twenty more become available.
+
+Caller: That's a genuinely good idea.
+
+Agent Priya: I'm emailing you your visit count, the reset date, and the discounted rate guidance to share with your provider.
 
 ## AI Insights Panel — NanoVox 5-Layer Output
 
-L1 — Transcription & understanding: Call type: Mid-year line addition versus renewal timing. Caller: EMPLOYER (David Kim,
-GRP-188500). Tone: neutral → informed. Duration: 7 min.
-L2 — Call insights: Employer considering adding chiropractic mid-year. Agent confirmed it is possible, explained the short first plan year
-and double-enrollment fatigue effect, and recommended folding it into renewal for better take-up and cleaner participation. Resolution:
-RESOLVED.
-L3 — Agent quality: Agent Score: 76/100. POSITIVE: gave a genuine recommendation rather than only stating what is permitted (+),
-explained the enrollment fatigue effect on take-up (+), gave the employer a positive message for staff in the interim (+), pointed to the lock
-date (+). NEGATIVE: did not offer to flag the renewal interest on the group record (-), no broker named (-), no reference number (-).
-L4 — Operational BI: PROCESS OPPORTUNITY · Owner: Account Management — employer interest in adding a line is a growth signal
-that is currently only captured if the broker acts on it. Recommend logging line-addition interest on the group record and surfacing it to
-account management ahead of renewal.
-L5 — Real-time assist: Fired at 2:00 — line addition inquiry surfaced mid-year rules and renewal date alignment. Take-up guidance was
-agent-supplied; worth codifying.
-
-— CLAIMS & EOB —
+L1 — Transcription & understanding: Call type: Visit limit planning — chiropractic. Caller: MEMBER. Tone: anxious → reassured.
+Duration: 9 min.
+L2 — Call insights: Member at 18 of 20 chiropractic visits with eight more recommended. Agent confirmed the count and reset date,
+explained three options including the Landmark discounted member rate, ruled out an extension after checking, and advised timing the
+remaining visits to bridge into the new plan year. Resolution: RESOLVED.
+L3 — Agent quality: Agent Score: 93/100. POSITIVE: gave the exact count and reset date (+), surfaced the Landmark discounted
+member rate most members never ask for (+), checked and honestly ruled out the extension route (+), gave practical sequencing advice
+(+), emailed a summary the member can hand to the provider (+).
+L4 — Operational BI: MEMBER COMMUNICATION GAP · Owner: Member Communications — visit-limit benefits (chiro, acupuncture)
+generate late-year exhaustion calls. Recommend a portal counter showing visits used and remaining, plus a notification at 75%
+utilisation.
+L5 — Real-time assist: Fired at 1:30 — visit accumulator and reset date surfaced. Discounted member rate guidance and extension
+eligibility check surfaced. Agent used all three.

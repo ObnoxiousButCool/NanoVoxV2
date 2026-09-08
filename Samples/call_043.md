@@ -1,52 +1,65 @@
-# Call #43 — Evidence of Insurability — Member Wants to Know Where the Form Stands
+# Call #43 — Retroactive Termination Request — Employer Wants Three Months Back
 
-- **Agent:** Linda
-- **Caller:** MEMBER
-- **Tier:** AVERAGE
-- **Score:** 74/100
-- **Sentiment Arc:** NEUTRAL → INFORMED
+- **Agent:** Danielle
+- **Caller:** EMPLOYER
+- **Tier:** GOOD
+- **Score:** 92/100
+- **Sentiment Arc:** CONFUSED → INFORMED
 - **Resolution:** RESOLVED
-- **Date:** 2026-09-15
-- **Start:** 10:41:30
-- **End:** 10:48:19
-- **AHT:** 6m 49s
-- **Duration:** ~7 min
-- **Topics:** EOI · evidence of insurability · life insurance · underwriting · form status
+- **Date:** 2026-09-14
+- **Start:** 08:04:00
+- **End:** 08:12:50
+- **AHT:** 8m 50s
+- **Duration:** ~9 min
+- **Queue:** Employer: Terminations
+- **Topics:** retroactive termination · credit limits · compliance · billing
 
-**Member context:** Jason Kim, 33 · Assurity Life · elected coverage above guarantee issue
+**Member context:** Trident Financial · 55 employees · Controller Sam Patel
 
 ## Transcript
 
-Agent Linda: Choice Administrators, this is Linda.
- Caller: Jason Kim, CB-8805567. I elected $200,000 of life cover at open enrollment and I was told I need to complete an Evidence of
-Insurability form. I sent it three weeks ago and heard nothing.
-Agent Linda: Let me check the status. I can see the EOI received on the 14th, currently with Assurity underwriting.
- Caller: How long does underwriting take?
-Agent Linda: Typically 15 to 30 business days for a straightforward case, longer if they request medical records.
- Caller: What am I covered for in the meantime?
-Agent Linda: That's the important part. You're covered at the guarantee issue amount — the level available without underwriting —
-which on your group is $50,000. The additional $150,000 only takes effect if and when underwriting approves it.
- Caller: So I'm at $50,000 right now, not $200,000.
-Agent Linda: Correct. And that's worth knowing if you've made any planning decisions on the higher figure.
- Caller: I had assumed it was all in place.
-Agent Linda: It's a common assumption. Underwriting can approve the full amount, approve a reduced amount, or decline the excess —
-in which case you stay at guarantee issue.
- Caller: Will I be told either way?
-Agent Linda: Yes, in writing from Assurity. If you want to check progress, their underwriting line is on your certificate. Your reference
-here is EOI-2026-00311.
+Agent Danielle: Thank you for calling Choice Administrators, this is Danielle. This call may be recorded for quality and training. Can I take your name and group number?
+
+Caller: Sam Patel, Controller at Trident Financial, group GRP-388901.
+
+Agent Danielle: Got it, thanks Sam. What can I do for you?
+
+Caller: We found an employee who left in June and was never terminated. Can we backdate it and get three months credited?
+
+Agent Danielle: Let me check the policy limits on retroactive terminations. Our standard is 60 days of retroactive credit — so from today that would reach back to mid-August, not June.
+
+Caller: So we lose two months.
+
+Agent Danielle: On the credit side, likely yes. But I want to check something first, because it matters more than the money. Did this employee use any benefits after June?
+
+Caller: I don't know.
+
+Agent Danielle: Let me look... there's a dental claim in August. That complicates it, because if we terminate retroactive to June, that claim becomes the member's personal liability. He'd be billed directly by the provider.
+
+Caller: We don't want that. He left on good terms.
+
+Agent Danielle: Then I'd suggest terminating effective end of the month in which the claim fell, rather than June. You lose a month of credit but the former employee isn't pursued for a claim he reasonably believed was covered.
+
+Caller: That seems fairer. Let's do that.
+
+Agent Danielle: I'll submit termination effective August 31st with credit for September. And I'd note — his COBRA election notice is now overdue, so I'm generating that today. It goes to his last known address.
+
+Caller: We hadn't thought about COBRA at all.
+
+Agent Danielle: That's the bigger exposure here. Reference RT-2026-00612.
 
 ## AI Insights Panel — NanoVox 5-Layer Output
 
-L1 — Transcription & understanding: Call type: EOI status inquiry — life insurance. Caller: MEMBER. Tone: neutral → informed.
-Duration: 6 min.
-L2 — Call insights: Member checking on an Evidence of Insurability submission for life coverage above guarantee issue. Agent confirmed
-receipt and underwriting status, and clarified that current coverage sits at the $50,000 guarantee issue level pending approval. Resolution:
-RESOLVED.
-L3 — Agent quality: Agent Score: 74/100. POSITIVE: confirmed the form was received rather than leaving it uncertain (+), clarified the
-critical point that coverage is currently at guarantee issue not the elected amount (+), explained the three possible underwriting outcomes
-(+). NEGATIVE: did not offer to chase underwriting (-), no written confirmation of current coverage level offered (-), did not check whether
-the member has beneficiaries recorded (-).
-L4 — Operational BI: MEMBER COMMUNICATION GAP · Owner: Member Communications — members electing above guarantee issue
-commonly believe the full amount is in force from the effective date. Recommend the enrollment confirmation state the in-force amount and
-the pending amount separately.
-L5 — Real-time assist: Fired at 1:30 — EOI status and guarantee issue level surfaced together. Agent used both.
+L1 — Transcription & understanding: Call type: Retroactive termination request. Caller: EMPLOYER (Controller). Tone: confused →
+informed. Duration: 8 min. Compliance dimension.
+L2 — Call insights: Employer sought a three-month retroactive termination. Agent applied the 60-day retro limit, identified a
+post-departure claim that would become the former employee's liability, recommended a later effective date to protect him, and
+generated the overdue COBRA notice. Resolution: RESOLVED.
+L3 — Agent quality: Agent Score: 92/100. POSITIVE: checked for post-termination claims before processing — the step that protects
+the former employee (+), explained the consequence clearly and let the employer choose (+), identified the overdue COBRA notice as
+the larger exposure (+), generated it in-call (+). NEGATIVE: did not check whether other unterminated leavers exist on the group (-).
+L4 — Operational BI: PROCESS BREAKDOWN · Owner: Operations / Compliance — an employee terminated in June was still enrolled
+in October, generating both premium waste and a COBRA notification breach. Recommend a quarterly reconciliation prompt to
+employers listing enrolled members with no recent payroll activity.
+L5 — Real-time assist: Fired at 3:00 — retroactive termination request surfaced the 60-day credit limit and post-effective-date claim
+history. COBRA overdue flag surfaced. Agent used all three.

@@ -1,59 +1,67 @@
-# Call #7 — Dental Claim Partially Denied — Waiting Period Never Explained
+# Call #7 — Updating a Beneficiary After Divorce
 
-- **Agent:** Danielle
+- **Agent:** James
 - **Caller:** MEMBER
-- **Tier:** GOOD
-- **Score:** 93/100
-- **Sentiment Arc:** ANXIOUS → REASSURED
+- **Tier:** AVERAGE
+- **Score:** 75/100
+- **Sentiment Arc:** NEUTRAL → SATISFIED
 - **Resolution:** RESOLVED
-- **Date:** 2026-09-17
-- **Start:** 16:16:45
-- **End:** 16:26:39
-- **AHT:** 9m 54s
-- **Duration:** ~10 min
-- **Topics:** waiting period · major services · denial · Ameritas · enrollment disclosure
+- **Date:** 2026-09-03
+- **Start:** 09:18:45
+- **End:** 09:25:03
+- **AHT:** 6m 18s
+- **Duration:** ~6 min
+- **Queue:** Life & Beneficiary
+- **Topics:** beneficiary change · life insurance · divorce · QLE
 
-**Member context:** Samuel Adeyemi, 39 · Ameritas dental · bridge work denied, 12-month waiting period
+**Member context:** Patricia Hammond, 46 · Assurity Life · divorce finalised
 
 ## Transcript
 
-Agent Danielle: Thank you for calling Choice Administrators, this is Danielle.
- Caller: I had bridge work done and the claim came back mostly denied. I've had this plan since March. Member ID CB-6620033.
-Agent Danielle: Let me pull the claim and your plan history so I can tell you exactly what happened.
- Caller: Please, because the letter just says 'not eligible' and that's it.
-Agent Danielle: I have it. The bridge was processed against a 12-month waiting period for major services. Your coverage started March
-1st, and the bridge was done in September — that's six months in, so it fell inside the waiting period.
- Caller: What waiting period? Nobody mentioned a waiting period.
-Agent Danielle: It's in the plan documents, but I hear you that it wasn't surfaced when it mattered. Waiting periods apply to major
-services — crowns, bridges, dentures — on most ancillary dental plans. Preventive and basic work aren't affected, which is why your
-cleanings processed normally.
- Caller: So I'm paying the full cost of a bridge because I didn't know a rule existed.
-Agent Danielle: That's the situation, and I'm not going to pretend it's a good one. Let me check two things. First, whether you had prior
-dental coverage — some plans credit prior continuous coverage against the waiting period.
- Caller: I had dental at my last job. I started here in February.
-Agent Danielle: That may help. If you had continuous coverage with no more than a 63-day gap, we can request a waiting period credit.
-That would move your major services eligibility to March 1st and make the bridge eligible.
- Caller: What do you need from me?
-Agent Danielle: A certificate of prior coverage from your previous carrier — most issue one on request, sometimes called a certificate of
-creditable coverage. Send it to us and we'll submit the credit request and reprocess the claim.
- Caller: That's a real path. Thank you.
-Agent Danielle: Your reference is WP-2026-00418. I'm emailing you the instructions and the address now. If your prior carrier is slow,
-call me back and I'll chase it.
- Caller: I appreciate that.
+Agent James: Choice Administrators member services, this is James. This call may be recorded for quality and training. Can I take your name and member ID?
+
+Caller: Patricia Hammond, member ID CB-2279041.
+
+Agent James: Thank you Patricia, I have you. Go ahead.
+
+Caller: My divorce was finalised last month and my ex-husband is still the beneficiary on my life policy. I want to change it.
+
+Agent James: I can help with that. Beneficiary changes can be made at any time — you don't need a qualifying event for this one.
+
+Caller: Good. I want it to go to my two children instead.
+
+Agent James: You'll need to complete a beneficiary designation form. For minor children there's an additional consideration — if they're under 18, proceeds usually can't be paid directly to them, so most people name a trustee or custodian.
+
+Caller: They're 14 and 17.
+
+Agent James: Then that applies. You'd name a custodian under your state's Uniform Transfers to Minors Act, or a trust if you have one.
+
+Caller: I don't have a trust. My sister could be the custodian.
+
+Agent James: That works. She'd be named as custodian for each child until they reach the age of majority.
+
+Caller: Does the split have to be even?
+
+Agent James: No, you set the percentages. They just need to total 100.
+
+Caller: Fifty-fifty is fine. How do I get the form?
+
+Agent James: I'm emailing it now. Complete it, sign it, and return it — the change takes effect when we record it, not when you sign, so send it back promptly.
+
+Caller: Understood. Thank you.
 
 ## AI Insights Panel — NanoVox 5-Layer Output
 
-L1 — Transcription & understanding: Call type: Claim denial — dental waiting period. Caller: MEMBER. Tone: anxious → reassured.
-Agent tone: honest, resourceful. Duration: 10 min.
-L2 — Call insights: Bridge work denied under a 12-month major services waiting period the member was unaware of. Agent explained the
-waiting period structure, identified prior continuous coverage as a potential credit, and opened a waiting period credit request with
-instructions. Resolution: RESOLVED — credit path opened.
-L3 — Agent quality: Agent Score: 93/100. POSITIVE: retrieved and explained the actual denial basis rather than the letter's wording (+),
-acknowledged the disclosure gap honestly (+), proactively asked about prior coverage — the one thing that changes the outcome (+),
-explained the 63-day gap rule accurately (+), gave a reference and emailed instructions (+), offered to chase the prior carrier (+).
-L4 — Operational BI: MEMBER COMMUNICATION GAP · Owner: Member Communications — waiting periods on major dental services
-are the leading cause of surprise denials in ancillary. Members do not encounter the rule until they need expensive work. Recommend: (1)
-waiting period end dates displayed in the member portal from day one, (2) enrollment confirmation states major services eligibility date
-explicitly, (3) prior-coverage credit offered proactively at enrollment rather than discovered at denial.
-L5 — Real-time assist: Fired at 3:30 — major services denial with coverage effective date under 12 months surfaced the waiting period
-rule and the prior-coverage credit pathway including the 63-day gap threshold. Agent used both.
+L1 — Transcription & understanding: Call type: Beneficiary change — post-divorce. Caller: MEMBER. Tone: neutral → satisfied. Agent
+tone: accurate, appropriately cautious. Duration: 6 min.
+L2 — Call insights: Member changing life beneficiary from ex-spouse to two minor children. Agent confirmed no QLE required, raised
+the minor-beneficiary custodian issue, explained percentage allocation, and emailed the designation form. Resolution: RESOLVED.
+L3 — Agent quality: Agent Score: 75/100. POSITIVE: raised the minor-beneficiary issue proactively — the single most common error on
+these forms (+), explained UTMA custodian mechanics (+), clarified effective date is on recording not signing (+). NEGATIVE: did not
+check whether a divorce decree requires maintaining the ex-spouse as beneficiary — a genuine legal risk (-), no reference number (-),
+did not offer to confirm receipt of the returned form (-).
+L4 — Operational BI: PROCESS BREAKDOWN · Owner: Operations — beneficiary changes following divorce carry a legal risk where a
+decree mandates continued coverage for a former spouse or children. Agents should be scripted to flag this without giving legal advice.
+Recommend a standard prompt on any divorce-driven beneficiary change.
+L5 — Real-time assist: Fired at 2:00 — beneficiary change surfaced the form and minor-beneficiary custodian guidance. Did not surface
+the divorce-decree caution; recommend adding.

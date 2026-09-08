@@ -1,56 +1,69 @@
-# Call #88 — Employer Charged for a Line They Never Elected
+# Call #88 — Claim Denied for Missing Tooth Clause
 
-- **Agent:** Priya
-- **Caller:** EMPLOYER
-- **Tier:** GOOD
-- **Score:** 90/100
-- **Sentiment Arc:** ANGRY → SATISFIED
+- **Agent:** Nicole
+- **Caller:** MEMBER
+- **Tier:** AVERAGE
+- **Score:** 72/100
+- **Sentiment Arc:** CONFUSED → INFORMED
 - **Resolution:** RESOLVED
-- **Date:** 2026-09-21
-- **Start:** 13:16:45
-- **End:** 13:26:27
-- **AHT:** 9m 42s
-- **Duration:** ~10 min
-- **Topics:** billing error · line not elected · credit · chiropractic
+- **Date:** 2026-09-25
+- **Start:** 13:53:30
+- **End:** 14:00:20
+- **AHT:** 6m 50s
+- **Duration:** ~7 min
+- **Queue:** Claims & EOB
+- **Repeat Contact:** follows an unresolved call on Wed 09 Sep 2026: Claim Pending for Six Weeks — Agent Cannot Say Why
+- **Topics:** missing tooth clause · exclusion · bridge · pre-existing
 
-**Member context:** Summit Electronics · 63 employees · Payroll Manager Earl Thomas · GRP-220881
+**Member context:** Elena Petrova, 40 · Member ID CB-5548207 · Ameritas dental · bridge denied
 
 ## Transcript
 
-Agent Priya: Thank you for calling Choice Administrators, this is Priya.
- Caller: Earl Thomas, Summit Electronics, GRP-220881. There's a chiropractic line on our invoice. We never elected chiropractic.
-Agent Priya: Let me check your group's elected lines against what's billing. Your renewal worksheet shows dental and vision elected.
-Chiropractic is not on it.
- Caller: So why are we being billed?
-Agent Priya: The chiropractic line was added to the group in June. I can see the addition but no corresponding election on file.
- Caller: Nobody here authorised it.
-Agent Priya: Then it appears to have been added in error. How much has been billed?
- Caller: About $290 a month since June, so five months.
-Agent Priya: Roughly $1,450. Let me check something before I process the credit — have any employees actually used the chiropractic
-benefit?
- Caller: I've no idea.
-Agent Priya: Checking... two claims, both in September, totalling $180 paid. That complicates it slightly but not much. I'll request
-removal of the line back to June with full premium credit, and flag the two claims for separate handling so those members aren't pursued.
- Caller: I appreciate you thinking of that. They'd have used it in good faith.
-Agent Priya: Exactly. They saw a benefit on their card and used it. That's not their error. Reference LC-2026-00822.
- Caller: How did this happen?
-Agent Priya: I don't have the answer yet. I'm flagging it for investigation, because a line added without an election suggests either a
-submission error or a data issue that could affect other groups.
+Agent Nicole: Choice Administrators, Nicole speaking. This call may be recorded for quality and training. Can I take your name and member ID?
+
+Caller: Elena Petrova, member ID CB-5548207.
+
+Agent Nicole: That's you found. Go ahead, Elena.
+
+Caller: This is my second call this month. The pending claim issue on the 9th was never sorted. Separate thing today. My bridge was denied and the reason says missing tooth clause. What does that mean?
+
+Agent Nicole: It means the plan doesn't cover replacement of a tooth that was already missing before your coverage started. Was the tooth extracted before you enrolled?
+
+Caller: Years ago.
+
+Agent Nicole: Then that's the basis. The clause excludes prosthetic replacement of teeth lost prior to coverage.
+
+Caller: That seems harsh. I've been paying for two years.
+
+Agent Nicole: It's a common clause on ancillary dental and it's designed to prevent people enrolling specifically to fund existing work. I understand it doesn't feel that way when you've held the plan for two years.
+
+Caller: Does it ever expire?
+
+Agent Nicole: On some plans the clause lapses after a set period of continuous coverage — often five years. Let me check yours... your plan does have a lapse provision at 60 months of continuous coverage.
+
+Caller: So in three more years it would be covered.
+
+Agent Nicole: If you maintain continuous coverage, yes. That's worth knowing before you consider dropping the plan.
+
+Caller: It genuinely is. I was thinking about it.
+
+Agent Nicole: Then the clock matters. Any break in coverage would reset it.
 
 ## AI Insights Panel — NanoVox 5-Layer Output
 
-L1 — Transcription & understanding: Call type: Unelected line billed. Caller: EMPLOYER (Earl Thomas, GRP-220881). Tone: angry →
-satisfied. Duration: 9 min.
-L2 — Call insights: Chiropractic line added to a group with no election on file, billing $290 monthly for five months. Agent confirmed no
-election, requested removal with approximately $1,450 credit, protected two members who had used the benefit in good faith, and escalated
-for investigation into how the line was added. Resolution: RESOLVED.
-L3 — Agent quality: Agent Score: 90/100. POSITIVE: compared billing against the signed election rather than assuming (+), checked for
-member utilisation before processing removal (+), protected the two members from clawback proactively (+), escalated the root cause rather
-than only fixing the symptom (+), was honest that the cause is unknown (+).
-L4 — Operational BI: PROCESS BREAKDOWN · CRITICAL · Owner: Operations — a benefit line was added to a group with no election
-on file. If this is systemic it affects billing integrity across the book. Recommend an audit comparing all billed lines against signed elections,
-and investigation of how the addition occurred.
-L5 — Real-time assist: Fired at 2:00 — billed line with no corresponding election surfaced the discrepancy and the member utilisation
-check. Agent used both.
-
-— NETWORKS & PROVIDERS —
+L1 — Transcription & understanding: Call type: Missing tooth clause denial. Caller: MEMBER (Elena Petrova, CB-5548207). Tone:
+confused → informed. Duration: 6 min. ■ Latent churn risk addressed. Repeat contact — prior call in period closed unresolved.
+L2 — Call insights: Bridge denied under the missing tooth clause for a tooth lost before coverage. Agent explained the clause and its
+purpose, then identified a 60-month continuous-coverage lapse provision that would make the work eligible in three years. Resolution:
+RESOLVED — retention argument surfaced.
+L3 — Agent quality: Agent Score: 72/100. POSITIVE: explained the clause and its rationale without being defensive (+), checked for and
+found the lapse provision (+), connected continuous coverage to future eligibility, which is a genuine retention argument (+), warned that
+a break resets the clock (+). NEGATIVE: no empathy expressed early (-), did not offer a written summary of the lapse date (-), no
+reference number (-).
+L4 — Operational BI: MEMBER COMMUNICATION GAP · Owner: Member Communications — the missing tooth clause is rarely
+explained at enrollment and produces denials that feel arbitrary years later. Recommend disclosing it at enrollment alongside the
+continuous-coverage lapse date, which doubles as a retention message. REPEAT CONTACT: same member (CB-5548207) called on
+Wed 09 Sep 2026 and that call closed unresolved. Repeat contact within the period is a retention signal in its own right and should be
+counted against the earlier call, not this one.
+L5 — Real-time assist: Fired at 3:00 — missing tooth denial surfaced the clause and the 60-month lapse provision with the member's
+coverage start date. Agent used both.

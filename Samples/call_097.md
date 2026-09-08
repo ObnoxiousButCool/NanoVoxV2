@@ -1,54 +1,65 @@
-# Call #97 — Claim Paid at the Wrong Coinsurance Level
+# Call #97 — Vision Materials Bought Out of Network
 
-- **Agent:** Nicole
+- **Agent:** Linda
 - **Caller:** MEMBER
 - **Tier:** AVERAGE
-- **Score:** 77/100
-- **Sentiment Arc:** ANNOYED → SATISFIED
+- **Score:** 74/100
+- **Sentiment Arc:** CONFUSED → INFORMED
 - **Resolution:** RESOLVED
-- **Date:** 2026-09-08
-- **Start:** 15:58:15
-- **End:** 16:04:37
-- **AHT:** 6m 22s
-- **Duration:** ~6 min
-- **Topics:** coinsurance error · service category · reprocessing · basic vs major
+- **Date:** 2026-09-29
+- **Start:** 14:00:15
+- **End:** 14:07:16
+- **AHT:** 7m 1s
+- **Duration:** ~7 min
+- **Queue:** Networks & Providers
+- **Topics:** vision materials · out of network · allowance · reimbursement · EyeMed
 
-**Member context:** Ahmed Bakri, 44 · Member ID CB-6602274 · Delta Dental · filling paid at 50%
+**Member context:** Jerome Thompson, 51 · Member ID CB-6641087 · EyeMed · glasses from an online retailer
 
 ## Transcript
 
-Agent Nicole: Choice Administrators, Nicole speaking.
- Caller: Ahmed Bakri, CB-6602274. My filling was paid at 50%. Fillings should be 80% on my plan.
-Agent Nicole: Let me look at how it categorised. You're right that fillings are basic at 80%. This claim processed under major services at
-50%.
- Caller: So it's been categorised wrong.
-Agent Nicole: It looks that way. Let me check the procedure code... it was submitted as an onlay rather than a filling. An onlay is
-classified as major on your plan.
- Caller: My dentist said filling.
-Agent Nicole: Then either the terminology differed or the code is wrong. An onlay is a lab-fabricated restoration, more involved than a
-standard filling — clinically they're different procedures with different costs.
- Caller: How do I tell which I actually had?
-Agent Nicole: Ask the office directly. If it was fabricated in a lab and placed at a second visit, it's an onlay and the 50% is correct. If it
-was done in one visit with composite material, it's a filling and the code is wrong.
- Caller: It was one visit.
-Agent Nicole: Then it's likely miscoded. Ask them to review and resubmit as a filling if that's what was done. It should reprocess at 80%.
- Caller: That's a $90 difference.
-Agent Nicole: Worth the phone call. I'm noting the account so a corrected resubmission is expected. Reference CR-2026-00918.
+Agent Linda: Choice Administrators, this is Linda. This call may be recorded for quality and training. Can I take your name and member ID?
+
+Caller: Jerome Thompson, member ID CB-6641087.
+
+Agent Linda: That's you found. Go ahead, Jerome.
+
+Caller: I bought glasses online because they were cheaper. Can I claim anything back?
+
+Agent Linda: You can. EyeMed reimburses out-of-network materials at a set allowance rather than a percentage. For frames the out-of-network allowance is typically well below the in-network benefit.
+
+Caller: How much?
+
+Agent Linda: Let me check your plan... $45 toward frames and $40 toward single vision lenses out of network. In network you'd have had a $150 frame allowance.
+
+Caller: So I lost about $100 of benefit by going online.
+
+Agent Linda: Depending on what you paid, possibly. Online retailers are often cheaper than the retail price but the in-network allowance usually beats the saving.
+
+Caller: Useful to know for next time. How do I claim the $85?
+
+Agent Linda: Out-of-network claims are submitted by you directly to EyeMed, not through us. You'll need the itemised receipt showing frames and lenses separately, and a copy of your prescription.
+
+Caller: Separately? The receipt shows one total.
+
+Agent Linda: Then ask the retailer for an itemised version. EyeMed will reject a combined total because the allowances are separate.
+
+Caller: Good to know before I submit and get rejected.
+
+Agent Linda: Exactly. The claim form is on the EyeMed member site. Deadline is usually 12 months from purchase.
 
 ## AI Insights Panel — NanoVox 5-Layer Output
 
-L1 — Transcription & understanding: Call type: Coinsurance level dispute. Caller: MEMBER (Ahmed Bakri, CB-6602274). Tone:
-annoyed → satisfied. Duration: 6 min.
-L2 — Call insights: Filling paid at 50% because it was submitted as an onlay. Agent identified the code, explained the clinical distinction,
-gave the member a test to determine which procedure was performed, and annotated the account for the expected resubmission.
+L1 — Transcription & understanding: Call type: Out-of-network vision materials reimbursement. Caller: MEMBER (Jerome Thompson,
+CB-6641087). Tone: confused → informed. Duration: 7 min.
+L2 — Call insights: Member purchased glasses online and sought reimbursement. Agent explained the out-of-network allowance
+structure, quantified the benefit lost versus in-network, and flagged the itemised receipt requirement that commonly causes rejections.
 Resolution: RESOLVED.
-L3 — Agent quality: Agent Score: 77/100. POSITIVE: identified the specific code causing the variance (+), explained the clinical distinction
-so the member could self-verify (+), gave a practical single-visit test (+), annotated the account and issued a reference (+). NEGATIVE: no
-empathy at open (-), did not offer to contact the practice (-), did not quantify the difference until the member did (-).
-L4 — Operational BI: PROVIDER PERFORMANCE · Owner: Provider Relations — onlay coding on single-visit composite restorations
-shifts cost from the plan to the member and inflates the practice's reimbursement. Recommend monitoring practices with unusual
-onlay-to-filling ratios.
-L5 — Real-time assist: Fired at 2:00 — coinsurance variance surfaced the submitted code and its service category classification. Agent
-used it.
-
-— EMPLOYER: BILLING —
+L3 — Agent quality: Agent Score: 74/100. POSITIVE: gave specific allowance figures (+), quantified the in-network versus
+out-of-network difference (+), pre-empted the itemised receipt rejection (+), gave the submission deadline (+). NEGATIVE: did not send
+the claim form link (-), no reference number (-), did not check whether the member's lens benefit was still available in network (-).
+L4 — Operational BI: MEMBER COMMUNICATION GAP · Owner: Member Communications — members regularly assume online
+purchase savings exceed the in-network allowance. Recommend a simple in-network versus online comparison in vision onboarding,
+showing the allowance in cash terms.
+L5 — Real-time assist: Fired at 2:00 — out-of-network materials inquiry surfaced allowance schedule and submission requirements.
+Claim form link not surfaced; recommend adding.

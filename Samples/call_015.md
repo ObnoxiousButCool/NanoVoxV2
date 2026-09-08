@@ -1,54 +1,70 @@
-# Call #15 — Updating a Beneficiary After Divorce
+# Call #15 — Changing the Employer Contribution Mid-Year
 
-- **Agent:** James
-- **Caller:** MEMBER
+- **Agent:** Nicole
+- **Caller:** EMPLOYER
 - **Tier:** AVERAGE
-- **Score:** 75/100
-- **Sentiment Arc:** NEUTRAL → SATISFIED
+- **Score:** 77/100
+- **Sentiment Arc:** NEUTRAL → INFORMED
 - **Resolution:** RESOLVED
-- **Date:** 2026-09-03
-- **Start:** 09:18:45
-- **End:** 09:25:03
-- **AHT:** 6m 18s
+- **Date:** 2026-09-07
+- **Start:** 10:33:00
+- **End:** 10:39:29
+- **AHT:** 6m 29s
 - **Duration:** ~6 min
-- **Topics:** beneficiary change · life insurance · divorce · QLE
+- **Queue:** Employer: Enrollment
+- **Topics:** employer contribution · defined contribution · mid-year change · participation
 
-**Member context:** Patricia Hammond, 46 · Assurity Life · divorce finalised
+**Member context:** Glendale Construction · 41 employees · Owner William Drake
 
 ## Transcript
 
-Agent James: Choice Administrators member services, this is James.
- Caller: My divorce was finalised last month and my ex-husband is still the beneficiary on my life policy. I want to change it. Member ID
-CB-2279041.
-Agent James: I can help with that. Beneficiary changes can be made at any time — you don't need a qualifying event for this one.
- Caller: Good. I want it to go to my two children instead.
-Agent James: You'll need to complete a beneficiary designation form. For minor children there's an additional consideration — if they're
-under 18, proceeds usually can't be paid directly to them, so most people name a trustee or custodian.
- Caller: They're 14 and 17.
-Agent James: Then that applies. You'd name a custodian under your state's Uniform Transfers to Minors Act, or a trust if you have one.
- Caller: I don't have a trust. My sister could be the custodian.
-Agent James: That works. She'd be named as custodian for each child until they reach the age of majority.
- Caller: Does the split have to be even?
-Agent James: No, you set the percentages. They just need to total 100.
- Caller: Fifty-fifty is fine. How do I get the form?
-Agent James: I'm emailing it now. Complete it, sign it, and return it — the change takes effect when we record it, not when you sign, so
-send it back promptly.
- Caller: Understood. Thank you.
+Agent Nicole: Choice Administrators, Nicole speaking. This call may be recorded for quality and training. Can I take your name and group number?
+
+Caller: William Drake, Owner at Glendale Construction, group GRP-189422.
+
+Agent Nicole: Thanks William. Tell me what's happening.
+
+Caller: We're paying 100% of employee dental and it's getting expensive. Can we drop to 50% mid-year?
+
+Agent Nicole: Contribution changes are generally a renewal-level decision rather than mid-year, because they affect the rate basis and participation testing.
+
+Caller: So we're stuck until renewal.
+
+Agent Nicole: On this plan year, most likely yes. When is your renewal?
+
+Caller: March.
+
+Agent Nicole: So five months. Worth planning now rather than at the deadline, because there are a few things to work through.
+
+Caller: Such as?
+
+Agent Nicole: Moving from 100% to 50% means employees start paying a payroll deduction they've never had. Take-up usually drops — often 15 to 25% of enrolled employees drop coverage when a contribution is introduced.
+
+Caller: That would reduce our cost further.
+
+Agent Nicole: It would, but it also risks participation. If enrollment falls below the minimum, the group can be non-renewed on that line. At 41 eligible you'd need roughly 10 to 11 enrolled to stay compliant.
+
+Caller: We have about 30 enrolled now.
+
+Agent Nicole: Then you have headroom, but it's worth modelling rather than assuming. Your broker can run the contribution scenarios against your census.
+
+Caller: Alright. I'll start that conversation now rather than in February.
+
+Agent Nicole: That's the right call. Renewal decisions made in the last two weeks rarely go well.
 
 ## AI Insights Panel — NanoVox 5-Layer Output
 
-L1 — Transcription & understanding: Call type: Beneficiary change — post-divorce. Caller: MEMBER. Tone: neutral → satisfied. Agent
-tone: accurate, appropriately cautious. Duration: 6 min.
-L2 — Call insights: Member changing life beneficiary from ex-spouse to two minor children. Agent confirmed no QLE required, raised the
-minor-beneficiary custodian issue, explained percentage allocation, and emailed the designation form. Resolution: RESOLVED.
-L3 — Agent quality: Agent Score: 75/100. POSITIVE: raised the minor-beneficiary issue proactively — the single most common error on
-these forms (+), explained UTMA custodian mechanics (+), clarified effective date is on recording not signing (+). NEGATIVE: did not check
-whether a divorce decree requires maintaining the ex-spouse as beneficiary — a genuine legal risk (-), no reference number (-), did not offer
-to confirm receipt of the returned form (-).
-L4 — Operational BI: PROCESS BREAKDOWN · Owner: Operations — beneficiary changes following divorce carry a legal risk where a
-decree mandates continued coverage for a former spouse or children. Agents should be scripted to flag this without giving legal advice.
-Recommend a standard prompt on any divorce-driven beneficiary change.
-L5 — Real-time assist: Fired at 2:00 — beneficiary change surfaced the form and minor-beneficiary custodian guidance. Did not surface
-the divorce-decree caution; recommend adding.
-
-— CLAIMS & EOB —
+L1 — Transcription & understanding: Call type: Contribution strategy change. Caller: EMPLOYER (Owner). Tone: neutral → informed.
+Duration: 7 min.
+L2 — Call insights: Employer seeking to reduce dental contribution from 100% to 50% mid-year. Agent confirmed it is a renewal
+decision, quantified likely take-up drop, flagged the participation minimum risk, and advised early modelling with the broker. Resolution:
+RESOLVED.
+L3 — Agent quality: Agent Score: 77/100. POSITIVE: explained why it is a renewal decision rather than just refusing (+), quantified
+expected take-up drop with a realistic range (+), connected it to participation risk the employer had not considered (+), pushed for early
+planning (+). NEGATIVE: did not offer to flag the group to account management for a renewal conversation (-), no broker named (-), no
+written summary (-).
+L4 — Operational BI: PROCESS OPPORTUNITY · Owner: Account Management — employers signalling contribution reduction five
+months ahead of renewal are a retention risk worth engaging early. Recommend logging contribution-change intent as a renewal flag on
+the group record.
+L5 — Real-time assist: Fired at 2:00 — contribution change inquiry surfaced participation minimum calculation for the group size.
+Take-up impact figures were agent-supplied; worth adding to the knowledge base.

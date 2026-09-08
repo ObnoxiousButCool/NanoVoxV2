@@ -26,6 +26,7 @@ from application.use_cases.get_dashboard import (
     GetWorkMix,
 )
 from application.use_cases.get_health import GetHealth
+from application.use_cases.import_corpus_document import ImportCorpusDocument
 from application.use_cases.list_providers import ListProviders
 from application.use_cases.run_corpus import (
     CancelCorpusRun,
@@ -121,6 +122,10 @@ def get_clear_corpus_use_case(container: ContainerDep) -> ClearCorpus:
     return container.clear_corpus()
 
 
+def get_import_corpus_document_use_case(container: ContainerDep) -> ImportCorpusDocument:
+    return container.import_corpus_document()
+
+
 def get_resume_corpus_run_use_case(container: ContainerDep) -> ResumeCorpusRun:
     return container.resume_corpus_run()
 
@@ -166,5 +171,8 @@ GetCorpusRunDep = Annotated[GetCorpusRun, Depends(get_corpus_run_use_case)]
 ListCorpusRunsDep = Annotated[ListCorpusRuns, Depends(get_list_corpus_runs_use_case)]
 CorpusStatusDep = Annotated[GetCorpusStatus, Depends(get_corpus_status_use_case)]
 ClearCorpusDep = Annotated[ClearCorpus, Depends(get_clear_corpus_use_case)]
+ImportCorpusDocumentDep = Annotated[
+    ImportCorpusDocument, Depends(get_import_corpus_document_use_case)
+]
 ReadModelsDep = Annotated[SqlReadModelRepository, Depends(get_read_models)]
 AnalysisRepositoryDep = Annotated[SqlAnalysisRepository, Depends(get_analysis_repository)]

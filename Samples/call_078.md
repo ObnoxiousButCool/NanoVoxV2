@@ -1,61 +1,75 @@
-# Call #78 — Employer Wants a Renewal Analysis Their Broker Did Not Provide
+# Call #78 — Employer Wants to Add Vision, Chiro and Life — Broker Has Gone Quiet
 
-- **Agent:** Priya
+- **Agent:** Danielle
 - **Caller:** EMPLOYER
 - **Tier:** GOOD
-- **Score:** 90/100
-- **Sentiment Arc:** CONCERNED → RETAINED
+- **Score:** 89/100
+- **Sentiment Arc:** UNCERTAIN → CONFIDENT
 - **Resolution:** RESOLVED
-- **Date:** 2026-09-07
-- **Start:** 15:03:15
-- **End:** 15:12:50
-- **AHT:** 9m 35s
-- **Duration:** ~10 min
-- **Broker Signal:** Anthony Salerno: No renewal analysis provided — employer sought it directly
-- **Topics:** renewal · utilisation · plan design · broker absent · retention
+- **Date:** 2026-09-23
+- **Start:** 10:48:00
+- **End:** 10:58:40
+- **AHT:** 10m 40s
+- **Duration:** ~11 min
+- **Queue:** Employer: Renewal
+- **Broker Signal:** Anthony Salerno: Unresponsive for a month while the employer tries to expand from one line to four.
+- **Topics:** multi-line package · vision · chiropractic · life · broker unresponsive
 
-**Member context:** Eastside Dental Group · 26 employees · Practice Manager Gina Rossi · GRP-300421
+**Member context:** Park Interiors · 68 employees · HR Director Grant Park · GRP-294115
 
 ## Transcript
 
-Agent Priya: Thank you for calling Choice Administrators, this is Priya.
- Caller: Gina Rossi, Eastside Dental, GRP-300421. Renewal is up 11%. I asked our broker, Anthony Salerno, for a utilisation analysis
-six weeks ago and haven't received it. Can you help me understand whether the increase is justified?
-Agent Priya: I can give you the picture, yes. Let me pull your group's utilisation for the plan year.
- Caller: Thank you.
-Agent Priya: Your group's paid claims came to roughly 76% of premium collected. Anything above about 70% typically drives an
-increase, so an 11% adjustment is consistent with your experience rather than a broad market move.
- Caller: So it's us, not a general increase.
-Agent Priya: Largely. And the detail is useful — 62% of your paid claims were basic and major services, which is high for a 26-life group.
-Preventive utilisation was low.
- Caller: Meaning people are coming in when something's wrong rather than for check-ups.
-Agent Priya: That's exactly the pattern, and it's the expensive one. Groups with high preventive uptake tend to have lower claims cost
-over time because problems get caught early.
- Caller: Can we do anything about that?
-Agent Priya: Two things. Communication — a lot of members don't realise preventive is covered at 100% with no deductible, so they
-avoid the dentist to save money they wouldn't have spent. Second, some employers run a short internal campaign at plan year start. It
-sounds small but it moves the number.
- Caller: We've never communicated anything beyond the enrollment pack.
-Agent Priya: Then there's room. I'm emailing you the utilisation summary and a preventive communication template you can send to
-staff.
- Caller: That's more than I asked for and considerably more than I got from our broker.
-Agent Priya: I'll note that the analysis was requested and not provided. Reference UR-2026-00811.
+Agent Danielle: Thank you for calling Choice Administrators, this is Danielle. This call may be recorded for quality and training.
+
+Caller: Grant Park, HR director at Park Interiors, group GRP-294115.
+
+Agent Danielle: Thanks Grant. What are we looking at?
+
+Caller: We have dental only. I want to add vision, chiropractic and life for 1 January. I've been trying to get our broker Anthony Salerno to put something together since the middle of August and I've had one reply, which was 'will do'.
+
+Agent Danielle: I can take you through the structure so you at least know what you're asking for. Vision first — you have VSP or EyeMed. VSP has the larger independent optometrist network, EyeMed is stronger in retail chains. If your workforce is spread out, VSP usually wins on access.
+
+Caller: We're across three sites, one of them fairly rural.
+
+Agent Danielle: Then I'd look at VSP first and check density against your zip codes before you commit.
+
+Caller: Chiropractic?
+
+Agent Danielle: Landmark, and one thing to know now rather than in January — Landmark's network is California-focused. If any of your three sites is out of state, employees there will have very limited access. Do you have anyone outside California?
+
+Caller: Six people in Reno.
+
+Agent Danielle: Then chiro will look like a benefit those six can't use. It's still worth offering, but I'd tell them up front rather than have them find out at the first appointment.
+
+Caller: That's useful. Nobody has mentioned that.
+
+Agent Danielle: Life is Assurity, and the thing that catches employers out there is the guaranteed issue amount. Above it, employees complete medical evidence, and take-up drops sharply when they hit a questionnaire.
+
+Caller: So keep the default at or below guaranteed issue.
+
+Agent Danielle: That's what I'd do for a first year. On participation — vision and chiro voluntary carry a 25% minimum, life carries its own. At 68 lives you need to plan the communication, not just the plan design.
+
+Caller: This is the conversation I've been trying to have for a month.
+
+Agent Danielle: I'll email you a written summary of all four lines with the carriers, the participation minimums and the Nevada caveat, reference PK-2026-00931. I'm also logging that the agency has been unresponsive on an active expansion, because that should not be how you get this information.
 
 ## AI Insights Panel — NanoVox 5-Layer Output
 
-L1 — Transcription & understanding: Call type: Renewal utilisation analysis. Caller: EMPLOYER (Gina Rossi, GRP-300421). Tone:
-concerned → retained. Duration: 10 min.
-L2 — Call insights: Employer sought a utilisation analysis her broker had not supplied after six weeks. Agent explained the 76% loss ratio
-driving the increase, identified low preventive uptake as the underlying pattern, and supplied a utilisation summary plus a preventive
-communication template. Resolution: RESOLVED.
-L3 — Agent quality: Agent Score: 90/100. POSITIVE: gave the loss ratio and explained the threshold that drives increases (+), identified
-the preventive-versus-restorative mix as the root pattern (+), gave two actionable interventions rather than only analysis (+), supplied
-materials directly (+), logged the broker service failure (+).
-L4 — Operational BI: BROKER ATTRIBUTION · Owner: Broker Relations — Anthony Salerno did not supply a requested utilisation
-analysis after six weeks, and the employer obtained it directly from the carrier. Fifth flagged issue for this broker. RETENTION: employer
-explicitly contrasted the service favourably against her broker, which is a relationship risk for the broker and an opportunity for direct account
-management.
-L5 — Real-time assist: Fired at 2:00 — renewal increase inquiry surfaced loss ratio and claims mix by service category. Preventive
-communication template surfaced. Agent used both.
-
-— CLAIMS & EOB —
+L1 — Transcription & understanding: Call type: Multi-line expansion enquiry. Caller: EMPLOYER. Tone: uncertain → confident. Agent
+tone: consultative, specific. Duration: 11 min. Broker unresponsiveness named aloud on an active revenue opportunity.
+L2 — Call insights: Employer sought to expand from dental only to a four-line package after a month of broker non-response. Agent
+covered carrier selection for vision, surfaced the Landmark California network limitation against six out-of-state employees unprompted,
+advised on the Assurity guaranteed issue threshold, stated participation minimums, issued a written summary with a reference and
+logged the broker non-response. Resolution: RESOLVED.
+L3 — Agent quality: Agent Score: 89/100. POSITIVE: gave carrier-level guidance rather than generic reassurance (+), surfaced the
+Nevada network gap before it became a January complaint (+), explained guaranteed issue and its effect on take-up (+), stated
+participation minimums unprompted (+), issued a written summary with a reference (+), logged broker non-response on an active
+expansion (+). NEGATIVE: did not hand the opportunity to account management despite an in-year four-line expansion (-), did not run
+the VSP zip-code density check on the call after raising it (-).
+L4 — Operational BI: REVENUE OPPORTUNITY · Owner: Account Management — a 68-life group is trying to triple its lines and cannot
+get its broker to respond. This is an unclaimed in-year expansion sitting in the member services queue with no route to sales. BROKER
+RELATIONS: second unresponsiveness signal against this agency in the period, now on revenue rather than service. Recommend: (1)
+an expansion-intent flag that routes to account management the same day, (2) broker unresponsiveness on revenue-bearing calls
+escalated separately from service complaints.
+L5 — Real-time assist: Fired at 4:00 — network density lookup returned Landmark's California concentration against the group's
+Nevada population. Agent used it. Did not surface the VSP zip-code density report, which exists. Worth wiring to the same trigger.

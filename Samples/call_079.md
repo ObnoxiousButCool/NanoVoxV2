@@ -1,55 +1,65 @@
-# Call #79 — Claim Denied as Duplicate When Two Procedures Were Genuinely Performed
+# Call #79 — Adding a Line at Renewal Rather Than Mid-Year
 
-- **Agent:** Danielle
-- **Caller:** MEMBER
-- **Tier:** GOOD
-- **Score:** 93/100
-- **Sentiment Arc:** ANGRY → SATISFIED
+- **Agent:** Michael
+- **Caller:** EMPLOYER
+- **Tier:** AVERAGE
+- **Score:** 76/100
+- **Sentiment Arc:** NEUTRAL → INFORMED
 - **Resolution:** RESOLVED
-- **Date:** 2026-09-09
-- **Start:** 10:45:45
-- **End:** 10:55:31
-- **AHT:** 9m 46s
-- **Duration:** ~10 min
-- **Topics:** duplicate denial · coding · same day procedures · tooth number
+- **Date:** 2026-09-23
+- **Start:** 14:06:30
+- **End:** 14:13:13
+- **AHT:** 6m 43s
+- **Duration:** ~7 min
+- **Queue:** Employer: Renewal
+- **Topics:** line addition · renewal · chiropractic · participation
 
-**Member context:** Alicia Ferrara, 36 · Member ID CB-4471203 · Delta Dental · two fillings same day
+**Member context:** Hillside Tech · 90 employees · HR Generalist David Kim · GRP-188500
 
 ## Transcript
 
-Agent Danielle: Thank you for calling Choice Administrators, this is Danielle.
- Caller: Alicia Ferrara, CB-4471203. I had two fillings on the same day and the second was denied as a duplicate. They were different
-teeth.
-Agent Danielle: Let me look at how they were submitted. Both claims show the same procedure code and the same date, and both list
-tooth number 14.
- Caller: One was tooth 14 and one was tooth 19. I remember because he told me.
-Agent Danielle: Then the second claim has the wrong tooth number, which is why the system read it as a duplicate submission of the
-first.
- Caller: So it's a typing error at the dental office.
-Agent Danielle: Almost certainly. And it's an easy fix — they resubmit with the correct tooth number and it should process normally.
- Caller: Will they charge me while that happens?
-Agent Danielle: Ask them to hold billing pending resubmission. Most practices will. And I'm noting the account so that if a corrected
-claim comes in for tooth 19 on that date, it's expected rather than looking like a third submission.
- Caller: That's helpful. I was ready to argue with them.
-Agent Danielle: No need. It's a keystroke rather than a dispute. Ask for the billing coordinator and tell them the second claim needs the
-tooth number corrected from 14 to 19 and resubmitted.
- Caller: That's specific enough that they'll know what I mean.
-Agent Danielle: That's the idea. Reference DC-2026-00902 if anything comes back.
+Agent Michael: Choice Administrators, Michael speaking. This call may be recorded for quality and training. Can I take your name and group number?
+
+Caller: David Kim, HR Generalist at Hillside Tech, group GRP-188500.
+
+Agent Michael: Got it, thanks David. What can I do for you?
+
+Caller: Employees have been asking for chiropractic. Can we add it now or wait for renewal?
+
+Agent Michael: You can add a line mid-year — ChoiceBuilder allows it, unlike medical. But there are reasons to consider timing.
+
+Caller: Go on.
+
+Agent Michael: If you add mid-year, the new line runs to your existing renewal date rather than a full twelve months. So adding in October with a January renewal gives employees three months before they re-elect.
+
+Caller: That seems disruptive.
+
+Agent Michael: It can be. It also means employees enroll twice in quick succession, which affects take-up — people who join in October may not re-elect in January simply through fatigue.
+
+Caller: So better to fold it into the renewal.
+
+Agent Michael: For a benefit that isn't urgent, generally yes. You get a full plan year, one enrollment communication, and cleaner participation measurement.
+
+Caller: And if employees are asking now?
+
+Agent Michael: Tell them it's coming at renewal. That's a positive message and it builds anticipation, which usually improves take-up when it launches.
+
+Caller: That's a better answer than I expected. What do I need to do?
+
+Agent Michael: Raise it with your broker before the renewal lock date so it's included on the worksheet. Chiropractic through Landmark is quotable alongside your existing lines.
 
 ## AI Insights Panel — NanoVox 5-Layer Output
 
-L1 — Transcription & understanding: Call type: Duplicate claim denial from coding error. Caller: MEMBER (Alicia Ferrara, CB-4471203).
-Tone: angry → satisfied. Duration: 9 min.
-L2 — Call insights: Second filling denied as a duplicate because the dental office submitted the wrong tooth number. Agent identified the
-specific field error, gave the member precise correction language, annotated the account for the expected resubmission, and advised
-holding billing. Resolution: RESOLVED.
-L3 — Agent quality: Agent Score: 93/100. POSITIVE: identified the exact field causing the denial (+), reframed it from a dispute into a
-correction, defusing the member's anger (+), gave language specific enough for the billing coordinator to act on (+), annotated the account
-to prevent the corrected claim being rejected again (+), advised holding billing (+).
-L4 — Operational BI: PROVIDER PERFORMANCE · Owner: Provider Relations — tooth number errors on same-day multiple procedures
-are a recurring source of duplicate denials. Recommend tracking practices by duplicate-denial rate and issuing coding guidance where it
-exceeds network norms.
-L5 — Real-time assist: Fired at 1:30 — duplicate denial with identical tooth numbers on same-day claims surfaced the coding error pattern
-and the account annotation action. Agent used both.
-
-— NETWORKS & PROVIDERS —
+L1 — Transcription & understanding: Call type: Mid-year line addition versus renewal timing. Caller: EMPLOYER (David Kim,
+GRP-188500). Tone: neutral → informed. Duration: 7 min.
+L2 — Call insights: Employer considering adding chiropractic mid-year. Agent confirmed it is possible, explained the short first plan year
+and double-enrollment fatigue effect, and recommended folding it into renewal for better take-up and cleaner participation. Resolution:
+RESOLVED.
+L3 — Agent quality: Agent Score: 76/100. POSITIVE: gave a genuine recommendation rather than only stating what is permitted (+),
+explained the enrollment fatigue effect on take-up (+), gave the employer a positive message for staff in the interim (+), pointed to the
+lock date (+). NEGATIVE: did not offer to flag the renewal interest on the group record (-), no broker named (-), no reference number (-).
+L4 — Operational BI: PROCESS OPPORTUNITY · Owner: Account Management — employer interest in adding a line is a growth
+signal that is currently only captured if the broker acts on it. Recommend logging line-addition interest on the group record and surfacing
+it to account management ahead of renewal.
+L5 — Real-time assist: Fired at 2:00 — line addition inquiry surfaced mid-year rules and renewal date alignment. Take-up guidance was
+agent-supplied; worth codifying.

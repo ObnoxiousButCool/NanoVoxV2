@@ -157,6 +157,12 @@ describe('AppShell', () => {
       'href',
       '/corpus',
     )
+    // Corpus import rides the same flag: both are operator tools, and showing
+    // one to a demo audience while hiding the other serves nobody.
+    expect(screen.getByRole('link', { name: 'Corpus import' })).toHaveAttribute(
+      'href',
+      '/corpus-import',
+    )
   })
 
   it('drops the corpus run from the rail when configured off', async () => {
@@ -169,6 +175,7 @@ describe('AppShell', () => {
 
     await screen.findByRole('link', { name: 'Dashboard' })
     expect(screen.queryByRole('link', { name: 'Corpus run' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: 'Corpus import' })).not.toBeInTheDocument()
   })
 
   it('shows no status block at all', async () => {

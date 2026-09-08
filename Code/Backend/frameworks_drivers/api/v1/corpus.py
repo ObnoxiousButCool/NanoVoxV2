@@ -14,12 +14,16 @@ import json
 from collections.abc import AsyncIterator
 from datetime import datetime
 
-from fastapi import APIRouter, Query, status
+from fastapi import APIRouter, File, Query, UploadFile, status
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 
 from application.ports.llm_provider import LLMProvider
 from application.ports.run_events import RunEvent, RunEventKind
+from application.use_cases.import_corpus_document import (
+    CorpusImport,
+    ImportDocumentCommand,
+)
 from application.use_cases.run_corpus import CorpusStatus, StartRunCommand
 from domain.aggregation.run_progress import RunProgress
 from domain.entities.corpus_run import CorpusRun, CorpusRunItem
@@ -29,6 +33,7 @@ from frameworks_drivers.api.dependencies import (
     ContainerDep,
     CorpusStatusDep,
     GetCorpusRunDep,
+    ImportCorpusDocumentDep,
     ListCorpusRunsDep,
     ResumeCorpusRunDep,
     StartCorpusRunDep,
@@ -208,6 +213,83 @@ async def clear_corpus(use_case: ClearCorpusDep) -> ClearedCorpusResponse:
     """
     cleared = await use_case.execute()
     return ClearedCorpusResponse(calls=cleared.calls, runs=cleared.runs)
+
+
+class ImportedCallResponse(BaseModel):
+    number: int
+    reference: str = Field(description="The reference a corpus run would store this call under.")
+    title: str
+    filename: str
+    agent: str | None
+    caller: str | None
+    tier: str | None
+    score: int | None
+    resolution: str | None
+    queue: str | None
+    turns: int = Field(description="Non-blank transcript lines extracted for this call.")
+    has_panel: bool = Field(description="Whether the authored insights panel came through.")
+    broker: str | None = Field(description="Broker signal as 'Name: what they did', if any.")
+    repeat: bool = Field(description="Whether this call is marked as a repeat contact.")
+
+
+class CorpusImportResponse(BaseModel):
+    name: str = Field(description="Directory this corpus was saved as.")
+    directory: str
+    total: int
+    calls: list[ImportedCallResponse]
+
+
+class CorpusVersionResponse(BaseModel):
+    name: str
+    directory: str
+    files: int
+
+
+def _import_response(result: CorpusImport) -> CorpusImportResponse:
+    return CorpusImportResponse(
+        name=result.saved.name,
+        directory=str(result.saved.directory),
+        total=result.total,
+        calls=[ImportedCallResponse(**vars(call)) for call in result.calls],
+    )
+
+
+@router.post(
+    "/corpus/imports",
+    response_model=CorpusImportResponse,
+    status_code=status.HTTP_201_CREATED,
+    summary="Convert an uploaded corpus document into sample call files",
+)
+async def import_corpus(
+    use_case: ImportCorpusDocumentDep,
+    file: UploadFile = File(description="A call-corpus PDF."),
+) -> CorpusImportResponse:
+    """Extract every call from a corpus PDF and save it as corpus markdown.
+
+    Saved under its own name in the import library, never over the corpus in
+    use: the stored analyses are only meaningful against the transcripts they
+    were made from, so replacing those silently would leave the dashboard
+    describing calls that no longer exist.
+
+    Nothing is analysed here. Import produces files; a run spends money.
+    """
+    data = await file.read()
+    result = use_case.execute(
+        ImportDocumentCommand(filename=file.filename or "corpus.pdf", data=data)
+    )
+    return _import_response(result)
+
+
+@router.get(
+    "/corpus/imports",
+    response_model=list[CorpusVersionResponse],
+    summary="Corpora that have been imported, newest first",
+)
+async def list_corpus_imports(use_case: ImportCorpusDocumentDep) -> list[CorpusVersionResponse]:
+    return [
+        CorpusVersionResponse(name=saved.name, directory=str(saved.directory), files=saved.files)
+        for saved in use_case.versions()
+    ]
 
 
 @router.post(

@@ -1,55 +1,76 @@
-# Call #64 — Employee on Unpaid Leave — Does Coverage Continue
+# Call #64 — Employees in Two States — Employer Finds Out Chiro Does Not Travel
 
-- **Agent:** James
+- **Agent:** Linda
 - **Caller:** EMPLOYER
 - **Tier:** AVERAGE
-- **Score:** 77/100
-- **Sentiment Arc:** NEUTRAL → SATISFIED
-- **Resolution:** RESOLVED
-- **Date:** 2026-09-23
-- **Start:** 16:54:15
-- **End:** 17:01:17
-- **AHT:** 7m 2s
+- **Score:** 70/100
+- **Sentiment Arc:** ANNOYED → PARTIALLY SATISFIED
+- **Resolution:** PARTIALLY RESOLVED
+- **Date:** 2026-09-21
+- **Start:** 09:14:40
+- **End:** 09:22:05
+- **AHT:** 7m 25s
 - **Duration:** ~7 min
-- **Topics:** leave of absence · unpaid leave · continuation · eligibility
+- **Queue:** Networks & Providers
+- **Topics:** multi-state · Landmark network · chiropractic · network density · plan design
 
-**Member context:** Meridian Staffing · 66 employees · HR Business Partner Karen Diaz · GRP-462201
+**Member context:** Bellwether Systems · 62 employees, 14 in Arizona · HR Manager Marion Bell · GRP-307755
 
 ## Transcript
 
-Agent James: Choice Administrators member services, this is James.
- Caller: Karen Diaz, Meridian Staffing, GRP-462201. We have an employee going on three months unpaid leave. Does his dental and
-vision continue?
-Agent James: That depends on your group's leave policy as recorded with us. Let me check... your group is set to continue coverage
-during approved unpaid leave for up to 12 weeks, provided premium continues to be paid.
- Caller: Who pays it while he's not on payroll?
-Agent James: That's the practical issue. There's no payroll to deduct from, so the employer either fronts the employee share and
-recovers it on return, or collects directly from the employee during the leave.
- Caller: Which do most groups do?
-Agent James: Direct collection is more common for voluntary lines, because fronting several months of premium and recovering it
-creates its own problems if the employee doesn't return.
- Caller: And if we don't collect and don't front?
-Agent James: Coverage lapses for non-payment and he'd need to re-enroll on return, potentially re-serving any waiting period. That's
-the outcome to avoid.
- Caller: Definitely. So we should agree collection arrangements with him before he goes.
-Agent James: In writing, ideally. It avoids a dispute later about who owed what.
- Caller: And if the leave runs past 12 weeks?
-Agent James: Beyond 12 weeks coverage terminates and COBRA applies from that point. Worth diarising the date now.
+Agent Linda: Choice Administrators, this is Linda. This call may be recorded for quality and training.
+
+Caller: Marion Bell, HR manager at Bellwether Systems, group GRP-307755.
+
+Agent Linda: Thanks Marion.
+
+Caller: We added the chiropractic rider in July. I have fourteen people in Tucson and every one of them says there is no provider near them. They think I sold them a benefit that doesn't exist.
+
+Agent Linda: Landmark's network is concentrated in California. Coverage outside it is thin and in some Arizona counties there isn't any.
+
+Caller: Was anyone going to tell me that before I bought it?
+
+Agent Linda: It's in the carrier material. It clearly wasn't surfaced at the point it mattered, and I'm not going to defend that.
+
+Caller: So what do my fourteen people do?
+
+Agent Linda: Two things I can tell you now. Out-of-network chiropractic is reimbursed at a lower rate rather than not at all, so it's not zero, but they pay up front and claim back. And Landmark does add providers, so it's worth me requesting a current density report for the Tucson zip codes rather than us both assuming.
+
+Caller: Can I drop the rider for the Arizona employees only?
+
+Agent Linda: Not mid-year and not by location — the rider applies at group level.
+
+Caller: So I carry it until January.
+
+Agent Linda: For the rider, yes. What I can do is get you the density report and something in writing for your Arizona employees explaining the reimbursement route, so they're not turning up expecting in-network and finding nothing.
+
+Caller: Do that. When?
+
+Agent Linda: The written explanation today. The density report depends on Landmark, so I'd say within a week and I'll chase it.
+
+Caller: That's not nothing. Reference?
+
+Agent Linda: ND-2026-00558.
 
 ## AI Insights Panel — NanoVox 5-Layer Output
 
-L1 — Transcription & understanding: Call type: Coverage during unpaid leave. Caller: EMPLOYER (Karen Diaz, GRP-462201). Tone:
-neutral → satisfied. Duration: 7 min.
-L2 — Call insights: Employer asked whether coverage continues during a three-month unpaid leave. Agent confirmed the group's 12-week
-continuation provision, explained premium collection options, warned about lapse and waiting period re-service, and flagged the COBRA
-trigger beyond 12 weeks. Resolution: RESOLVED.
-L3 — Agent quality: Agent Score: 77/100. POSITIVE: retrieved the group's specific leave provision (+), addressed the practical premium
-collection problem rather than only the policy (+), warned about waiting period re-service on lapse (+), flagged the 12-week COBRA
-boundary (+). NEGATIVE: did not offer a written summary for the employee agreement (-), no reference number (-), did not offer to diarise
-the 12-week date on the group record (-).
-L4 — Operational BI: PROCESS OPPORTUNITY · Owner: Operations — leave-of-absence premium collection is a recurring source of
-unintended lapses. Recommend a standard employer leave guide and an automated alert at week 10 of any recorded leave.
-L5 — Real-time assist: Fired at 1:30 — leave inquiry surfaced the group's continuation provision and COBRA boundary. Premium
-collection guidance was agent-supplied.
-
-— CLAIMS & EOB —
+L1 — Transcription & understanding: Call type: Network adequacy — out-of-state population. Caller: EMPLOYER. Tone: annoyed →
+partially satisfied. Agent tone: honest, practical. Duration: 7 min. Open action pending on a third party.
+L2 — Call insights: Employer added a chiropractic rider covering a workforce with 14 employees in Arizona, where Landmark's network
+is thin to absent. Agent confirmed the limitation, declined to defend the disclosure gap, explained the out-of-network reimbursement
+route, confirmed the rider cannot be dropped mid-year or by location, and committed to a network density report and a written member
+explanation. Resolution: PARTIALLY RESOLVED — density report outstanding.
+L3 — Agent quality: Agent Score: 70/100. POSITIVE: gave the network limitation plainly rather than reading marketing language back
+(+), acknowledged the disclosure failure without deflecting (+), offered the out-of-network reimbursement route as a partial remedy (+),
+gave a written commitment with a reference and a realistic timescale (+). NEGATIVE: did not check whether other lines have the same
+geographic limitation for these employees (-), did not flag the group for review at renewal (-), did not offer to communicate directly with
+the fourteen affected employees (-), left a third-party dependency with no fallback if Landmark does not respond (-).
+L4 — Operational BI: PROCESS BREAKDOWN · Owner: Product / Network Management — riders are sold at group level with no check
+against the geographic distribution of the group's own census, and network density is not surfaced at quotation. A group with an
+out-of-state population can buy a benefit those employees cannot use, and discovers it after the fact. Recommend: (1) a
+census-versus-network density check at quotation, blocking or warning on material gaps, (2) plain-language geographic limitations in the
+employer confirmation, (3) location-level rider election where the carrier permits it. OPPORTUNITY: multi-state groups are a growing
+segment and this is a structural constraint on serving them.
+L5 — Real-time assist: Fired at 1:30 — Landmark network density returned as California-concentrated for the group's Arizona zip codes.
+Agent used it. Did not surface the out-of-network reimbursement schedule, which exists; agent described it from memory without giving
+the rate. Worth wiring.

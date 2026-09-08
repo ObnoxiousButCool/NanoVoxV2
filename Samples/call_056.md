@@ -1,55 +1,70 @@
-# Call #56 — Two Cleanings Used, Third Denied
+# Call #56 — Invoice Shows Employees Who Left Months Ago
 
-- **Agent:** Tony
-- **Caller:** MEMBER
+- **Agent:** Michael
+- **Caller:** EMPLOYER
 - **Tier:** AVERAGE
-- **Score:** 71/100
-- **Sentiment Arc:** ANNOYED → INFORMED
+- **Score:** 75/100
+- **Sentiment Arc:** CONFUSED → INFORMED
 - **Resolution:** RESOLVED
-- **Date:** 2026-09-28
-- **Start:** 09:50:30
-- **End:** 09:57:42
-- **AHT:** 7m 12s
-- **Duration:** ~7 min
-- **Topics:** frequency limit · cleanings · periodontal · dental
+- **Date:** 2026-09-16
+- **Start:** 15:18:00
+- **End:** 15:25:36
+- **AHT:** 7m 36s
+- **Duration:** ~8 min
+- **Queue:** Employer: Billing
+- **Topics:** billing reconciliation · terminations not submitted · audit · credit
 
-**Member context:** Nadia Haddad, 47 · Member ID CB-5540118 · Delta Dental · periodontal maintenance
+**Member context:** Riverside Trades · 44 employees · Bookkeeper Alan Petrov · GRP-471330
 
 ## Transcript
 
-Agent Tony: Choice Administrators, this is Tony.
- Caller: Nadia Haddad, CB-5540118. My dentist recommends cleanings every four months because of gum issues. The third one this
-year was denied.
-Agent Tony: Your plan covers two routine cleanings per calendar year. The third falls outside that.
- Caller: But it's clinically recommended, not cosmetic.
-Agent Tony: I understand. There is a distinction worth checking though. Routine cleaning is one code — prophylaxis. Periodontal
-maintenance is a different code entirely, and on many plans it has its own frequency allowance, often three or four per year.
- Caller: So it depends what the dentist billed it as.
-Agent Tony: Exactly. Let me look at the submitted code... it was billed as a routine prophylaxis, not periodontal maintenance.
- Caller: I've had scaling and root planing done. I'm on periodontal maintenance.
-Agent Tony: Then the code may be wrong. If you've had active periodontal treatment, your dentist can bill maintenance instead, which
-draws on a separate allowance.
- Caller: So the denial might be a coding issue rather than a coverage issue.
-Agent Tony: It may be. Ask the office to review whether periodontal maintenance is the appropriate code and resubmit if so. If they
-resubmit correctly it should process.
- Caller: That's useful. Nobody suggested that.
-Agent Tony: Worth checking before you pay it.
+Agent Michael: Choice Administrators, Michael speaking. This call may be recorded for quality and training. Can I take your name and group number?
+
+Caller: Alan Petrov, Bookkeeper at Riverside Trades, group GRP-471330.
+
+Agent Michael: Got it, thanks Alan. What can I do for you?
+
+Caller: I'm reconciling our invoice and there are four names on it who don't work here any more.
+
+Agent Michael: Let me check each against termination submissions... I have no termination on file for any of the four.
+
+Caller: They left between March and July.
+
+Agent Michael: Then they were never submitted. That's why they're still billing.
+
+Caller: So we've been paying for four people for months.
+
+Agent Michael: Yes. And there's a second issue — none of them will have received a COBRA election notice, because that generates from the termination submission.
+
+Caller: We didn't think about COBRA at all.
+
+Agent Michael: That's the part with a deadline attached. Let me take the four termination dates and I'll submit them now.
+
+Caller: March 14th, April 30th, June 6th and July 22nd.
+
+Agent Michael: Submitting. Retroactive credit is capped at 60 days, so you'll receive credit back to early July. The earlier three are outside the credit window.
+
+Caller: So we lose most of it.
+
+Agent Michael: On the credit side, yes. I'd rather tell you plainly than let you expect a full refund. Reference TC-2026-00755.
+
+Caller: And COBRA notices?
+
+Agent Michael: Generating from the submissions now, though they're late. Late is better than never — the exposure reduces once notice is issued.
 
 ## AI Insights Panel — NanoVox 5-Layer Output
 
-L1 — Transcription & understanding: Call type: Frequency denial — cleanings. Caller: MEMBER (Nadia Haddad, CB-5540118). Tone:
-annoyed → informed. Duration: 7 min.
-L2 — Call insights: Third cleaning denied under a two-per-year routine allowance. Agent identified that the member's periodontal history
-may make periodontal maintenance the correct code, which carries a separate frequency allowance, and advised resubmission. Resolution:
-RESOLVED — resubmission path identified.
-L3 — Agent quality: Agent Score: 71/100. POSITIVE: distinguished prophylaxis from periodontal maintenance coding (+), checked the
-actual submitted code (+), identified a likely miscoding rather than accepting the denial (+). NEGATIVE: no empathy for a clinically driven
-denial (-), did not confirm the plan's periodontal maintenance allowance specifically (-), no reference number (-), did not offer to note the
-account pending resubmission (-).
-L4 — Operational BI: MEMBER COMMUNICATION GAP · Owner: Member Communications — members with periodontal history are
-frequently billed under routine cleaning codes and hit the two-per-year limit. Recommend provider-facing guidance on maintenance coding
-and a member explainer on the distinction.
-L5 — Real-time assist: Fired at 3:00 — frequency denial surfaced submitted procedure code and the member's periodontal treatment
-history, revealing the likely miscoding. Agent used it.
-
-— BROKER: COMMISSIONS —
+L1 — Transcription & understanding: Call type: Unsubmitted terminations found in reconciliation. Caller: EMPLOYER (Alan Petrov,
+GRP-471330). Tone: confused → informed. Duration: 8 min. Compliance exposure identified.
+L2 — Call insights: Four employees terminated between March and July were never submitted, generating months of unnecessary
+premium and no COBRA election notices. Agent submitted all four, applied the 60-day retroactive credit limit honestly, and generated
+the overdue COBRA notices. Resolution: RESOLVED.
+L3 — Agent quality: Agent Score: 75/100. POSITIVE: checked each name individually (+), raised the COBRA exposure the employer
+had not considered (+), submitted all four during the call (+), was honest about the credit limit rather than implying a full refund (+).
+NEGATIVE: did not offer a full roster audit to catch further unsubmitted leavers (-), did not flag the group for a reconciliation process
+conversation (-).
+L4 — Operational BI: PROCESS BREAKDOWN · Owner: Operations / Compliance — four unsubmitted terminations across five months
+represents both premium waste and repeated COBRA notification breaches. Recommend a quarterly roster confirmation prompt to
+employers, and an alert where an enrolled member has had no eligibility activity for 90 days.
+L5 — Real-time assist: Fired at 2:00 — named employees with no termination record surfaced. Retro credit limit surfaced. Full roster
+audit action not offered; recommend adding.

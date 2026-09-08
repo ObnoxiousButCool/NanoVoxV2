@@ -1,58 +1,75 @@
-# Call #42 — Group Suspended and Employer Cannot Get It Reinstated
+# Call #42 — Which Network Am I In? Member Cannot Tell Delta From MetLife
 
-- **Agent:** Ryan
-- **Caller:** EMPLOYER
-- **Tier:** POOR
-- **Score:** 36/100
-- **Sentiment Arc:** URGENT → ABANDONED
-- **Resolution:** UNRESOLVED
-- **Date:** 2026-09-08
-- **Start:** 11:06:00
-- **End:** 11:10:58
-- **AHT:** 4m 58s
-- **Duration:** ~5 min
-- **Topics:** reinstatement · suspension · payment posted · grace period
+- **Agent:** Linda
+- **Caller:** MEMBER
+- **Tier:** AVERAGE
+- **Score:** 77/100
+- **Sentiment Arc:** CONFUSED → INFORMED
+- **Resolution:** RESOLVED
+- **Date:** 2026-09-11
+- **Start:** 16:31:00
+- **End:** 16:38:45
+- **AHT:** 7m 45s
+- **Duration:** ~8 min
+- **Queue:** Networks & Providers
+- **Repeat Contact:** follows an unresolved call on Wed 09 Sep 2026: Contacts and Glasses in One Year — Only One Is Covered
+- **Topics:** multi-carrier · network confusion · dental · ID card · Delta Dental
 
-**Member context:** Bayside Cleaning · 34 employees · Owner Alice Fontaine · payment made, still suspended
+**Member context:** Meera Raman, 36 · ChoiceBuilder dental · dentist cannot find her coverage
 
 ## Transcript
 
-Agent Ryan: Choice Administrators, Ryan.
- Caller: Alice Fontaine, Bayside Cleaning, GRP-415088. We were suspended for non-payment. I paid the full balance four days ago.
-We're still showing suspended and my employees can't use their dental.
-Agent Ryan: Let me look. I see the suspension.
- Caller: Do you see the payment?
-Agent Ryan: There's a payment posted on the 8th.
- Caller: Right. So why are we still suspended?
-Agent Ryan: Reinstatement isn't automatic.
- Caller: What triggers it?
-Agent Ryan: It has to be processed.
- Caller: By whom? Can you do it?
-Agent Ryan: I don't think I can reinstate from here.
- Caller: Who can?
-Agent Ryan: Billing, probably.
- Caller: Can you transfer me or raise it?
-Agent Ryan: I can leave a note.
- Caller: I have thirty-four people who think they have dental insurance and don't. A note isn't enough. Can someone call me today?
-Agent Ryan: I can't promise a callback.
- Caller: Then what am I supposed to do?
-Agent Ryan: Maybe call back tomorrow and see if it's processed.
+Agent Linda: Choice Administrators, this is Linda. This call may be recorded for quality and training. Can I take your name and member ID?
+
+Caller: Meera Raman, member ID CB-9908844.
+
+Agent Linda: Thank you Meera, I have you. Go ahead.
+
+Caller: I'll say up front I called on the 9th about materials benefit and it's still unresolved. I'm at my dentist's office right now and they say they can't find me. They looked up ChoiceBuilder and there's nothing.
+
+Agent Linda: This happens a lot and it's usually fixable in a minute. ChoiceBuilder is the program you enrolled through, but your actual dental coverage sits with a specific carrier. Yours is Delta Dental.
+
+Caller: So they should look up Delta Dental, not ChoiceBuilder?
+
+Agent Linda: Exactly. Ask them to search Delta Dental PPO and use the subscriber ID on the front of your card — that's the number the carrier recognises, not the CB number you gave me.
+
+Caller: Hold on. There are two numbers on this card. One says Member ID and one says Subscriber ID.
+
+Agent Linda: The subscriber ID is the one Delta uses. Can you read it to me so I can confirm it matches what we have?
+
+Caller: It's DD-77410398.
+
+Agent Linda: That matches. Give them that number and Delta Dental as the carrier and they'll find you.
+
+Caller: Okay, they're typing... yes, it came up. Thank you.
+
+Agent Linda: Good. One thing worth knowing for next time — if you ever add vision, that's a different carrier again, either VSP or EyeMed. Chiropractic is Landmark. Each has its own network and its own lookup.
+
+Caller: So one program, four different carriers?
+
+Agent Linda: That's the trade-off of the exchange model — you get more choice and one bill, but providers look you up under the carrier, not under ChoiceBuilder.
+
+Caller: That would have been useful to know on day one.
+
+Agent Linda: It's fair feedback and I'll log it.
 
 ## AI Insights Panel — NanoVox 5-Layer Output
 
-L1 — Transcription & understanding: Call type: Reinstatement after payment. Caller: EMPLOYER (Owner). Tone: urgent → abandoned.
-Duration: 5 min. ■ 34 members without active coverage despite payment.
-L2 — Call insights: Employer paid the full outstanding balance four days prior; group remained suspended. Agent confirmed both the
-suspension and the posted payment, could not reinstate, could not identify who could, and offered only an unmonitored note. Resolution:
-UNRESOLVED — 34 members without coverage after payment.
-L3 — Agent quality: Agent Score: 36/100. NEGATIVE: confirmed payment received yet took no action (-), did not know the reinstatement
-process or owner (-), no warm transfer (-), no escalation despite 34 affected members (-), refused a callback commitment (-), suggested the
-employer call back and check (-). POSITIVE: located both the suspension and the payment (+).
-L4 — Operational BI: PROCESS BREAKDOWN · CRITICAL · Owner: Billing Operations — reinstatement does not trigger automatically on
-payment of the outstanding balance, and front-line agents have neither the authority nor the knowledge to escalate. Recommend: (1)
-automatic reinstatement on full payment posting, (2) failing that, a same-day reinstatement queue with agent access, (3) proactive employer
-notification when payment posts.
-L5 — Real-time assist: SHOULD HAVE FIRED at 1:30 — payment posted against a suspended group is a reinstatement trigger. Should
-have surfaced the reinstatement action or escalation queue. No rule configured.
-
-— PLATFORM & FORMS —
+L1 — Transcription & understanding: Call type: Network identification — provider cannot locate coverage. Caller: MEMBER, at point of
+service. Tone: confused → informed. Agent tone: efficient, educational. Duration: 8 min. Repeat contact — prior call in period closed
+unresolved.
+L2 — Call insights: Provider searched under 'ChoiceBuilder' rather than the underlying carrier. Agent identified Delta Dental as the
+member's carrier, directed her to the subscriber ID rather than the CB member ID, confirmed the match, and explained the multi-carrier
+structure. Resolution: RESOLVED at point of service.
+L3 — Agent quality: Agent Score: 77/100. POSITIVE: diagnosed the root cause immediately (+), distinguished subscriber ID from
+member ID (+), verified the number rather than assuming (+), explained the multi-carrier model for future reference (+), logged the
+onboarding feedback (+). NEGATIVE: did not offer to speak to the dental office directly (-), did not send a digital ID card during the call
+(-), no case reference (-).
+L4 — Operational BI: MEMBER COMMUNICATION GAP · Owner: Member Communications — HIGH VOLUME PATTERN. Providers
+routinely search under 'ChoiceBuilder' and fail. This is structural to the exchange model and entirely predictable. Recommend: (1) ID
+card front redesigned to lead with the carrier name and subscriber ID, (2) onboarding message stating explicitly 'your dentist should look
+you up under [carrier], not ChoiceBuilder', (3) provider-facing lookup guidance. REPEAT CONTACT: same member (CB-9908844)
+called on Wed 09 Sep 2026 and that call closed unresolved. Repeat contact within the period is a retention signal in its own right and
+should be counted against the earlier call, not this one.
+L5 — Real-time assist: Fired at 1:00 — 'provider cannot find coverage' pattern surfaced the member's carrier assignment and subscriber
+ID immediately. Did not offer the digital ID card send action — worth adding.

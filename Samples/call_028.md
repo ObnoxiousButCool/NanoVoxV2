@@ -1,59 +1,66 @@
-# Call #28 — Swapping the Vision Carrier at Renewal
+# Call #28 — Dependent Turning 26 — Coverage Ending
 
-- **Agent:** Michael
-- **Caller:** EMPLOYER
+- **Agent:** Tony
+- **Caller:** MEMBER
 - **Tier:** AVERAGE
-- **Score:** 79/100
-- **Sentiment Arc:** NEUTRAL → INFORMED
+- **Score:** 72/100
+- **Sentiment Arc:** CONFUSED → INFORMED
 - **Resolution:** RESOLVED
-- **Date:** 2026-09-11
-- **Start:** 11:11:30
-- **End:** 11:20:02
-- **AHT:** 8m 32s
-- **Duration:** ~9 min
-- **Topics:** renewal · carrier change · vision · open enrollment · lock date
+- **Date:** 2026-09-08
+- **Start:** 12:00:30
+- **End:** 12:06:53
+- **AHT:** 6m 23s
+- **Duration:** ~6 min
+- **Queue:** Cost Share & Policy
+- **Topics:** dependent age limit · turning 26 · aging off · continuation
 
-**Member context:** Lighthouse Media · 72 employees · HR Director Kevin Walsh · moving VSP to EyeMed
+**Member context:** Barbara Lindqvist, 53 · Member ID CB-5583017 · daughter aging off
 
 ## Transcript
 
-Agent Michael: Choice Administrators, Michael speaking.
- Caller: Kevin Walsh, Lighthouse Media, GRP-291005. We want to move our vision from VSP to EyeMed at renewal. What's the
-process and when do we need to decide?
-Agent Michael: Your renewal is January 1st. The lock date for carrier changes is November 15th — after that the renewal processes
-as-is.
- Caller: So six weeks from now.
-Agent Michael: Yes. The change itself is straightforward — it's an election on the renewal worksheet, submitted through your broker or
-directly in the employer portal.
- Caller: What should I be thinking about before deciding?
-Agent Michael: Two things practically. Network overlap — check whether your employees' current optometrists are in the EyeMed
-network, because VSP and EyeMed have meaningfully different provider lists. And frequency schedules reset on carrier change, so
-anyone mid-cycle on lenses or frames may find their availability shifts.
- Caller: That second one could cause complaints.
-Agent Michael: It does. If someone used their frame benefit in June under VSP, the EyeMed clock may start fresh or may recognise the
-prior use depending on how the transition is set up. Worth confirming before you commit.
- Caller: Can you confirm it?
-Agent Michael: I can request it from the carrier transition team and come back to you. It depends on the specific plan pairing.
- Caller: Please. And can you send me a network comparison?
-Agent Michael: I'll send the EyeMed provider directory link and the transition FAQ. For a proper overlap analysis your broker can run it
-against your employee zip codes.
- Caller: Good. Thank you.
+Agent Tony: Choice Administrators, this is Tony. This call may be recorded for quality and training. Can I take your name and member ID?
+
+Caller: Barbara Lindqvist, member ID CB-5583017.
+
+Agent Tony: Got it, thanks Barbara. What can I do for you?
+
+Caller: My daughter turns 26 in March. Does she come off my dental and vision?
+
+Agent Tony: She does. Dependent eligibility ends the last day of the month she turns 26, so March 31st.
+
+Caller: Is there any extension?
+
+Agent Tony: On ancillary lines, generally not. Some medical plans allow extensions for disabled dependents; dental and vision typically follow the same rule but it's worth confirming if that applies.
+
+Caller: It doesn't, she's just finishing graduate school.
+
+Agent Tony: Then March 31st is the date. She has two options after that — COBRA continuation on your plan for up to 36 months, or her own coverage if her school or employer offers it.
+
+Caller: 36 months is longer than I expected.
+
+Agent Tony: Aging off is a qualifying event with a longer continuation period than a job loss. She'd pay the full premium plus administration, but for ancillary that's usually modest.
+
+Caller: Does she get a notice?
+
+Agent Tony: Yes, generated automatically from the age-off. But it goes to the address on file for her, which may be yours rather than her own.
+
+Caller: It would be mine.
+
+Agent Tony: Then watch for it. And tell her the election window is 60 days — it's easy to miss when the notice goes to a parent's address.
 
 ## AI Insights Panel — NanoVox 5-Layer Output
 
-L1 — Transcription & understanding: Call type: Carrier change at renewal — vision. Caller: EMPLOYER (HR Director). Tone: neutral →
-informed. Duration: 8 min.
-L2 — Call insights: Employer considering a VSP to EyeMed switch at January renewal. Agent gave the November 15 lock date, flagged
-network overlap and frequency-schedule reset as the two practical risks, and committed to confirm the transition treatment with the carrier
-team. Resolution: RESOLVED with follow-up pending.
-L3 — Agent quality: Agent Score: 79/100. POSITIVE: gave the lock date immediately (+), raised network overlap and frequency reset
-unprompted — the two things that generate member complaints post-switch (+), was honest that transition treatment needs confirmation (+).
-NEGATIVE: no reference number for the follow-up (-), no committed date for the carrier response (-), did not offer to loop in the broker
-directly (-).
-L4 — Operational BI: PROCESS OPPORTUNITY · Owner: Account Management — carrier switches at renewal reliably generate member
-frequency-benefit complaints in the following quarter. Recommend a standard transition brief issued to any employer changing carriers,
-covering network overlap and frequency treatment, before the lock date rather than after.
-L5 — Real-time assist: Fired at 1:30 — renewal lock date and carrier change workflow surfaced. Frequency transition treatment was not
-available in the agent view; flagged as a knowledge gap.
-
-— EMPLOYER: ENROLLMENT —
+L1 — Transcription & understanding: Call type: Dependent aging off at 26. Caller: MEMBER (Barbara Lindqvist, CB-5583017). Tone:
+confused → informed. Duration: 6 min.
+L2 — Call insights: Member's daughter aging off at 26. Agent gave the March 31st end date, explained the 36-month COBRA
+continuation available on an age-off event, and flagged that the notice will go to the address on file, which is the parent's. Resolution:
+RESOLVED.
+L3 — Agent quality: Agent Score: 72/100. POSITIVE: gave the precise end date (+), correctly distinguished the 36-month continuation
+period for age-off from other events (+), flagged the notice address issue, which causes missed elections (+). NEGATIVE: did not offer
+to update the dependent's address (-), no reference number (-), did not mention the disabled dependent extension process in enough
+detail to be actionable (-).
+L4 — Operational BI: PROCESS OPPORTUNITY · Owner: Operations — age-off continuation notices are routinely sent to a parent's
+address, contributing to missed elections. Recommend prompting for a separate dependent address at age 25, and a member-facing
+reminder 90 days before age-off.
+L5 — Real-time assist: Fired at 1:30 — dependent date of birth surfaced the age-off date and continuation period. Address discrepancy
+flag surfaced. Agent used both.

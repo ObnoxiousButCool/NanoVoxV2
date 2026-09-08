@@ -1,57 +1,69 @@
-# Call #5 — Which Network Am I In? Member Cannot Tell Delta From MetLife
+# Call #5 — Agent States There Is No Annual Maximum — There Is
 
-- **Agent:** Linda
+- **Agent:** Tiffany
 - **Caller:** MEMBER
-- **Tier:** AVERAGE
-- **Score:** 77/100
-- **Sentiment Arc:** CONFUSED → INFORMED
-- **Resolution:** RESOLVED
-- **Date:** 2026-09-11
-- **Start:** 16:31:00
-- **End:** 16:38:45
-- **AHT:** 7m 45s
-- **Duration:** ~8 min
-- **Topics:** multi-carrier · network confusion · dental · ID card · Delta Dental
+- **Tier:** POOR
+- **Score:** 44/100
+- **Sentiment Arc:** NEUTRAL → MISINFORMED
+- **Resolution:** UNRESOLVED
+- **Date:** 2026-09-02
+- **Start:** 14:24:45
+- **End:** 14:29:06
+- **AHT:** 4m 21s
+- **Duration:** ~4 min
+- **Queue:** Claims & EOB
+- **Topics:** annual maximum · incorrect information · dental · major services
 
-**Member context:** Priya Raman, 36 · ChoiceBuilder dental · dentist cannot find her coverage
+**Member context:** Nadia Haddad, 45 · Delta Dental Gold PPO · planning implant work
 
 ## Transcript
 
-Agent Linda: Choice Administrators, this is Linda.
- Caller: I'm at my dentist's office right now and they say they can't find me. They looked up ChoiceBuilder and there's nothing. Member
-ID CB-9908844.
-Agent Linda: This happens a lot and it's usually fixable in a minute. ChoiceBuilder is the program you enrolled through, but your actual
-dental coverage sits with a specific carrier. Yours is Delta Dental.
- Caller: So they should look up Delta Dental, not ChoiceBuilder?
-Agent Linda: Exactly. Ask them to search Delta Dental PPO and use the subscriber ID on the front of your card — that's the number the
-carrier recognises, not the CB number you gave me.
- Caller: Hold on. There are two numbers on this card. One says Member ID and one says Subscriber ID.
-Agent Linda: The subscriber ID is the one Delta uses. Can you read it to me so I can confirm it matches what we have?
- Caller: It's DD-77410398.
-Agent Linda: That matches. Give them that number and Delta Dental as the carrier and they'll find you.
- Caller: Okay, they're typing... yes, it came up. Thank you.
-Agent Linda: Good. One thing worth knowing for next time — if you ever add vision, that's a different carrier again, either VSP or
-EyeMed. Chiropractic is Landmark. Each has its own network and its own lookup.
- Caller: So one program, four different carriers?
-Agent Linda: That's the trade-off of the exchange model — you get more choice and one bill, but providers look you up under the carrier,
-not under ChoiceBuilder.
- Caller: That would have been useful to know on day one.
-Agent Linda: It's fair feedback and I'll log it.
+Agent Tiffany: Choice Administrators, Tiffany speaking. This call may be recorded for quality and training. Can I take your name and member ID?
+
+Caller: Nadia Haddad, member ID CB-5540118.
+
+Agent Tiffany: That's you found. Go ahead, Nadia.
+
+Caller: Hi, I'm planning some implant work and I want to understand what the plan will cover before I commit.
+
+Agent Tiffany: Sure. Implants would be major services. That's covered.
+
+Caller: At what percentage?
+
+Agent Tiffany: Looks like fifty percent.
+
+Caller: And is there a cap on what the plan pays in a year?
+
+Agent Tiffany: I don't see a limit listed.
+
+Caller: So the plan would pay half of everything, no ceiling?
+
+Agent Tiffany: That's what I'm seeing.
+
+Caller: That's better than I expected. The full course is around $9,000, so the plan would cover about $4,500?
+
+Agent Tiffany: Based on fifty percent, yes.
+
+Caller: Great. Thank you.
+
+Agent Tiffany: No problem.
 
 ## AI Insights Panel — NanoVox 5-Layer Output
 
-L1 — Transcription & understanding: Call type: Network identification — provider cannot locate coverage. Caller: MEMBER, at point of
-service. Tone: confused → informed. Agent tone: efficient, educational. Duration: 8 min.
-L2 — Call insights: Provider searched under 'ChoiceBuilder' rather than the underlying carrier. Agent identified Delta Dental as the
-member's carrier, directed her to the subscriber ID rather than the CB member ID, confirmed the match, and explained the multi-carrier
-structure. Resolution: RESOLVED at point of service.
-L3 — Agent quality: Agent Score: 77/100. POSITIVE: diagnosed the root cause immediately (+), distinguished subscriber ID from member
-ID (+), verified the number rather than assuming (+), explained the multi-carrier model for future reference (+), logged the onboarding
-feedback (+). NEGATIVE: did not offer to speak to the dental office directly (-), did not send a digital ID card during the call (-), no case
-reference (-).
-L4 — Operational BI: MEMBER COMMUNICATION GAP · Owner: Member Communications — HIGH VOLUME PATTERN. Providers
-routinely search under 'ChoiceBuilder' and fail. This is structural to the exchange model and entirely predictable. Recommend: (1) ID card
-front redesigned to lead with the carrier name and subscriber ID, (2) onboarding message stating explicitly 'your dentist should look you up
-under [carrier], not ChoiceBuilder', (3) provider-facing lookup guidance.
-L5 — Real-time assist: Fired at 1:00 — 'provider cannot find coverage' pattern surfaced the member's carrier assignment and subscriber
-ID immediately. Did not offer the digital ID card send action — worth adding.
+L1 — Transcription & understanding: Call type: Coverage inquiry — dental implants. Caller: MEMBER. Tone: neutral, satisfied at close.
+Agent tone: casual, unverified. Duration: 5 min. ■ Member left satisfied but misinformed.
+L2 — Call insights: Member planning $9,000 of implant work asked about coverage limits. Agent stated no annual maximum applies. ■
+ACCURACY FAILURE: the Delta Dental Gold PPO carries a $1,500 annual maximum. The member expects roughly $4,500 in plan
+payment against an actual maximum of $1,500 — a $3,000 error. Agent also did not check whether implants are a covered service at all
+on this tier. Resolution: UNRESOLVED — member will proceed on false information.
+L3 — Agent quality: Agent Score: 44/100. CRITICAL NEGATIVE: stated no annual maximum exists when one applies — a material
+financial misstatement on a $9,000 decision (-). Additional NEGATIVE: answered from 'I don't see a limit listed' rather than verifying (-),
+did not confirm implants are covered on this tier (-), did not mention waiting periods (-), did not flag that pre-treatment estimate is
+available (-). POSITIVE: coinsurance percentage was correct (+).
+L4 — Operational BI: AGENT COACHING · CRITICAL · Owner: Call Centre Management — confident incorrect information on a
+high-value member decision. This is the most damaging error class: the member acts on it and discovers the error after committing to
+treatment. PROCESS BREAKDOWN · Owner: Operations — annual maximum is apparently not prominent in the agent view; 'I don't
+see a limit listed' suggests a UI gap as much as a knowledge gap. Recommend annual maximum and remaining balance display as
+mandatory fields on any coverage inquiry.
+L5 — Real-time assist: SHOULD HAVE FIRED at 1:30 — major services inquiry should surface annual maximum, remaining balance,
+waiting period status, and pre-treatment estimate availability. None fired. This is exactly the failure L5 exists to prevent.

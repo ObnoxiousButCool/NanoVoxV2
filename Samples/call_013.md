@@ -1,54 +1,67 @@
-# Call #13 — Portal Lockout — Agent Cannot Reset and Does Not Escalate
+# Call #13 — Member Verifies a Specialist Before Booking Major Work
 
-- **Agent:** Kayla
+- **Agent:** Sarah
 - **Caller:** MEMBER
-- **Tier:** POOR
-- **Score:** 39/100
-- **Sentiment Arc:** NEUTRAL → FRUSTRATED
-- **Resolution:** UNRESOLVED
+- **Tier:** GOOD
+- **Score:** 90/100
+- **Sentiment Arc:** ANXIOUS → SATISFIED
+- **Resolution:** RESOLVED
 - **Date:** 2026-09-07
-- **Start:** 10:46:45
-- **End:** 10:52:50
-- **AHT:** 6m 5s
-- **Duration:** ~6 min
-- **Topics:** portal access · password reset · MFA · technical support
+- **Start:** 10:07:15
+- **End:** 10:16:15
+- **AHT:** 9m
+- **Duration:** ~9 min
+- **Queue:** Networks & Providers
+- **Broker Signal:** Patricia Nunez: named aloud by the caller
+- **Topics:** network verification · specialist · pre-booking · broker positive
 
-**Member context:** Ahmed Bakri, 42 · ChoiceBuilder member · locked out after failed logins
+**Member context:** Samuel Adeyemi, 39 · Member ID CB-6620033 · Delta Dental · oral surgeon referral
 
 ## Transcript
 
-Agent Kayla: Choice Administrators, this is Kayla.
- Caller: I'm locked out of the member portal. I've tried resetting three times and the email never arrives. Member ID CB-6602274.
-Agent Kayla: Have you checked your spam folder?
- Caller: Yes. Nothing.
-Agent Kayla: Sometimes it takes a while.
- Caller: It's been two days.
-Agent Kayla: Hmm. Let me see... the email we have on file is a-bakri at the domain.
- Caller: That's an old work address. I left that company. My current one is different.
-Agent Kayla: That's probably why then.
- Caller: Can you update it?
-Agent Kayla: I don't think I can change the portal email from here.
- Caller: Is there someone who can?
-Agent Kayla: You might be able to do it in the portal.
- Caller: I can't get into the portal. That's the problem.
-Agent Kayla: Right. Um. You could try your HR department, they might be able to update it.
- Caller: Okay.
+Agent Sarah: Thank you for calling Choice Administrators, this is Sarah. This call may be recorded for quality and training. Can I take your name and member ID?
+
+Caller: Samuel Adeyemi, member ID CB-6620033.
+
+Agent Sarah: Thank you. I have the record open — go ahead.
+
+Caller: My dentist referred me to an oral surgeon for extractions. My broker, Patricia Nunez, told me always to check network status before booking anything expensive, so here I am.
+
+Agent Sarah: That's good advice and it saves people a lot of money. Who's the surgeon?
+
+Caller: Dr. Helena Marchetti, Westgate Oral Surgery.
+
+Agent Sarah: Let me verify... Westgate Oral Surgery is contracted with Delta Dental, and Dr. Marchetti is listed as a rendering provider under it. Both confirmed in network.
+
+Caller: Good. What will it cost me?
+
+Agent Sarah: Surgical extractions are major services, covered at 50% on your plan after any deductible. Your $50 deductible is met. What's the quoted fee?
+
+Caller: $1,900 for four extractions.
+
+Agent Sarah: In network, the allowed amount will likely be below $1,900 — that's the contracted rate benefit. Plan pays 50% of allowed, and your annual maximum is $1,500 with $220 used.
+
+Caller: So the plan pays up to $1,280 more this year.
+
+Agent Sarah: Right. On a $1,900 procedure at 50%, the plan would pay around $950 assuming the allowed amount is close to the quote — within your remaining maximum. So you'd owe roughly $950, less if the contracted rate is lower.
+
+Caller: That's manageable and it's what I needed to know.
+
+Agent Sarah: One more thing worth doing — ask Westgate to submit a pre-treatment estimate. It confirms the allowed amount before you commit, so there's no gap between my estimate and the actual.
 
 ## AI Insights Panel — NanoVox 5-Layer Output
 
-L1 — Transcription & understanding: Call type: Portal lockout — stale email on file. Caller: MEMBER. Tone: neutral → frustrated. Agent
-tone: uncertain, circular. Duration: 6 min.
-L2 — Call insights: Member locked out because password reset emails route to a former employer address. Agent identified the stale
-email but did not update it, did not escalate, and suggested the member use the portal she cannot access. Resolution: UNRESOLVED —
-circular referral.
-L3 — Agent quality: Agent Score: 39/100. NEGATIVE: identified the root cause and then failed to act on it (-), was unsure of her own
-permissions rather than checking (-), sent the member to a portal she is locked out of (-), no escalation to technical support (-), no alternative
-verification path offered (-). POSITIVE: diagnosed the stale email correctly (+).
-L4 — Operational BI: PROCESS BREAKDOWN · Owner: Digital / Operations — contact email updates appear to be either unavailable to
-front-line agents or not understood by them. A locked-out member cannot self-serve an email change by definition. Recommend: agent-side
-verified email update with identity challenge, and a technical support escalation path. AGENT KNOWLEDGE GAP: agent did not know her
-own permissions.
-L5 — Real-time assist: SHOULD HAVE FIRED at 2:30 — repeated failed reset with a stale contact email is a verified-update trigger.
-Should have surfaced identity challenge questions and the email update action. No rule configured.
-
-— LIFE & BENEFICIARY —
+L1 — Transcription & understanding: Call type: Pre-booking network and cost verification. Caller: MEMBER (Samuel Adeyemi,
+CB-6620033). Tone: anxious → satisfied. Duration: 9 min.
+L2 — Call insights: Member verified an oral surgeon's network status and estimated cost before booking $1,900 of extractions. Agent
+confirmed both practice and rendering provider in network, calculated the expected member share against the remaining annual
+maximum, and recommended a pre-treatment estimate. Resolution: RESOLVED.
+L3 — Agent quality: Agent Score: 90/100. POSITIVE: verified both the practice contract and the individual rendering provider (+),
+calculated expected member cost against the live maximum (+), explained the contracted rate benefit (+), recommended a
+pre-treatment estimate to close the estimate gap (+). NEGATIVE: no reference number issued for the estimate (-), did not email a written
+summary (-).
+L4 — Operational BI: BROKER ATTRIBUTION · POSITIVE · Owner: Broker Relations — Patricia Nunez coached this member to verify
+network status before booking expensive work. He called before committing rather than disputing after. Second positive signal for this
+broker. Recommend capturing her enrollment guidance as a network-wide best practice.
+L5 — Real-time assist: Fired at 2:00 — provider verification returned practice contract and rendering provider status. Cost calculator
+surfaced against live accumulator. Agent used both.

@@ -1,55 +1,75 @@
-# Call #8 — Agent States There Is No Annual Maximum — There Is
+# Call #8 — Why Am I Paying a Copay When I Have Dental Insurance?
 
-- **Agent:** Tiffany
+- **Agent:** Brad
 - **Caller:** MEMBER
 - **Tier:** POOR
-- **Score:** 44/100
-- **Sentiment Arc:** NEUTRAL → MISINFORMED
+- **Score:** 38/100
+- **Sentiment Arc:** CONFUSED → FRUSTRATED
 - **Resolution:** UNRESOLVED
-- **Date:** 2026-09-02
-- **Start:** 14:24:45
-- **End:** 14:29:06
-- **AHT:** 4m 21s
-- **Duration:** ~4 min
-- **Topics:** annual maximum · incorrect information · dental · major services
+- **Date:** 2026-09-03
+- **Start:** 11:55:15
+- **End:** 12:00:06
+- **AHT:** 4m 51s
+- **Duration:** ~5 min
+- **Queue:** Cost Share & Policy
+- **Topics:** copay · preventive · dental · cost share · Delta Dental
 
-**Member context:** Nadia Haddad, 45 · Delta Dental Gold PPO · planning implant work
+**Member context:** Alicia Ferrara, 34 · Delta Dental PPO via ChoiceBuilder · billed $48 at a cleaning
 
 ## Transcript
 
-Agent Tiffany: Choice Administrators, Tiffany speaking.
- Caller: Hi, I'm planning some implant work and I want to understand what the plan will cover before I commit. Member ID
-CB-5540118.
-Agent Tiffany: Sure. Implants would be major services. That's covered.
- Caller: At what percentage?
-Agent Tiffany: Looks like fifty percent.
- Caller: And is there a cap on what the plan pays in a year?
-Agent Tiffany: I don't see a limit listed.
- Caller: So the plan would pay half of everything, no ceiling?
-Agent Tiffany: That's what I'm seeing.
- Caller: That's better than I expected. The full course is around $9,000, so the plan would cover about $4,500?
-Agent Tiffany: Based on fifty percent, yes.
- Caller: Great. Thank you.
-Agent Tiffany: No problem.
+Agent Brad: Choice Administrators, Brad. Can I take your name and member ID?
+
+Caller: Alicia Ferrara, member ID CB-4471203.
+
+Agent Brad: Got it, thanks Alicia. What can I do for you?
+
+Caller: Hi, I went in for a cleaning and the office charged me $48. I thought cleanings were covered at a hundred percent.
+
+Agent Brad: Let me look. You're on the Delta Dental PPO.
+
+Caller: Right. So why am I paying?
+
+Agent Brad: It says here you had a cleaning and x-rays.
+
+Caller: Yes. Is that a problem?
+
+Agent Brad: The x-rays might be the charge.
+
+Caller: Might be? Can you tell me what the $48 is actually for?
+
+Agent Brad: I'd have to see the claim. It might not be processed yet.
+
+Caller: So I should call back?
+
+Agent Brad: Yeah, once the claim processes you'll get an EOB and it'll show on there.
+
+Caller: But I've already paid the $48. If it turns out I shouldn't have, how do I get it back?
+
+Agent Brad: You'd have to take that up with the dental office.
+
+Caller: Okay. And you can't tell me now whether the charge is correct.
+
+Agent Brad: Not until it processes, no.
+
+Caller: Fine.
 
 ## AI Insights Panel — NanoVox 5-Layer Output
 
-L1 — Transcription & understanding: Call type: Coverage inquiry — dental implants. Caller: MEMBER. Tone: neutral, satisfied at close.
-Agent tone: casual, unverified. Duration: 5 min. ■ Member left satisfied but misinformed.
-L2 — Call insights: Member planning $9,000 of implant work asked about coverage limits. Agent stated no annual maximum applies. ■
-ACCURACY FAILURE: the Delta Dental Gold PPO carries a $1,500 annual maximum. The member expects roughly $4,500 in plan
-payment against an actual maximum of $1,500 — a $3,000 error. Agent also did not check whether implants are a covered service at all on
-this tier. Resolution: UNRESOLVED — member will proceed on false information.
-L3 — Agent quality: Agent Score: 44/100. CRITICAL NEGATIVE: stated no annual maximum exists when one applies — a material
-financial misstatement on a $9,000 decision (-). Additional NEGATIVE: answered from 'I don't see a limit listed' rather than verifying (-), did
-not confirm implants are covered on this tier (-), did not mention waiting periods (-), did not flag that pre-treatment estimate is available (-).
-POSITIVE: coinsurance percentage was correct (+).
-L4 — Operational BI: AGENT COACHING · CRITICAL · Owner: Call Centre Management — confident incorrect information on a
-high-value member decision. This is the most damaging error class: the member acts on it and discovers the error after committing to
-treatment. PROCESS BREAKDOWN · Owner: Operations — annual maximum is apparently not prominent in the agent view; 'I don't see a
-limit listed' suggests a UI gap as much as a knowledge gap. Recommend annual maximum and remaining balance display as mandatory
-fields on any coverage inquiry.
-L5 — Real-time assist: SHOULD HAVE FIRED at 1:30 — major services inquiry should surface annual maximum, remaining balance,
-waiting period status, and pre-treatment estimate availability. None fired. This is exactly the failure L5 exists to prevent.
-
-— COST SHARE & POLICY —
+L1 — Transcription & understanding: Call type: Cost-share dispute — dental preventive. Caller: MEMBER. Tone: confused → frustrated.
+Agent tone: passive, deferring. Duration: 5 min. No call recording disclosure in the agent greeting.
+L2 — Call insights: Member charged $48 at a routine cleaning on a plan she believed covered preventive at 100%. Agent could not
+identify the charge, did not check whether x-ray frequency limits applied, and deferred to a future EOB. Resolution: UNRESOLVED.
+L3 — Agent quality: Agent Score: 38/100. NEGATIVE: no call recording disclosure made at the point of answer (-), did not check the
+plan's preventive schedule or x-ray frequency limit (-), did not explain the difference between a covered service and a frequency-limited
+one (-), told the member to call back rather than resolving (-), no offer to review once processed (-), no case reference (-). POSITIVE:
+correctly identified the plan (+).
+L4 — Operational BI: MEMBER COMMUNICATION GAP · Owner: Member Communications — 'why am I paying when it's covered' is
+the single most common cost-share question. Root cause is that members read 'preventive covered 100%' without seeing frequency
+limits (bitewing x-rays typically once per 12 months). Recommend a plain-language cost-share explainer at enrollment and on the
+member portal. PROCESS: agents cannot see pending charges before claim adjudication, so they cannot answer the member's actual
+question at the point she asks it. COMPLIANCE: call answered without a recording disclosure — California is a two-party consent state
+and the disclosure is a scored, deterministic requirement, not a courtesy.
+L5 — Real-time assist: SHOULD HAVE FIRED at 1:00 — dental preventive cost-share query should surface the member's plan
+preventive schedule, x-ray frequency limits, and last service dates. All three were available. No rule configured. SHOULD HAVE FIRED
+at 0:05 — greeting completed with no recording disclosure detected.

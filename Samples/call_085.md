@@ -1,58 +1,72 @@
-# Call #85 — Reduction in Force — Terminating Twelve at Once
+# Call #85 — Dentist Is Asking for 20% — Member Thought Everything Was Covered
 
-- **Agent:** Nicole
-- **Caller:** EMPLOYER
-- **Tier:** AVERAGE
-- **Score:** 78/100
-- **Sentiment Arc:** NEUTRAL → SATISFIED
+- **Agent:** Sarah
+- **Caller:** MEMBER
+- **Tier:** GOOD
+- **Score:** 95/100
+- **Sentiment Arc:** FRUSTRATED → SATISFIED
 - **Resolution:** RESOLVED
-- **Date:** 2026-09-23
-- **Start:** 15:42:45
-- **End:** 15:49:48
-- **AHT:** 7m 3s
-- **Duration:** ~7 min
-- **Topics:** reduction in force · bulk termination · COBRA · participation
+- **Date:** 2026-09-24
+- **Start:** 09:49:30
+- **End:** 09:59:16
+- **AHT:** 9m 46s
+- **Duration:** ~10 min
+- **Queue:** Cost Share & Policy
+- **Topics:** coinsurance · major services · crown · cost share · MetLife
 
-**Member context:** Riverside Trades · 44 employees · Bookkeeper Alan Petrov · GRP-471330
+**Member context:** Marcus Bell, 41 · MetLife Dental PPO · quoted $340 patient share on a crown
 
 ## Transcript
 
-Agent Nicole: Choice Administrators, Nicole speaking.
- Caller: Alan Petrov, Riverside Trades, GRP-471330. We're making twelve people redundant at the end of the month. What do I need
-to know?
-Agent Nicole: Three things. First, the terminations themselves — you can submit them in bulk through the portal rather than individually,
-which saves considerable time on twelve.
- Caller: Good.
-Agent Nicole: Second, COBRA. Twelve simultaneous qualifying events means twelve election notices, all with the same deadline.
-Submit promptly so notices generate on time.
- Caller: Understood.
-Agent Nicole: Third, and this one people miss — participation. You're going from 44 to 32 employees. On voluntary lines your
-participation is measured as a percentage of eligible employees, so losing twelve enrolled members could move you materially.
- Caller: Would we fall below?
-Agent Nicole: Let me check your current enrollment... you have 28 enrolled of 44 eligible, so 64%. If all twelve leavers were enrolled,
-you'd drop to 16 of 32, which is 50%. Still comfortably above the 25% minimum.
- Caller: That's a relief.
-Agent Nicole: It is, but worth knowing the calculation for future reference. Groups closer to the line can fail participation through
-redundancies without realising.
- Caller: Is there anything else I should tell the affected employees?
-Agent Nicole: That coverage runs to the end of the month, that they'll receive a COBRA notice, and that life coverage converts on a
-separate and shorter 31-day deadline. That last one gets missed constantly.
+Agent Sarah: Thank you for calling Choice Administrators, this is Sarah. This call may be recorded for quality and training. Can I take your name and member ID?
+
+Caller: Marcus Bell, member ID CB-8819204.
+
+Agent Sarah: Thanks Marcus. Tell me what's happening.
+
+Caller: Sarah, my dentist says I need a crown and that I'll owe twenty percent — about $340. I have dental insurance. Why am I paying anything, let alone $340?
+
+Agent Sarah: Let me pull your plan and walk you through exactly where that number comes from, because it should never be a surprise. You're on the MetLife Dental PPO through ChoiceBuilder.
+
+Caller: Okay.
+
+Agent Sarah: Your plan pays at three different levels depending on the type of work. Preventive — cleanings, exams, routine x-rays — is covered at 100%. Basic work like fillings is covered at 80%, so you pay 20%. Major work, which is where crowns sit, is covered at 50%.
+
+Caller: So a crown is fifty percent, not eighty?
+
+Agent Sarah: On most of our plans, yes. But your dentist quoted 20%, which suggests he's treating it as basic. Let me check your specific plan tier... you're on the Platinum PPO. On Platinum, crowns are covered at 80%, so 20% is correct for you.
+
+Caller: So he's right.
+
+Agent Sarah: He is. And that's a better outcome than most tiers would give you.
+
+Caller: Alright. But is there a cap? What if I need more work this year?
+
+Agent Sarah: Good question and important. Your annual maximum is $2,100. That's the most the plan pays toward your dental care in a calendar year. Once you cross it, you pay full cost. You've used $180 so far, so the crown will bring you to roughly $1,540 used.
+
+Caller: So I have room.
+
+Agent Sarah: You do. But if you're planning anything else this year, it's worth sequencing it — if you're close to the maximum in December, waiting until January resets it.
+
+Caller: Nobody's ever explained that to me. That's genuinely useful.
+
+Agent Sarah: It's the thing that catches people out most. I'm emailing you a one-page summary of your coverage levels and your remaining annual maximum so you have it when you talk to the dentist.
+
+Caller: Please. Thank you, Sarah.
 
 ## AI Insights Panel — NanoVox 5-Layer Output
 
-L1 — Transcription & understanding: Call type: Reduction in force — bulk termination. Caller: EMPLOYER (Alan Petrov, GRP-471330).
-Tone: neutral → satisfied. Duration: 7 min.
-L2 — Call insights: Employer processing twelve simultaneous redundancies. Agent covered bulk submission, COBRA notice volume and
-timing, and ran the participation calculation before and after, confirming the group stays above minimum. Flagged the separate 31-day life
-conversion deadline for affected employees. Resolution: RESOLVED.
-L3 — Agent quality: Agent Score: 78/100. POSITIVE: raised participation impact unprompted and calculated it (+), pointed out bulk
-submission to save time (+), flagged the life conversion deadline as commonly missed (+). NEGATIVE: did not offer a written employee
-communication template for the affected staff (-), no reference number (-), did not flag the group for account management given a 27%
-headcount reduction (-).
-L4 — Operational BI: PROCESS OPPORTUNITY · Owner: Account Management — bulk terminations are a leading indicator of group
-financial stress and a participation risk. Recommend an automatic account review trigger on any termination batch above 10% of group
-headcount.
-L5 — Real-time assist: Fired at 3:00 — bulk termination surfaced participation calculation before and after, and COBRA notice generation.
-Employee communication template not available; recommend creating.
-
-— COST SHARE & POLICY —
+L1 — Transcription & understanding: Call type: Cost-share explanation — dental major services. Caller: MEMBER. Tone: frustrated →
+satisfied. Agent tone: structured, educational. Duration: 9 min.
+L2 — Call insights: Member questioned a 20% coinsurance quote on a crown. Agent explained the three-tier coverage structure, verified
+the member's Platinum PPO tier pays crowns at 80%, confirmed the dentist's quote was correct, surfaced the $2,100 annual maximum
+with current usage, and advised on year-end sequencing. Resolution: RESOLVED.
+L3 — Agent quality: Agent Score: 95/100. POSITIVE: explained preventive/basic/major structure clearly (+), verified the member's
+specific tier rather than answering generically (+), confirmed the provider's quote was accurate rather than casting doubt (+), surfaced
+the annual maximum unprompted (+), gave year-end sequencing advice (+), emailed a written summary (+).
+L4 — Operational BI: MEMBER COMMUNICATION GAP · Owner: Member Communications — coinsurance tiering (100/80/50) and the
+annual maximum are the two least-understood features of ancillary dental. Recommend a coverage-level card issued at enrollment
+showing the member's own percentages and annual maximum, not a generic plan document. OPPORTUNITY: annual maximum
+utilisation is not visible to members in the portal — surfacing a running total would reduce this call type and improve benefit utilisation.
+L5 — Real-time assist: Fired at 3:00 — plan tier lookup returned Platinum PPO coverage levels and live annual-maximum accumulator
+($180 of $2,100 used). Agent used both.

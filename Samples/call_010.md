@@ -1,49 +1,66 @@
-# Call #10 — Member Asks If Coverage Continues After Reducing Hours
+# Call #10 — Converting Life Coverage After Leaving
 
-- **Agent:** Brad
+- **Agent:** Linda
 - **Caller:** MEMBER
-- **Tier:** POOR
-- **Score:** 36/100
-- **Sentiment Arc:** WORRIED → ABANDONED
-- **Resolution:** UNRESOLVED
-- **Date:** 2026-09-24
-- **Start:** 11:16:00
-- **End:** 11:19:55
-- **AHT:** 3m 55s
-- **Duration:** ~4 min
-- **Topics:** eligibility · hours reduction · coverage continuation · part-time
+- **Tier:** AVERAGE
+- **Score:** 74/100
+- **Sentiment Arc:** NEUTRAL → INFORMED
+- **Resolution:** RESOLVED
+- **Date:** 2026-09-04
+- **Start:** 13:32:30
+- **End:** 13:39:11
+- **AHT:** 6m 41s
+- **Duration:** ~7 min
+- **Queue:** Life & Beneficiary
+- **Topics:** life conversion · 31-day window · portability · termination
 
-**Member context:** Harold Winters, 58 · ChoiceBuilder dental, vision, life · going part-time
+**Member context:** Peter Nguyen, 31 · Member ID CB-9920554 · Assurity Life · leaving employment
 
 ## Transcript
 
-Agent Brad: Choice Administrators, Brad.
- Caller: I'm going from full-time to twenty hours a week next month. Do I keep my dental and vision? Member ID CB-2214408.
-Agent Brad: That depends on your employer's eligibility rules.
- Caller: What are they?
-Agent Brad: I'd have to check. Most groups require thirty hours.
- Caller: Can you check mine specifically?
-Agent Brad: It's set at the group level. Your HR would know.
- Caller: You administer the plan though. Doesn't the eligibility rule sit in your system?
-Agent Brad: It's more of an employer thing.
- Caller: So you can't tell me whether I'll have dental insurance in a month.
-Agent Brad: Not really, no. Ask HR.
- Caller: And if I lose it, is there anything I can do?
-Agent Brad: There might be COBRA. HR would set that up.
- Caller: Alright.
+Agent Linda: Choice Administrators, this is Linda. This call may be recorded for quality and training. Can I take your name and member ID?
+
+Caller: Peter Nguyen, member ID CB-9920554.
+
+Agent Linda: Thank you. I have the record open — go ahead.
+
+Caller: I'm leaving my job at the end of the month and I want to keep my life insurance.
+
+Agent Linda: Group life doesn't continue under COBRA, but you have conversion rights. You can convert to an individual policy with Assurity without evidence of insurability, if you apply within 31 days of coverage ending.
+
+Caller: 31 days from the last day?
+
+Agent Linda: From the coverage end date, which for you is the end of the month. So through roughly the end of the following month.
+
+Caller: Is the individual premium the same?
+
+Agent Linda: No, and this is where most people decide against it. Individual conversion policies are priced on your age at conversion, without the group rate, so premium is typically several times higher.
+
+Caller: How much roughly?
+
+Agent Linda: I can't quote it — Assurity does that. But for a healthy 31-year-old, term life bought on the open market is often cheaper than a conversion policy.
+
+Caller: So conversion is mainly for people who couldn't get cover elsewhere.
+
+Agent Linda: That's the honest summary. Conversion has no medical underwriting, which matters if you have a condition that would make individual cover expensive or unavailable. If you're healthy, shop the open market first.
+
+Caller: That's more useful than a sales answer.
+
+Agent Linda: Either way, don't miss the 31 days. If you might want it, apply and decide after — the deadline is hard.
 
 ## AI Insights Panel — NanoVox 5-Layer Output
 
-L1 — Transcription & understanding: Call type: Eligibility inquiry — hours reduction. Caller: MEMBER. Tone: worried → abandoned.
-Agent tone: deflecting. Duration: 4 min.
-L2 — Call insights: Member reducing to 20 hours asked whether coverage continues. Agent did not retrieve the group's eligibility
-threshold, did not confirm whether the reduction triggers a loss of coverage, and gave a vague COBRA reference. Resolution:
-UNRESOLVED.
-L3 — Agent quality: Agent Score: 36/100. NEGATIVE: group eligibility rules are held in the administration system and were not retrieved
-(-), stated 'most groups require thirty hours' as a guess rather than checking (-), did not explain that hours reduction is a qualifying event for
-continuation (-), no case opened, no callback (-). POSITIVE: correctly identified COBRA as relevant, though without detail (+).
-L4 — Operational BI: AGENT KNOWLEDGE GAP · Owner: Call Centre Management — group eligibility thresholds are visible in the
-platform and agents are treating them as employer-only information. PROCESS BREAKDOWN · Owner: Operations — hours reduction is a
-predictable coverage-loss trigger and should route to a continuation conversation, not a referral to HR.
-L5 — Real-time assist: SHOULD HAVE FIRED at 0:45 — hours reduction below a group eligibility threshold is a coverage-loss trigger.
-Should have surfaced the group's minimum hours rule, the projected loss date, and continuation options. No rule configured.
+L1 — Transcription & understanding: Call type: Life conversion at termination. Caller: MEMBER (Peter Nguyen, CB-9920554). Tone:
+neutral → informed. Duration: 6 min.
+L2 — Call insights: Member leaving employment sought to retain life coverage. Agent explained conversion rights, the 31-day deadline,
+the premium difference, and advised honestly that open-market term may be cheaper for a healthy applicant while conversion matters
+most for those who cannot underwrite. Resolution: RESOLVED.
+L3 — Agent quality: Agent Score: 74/100. POSITIVE: explained conversion rather than COBRA correctly for life (+), gave the honest
+premium comparison rather than steering toward conversion (+), identified who conversion genuinely benefits (+), emphasised the hard
+deadline (+). NEGATIVE: did not provide the Assurity conversion contact directly (-), no written deadline confirmation (-), no reference
+number (-).
+L4 — Operational BI: MEMBER COMMUNICATION GAP · Owner: Member Communications — the 31-day life conversion window is
+the shortest and least publicised deadline at termination, with no retroactive election. Recommend it leads the termination packet rather
+than sitting behind COBRA content.
+L5 — Real-time assist: Fired at 1:30 — termination with life coverage surfaced conversion rights and the 31-day deadline. Assurity
+contact detail not surfaced; recommend adding.

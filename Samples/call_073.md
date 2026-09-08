@@ -1,54 +1,74 @@
-# Call #73 — Claim Denied for Missing Tooth Clause
+# Call #73 — Billed for a Terminated Employee Two Months Running
 
-- **Agent:** Nicole
-- **Caller:** MEMBER
+- **Agent:** Linda
+- **Caller:** EMPLOYER
 - **Tier:** AVERAGE
-- **Score:** 72/100
-- **Sentiment Arc:** CONFUSED → INFORMED
-- **Resolution:** RESOLVED
-- **Date:** 2026-09-09
-- **Start:** 10:51:00
-- **End:** 10:57:50
-- **AHT:** 6m 50s
-- **Duration:** ~7 min
-- **Topics:** missing tooth clause · exclusion · bridge · pre-existing
+- **Score:** 73/100
+- **Sentiment Arc:** FRUSTRATED → PARTIALLY SATISFIED
+- **Resolution:** PARTIALLY RESOLVED
+- **Date:** 2026-09-22
+- **Start:** 10:56:00
+- **End:** 11:04:52
+- **AHT:** 8m 52s
+- **Duration:** ~9 min
+- **Queue:** Employer: Billing
+- **Topics:** billing error · termination · credit · retro adjustment
 
-**Member context:** Elena Petrova, 44 · Member ID CB-5540118 · Ameritas dental · bridge denied
+**Member context:** Willow Creek Services · 48 employees · HR Director George Nakamura
 
 ## Transcript
 
-Agent Nicole: Choice Administrators, Nicole speaking.
- Caller: Elena Petrova, CB-5540118. My bridge was denied and the reason says missing tooth clause. What does that mean?
-Agent Nicole: It means the plan doesn't cover replacement of a tooth that was already missing before your coverage started. Was the
-tooth extracted before you enrolled?
- Caller: Years ago.
-Agent Nicole: Then that's the basis. The clause excludes prosthetic replacement of teeth lost prior to coverage.
- Caller: That seems harsh. I've been paying for two years.
-Agent Nicole: It's a common clause on ancillary dental and it's designed to prevent people enrolling specifically to fund existing work. I
-understand it doesn't feel that way when you've held the plan for two years.
- Caller: Does it ever expire?
-Agent Nicole: On some plans the clause lapses after a set period of continuous coverage — often five years. Let me check yours... your
-plan does have a lapse provision at 60 months of continuous coverage.
- Caller: So in three more years it would be covered.
-Agent Nicole: If you maintain continuous coverage, yes. That's worth knowing before you consider dropping the plan.
- Caller: It genuinely is. I was thinking about it.
-Agent Nicole: Then the clock matters. Any break in coverage would reset it.
+Agent Linda: Choice Administrators, this is Linda. This call may be recorded for quality and training. Can I take your name and group number?
+
+Caller: George Nakamura, HR Director at Willow Creek Services, group GRP-390044.
+
+Agent Linda: Thank you George, I have you. Go ahead.
+
+Caller: Willow Creek, We're being billed for an employee who left in July. This is the second month.
+
+Agent Linda: Let me look. I can see the employee, and I can see a termination submitted on August 22nd with a July 31st termination date.
+
+Caller: So it was submitted.
+
+Agent Linda: It was, but after the August invoice generated on the 15th. So August billed in full, and September should have picked up the credit.
+
+Caller: September has him on it too.
+
+Agent Linda: I see that. The termination is recorded but the credit hasn't applied. That's a processing issue on our side.
+
+Caller: So what happens now?
+
+Agent Linda: I'm submitting a billing correction requesting a two-month credit — August and September — back to the July 31st termination date.
+
+Caller: How will it appear?
+
+Agent Linda: As a credit line on your next invoice.
+
+Caller: Our finance team would rather have a credit memo than a line item. It's cleaner for their reconciliation.
+
+Agent Linda: I can note the preference on the request but I can't guarantee the format — that's determined by billing operations.
+
+Caller: Can you find out and let me know?
+
+Agent Linda: I'll add it to the request. Reference BC-2026-00733.
+
+Caller: And if it doesn't apply again next month?
+
+Agent Linda: Call back with that reference and it escalates.
 
 ## AI Insights Panel — NanoVox 5-Layer Output
 
-L1 — Transcription & understanding: Call type: Missing tooth clause denial. Caller: MEMBER (Elena Petrova, CB-5540118). Tone:
-confused → informed. Duration: 6 min. ■ Latent churn risk addressed.
-L2 — Call insights: Bridge denied under the missing tooth clause for a tooth lost before coverage. Agent explained the clause and its
-purpose, then identified a 60-month continuous-coverage lapse provision that would make the work eligible in three years. Resolution:
-RESOLVED — retention argument surfaced.
-L3 — Agent quality: Agent Score: 72/100. POSITIVE: explained the clause and its rationale without being defensive (+), checked for and
-found the lapse provision (+), connected continuous coverage to future eligibility, which is a genuine retention argument (+), warned that a
-break resets the clock (+). NEGATIVE: no empathy expressed early (-), did not offer a written summary of the lapse date (-), no reference
-number (-).
-L4 — Operational BI: MEMBER COMMUNICATION GAP · Owner: Member Communications — the missing tooth clause is rarely
-explained at enrollment and produces denials that feel arbitrary years later. Recommend disclosing it at enrollment alongside the
-continuous-coverage lapse date, which doubles as a retention message.
-L5 — Real-time assist: Fired at 3:00 — missing tooth denial surfaced the clause and the 60-month lapse provision with the member's
-coverage start date. Agent used both.
-
-— LIFE & BENEFICIARY —
+L1 — Transcription & understanding: Call type: Billing error — terminated employee still billed. Caller: EMPLOYER (HR Director). Tone:
+frustrated → partially satisfied. Duration: 9 min. Second consecutive month.
+L2 — Call insights: Employer billed two months for an employee terminated July 31st. Termination was submitted after the August
+invoice generated, and the September credit failed to apply. Agent submitted a two-month credit correction. Resolution: PARTIALLY
+RESOLVED — credit pending, format unconfirmed.
+L3 — Agent quality: Agent Score: 73/100. POSITIVE: traced the timing between submission and invoice generation (+), identified the
+failed September credit as a processing issue rather than blaming the employer (+), submitted the correction with reference (+).
+NEGATIVE: could not confirm credit format for a reasonable finance request (-), no escalation despite this being a second-month
+recurrence (-), no proactive check for other unapplied credits on the group (-).
+L4 — Operational BI: PROCESS BREAKDOWN · Owner: Billing Operations — a recorded termination failed to generate a credit in the
+following cycle. This is a silent failure: the employer only discovers it by reading the invoice. Recommend an exception report for
+terminations recorded without a corresponding credit within one billing cycle.
+L5 — Real-time assist: Fired at 2:30 — termination date versus billing history comparison surfaced the missing credit. Did not surface
+other unapplied credits on the group; recommend adding.

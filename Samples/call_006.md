@@ -1,53 +1,66 @@
-# Call #6 — Is My Chiropractor Covered? Agent Cannot Distinguish the Carrier
+# Call #6 — Understanding the Consolidated Bill Structure for the First Time
 
-- **Agent:** Ryan
-- **Caller:** MEMBER
-- **Tier:** POOR
-- **Score:** 34/100
-- **Sentiment Arc:** NEUTRAL → ANNOYED
-- **Resolution:** UNRESOLVED
-- **Date:** 2026-09-22
-- **Start:** 11:17:00
-- **End:** 11:21:42
-- **AHT:** 4m 42s
-- **Duration:** ~5 min
-- **Topics:** chiropractic · Landmark · network verification · carrier confusion
+- **Agent:** Linda
+- **Caller:** EMPLOYER
+- **Tier:** AVERAGE
+- **Score:** 74/100
+- **Sentiment Arc:** CONFUSED → INFORMED
+- **Resolution:** RESOLVED
+- **Date:** 2026-09-02
+- **Start:** 15:56:00
+- **End:** 16:03:49
+- **AHT:** 7m 49s
+- **Duration:** ~8 min
+- **Queue:** Employer: Billing
+- **Topics:** consolidated billing · invoice structure · multi-carrier · reconciliation
 
-**Member context:** Grace Liu, 44 · ChoiceBuilder with Landmark chiro/acupuncture rider
+**Member context:** Harvest Foods Co · 140 employees · HR Lead Manuel Ortega · GRP-455118
 
 ## Transcript
 
-Agent Ryan: Choice Administrators, Ryan.
- Caller: Hi, I want to check whether my chiropractor is covered before I book. Dr. Sandra Okafor on Bellflower. Member ID
-CB-8830142.
-Agent Ryan: Let me look... I'm not seeing a chiropractic benefit on your account.
- Caller: I definitely have it. My employer added chiro and acupuncture at renewal.
-Agent Ryan: I'm just seeing dental and vision here.
- Caller: Can you check again? Maybe under a different carrier?
-Agent Ryan: It would show on the account if you had it.
- Caller: My payslip shows a deduction for it.
-Agent Ryan: I can't speak to your payslip.
- Caller: So either your system is wrong or I'm being charged for something I don't have. Either way that's a problem you can look into,
-isn't it?
-Agent Ryan: I can only tell you what's on the account.
- Caller: Can you escalate it? Or check with someone?
-Agent Ryan: You could ask your HR department to confirm what they enrolled you in.
- Caller: Right.
+Agent Linda: Choice Administrators, this is Linda. This call may be recorded for quality and training. Can I take your name and group number?
+
+Caller: Manuel Ortega, HR Lead at Harvest Foods Co, group GRP-455118.
+
+Agent Linda: That's you found. Go ahead, Manuel.
+
+Caller: Harvest Foods, I've taken over benefits administration and I'm trying to understand our invoice. It's one bill but multiple carriers?
+
+Agent Linda: That's the core of how ChoiceBuilder works. You receive one consolidated invoice and make one payment, and we distribute to the underlying carriers.
+
+Caller: So the sections are by carrier?
+
+Agent Linda: By line first, then carrier within it. So dental as a section, and within that Delta Dental and MetLife separately if employees chose different carriers.
+
+Caller: Employees choose their own carrier?
+
+Agent Linda: On the exchange model, yes — that's the point of it. Within the options the employer offers, each employee picks. So your dental section may show two or three carriers.
+
+Caller: That explains why it looked inconsistent. And the tier codes?
+
+Agent Linda: EE is employee only, ES employee plus spouse, EC employee plus children, EF employee plus family. Each tier has its own rate, so the section shows a count and rate per tier.
+
+Caller: And the adjustments at the bottom?
+
+Agent Linda: Retroactive changes — additions or terminations processed after the previous invoice generated. Those are the lines that cause most confusion because they relate to a prior period.
+
+Caller: That's the piece I couldn't follow. Is there a guide?
+
+Agent Linda: There is an invoice guide but it isn't well distributed. I'll email it to you.
 
 ## AI Insights Panel — NanoVox 5-Layer Output
 
-L1 — Transcription & understanding: Call type: Benefit verification — chiropractic. Caller: MEMBER. Tone: neutral → annoyed. Agent
-tone: incurious, deflecting. Duration: 5 min. ■ Possible enrollment or billing discrepancy left uninvestigated.
-L2 — Call insights: Member reported a payroll deduction for a chiropractic benefit not visible on her account. Agent did not investigate the
-discrepancy, did not check for a pending or recently added rider, and directed the member to HR. Resolution: UNRESOLVED.
-L3 — Agent quality: Agent Score: 34/100. NEGATIVE: member reported paying for a benefit not on file — a billing discrepancy — and the
-agent did not treat it as one (-), did not check for pending enrollment or a recent rider addition (-), did not check the group's plan design to
-see whether chiro was added at renewal (-), no escalation or case opened (-), no ownership (-). POSITIVE: none identified.
-L4 — Operational BI: PROCESS BREAKDOWN · Owner: Operations — a member paying for a benefit that does not appear on her record
-is a billing integrity issue and should auto-open a case. Recommend: any call where a member cites a payroll deduction for a benefit not on
-file triggers an enrollment reconciliation. AGENT COACHING · Owner: Call Centre Management — Ryan shows a pattern of accepting the
-first system answer without investigating contradictions.
-L5 — Real-time assist: SHOULD HAVE FIRED at 2:00 — member-reported deduction versus missing benefit is an enrollment
-reconciliation trigger. Should have surfaced group plan design, rider effective dates, and pending enrollment queue. No rule configured.
-
-— CLAIMS & EOB —
+L1 — Transcription & understanding: Call type: Consolidated invoice orientation. Caller: EMPLOYER (Manuel Ortega, GRP-455118).
+Tone: confused → informed. Duration: 7 min. New administrator.
+L2 — Call insights: New benefits administrator sought to understand the consolidated invoice. Agent explained the line-then-carrier
+structure, employee-level carrier choice, tier codes, and retroactive adjustments, and supplied the invoice guide. Resolution:
+RESOLVED.
+L3 — Agent quality: Agent Score: 74/100. POSITIVE: explained the exchange model as the reason for multiple carriers on one bill (+),
+decoded the tier codes (+), identified retroactive adjustments as the usual source of confusion (+), sent the guide (+). NEGATIVE: did
+not offer a walkthrough of the current month's actual invoice (-), no reference number (-), did not flag the group for new-administrator
+onboarding (-).
+L4 — Operational BI: PROCESS OPPORTUNITY · Owner: Account Management — new benefits administrators receive no structured
+onboarding, and the invoice guide is poorly distributed. Recommend an administrator onboarding pack triggered when a new portal user
+is granted admin rights on a group.
+L5 — Real-time assist: Fired at 2:00 — invoice structure inquiry surfaced the guide and tier code reference. Live invoice walkthrough
+capability not available; recommend adding.

@@ -1,54 +1,71 @@
-# Call #57 — Commission Stopped on a Group Still On the Books
+# Call #57 — Renewal Rates Arrived With No Broker Contact
 
-- **Agent:** Tiffany
-- **Caller:** BROKER
+- **Agent:** Brad
+- **Caller:** EMPLOYER
 - **Tier:** POOR
-- **Score:** 39/100
-- **Sentiment Arc:** FRUSTRATED → HOSTILE
+- **Score:** 40/100
+- **Sentiment Arc:** NEUTRAL → CHURN RISK
 - **Resolution:** UNRESOLVED
-- **Date:** 2026-09-29
-- **Start:** 13:09:30
-- **End:** 13:15:00
-- **AHT:** 5m 30s
+- **Date:** 2026-09-17
+- **Start:** 09:19:30
+- **End:** 09:25:06
+- **AHT:** 5m 36s
 - **Duration:** ~6 min
-- **Topics:** commission · broker of record · agency change · dispute
+- **Queue:** Employer: Renewal
+- **Broker Signal:** Denise Whitfield: named aloud by the caller
+- **Topics:** renewal · broker absent · rate increase · churn risk
 
-**Member context:** Vasquez Benefits Group · Broker Rita Vasquez · agency AG-9021
+**Member context:** Clearwater Staffing · 31 employees · Office Manager Doris Chen · GRP-310092
 
 ## Transcript
 
-Agent Tiffany: Choice Administrators, Tiffany speaking.
- Caller: Rita Vasquez, agency AG-9021. Commission on Harbour Point Manufacturing stopped in July. The group is still active. I'm still
-their broker.
-Agent Tiffany: Let me look... the agency of record on that group shows AG-6640.
- Caller: That's not me. Who is that?
-Agent Tiffany: I can't share other agency details.
- Caller: Someone has taken broker of record on my group without my knowledge and you can't tell me anything?
-Agent Tiffany: A broker of record change would have come from the employer.
- Caller: Then the employer signed something. I'd like to see the BOR letter.
-Agent Tiffany: I don't have access to those documents.
- Caller: Who does?
-Agent Tiffany: Broker relations, I'd assume.
- Caller: Can you raise it with them?
-Agent Tiffany: I can note it.
- Caller: I've lost commission on a 90-life group for three months and the response is a note.
-Agent Tiffany: That's what I can do from here.
- Caller: This is a serious matter and it's being treated like a query.
+Agent Brad: Choice Administrators, Brad. This call may be recorded for quality and training. Can I take your name and group number?
+
+Caller: Doris Chen, Office Manager at Clearwater Staffing, group GRP-310092.
+
+Agent Brad: Thanks Doris. Tell me what's happening.
+
+Caller: Our renewal came in at 19% up. Our broker, Denise Whitfield, hasn't contacted us at all. Can you talk me through options?
+
+Agent Brad: Renewal options would normally go through your broker.
+
+Caller: She hasn't called. Renewal is in three weeks.
+
+Agent Brad: You could try contacting her.
+
+Caller: I've left four messages.
+
+Agent Brad: Hmm.
+
+Caller: Can you tell me what alternative plans are available at least?
+
+Agent Brad: There are different tiers.
+
+Caller: Which ones, and what would they cost?
+
+Agent Brad: I'd have to look at each.
+
+Caller: Please.
+
+Agent Brad: It's really a broker function, quoting alternatives.
+
+Caller: So a broker who won't respond, and you won't quote. We'll go to market then. There are other exchanges.
+
+Agent Brad: Okay.
 
 ## AI Insights Panel — NanoVox 5-Layer Output
 
-L1 — Transcription & understanding: Call type: Broker of record change dispute. Caller: BROKER (Rita Vasquez, AG-9021). Tone:
-frustrated → hostile. Duration: 6 min. ■ Distribution relationship at risk.
-L2 — Call insights: Broker lost commission on a 90-life group after an apparent broker of record change she was unaware of. Agent
-confirmed a different agency of record, could not produce the BOR letter, and offered only an account note. Resolution: UNRESOLVED.
-L3 — Agent quality: Agent Score: 39/100. NEGATIVE: a contested BOR change is a formal dispute and was handled as an inquiry (-), no
-case created (-), no warm transfer or escalation to broker relations (-), could not confirm whether a BOR letter exists (-), no timeline or
-callback (-), no recognition of a 90-life commercial impact (-). POSITIVE: correctly declined to share third-party agency detail (+).
-L4 — Operational BI: PROCESS BREAKDOWN · CRITICAL · Owner: Broker Relations — contested broker of record changes have no
-defined dispute process accessible to front-line agents. A broker losing a 90-life group without notification is a serious distribution risk.
-Recommend: (1) BOR change notification to the outgoing agency at the time of change, (2) formal BOR dispute process with SLA, (3) BOR
-letter retrievable by broker relations on request.
-L5 — Real-time assist: SHOULD HAVE FIRED at 1:30 — commission cessation with an agency of record change is a BOR dispute trigger
-requiring case creation and broker relations routing. No broker dispute rules configured.
-
-— EMPLOYER: ENROLLMENT —
+L1 — Transcription & understanding: Call type: Renewal with absent broker. Caller: EMPLOYER (Doris Chen, GRP-310092). Tone:
+neutral → churn risk. Duration: 5 min. ■ Employer stated intent to go to market. Renewal in 3 weeks.
+L2 — Call insights: Employer facing a 19% renewal increase with no broker contact after four messages. Agent declined to discuss
+alternative plan tiers, treated quoting as strictly a broker function, and did not escalate. Employer stated intent to move to market.
+Resolution: UNRESOLVED.
+L3 — Agent quality: Agent Score: 40/100. NEGATIVE: a 31-life group three weeks from renewal with an absent broker was not
+escalated (-), refused to describe available plan tiers, which is product information not quoting (-), did not log broker unresponsiveness
+(-), no account management referral (-), no response to explicit market-exit language (-). POSITIVE: none identified.
+L4 — Operational BI: BROKER ATTRIBUTION · CRITICAL · Owner: Broker Relations / Account Management — Denise Whitfield has
+not contacted a group facing a 19% increase three weeks from renewal, after four member-initiated attempts. CHURN SIGNAL:
+employer stated intent to go to market. This is an imminent, preventable group loss. Recommend: (1) immediate account management
+outreach, (2) broker responsiveness SLA, (3) agents empowered to describe plan tiers when a broker is unreachable.
+L5 — Real-time assist: SHOULD HAVE FIRED at 1:00 — renewal within 30 days plus reported broker unresponsiveness is a retention
+trigger requiring account management routing. At 4:00 — market-exit language. Neither fired.

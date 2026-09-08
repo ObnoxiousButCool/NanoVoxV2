@@ -1,58 +1,79 @@
-# Call #17 — Consolidated Bill Higher Than Expected — HR Cannot Reconcile It
+# Call #17 — Member Asks Whether Coverage Continues After Leaving — Told to Call Back
 
-- **Agent:** Sarah
-- **Caller:** EMPLOYER
-- **Tier:** GOOD
-- **Score:** 93/100
-- **Sentiment Arc:** FRUSTRATED → SATISFIED
-- **Resolution:** RESOLVED
-- **Date:** 2026-09-28
-- **Start:** 09:52:45
-- **End:** 10:04:01
-- **AHT:** 11m 16s
-- **Duration:** ~11 min
-- **Topics:** consolidated billing · reconciliation · retro adjustment · multi-carrier
+- **Agent:** Ryan
+- **Caller:** MEMBER
+- **Tier:** POOR
+- **Score:** 33/100
+- **Sentiment Arc:** WORRIED → ABANDONED
+- **Resolution:** UNRESOLVED
+- **Date:** 2026-09-07
+- **Start:** 12:00:00
+- **End:** 12:05:13
+- **AHT:** 5m 13s
+- **Duration:** ~5 min
+- **Queue:** Cost Share & Policy
+- **Topics:** termination · COBRA · continuation · offboarding
 
-**Member context:** Bayside Restaurant Group · 74 employees · HR Manager Victor Salinas · invoice up $1,840
+**Member context:** Steven Nakamura, 29 · ChoiceBuilder dental, vision · last day next Friday
 
 ## Transcript
 
-Agent Sarah: Thank you for calling Choice Administrators, this is Sarah.
- Caller: Victor Salinas, HR at Bayside Restaurant Group, group number GRP-402210. Our invoice went up $1,840 this month and I
-cannot work out why. Nothing changed on our end that I know of.
-Agent Sarah: Let me pull the invoice and compare it line by line against last month. Give me a moment.
- Caller: Thank you. The consolidated bill is useful but when something moves I can't see what.
-Agent Sarah: That's a fair criticism and it's the trade-off of consolidation. Okay — I have both months. Three things moved. First, four
-new enrollments effective the 1st: two dental only, two dental and vision. That's $612.
- Caller: Those would be our new hires. That's expected.
-Agent Sarah: Second, a tier change — one employee moved from employee-only to employee-plus-family on dental and vision after a
-qualifying event. That's $284.
- Caller: Also expected.
-Agent Sarah: Third, and this is the one you're looking for: a retroactive adjustment of $944 covering two employees whose coverage
-was backdated to July following a late life-event submission.
- Caller: So we're paying two months for those two.
-Agent Sarah: Two months of retro plus the current month, yes. It's a one-time catch-up — next month those two return to a single
-month's premium and your invoice drops by roughly $630.
- Caller: That's the piece I couldn't see. Is there a way to see retro adjustments separately?
-Agent Sarah: There is — the itemised detail report shows adjustments broken out from current-month premium. It isn't on by default. I
-can switch it on for your group now.
- Caller: Please do.
-Agent Sarah: Done. From next cycle your bill will carry a separate adjustments section. I'm also emailing you a reconciliation of this
-month showing all three movements against last month.
- Caller: That's exactly what I needed. Thank you.
+Agent Ryan: Choice Administrators, Ryan. Can I take your name and member ID?
+
+Caller: Steven Nakamura, member ID CB-8819004.
+
+Agent Ryan: Thanks Steven. Tell me what's happening.
+
+Caller: My last day is next Friday. What happens to my dental and vision?
+
+Agent Ryan: Coverage would end.
+
+Caller: When exactly?
+
+Agent Ryan: End of the month usually.
+
+Caller: Usually. Can you confirm for my group?
+
+Agent Ryan: It'd be whatever your employer submits.
+
+Caller: Is there any way to continue it? I'm mid-way through orthodontic treatment.
+
+Agent Ryan: There might be COBRA.
+
+Caller: How do I find out?
+
+Agent Ryan: Your employer sends the paperwork.
+
+Caller: When?
+
+Agent Ryan: After they submit the termination.
+
+Caller: And how long do I have to decide?
+
+Agent Ryan: There's a window, I don't remember the length.
+
+Caller: Is there anyone who could tell me? I have treatment scheduled in three weeks and I need to know if I'm covered.
+
+Agent Ryan: Probably best to ask your HR.
+
+Caller: Okay.
 
 ## AI Insights Panel — NanoVox 5-Layer Output
 
-L1 — Transcription & understanding: Call type: Invoice reconciliation. Caller: EMPLOYER (HR Manager). Tone: frustrated → satisfied.
-Agent tone: methodical. Duration: 11 min. Group size 74.
-L2 — Call insights: Employer could not account for a $1,840 invoice increase. Agent reconciled month-over-month, identifying new
-enrollments, a tier change, and a $944 retroactive adjustment from a late life-event submission. Enabled the itemised adjustments report
-and emailed a written reconciliation. Resolution: RESOLVED.
-L3 — Agent quality: Agent Score: 93/100. POSITIVE: reconciled line by line rather than explaining generally (+), identified the retro
-adjustment as the unexplained component (+), forecast next month's decrease so the employer can plan (+), enabled a reporting feature
-that prevents recurrence (+), emailed written reconciliation (+).
-L4 — Operational BI: PROCESS OPPORTUNITY · Owner: Billing Operations — retroactive adjustments are not broken out on the default
-consolidated invoice, which is the single largest driver of employer reconciliation calls. The itemised adjustments report exists but is off by
-default. Recommend enabling it for all groups rather than on request.
-L5 — Real-time assist: Fired at 3:00 — invoice variance over 10% surfaced month-over-month line comparison with movement categories.
-Adjustments report toggle surfaced as a one-click action. Agent used both.
+L1 — Transcription & understanding: Call type: Coverage termination and continuation. Caller: MEMBER. Tone: worried → abandoned.
+Duration: 5 min. Member mid-orthodontic treatment. No call recording disclosure in the agent greeting.
+L2 — Call insights: Member leaving employment asked about coverage end date and continuation options while mid-orthodontic
+treatment. Agent could not confirm the end date, could not state the COBRA election window, and referred to HR. Resolution:
+UNRESOLVED.
+L3 — Agent quality: Agent Score: 33/100. NEGATIVE: no call recording disclosure made at the point of answer (-), could not state
+end-of-month coverage rule with confidence (-), did not know the COBRA election period (-), did not recognise that mid-treatment
+orthodontia is a material continuation consideration (-), gave no dates on a time-sensitive question (-), no case opened (-), no callback
+(-). POSITIVE: none identified.
+L4 — Operational BI: AGENT KNOWLEDGE GAP · CRITICAL · Owner: Call Centre Management — COBRA election windows and
+end-of-coverage rules are core knowledge and were not answerable. PROCESS: members mid-orthodontic treatment face instalment
+benefit termination on coverage loss — this should trigger a specific continuation conversation, not a referral. COMPLIANCE: call
+answered without a recording disclosure — California is a two-party consent state and the disclosure is a scored, deterministic
+requirement, not a courtesy.
+L5 — Real-time assist: SHOULD HAVE FIRED at 1:00 — pending termination plus active orthodontia instalment schedule is a
+continuation trigger. Should have surfaced end date, COBRA election window, and the orthodontia payment implication. No rule
+configured. — ID CARDS & PORTAL — SHOULD HAVE FIRED at 0:05 — greeting completed with no recording disclosure detected.

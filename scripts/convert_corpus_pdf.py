@@ -1,228 +1,35 @@
-"""Convert a timestamped call-corpus PDF into one markdown file per call.
+"""Convert a call-corpus PDF into one markdown file per call.
 
-The corpus arrives as a single PDF. The application never reads it: this script
-turns it into the same ``call_NNN.md`` files the pipeline already ingests, so the
-PDF stays a source document rather than a runtime dependency. That matters
-because a PDF text layer is lossy — the arrows and middle dots in this one come
-back mangled under some encodings — and a conversion you can read, diff and
-correct by hand is worth more than one that happens invisibly at ingest.
-
-The header is a five-line block:
-
-    Call #1 — Why Am I Paying a Copay When I Have Dental Insurance?
-    Thu 24 Sep 2026 · 10:41:15 – 10:46:36 · AHT 5m 21s
-    MEMBER | POOR · 38/100 | UNRESOLVED | CONFUSED → FRUSTRATED | Agent: Brad
-    Context: Alicia Ferrara, 34 · Delta Dental PPO via ChoiceBuilder · billed $48
-    Topics: copay · preventive · dental · cost share · Delta Dental
-
-which is rewritten as the bullet header the corpus parser reads, carrying the
-fields — date, start, end, handle time and caller type — as further bullets.
-
-v5 adds a sixth line to the eighteen calls that carry a broker, sitting between
-Context and Topics:
-
-    BROKER SIGNAL — Anthony Salerno: Told member dental had no waiting period
-
-v5 also ends some sentiment arcs in a churn state rather than a mood — ``ANGRY →
-RETAINED``, ``FRUSTRATED → CHURN RISK``. Both are recorded as authored, because
-the arc is ground truth to compare against and not a value this script judges.
+The same conversion the Corpus import screen performs, as a command. It is a
+thin front end over :mod:`infrastructure.corpus.pdf_document` and deliberately
+carries no grammar of its own: this script used to hold its own copy, and a
+corpus whose header shape had changed then parsed differently depending on
+which route you came in by. One grammar, two front doors.
 
     python scripts/convert_corpus_pdf.py Documents/corpus.pdf Samples
     python scripts/convert_corpus_pdf.py Documents/corpus.pdf Samples --dry-run
+
+Prefer the screen for anything an operator does. This exists for a scripted
+rebuild and for looking at a document that will not import, where ``--dry-run``
+prints the tally without writing anything.
 """
 
 from __future__ import annotations
 
 import argparse
-import re
 import sys
-from dataclasses import dataclass
-from datetime import date, datetime
+from collections import Counter
 from pathlib import Path
 
-TRANSCRIPT_HEADING = "## Transcript"
-PANEL_HEADING = "## AI Insights Panel"
+BACKEND = Path(__file__).resolve().parent.parent / "Code" / "Backend"
+sys.path.insert(0, str(BACKEND))
 
-# The panel heading in the PDF, which marks the end of the transcript.
-_PANEL_MARKER = "AI INSIGHTS PANEL"
-
-# The five header lines. Resolutions and sentiments are multiple words in this
-# corpus ("PARTIALLY RESOLVED", "PARTIALLY SATISFIED"), so the upper-case runs
-# have to allow spaces — matching \w+ alone silently skips those calls.
-_UPPER = r"[A-Z][A-Z ]*[A-Z]|[A-Z]+"
-_HEADER = re.compile(
-    r"^Call #(?P<number>\d+)\s*[—–-]\s*(?P<title>.+)\n"
-    r"\w{3}\s+(?P<date>\d{1,2} \w{3} \d{4})\s*·\s*(?P<start>[\d:]{8})\s*[–-]\s*(?P<end>[\d:]{8})"
-    r"\s*·\s*AHT\s+(?P<aht>[^\n]+?)\s*\n"
-    rf"(?P<caller>MEMBER|EMPLOYER|BROKER)\s*\|\s*(?P<tier>\w+)\s*·\s*(?P<score>\d+)/100\s*\|\s*"
-    rf"(?P<resolution>{_UPPER})\s*\|\s*(?P<start_mood>{_UPPER})\s*→\s*(?P<end_mood>{_UPPER})\s*\|\s*"
-    r"Agent:\s*(?P<agent>[^\n]+)\n"
-    r"Context:\s*(?P<context>[^\n]+)\n"
-    # v5 only, and only on the eighteen calls that carry one. Optional rather
-    # than a second pattern because the line sits *inside* the header block: a
-    # regex demanding Context and Topics back to back matches 82 of the 100
-    # calls and drops the other 18 without saying so — and those 18 are exactly
-    # the broker calls, the most valuable ones in the corpus.
-    r"(?:BROKER SIGNAL\s*[—–-]\s*(?P<broker>[^\n]+)\n)?"  # noqa: RUF001
-    r"Topics:\s*(?P<topics>[^\n]+)$",
-    re.MULTILINE,
+from domain.errors import NanoVoxError  # noqa: E402
+from infrastructure.corpus.pdf_document import (  # noqa: E402
+    extract_calls,
+    read_pdf,
+    render,
 )
-
-_AHT = re.compile(r"^(?:(?P<minutes>\d+)\s*m)?\s*(?:(?P<seconds>\d+)\s*s)?$")
-
-# Just the first line of a header, matched on its own so the count of calls the
-# document *claims* can be compared with the count the full pattern accepts.
-# Without this the v5 corpus converted quietly at 82 of 100.
-_HEADER_FIRST_LINE = re.compile(r"^Call #(?P<number>\d+)\s*[—–-]", re.MULTILINE)  # noqa: RUF001
-
-
-@dataclass(frozen=True)
-class Call:
-    """One call, lifted out of the PDF."""
-
-    number: int
-    title: str
-    call_date: date
-    start: str
-    end: str
-    handle_seconds: int
-    caller: str
-    tier: str
-    score: int
-    resolution: str
-    start_mood: str
-    end_mood: str
-    agent: str
-    context: str
-    topics: str
-    #: ``Name: what they did``, or empty where the call carries no broker.
-    broker: str
-    transcript: str
-    panel: str
-
-    @property
-    def handle_time(self) -> str:
-        minutes, seconds = divmod(self.handle_seconds, 60)
-        return f"{minutes}m {seconds}s" if seconds else f"{minutes}m"
-
-
-def read_pdf(path: Path) -> str:
-    try:
-        from pypdf import PdfReader
-    except ImportError:
-        raise SystemExit(
-            "pypdf is needed to read the corpus PDF.\n"
-            "    pip install -r Code/Backend/requirements-dev.txt"
-        ) from None
-
-    reader = PdfReader(str(path))
-    # Joined with newlines rather than page markers: a call block can straddle a
-    # page break, and the header regex has to see its five lines as consecutive.
-    return "\n".join(page.extract_text() or "" for page in reader.pages)
-
-
-def parse_handle_time(value: str) -> int:
-    """``5m 21s`` as seconds. Raises rather than guessing, because handle time is
-    the figure the whole time analysis rests on."""
-    match = _AHT.match(value.strip())
-    if match is None or not (match.group("minutes") or match.group("seconds")):
-        raise ValueError(f"Unreadable handle time: {value!r}")
-    return int(match.group("minutes") or 0) * 60 + int(match.group("seconds") or 0)
-
-
-def parse_calls(text: str) -> list[Call]:
-    """Every call in the document, in the order it appears."""
-    matches = list(_HEADER.finditer(text))
-    if not matches:
-        raise SystemExit("No call headers found. Is this the timestamped corpus PDF?")
-
-    # A header the full pattern cannot read is a call that would vanish from the
-    # conversion while the summary line still reported success. Refuse the whole
-    # document instead, naming the calls, because a partial corpus is worse than
-    # none: the run succeeds and the dashboard is quietly missing evidence.
-    claimed = {int(m.group("number")) for m in _HEADER_FIRST_LINE.finditer(text)}
-    read = {int(m.group("number")) for m in matches}
-    if unread := sorted(claimed - read):
-        raise SystemExit(
-            f"{len(unread)} of {len(claimed)} call headers could not be read: {unread}\n"
-            "The header block has changed shape. Compare one of these against _HEADER."
-        )
-
-    calls: list[Call] = []
-    for index, match in enumerate(matches):
-        # The body runs to the next header, or to the end of the document.
-        body_end = matches[index + 1].start() if index + 1 < len(matches) else len(text)
-        body = text[match.end() : body_end]
-
-        panel_at = body.find(_PANEL_MARKER)
-        transcript = (body[:panel_at] if panel_at >= 0 else body).strip()
-        panel = body[panel_at + len(_PANEL_MARKER) :].strip() if panel_at >= 0 else ""
-
-        calls.append(
-            Call(
-                number=int(match.group("number")),
-                title=match.group("title").strip(),
-                # Naive: the corpus states local wall-clock times, and a zone
-                # attached here would be one the source never gave.
-                call_date=datetime.strptime(  # noqa: DTZ007
-                    match.group("date"), "%d %b %Y"
-                ).date(),
-                start=match.group("start"),
-                end=match.group("end"),
-                handle_seconds=parse_handle_time(match.group("aht")),
-                caller=match.group("caller"),
-                tier=match.group("tier").upper(),
-                score=int(match.group("score")),
-                resolution=" ".join(match.group("resolution").split()),
-                start_mood=" ".join(match.group("start_mood").split()),
-                end_mood=" ".join(match.group("end_mood").split()),
-                agent=match.group("agent").strip(),
-                context=match.group("context").strip(),
-                topics=match.group("topics").strip(),
-                broker=(match.group("broker") or "").strip(),
-                transcript=transcript,
-                panel=panel,
-            )
-        )
-    return calls
-
-
-def render(call: Call) -> str:
-    """One call as the markdown the corpus parser reads."""
-    return "\n".join(
-        [
-            f"# Call #{call.number} — {call.title}",
-            "",
-            f"- **Agent:** {call.agent}",
-            f"- **Caller:** {call.caller}",
-            f"- **Tier:** {call.tier}",
-            f"- **Score:** {call.score}/100",
-            f"- **Sentiment Arc:** {call.start_mood} → {call.end_mood}",
-            f"- **Resolution:** {call.resolution}",
-            f"- **Date:** {call.call_date.isoformat()}",
-            f"- **Start:** {call.start}",
-            f"- **End:** {call.end}",
-            # Both forms: the seconds are what the corpus states, and the
-            # rounded minutes keep the field readable beside the older files.
-            f"- **AHT:** {call.handle_time}",
-            f"- **Duration:** ~{round(call.handle_seconds / 60)} min",
-            # The bullet the corpus parser already reads: it takes the name from
-            # before the colon and leaves the rest as the author's account.
-            *([f"- **Broker Signal:** {call.broker}"] if call.broker else []),
-            f"- **Topics:** {call.topics}",
-            "",
-            f"**Member context:** {call.context}",
-            "",
-            TRANSCRIPT_HEADING,
-            "",
-            call.transcript,
-            "",
-            f"{PANEL_HEADING} — NanoVox 5-Layer Output",
-            "",
-            call.panel,
-            "",
-        ]
-    )
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -239,26 +46,31 @@ def main(argv: list[str] | None = None) -> int:
     if not args.pdf.is_file():
         raise SystemExit(f"No such file: {args.pdf}")
 
-    calls = parse_calls(read_pdf(args.pdf))
+    try:
+        calls = extract_calls(read_pdf(args.pdf.read_bytes()))
+    except NanoVoxError as exc:
+        # Extraction is all-or-nothing, and the detail names the calls it could
+        # not read — which is the only useful thing to print here.
+        raise SystemExit(f"{exc.message}\n{exc.detail or ''}".rstrip()) from exc
 
     numbers = [call.number for call in calls]
-    clashes = {n for n in numbers if numbers.count(n) > 1}
-    if clashes:
-        # Two calls sharing a number would overwrite one another silently, and
-        # the pipeline would then reject the whole directory for duplicate
-        # references — after the conversion had already thrown a call away.
-        raise SystemExit(f"Call numbers appear more than once: {sorted(clashes)}")
+    print(f"{len(calls)} calls: #{min(numbers)}-#{max(numbers)}")
 
-    print(f"{len(calls)} calls: #{min(numbers)}–#{max(numbers)}")
-    total = sum(call.handle_seconds for call in calls)
-    print(f"handle time: {total / 3600:.1f} h total, {total / len(calls) / 60:.1f} min average")
-    print(f"callers: {', '.join(sorted({call.caller for call in calls}))}")
+    stated = [call.handle_seconds for call in calls if call.handle_seconds]
+    if stated:
+        total = sum(stated)
+        print(f"handle time: {total / 3600:.1f} h total, {total / len(stated) / 60:.1f} min average")
+
+    dates = [call.call_date for call in calls if call.call_date]
+    if dates:
+        print(f"dates: {min(dates)} to {max(dates)}")
+
+    print(f"callers: {dict(Counter(call.caller for call in calls))}")
+    print(f"tiers: {dict(Counter(call.tier for call in calls))}")
     brokered = [call.number for call in calls if call.broker]
-    print(f"broker signals: {len(brokered)} calls {brokered}")
-    print(
-        "dates: "
-        f"{min(call.call_date for call in calls)} to {max(call.call_date for call in calls)}"
-    )
+    repeats = [call.number for call in calls if call.repeat]
+    print(f"broker signals: {len(brokered)} calls")
+    print(f"repeat contacts: {len(repeats)} calls")
 
     if args.dry_run:
         print("\n--dry-run: nothing written")
@@ -266,8 +78,7 @@ def main(argv: list[str] | None = None) -> int:
 
     args.out.mkdir(parents=True, exist_ok=True)
     for call in calls:
-        path = args.out / f"call_{call.number:03d}.md"
-        path.write_text(render(call), encoding="utf-8")
+        (args.out / call.filename).write_text(render(call), encoding="utf-8")
     print(f"\nwrote {len(calls)} files to {args.out}")
     return 0
 

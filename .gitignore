@@ -33,3 +33,8 @@ coverage/
 .vscode/
 Thumbs.db
 Desktop.ini
+
+# Imported corpora. A byproduct of the Corpus import screen: the same calls
+# the tracked Samples/ files hold, kept per-upload so an import cannot
+# overwrite the corpus a stored analysis was made from.
+Samples/imported/

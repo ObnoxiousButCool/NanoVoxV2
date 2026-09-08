@@ -1,55 +1,69 @@
-# Call #91 — Dependent Turning 26 — Coverage Ending
+# Call #91 — Two Cleanings Used, Third Denied
 
 - **Agent:** Tony
 - **Caller:** MEMBER
 - **Tier:** AVERAGE
-- **Score:** 72/100
-- **Sentiment Arc:** CONFUSED → INFORMED
+- **Score:** 71/100
+- **Sentiment Arc:** ANNOYED → INFORMED
 - **Resolution:** RESOLVED
-- **Date:** 2026-09-08
-- **Start:** 12:00:30
-- **End:** 12:06:53
-- **AHT:** 6m 23s
-- **Duration:** ~6 min
-- **Topics:** dependent age limit · turning 26 · aging off · continuation
+- **Date:** 2026-09-28
+- **Start:** 09:50:30
+- **End:** 09:57:42
+- **AHT:** 7m 12s
+- **Duration:** ~7 min
+- **Queue:** Cost Share & Policy
+- **Repeat Contact:** follows an unresolved call on Wed 02 Sep 2026: Agent States There Is No Annual Maximum — There Is
+- **Topics:** frequency limit · cleanings · periodontal · dental
 
-**Member context:** Barbara Lindqvist, 53 · Member ID CB-5583017 · daughter aging off
+**Member context:** Nadia Haddad, 45 · Member ID CB-5540118 · Delta Dental · periodontal maintenance
 
 ## Transcript
 
-Agent Tony: Choice Administrators, this is Tony.
- Caller: Barbara Lindqvist, CB-5583017. My daughter turns 26 in March. Does she come off my dental and vision?
-Agent Tony: She does. Dependent eligibility ends the last day of the month she turns 26, so March 31st.
- Caller: Is there any extension?
-Agent Tony: On ancillary lines, generally not. Some medical plans allow extensions for disabled dependents; dental and vision typically
-follow the same rule but it's worth confirming if that applies.
- Caller: It doesn't, she's just finishing graduate school.
-Agent Tony: Then March 31st is the date. She has two options after that — COBRA continuation on your plan for up to 36 months, or
-her own coverage if her school or employer offers it.
- Caller: 36 months is longer than I expected.
-Agent Tony: Aging off is a qualifying event with a longer continuation period than a job loss. She'd pay the full premium plus
-administration, but for ancillary that's usually modest.
- Caller: Does she get a notice?
-Agent Tony: Yes, generated automatically from the age-off. But it goes to the address on file for her, which may be yours rather than her
-own.
- Caller: It would be mine.
-Agent Tony: Then watch for it. And tell her the election window is 60 days — it's easy to miss when the notice goes to a parent's
-address.
+Agent Tony: Choice Administrators, this is Tony. This call may be recorded for quality and training. Can I take your name and member ID?
+
+Caller: Nadia Haddad, member ID CB-5540118.
+
+Agent Tony: Got it, thanks Nadia. What can I do for you?
+
+Caller: Before I start — I rang on the 2nd about annual maximum and got nowhere, so forgive me if I sound short. My dentist recommends cleanings every four months because of gum issues. The third one this year was denied.
+
+Agent Tony: Your plan covers two routine cleanings per calendar year. The third falls outside that.
+
+Caller: But it's clinically recommended, not cosmetic.
+
+Agent Tony: I understand. There is a distinction worth checking though. Routine cleaning is one code — prophylaxis. Periodontal maintenance is a different code entirely, and on many plans it has its own frequency allowance, often three or four per year.
+
+Caller: So it depends what the dentist billed it as.
+
+Agent Tony: Exactly. Let me look at the submitted code... it was billed as a routine prophylaxis, not periodontal maintenance.
+
+Caller: I've had scaling and root planing done. I'm on periodontal maintenance.
+
+Agent Tony: Then the code may be wrong. If you've had active periodontal treatment, your dentist can bill maintenance instead, which draws on a separate allowance.
+
+Caller: So the denial might be a coding issue rather than a coverage issue.
+
+Agent Tony: It may be. Ask the office to review whether periodontal maintenance is the appropriate code and resubmit if so. If they resubmit correctly it should process.
+
+Caller: That's useful. Nobody suggested that.
+
+Agent Tony: Worth checking before you pay it.
 
 ## AI Insights Panel — NanoVox 5-Layer Output
 
-L1 — Transcription & understanding: Call type: Dependent aging off at 26. Caller: MEMBER (Barbara Lindqvist, CB-5583017). Tone:
-confused → informed. Duration: 6 min.
-L2 — Call insights: Member's daughter aging off at 26. Agent gave the March 31st end date, explained the 36-month COBRA continuation
-available on an age-off event, and flagged that the notice will go to the address on file, which is the parent's. Resolution: RESOLVED.
-L3 — Agent quality: Agent Score: 72/100. POSITIVE: gave the precise end date (+), correctly distinguished the 36-month continuation
-period for age-off from other events (+), flagged the notice address issue, which causes missed elections (+). NEGATIVE: did not offer to
-update the dependent's address (-), no reference number (-), did not mention the disabled dependent extension process in enough detail to
-be actionable (-).
-L4 — Operational BI: PROCESS OPPORTUNITY · Owner: Operations — age-off continuation notices are routinely sent to a parent's
-address, contributing to missed elections. Recommend prompting for a separate dependent address at age 25, and a member-facing
-reminder 90 days before age-off.
-L5 — Real-time assist: Fired at 1:30 — dependent date of birth surfaced the age-off date and continuation period. Address discrepancy
-flag surfaced. Agent used both.
-
-— EMPLOYER: ENROLLMENT —
+L1 — Transcription & understanding: Call type: Frequency denial — cleanings. Caller: MEMBER (Nadia Haddad, CB-5540118). Tone:
+annoyed → informed. Duration: 7 min. Repeat contact — prior call in period closed unresolved.
+L2 — Call insights: Third cleaning denied under a two-per-year routine allowance. Agent identified that the member's periodontal history
+may make periodontal maintenance the correct code, which carries a separate frequency allowance, and advised resubmission.
+Resolution: RESOLVED — resubmission path identified.
+L3 — Agent quality: Agent Score: 71/100. POSITIVE: distinguished prophylaxis from periodontal maintenance coding (+), checked the
+actual submitted code (+), identified a likely miscoding rather than accepting the denial (+). NEGATIVE: no empathy for a clinically
+driven denial (-), did not confirm the plan's periodontal maintenance allowance specifically (-), no reference number (-), did not offer to
+note the account pending resubmission (-).
+L4 — Operational BI: MEMBER COMMUNICATION GAP · Owner: Member Communications — members with periodontal history are
+frequently billed under routine cleaning codes and hit the two-per-year limit. Recommend provider-facing guidance on maintenance
+coding and a member explainer on the distinction. REPEAT CONTACT: same member (CB-5540118) called on Wed 02 Sep 2026 and
+that call closed unresolved. Repeat contact within the period is a retention signal in its own right and should be counted against the
+earlier call, not this one.
+L5 — Real-time assist: Fired at 3:00 — frequency denial surfaced submitted procedure code and the member's periodontal treatment
+history, revealing the likely miscoding. Agent used it.

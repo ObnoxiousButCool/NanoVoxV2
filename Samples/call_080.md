@@ -1,54 +1,66 @@
-# Call #80 — Member Asks Which Carrier They Have and Cannot Get an Answer
+# Call #80 — Adding a Second Location to an Existing Group
 
-- **Agent:** Tiffany
-- **Caller:** MEMBER
-- **Tier:** POOR
-- **Score:** 37/100
-- **Sentiment Arc:** NEUTRAL → FRUSTRATED
-- **Resolution:** UNRESOLVED
-- **Date:** 2026-09-15
-- **Start:** 15:35:15
-- **End:** 15:40:02
-- **AHT:** 4m 47s
-- **Duration:** ~5 min
-- **Topics:** carrier identification · multi-carrier · basic information · service failure
+- **Agent:** Tony
+- **Caller:** EMPLOYER
+- **Tier:** AVERAGE
+- **Score:** 74/100
+- **Sentiment Arc:** NEUTRAL → INFORMED
+- **Resolution:** RESOLVED
+- **Date:** 2026-09-23
+- **Start:** 15:04:30
+- **End:** 15:11:11
+- **AHT:** 6m 41s
+- **Duration:** ~7 min
+- **Queue:** Employer: Enrollment
+- **Topics:** group expansion · new location · eligibility · mid-year addition
 
-**Member context:** Harold Winters, 61 · Member ID CB-2214408 · dental and vision, carrier unknown to member
+**Member context:** Northgate Logistics · 58 to 79 employees · HR Manager Elena Vasquez · GRP-441002
 
 ## Transcript
 
-Agent Tiffany: Choice Administrators, Tiffany speaking.
- Caller: Harold Winters, CB-2214408. My optician asked which vision company I'm with and I don't know. Can you tell me?
-Agent Tiffany: Let me look... you have vision coverage.
- Caller: Yes, but with whom? VSP or the other one?
-Agent Tiffany: It should be on your card.
- Caller: I've lost the card. That's partly why I'm calling.
-Agent Tiffany: Hmm.
- Caller: Can you not see the carrier on your screen?
-Agent Tiffany: I can see vision coverage is active.
- Caller: But not which company provides it?
-Agent Tiffany: It might be under a different tab.
- Caller: Could you check?
-Agent Tiffany: I'm not sure where it shows.
- Caller: This is the most basic question I could ask.
-Agent Tiffany: Maybe try the portal, it should be listed there.
- Caller: I'd need my card details to register for the portal.
+Agent Tony: Choice Administrators, this is Tony. This call may be recorded for quality and training. Can I take your name and group number?
+
+Caller: Elena Vasquez, HR Manager at Northgate Logistics, group GRP-441002.
+
+Agent Tony: Got it, thanks Elena. What can I do for you?
+
+Caller: We're opening a second site with 21 employees. Do they join the existing group or is it a separate one?
+
+Agent Tony: If it's the same legal entity and the same EIN, they join the existing group as additional employees. Different EIN would need either a separate group or a common ownership arrangement.
+
+Caller: Same entity, same EIN.
+
+Agent Tony: Then it's straightforward — enroll them as new hires under the existing group. Each serves the standard waiting period from their hire date.
+
+Caller: They're transfers, not new hires. Several have been with us for years.
+
+Agent Tony: That changes it usefully. Existing employees moving between locations retain their eligibility, so no new waiting period. They'd only need enrollment if they weren't previously enrolled.
+
+Caller: About half were enrolled at the old site, half weren't.
+
+Agent Tony: The enrolled half continue uninterrupted. The unenrolled half are only eligible to join at open enrollment or on a qualifying event — a location change isn't a QLE on its own.
+
+Caller: So they wait until January.
+
+Agent Tony: Unless one of them has a separate qualifying event. Worth telling them now so they're ready.
+
+Caller: And does the group size change affect rates?
+
+Agent Tony: Going from 58 to 79 keeps you in the same rating band, so no mid-year rate change. It could affect your renewal if the demographic mix shifts.
 
 ## AI Insights Panel — NanoVox 5-Layer Output
 
-L1 — Transcription & understanding: Call type: Carrier identification. Caller: MEMBER (Harold Winters, CB-2214408). Tone: neutral →
-frustrated. Duration: 5 min.
-L2 — Call insights: Member could not identify his vision carrier after losing his card. Agent could confirm active vision coverage but could
-not identify the carrier, did not send a replacement card, and referred him to a portal he cannot register for without the card. Resolution:
-UNRESOLVED — circular referral on a basic request.
-L3 — Agent quality: Agent Score: 37/100. NEGATIVE: could not identify the carrier, the single most basic fact about the coverage (-), did
-not offer to send a digital or replacement card (-), referred to a portal requiring the information the member lacks (-), no escalation on a
-request she could not fulfil (-). POSITIVE: confirmed coverage is active (+).
-L4 — Operational BI: PROCESS BREAKDOWN · CRITICAL · Owner: Digital / Training — carrier assignment is the defining fact of an
-exchange product and was not readily visible to the agent. Whether this is a UI issue or a training issue it must be resolved: in a multi-carrier
-model, an agent who cannot name the carrier cannot serve the member at all. Recommend carrier and subscriber ID display in the primary
-member view.
-L5 — Real-time assist: SHOULD HAVE FIRED at 0:45 — carrier identification request should return carrier, subscriber ID, and a digital
-card send action immediately. This is the most fundamental lookup in the product and no rule is configured.
-
-— EMPLOYER: ENROLLMENT —
+L1 — Transcription & understanding: Call type: Group expansion — second location. Caller: EMPLOYER (Elena Vasquez,
+GRP-441002). Tone: neutral → informed. Duration: 7 min.
+L2 — Call insights: Employer adding a 21-employee second site. Agent confirmed same-EIN employees join the existing group,
+distinguished transfers from new hires for waiting period purposes, clarified that a location change is not a QLE for previously unenrolled
+staff, and confirmed no mid-year rate impact. Resolution: RESOLVED.
+L3 — Agent quality: Agent Score: 74/100. POSITIVE: asked about the legal entity before answering (+), corrected course usefully when
+transfers were clarified (+), was clear that a location change is not a QLE (+), addressed the rating band question (+). NEGATIVE: did
+not offer to send a summary for the transferring employees (-), no reference number (-), did not flag the group for a renewal
+demographic review (-).
+L4 — Operational BI: PROCESS OPPORTUNITY · Owner: Account Management — group headcount changes of 30%+ mid-year are a
+renewal risk signal and a growth opportunity. Recommend flagging significant enrollment changes for account review rather than
+processing them silently.
+L5 — Real-time assist: Fired at 2:00 — group expansion inquiry surfaced EIN rules, waiting period treatment for transfers, and rating
+band thresholds. Agent used all three.

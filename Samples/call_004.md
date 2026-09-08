@@ -1,55 +1,77 @@
-# Call #4 — Coverage Is Expiring — Member Does Not Know Why
+# Call #4 — First EOB — Member Thinks It Is a Bill
 
-- **Agent:** Kayla
+- **Agent:** Priya
 - **Caller:** MEMBER
-- **Tier:** POOR
-- **Score:** 41/100
-- **Sentiment Arc:** WORRIED → DISMISSED
-- **Resolution:** UNRESOLVED
-- **Date:** 2026-09-08
-- **Start:** 09:43:15
-- **End:** 09:48:46
-- **AHT:** 5m 31s
-- **Duration:** ~6 min
-- **Topics:** termination · coverage expiry · employer · reinstatement
+- **Tier:** GOOD
+- **Score:** 94/100
+- **Sentiment Arc:** ANXIOUS → RELIEVED
+- **Resolution:** RESOLVED
+- **Date:** 2026-09-01
+- **Start:** 16:43:15
+- **End:** 16:51:52
+- **AHT:** 8m 37s
+- **Duration:** ~9 min
+- **Queue:** Claims & EOB
+- **Topics:** EOB · member education · first-time · not a bill
 
-**Member context:** Terrence Boyd, 47 · ChoiceBuilder dental and vision · received a termination notice
+**Member context:** Sophie Martinez, 26 · Delta Dental · first time on her own coverage
 
 ## Transcript
 
-Agent Kayla: Choice Administrators, this is Kayla.
- Caller: I got a letter saying my coverage ends on the 31st. Nobody told me anything. I still work here. Member ID CB-5519074.
-Agent Kayla: Let me look... yes, your coverage is showing a termination date of the 31st.
- Caller: Why?
-Agent Kayla: It came through from your employer.
- Caller: My employer terminated my dental insurance? I didn't resign, I haven't changed anything.
-Agent Kayla: That's what's in the system.
- Caller: Can you tell me the reason code or whatever it says?
-Agent Kayla: It just says terminated.
- Caller: So what do I do?
-Agent Kayla: You'd need to talk to your HR department. We only process what they send us.
- Caller: Is there any chance this is an error? Because I have a dental appointment on the 2nd.
-Agent Kayla: I can't say. It'd be up to your employer to correct it if it's wrong.
- Caller: And if they fix it, does my coverage come back automatically?
-Agent Kayla: They'd have to resubmit.
- Caller: Okay. Thanks.
+Agent Priya: Thank you for calling Choice Administrators, this is Priya. This call may be recorded for quality and training. Can I take your name and member ID?
+
+Caller: Sophie Martinez, member ID CB-9021445.
+
+Agent Priya: Got it, thanks Sophie. What can I do for you?
+
+Caller: I got a letter that says Explanation of Benefits and there are numbers on it and I don't know if I owe money.
+
+Agent Priya: You're not in trouble and this isn't a bill — that's the first thing to know. An EOB is a summary we send after a claim is processed so you can see how the cost was split. Do you have it in front of you?
+
+Caller: Yes.
+
+Agent Priya: Let's read it together. Find the column that says Billed Amount or Submitted Charge — what does it show?
+
+Caller: $210.
+
+Agent Priya: That's what the dentist charged before any discount. Now find Plan Discount or Negotiated Adjustment.
+
+Caller: $62.
+
+Agent Priya: That's the reduction your dentist agreed to because they're in the network. So the real cost is $148. Next, Plan Paid.
+
+Caller: $118.
+
+Agent Priya: And the last column, Member Responsibility or Your Share.
+
+Caller: $30.
+
+Agent Priya: So $30 is your share. The dentist will send you a separate bill for that — this letter is just the maths behind it.
+
+Caller: So I wait for a bill from the dentist, not pay this.
+
+Agent Priya: Exactly. And one thing worth knowing: the dentist can't charge you more than the member responsibility shown here. If a bill arrives for more than $30, call us.
+
+Caller: That's really useful. Nobody told me any of this.
+
+Agent Priya: Check the date and the provider name too, just to confirm it matches a visit you actually had. Does it?
+
+Caller: Yes, that was my cleaning last month.
+
+Agent Priya: Then you're all set. I'm sending you a one-page EOB guide so you have it next time.
 
 ## AI Insights Panel — NanoVox 5-Layer Output
 
-L1 — Transcription & understanding: Call type: Coverage termination inquiry. Caller: MEMBER. Tone: worried → dismissed. Agent tone:
-minimal, deflecting. Duration: 6 min. Member has care scheduled after termination date.
-L2 — Call insights: Member received a termination notice he did not expect and could not explain. Agent confirmed the termination
-originated from the employer, could not provide a reason code, and directed the member to HR without further action. Resolution:
-UNRESOLVED.
-L3 — Agent quality: Agent Score: 41/100. NEGATIVE: did not retrieve or explain the termination reason (-), did not check whether the
-termination was a full group action or individual (-), did not flag that the member has care scheduled after the termination date (-), did not
-offer to contact the employer or open a verification case (-), no reinstatement path explained beyond 'they'd have to resubmit' (-). POSITIVE:
-correctly identified the source as employer-submitted (+).
-L4 — Operational BI: PROCESS BREAKDOWN · Owner: Operations — employer-submitted terminations generate no member-facing
-explanation and no verification step. Members discover coverage loss by letter and cannot get a reason from either side. Recommend: (1)
-termination reason captured and visible to agents, (2) member notification includes the reason and an HR contact, (3) agent-initiated
-employer verification for disputed terminations.
-L5 — Real-time assist: SHOULD HAVE FIRED at 1:30 — disputed termination plus scheduled care after the termination date is a
-verification trigger. Should have surfaced employer contact, termination reason code, and a coverage-verification case. No rule configured.
-
-— NETWORKS & PROVIDERS —
+L1 — Transcription & understanding: Call type: EOB explanation — first-time member. Caller: MEMBER, age 26, new to own coverage.
+Tone: anxious → relieved. Agent tone: patient, structured. Duration: 9 min.
+L2 — Call insights: Member misread her first EOB as a bill. Agent walked through each column with the member reading her own
+figures, clarified the EOB/bill distinction, explained the balance-billing protection, and prompted a fraud check on date and provider.
+Resolution: RESOLVED.
+L3 — Agent quality: Agent Score: 94/100. POSITIVE: led with reassurance before explanation (+), had the member read her own
+numbers rather than lecturing (+), explained that the provider cannot bill above member responsibility (+), prompted a date/provider
+verification unprompted (+), sent a written guide (+).
+L4 — Operational BI: MEMBER COMMUNICATION GAP · Owner: Member Communications — EOB-read-as-bill is a high-volume, fully
+preventable call type concentrated among members new to their own coverage. Recommend: (1) 'THIS IS NOT A BILL' as a prominent
+header, (2) a worked example on the reverse, (3) a first-EOB explainer email triggered on a member's first processed claim.
+L5 — Real-time assist: Fired at 1:30 — first-claim EOB for a new member surfaced the column-by-column guide and balance-billing
+protection language. Agent used both.

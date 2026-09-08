@@ -1,54 +1,90 @@
-# Call #94 — Commission on a Group That Added a Line Mid-Year
+# Call #94 — Member Ready to Cancel Everything After a Year of Broker Problems
 
-- **Agent:** Danielle
-- **Caller:** BROKER
+- **Agent:** Sarah
+- **Caller:** MEMBER
 - **Tier:** GOOD
-- **Score:** 90/100
-- **Sentiment Arc:** NEUTRAL → SATISFIED
-- **Resolution:** RESOLVED
-- **Date:** 2026-09-25
-- **Start:** 15:46:30
-- **End:** 15:53:31
-- **AHT:** 7m 1s
-- **Duration:** ~7 min
-- **Topics:** commission · line addition · mid-year · rate
+- **Score:** 96/100
+- **Sentiment Arc:** ANGRY → RETAINED
+- **Resolution:** ESCALATED
+- **Date:** 2026-09-28
+- **Start:** 12:37:45
+- **End:** 12:49:20
+- **AHT:** 11m 35s
+- **Duration:** ~12 min
+- **Queue:** Cost Share & Policy
+- **Broker Signal:** Denise Whitfield: named aloud by the caller
+- **Topics:** churn risk · retention · broker failure · cumulative · save
 
-**Member context:** Nunez Benefits · Broker Patricia Nunez · agency AG-3390
+**Member context:** Doris Chen, 45 · Member ID CB-310092 · dental, vision, life · cumulative frustration
 
 ## Transcript
 
-Agent Danielle: Thank you for calling Choice Administrators, this is Danielle.
- Caller: Patricia Nunez, agency AG-3390. One of my groups added vision in August. I want to check commission is set up on the new
-line.
-Agent Danielle: Good practice to verify rather than discover it at the statement. Which group?
- Caller: Meridian Staffing, GRP-462201.
-Agent Danielle: Checking... vision added effective August 1st, and commission is coded to AG-3390 on that line at your standard vision
-rate.
- Caller: Which is?
-Agent Danielle: 10% on vision, against 12% on your dental. Vision commission rates are typically lower across all carriers.
- Caller: That matches my agreement. When does it first appear?
-Agent Danielle: Commission calculates on premium received, so August premium generates commission in the September cycle,
-appearing on your Q3 statement.
- Caller: Good. And if the group adds chiropractic later?
-Agent Danielle: It would inherit your agency code automatically, but the rate differs again — chiropractic and life both carry their own
-schedules. Worth checking the rate when a line is added rather than assuming it matches dental.
- Caller: That's useful. Is there a schedule I can refer to?
-Agent Danielle: There's a commission schedule by line and carrier in the broker portal. I'll send you the direct link — it's not easy to find.
- Caller: Thank you, that saves me calling each time.
+Agent Sarah: Thank you for calling Choice Administrators, this is Sarah. This call may be recorded for quality and training. Can I take your name and member ID?
+
+Caller: Doris Chen, member ID CB-310092.
+
+Agent Sarah: Thank you Doris, I have you. Go ahead.
+
+Caller: I want to cancel everything. Dental, vision, life. All of it.
+
+Agent Sarah: I can help with that, but before I do — would you tell me what's brought you here? If something's gone wrong I'd rather understand it.
+
+Caller: Where do I start. My broker, Denise Whitfield, put me on the wrong plan tier. My vision was never added despite me asking twice. And I was told there was no waiting period when there was.
+
+Agent Sarah: That's three separate failures. Let me look at each rather than take that at face value — not because I doubt you, but because some of it may be fixable.
+
+Caller: Nobody has offered to fix anything yet.
+
+Agent Sarah: Let me start. Plan tier — you're on Bronze, and I can see a note from your enrollment call requesting Gold. That's a documented instruction not followed, which supports a retroactive correction rather than waiting for renewal.
+
+Caller: Retroactive?
+
+Agent Sarah: If approved, back to your effective date, with any claims reprocessed at Gold coinsurance. Second, vision — there's no vision election on file at all. Do you have anything showing you requested it?
+
+Caller: An email from March.
+
+Agent Sarah: Then that's the same category. Documented request, not submitted. Third, the waiting period — that one I can't undo, the wait is real. But I can check whether you had prior dental coverage, which would credit against it.
+
+Caller: I did, at my last job until January.
+
+Agent Sarah: Then that's likely creditable, and it may mean your waiting period should already have been satisfied. That would make any denial during the wait reviewable.
+
+Caller: So all three might actually be fixable.
+
+Agent Sarah: Two clearly, and the third probably. I'd rather you cancel after I've tried than before. Send me the March email and I'll build all three into one case. Reference MC-2026-01001.
+
+Caller: I came in ready to walk away.
+
+Agent Sarah: I know. And if it doesn't get resolved you still can. But let me try first.
+
+Caller: I've had a year of this. I want to cancel everything.
+
+Agent Sarah: I understand, and before you decide anything I want to be clear that I'm escalating this rather than talking you out of it. A member telling us they want to leave after repeated broker failures is a retention escalation and it goes to Account Management today with the history attached.
+
+Caller: And in the meantime?
+
+Agent Sarah: In the meantime nothing lapses. I'm putting a note on the account so no action is taken on cancellation until somebody senior has spoken to you.
+
+Caller: Alright. Send me what you need.
 
 ## AI Insights Panel — NanoVox 5-Layer Output
 
-L1 — Transcription & understanding: Call type: Commission verification on added line. Caller: BROKER (Patricia Nunez, AG-3390).
-Tone: neutral → satisfied. Duration: 7 min.
-L2 — Call insights: Broker verifying commission setup on a mid-year vision addition. Agent confirmed the coding and rate, explained the
-calculation timing, noted that rates differ by line, and supplied the commission schedule link. Resolution: RESOLVED.
-L3 — Agent quality: Agent Score: 90/100. POSITIVE: confirmed both coding and rate rather than just coding (+), explained the
-premium-received timing so the broker knows when to expect it (+), flagged that rates differ by line to prevent a future assumption error (+),
-supplied the schedule link and acknowledged it is hard to find (+).
-L4 — Operational BI: PROCESS OPPORTUNITY · Owner: Broker Relations — commission schedules by line and carrier are difficult to
-locate in the broker portal, generating avoidable verification calls. Recommend surfacing the schedule on the broker dashboard and sending
-an automatic commission confirmation when a line is added to a group.
-L5 — Real-time assist: Fired at 2:00 — line addition surfaced commission coding, rate by line, and calculation timing. Schedule link
-surfaced. Agent used all four.
-
-— COST SHARE & POLICY —
+L1 — Transcription & understanding: Call type: Cancellation request driven by cumulative broker failures. Caller: MEMBER (Doris Chen,
+CB-310092). Tone: angry → retained. Duration: 11 min. ■ Full cancellation intent reversed.
+L2 — Call insights: Member called to cancel all three coverage lines citing three broker failures: wrong plan tier, vision never added
+despite requests, and an undisclosed waiting period. Agent asked why before processing, found documented evidence supporting
+retroactive correction on two, identified a likely prior-coverage credit on the third, and consolidated all three into a single case.
+Resolution: RESOLVED — member retained pending case outcome.
+L3 — Agent quality: Agent Score: 96/100. POSITIVE: escalated to the correct owner rather than absorbing a decision outside her
+authority (+), asked why before processing the cancellation — the single most important retention behaviour (+), examined each
+complaint rather than accepting or dismissing (+), distinguished documented instructions from changes of mind, unlocking retroactive
+remedies (+), was honest that the waiting period itself could not be undone while finding the credit route (+), consolidated three issues
+into one case (+), explicitly preserved the member's right to cancel (+).
+L4 — Operational BI: BROKER ATTRIBUTION · CRITICAL · Owner: Broker Relations — Denise Whitfield accumulated three
+documented failures for a single member: wrong tier submitted against a recorded instruction, vision election never submitted despite
+written request, and waiting period misrepresented. Sixth flagged issue for this broker across the corpus. CHURN: this member reached
+full cancellation intent on all lines. Recommend a full audit of Whitfield's book against member instruction records, and a retention flag
+on every member she has enrolled.
+L5 — Real-time assist: Fired at 1:00 — cancellation request with multiple complaints surfaced the retention protocol and pulled
+enrollment instruction history. Documented-instruction mismatch surfaced on two lines. Prior coverage credit pathway surfaced. Agent
+used all four. Fired on escalation trigger — routing surfaced and used.

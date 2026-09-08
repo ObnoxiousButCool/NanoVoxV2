@@ -1,55 +1,64 @@
-# Call #3 — Second Eye Exam Denied — Frequency Limit Not Understood
+# Call #3 — Coordination Between Dental and Medical for the Same Procedure
 
 - **Agent:** Michael
 - **Caller:** MEMBER
 - **Tier:** AVERAGE
-- **Score:** 74/100
+- **Score:** 73/100
 - **Sentiment Arc:** CONFUSED → INFORMED
 - **Resolution:** RESOLVED
-- **Date:** 2026-09-11
-- **Start:** 11:17:15
-- **End:** 11:24:43
-- **AHT:** 7m 28s
+- **Date:** 2026-09-01
+- **Start:** 13:29:15
+- **End:** 13:36:05
+- **AHT:** 6m 50s
 - **Duration:** ~7 min
-- **Topics:** frequency limit · vision · VSP · exam · denial
+- **Queue:** Cost Share & Policy
+- **Topics:** medical dental crossover · oral surgery · coordination · claims
 
-**Member context:** Rosa Delgado, 52 · VSP vision plan · second exam in a calendar year denied
+**Member context:** Ibrahim Nasser, 34 · Member ID CB-4416628 · dental plus separate medical
 
 ## Transcript
 
-Agent Michael: Choice Administrators member services, Michael speaking.
- Caller: Hi, I had an eye exam in February and another one last week because my prescription changed. The second one was denied.
-Member ID CB-6614882.
-Agent Michael: Let me check. You're on the VSP plan. Your exam benefit is once every 12 months.
- Caller: But my prescription changed. That's a medical reason, not me being frivolous.
-Agent Michael: I understand, but the frequency limit is based on the calendar, not the reason. February to last week is about eight
-months, so the second exam falls inside the 12-month window.
- Caller: So I pay full price?
-Agent Michael: For the exam, yes. But let me check your materials benefit separately, because lenses and frames run on their own
-schedule.
- Caller: Go ahead.
-Agent Michael: Your lens benefit is once every 12 months and your frame benefit is once every 24 months. You used lenses in February
-as well, so those are also inside the window. Frames you last used in 2024, so frames are available now.
- Caller: So I can get new frames but not new lenses. That's not much use.
-Agent Michael: It isn't, on its own. What I'd suggest is asking VSP about their out-of-benefit pricing — members get a discount on
-services outside the frequency window, usually around 20%. It's not coverage but it's better than retail.
- Caller: I didn't know that existed.
-Agent Michael: Most people don't. Your exam anniversary resets in February, so if the prescription can wait, that's when the full benefit
-is available again.
- Caller: Okay. That's clear at least. Thank you.
+Agent Michael: Choice Administrators, Michael speaking. This call may be recorded for quality and training. Can I take your name and member ID?
+
+Caller: Ibrahim Nasser, member ID CB-4416628.
+
+Agent Michael: Thanks Ibrahim. Tell me what's happening.
+
+Caller: I'm having jaw surgery and the surgeon says it might be billed to medical rather than dental. Which is it?
+
+Agent Michael: It depends on the reason for the procedure. Procedures done for a medical reason — trauma, a pathological condition, or a functional jaw problem — usually bill to medical. Procedures for a dental reason bill to dental.
+
+Caller: It's a functional issue. I can't chew properly.
+
+Agent Michael: Then medical is likely the correct primary payer. Do you have medical coverage separately?
+
+Caller: Yes, through the same employer but a different carrier.
+
+Agent Michael: Then your surgeon should submit to medical first. If medical denies it as dental in nature, they resubmit to us with the medical denial attached, and we'd assess it under your dental benefit.
+
+Caller: So there's a sequence.
+
+Agent Michael: There is, and doing it in the wrong order wastes weeks. Medical first, then dental with the denial if needed.
+
+Caller: What if dental also denies it?
+
+Agent Michael: Then you'd appeal, and the medical denial becomes useful evidence — it establishes that at least one payer considered it the other's responsibility. That's a stronger appeal than starting from nothing.
+
+Caller: Good to understand the order. Thank you.
 
 ## AI Insights Panel — NanoVox 5-Layer Output
 
-L1 — Transcription & understanding: Call type: Frequency limit denial — vision. Caller: MEMBER. Tone: confused → informed. Agent
-tone: accurate, moderately helpful. Duration: 7 min.
-L2 — Call insights: Member's second eye exam within 12 months denied on frequency. Agent explained the calendar-based limit, checked
-lens and frame benefits separately, identified frames as available, and surfaced VSP out-of-benefit discount pricing. Resolution:
-RESOLVED.
-L3 — Agent quality: Agent Score: 74/100. POSITIVE: separated exam, lens and frame frequency schedules (+), identified an available
-frame benefit (+), surfaced out-of-benefit discount pricing (+), gave the reset date (+). NEGATIVE: no empathy for a legitimate prescription
-change (-), did not check whether a medical exception exists for significant prescription change (-), no written summary offered (-).
-L4 — Operational BI: MEMBER COMMUNICATION GAP · Owner: Member Communications — vision frequency schedules run on three
-separate clocks (exam, lenses, frames) and members assume one. Recommend a portal widget showing each benefit's next available date.
-PROCESS: agents are not checking for prescription-change exceptions — confirm whether the carrier offers one and script it if so.
-L5 — Real-time assist: Fired at 2:00 — frequency schedule lookup returned exam, lens and frame anniversary dates. Did not surface
-out-of-benefit discount pricing; agent supplied that from experience. Worth adding to the playbook.
+L1 — Transcription & understanding: Call type: Medical-dental crossover. Caller: MEMBER (Ibrahim Nasser, CB-4416628). Tone:
+confused → informed. Duration: 6 min.
+L2 — Call insights: Member facing jaw surgery unclear whether medical or dental applies. Agent explained the medical-reason test,
+established that functional impairment points to medical primary, set out the correct submission sequence, and explained how a medical
+denial strengthens a subsequent dental appeal. Resolution: RESOLVED.
+L3 — Agent quality: Agent Score: 73/100. POSITIVE: applied the medical-reason test to the member's actual situation (+), gave the
+correct submission sequence, which saves weeks (+), explained how a denial becomes appeal evidence (+). NEGATIVE: did not offer
+written guidance for the surgeon's billing office (-), no reference number (-), did not note the account in anticipation of a crossover claim
+(-).
+L4 — Operational BI: MEMBER COMMUNICATION GAP · Owner: Member Communications — medical-dental crossover procedures
+are frequently submitted in the wrong order, delaying treatment. Recommend provider-facing guidance and a member explainer
+covering the sequence.
+L5 — Real-time assist: Fired at 2:00 — crossover inquiry surfaced the medical-reason criteria and submission sequence. Written
+provider guidance not available; recommend creating.

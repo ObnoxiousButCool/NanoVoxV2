@@ -1,54 +1,73 @@
-# Call #9 — Deductible vs Copay vs Coinsurance — Member Cannot Tell Them Apart
+# Call #9 — COBRA on Ancillary Lines — Employer Assumed It Only Applied to Medical
 
-- **Agent:** Tony
-- **Caller:** MEMBER
-- **Tier:** AVERAGE
-- **Score:** 79/100
+- **Agent:** Carlos
+- **Caller:** EMPLOYER
+- **Tier:** GOOD
+- **Score:** 91/100
 - **Sentiment Arc:** CONFUSED → INFORMED
 - **Resolution:** RESOLVED
-- **Date:** 2026-09-21
-- **Start:** 11:27:15
-- **End:** 11:34:55
-- **AHT:** 7m 40s
-- **Duration:** ~8 min
-- **Topics:** deductible · copay · coinsurance · cost share · member education
+- **Date:** 2026-09-03
+- **Start:** 15:25:30
+- **End:** 15:34:51
+- **AHT:** 9m 21s
+- **Duration:** ~9 min
+- **Queue:** Employer: Terminations
+- **Topics:** COBRA · ancillary continuation · dental · vision · compliance
 
-**Member context:** Wendy Castellanos, 38 · Ameritas dental · three different charges in one year
+**Member context:** Redwood Manufacturing · 118 employees · Benefits Administrator Nancy Chow
 
 ## Transcript
 
-Agent Tony: Choice Administrators, this is Tony.
- Caller: I've been charged three different ways this year and I don't understand any of it. One visit was free, one I paid $25, one I paid
-$90. Same plan. Member ID CB-6641093.
-Agent Tony: Let me pull the three claims and take them one at a time, because there is a logic to it.
- Caller: Please.
-Agent Tony: First visit, March, cleaning and exam. Preventive, covered at 100%, no deductible. That's your free one.
- Caller: Right.
-Agent Tony: Second, June, a filling. That's basic services, covered at 80%. But before the plan pays anything on basic or major work,
-you have a $50 annual deductible. The filling was $125 allowed. You paid the $50 deductible, then 20% of the remaining $75, which is
-$15. Total $65.
- Caller: The statement said $25.
-Agent Tony: Let me re-read... you're right, $25. The deductible had already been partly met by an earlier x-ray. So $10 of deductible
-plus $15 coinsurance.
- Caller: And the $90?
-Agent Tony: September, a root canal. Major services, 50% coverage, deductible already met. Allowed amount $180, you pay half —
-$90.
- Caller: So the deductible is once a year, and then the percentage depends on the type of work.
-Agent Tony: That's it exactly. Preventive is free and never touches the deductible. Basic and major both do.
- Caller: Why does nobody explain it that way?
-Agent Tony: It's a fair question. I'll note it as feedback.
+Agent Carlos: Choice Administrators, this is Carlos. This call may be recorded for quality and training. Can I take your name and group number?
+
+Caller: Nancy Chow, Benefits Administrator at Redwood Manufacturing, group GRP-345008.
+
+Agent Carlos: Thanks Nancy. Tell me what's happening.
+
+Caller: We're handling COBRA for our medical plan through a third-party administrator. Does dental and vision go through them too, or through you?
+
+Agent Carlos: Good question, and this catches a lot of employers out. COBRA applies to dental and vision the same way it applies to medical — they're group health plans under the statute.
+
+Caller: We've been treating ancillary as outside COBRA.
+
+Agent Carlos: That's a common assumption and it creates exposure. Every terminating employee should receive an election notice covering all their group health coverage, including dental and vision. Life insurance is different — that's usually conversion rather than COBRA.
+
+Caller: How far back does this go for us?
+
+Agent Carlos: I can see your termination submissions. Let me check whether ancillary COBRA notices have been generating... they have been, actually. Your notices from our side include dental and vision.
+
+Caller: So we've been compliant without realising it.
+
+Agent Carlos: On the notice side, yes, because the platform generates it from the termination submission automatically. Where the risk sits is if your third-party administrator is also sending a notice covering only medical — a terminated employee could receive two notices with different scope and get confused about what they're electing.
+
+Caller: That is almost certainly happening.
+
+Agent Carlos: Worth aligning. I'd suggest a conversation between your TPA and us so one notice covers everything or the two are clearly delineated.
+
+Caller: Can you help set that up?
+
+Agent Carlos: I can flag it to your account manager with the context. Reference CB-2026-00771. What's the TPA?
+
+Caller: Benefit Solutions Group.
+
+Agent Carlos: Noted. Your account manager will reach out within three business days to coordinate.
+
+Caller: That's really helpful. I came in with a simple question and found a real problem.
 
 ## AI Insights Panel — NanoVox 5-Layer Output
 
-L1 — Transcription & understanding: Call type: Cost-share education. Caller: MEMBER. Tone: confused → informed. Agent tone:
-methodical. Duration: 7 min. Agent self-corrected one figure mid-call.
-L2 — Call insights: Member could not reconcile three different charge amounts across one plan year. Agent walked through each claim
-showing preventive/basic/major treatment and deductible application. Resolution: RESOLVED.
-L3 — Agent quality: Agent Score: 79/100. POSITIVE: took claims in sequence rather than explaining abstractly (+), corrected his own error
-openly (+), landed a clear summary rule (+). NEGATIVE: initial misread caused momentary confusion (-), no written summary offered (-), did
-not surface remaining deductible or annual maximum (-).
-L4 — Operational BI: MEMBER COMMUNICATION GAP · Owner: Member Communications — deductible/copay/coinsurance confusion is
-the highest-frequency member education issue in the corpus. Recommend a worked example on the EOB itself showing how the member's
-own charge was calculated, rather than a generic glossary.
-L5 — Real-time assist: Fired at 2:00 — claim history with cost-share breakdown surfaced. Did not surface remaining deductible balance;
-worth adding.
+L1 — Transcription & understanding: Call type: COBRA scope on ancillary lines. Caller: EMPLOYER (Benefits Administrator). Tone:
+confused → informed. Agent tone: knowledgeable, consultative. Duration: 10 min. Compliance dimension.
+L2 — Call insights: Employer believed COBRA applied only to medical. Agent confirmed dental and vision are group health plans
+subject to COBRA, verified the platform is generating compliant notices, and identified a genuine risk of duplicate conflicting notices from
+the employer's separate medical TPA. Escalated to the account manager. Resolution: RESOLVED — coordination initiated.
+L3 — Agent quality: Agent Score: 91/100. POSITIVE: corrected a compliance misunderstanding clearly (+), distinguished life insurance
+conversion from COBRA (+), verified actual notice generation rather than assuming (+), identified the duplicate-notice risk the employer
+had not seen (+), escalated with context and reference (+). NEGATIVE: did not offer to send the employer a copy of a sample generated
+notice for their records (-).
+L4 — Operational BI: PROCESS OPPORTUNITY · Owner: Account Management / Compliance — employers running medical COBRA
+through a separate TPA are a structural source of duplicate or conflicting election notices. Recommend identifying all groups with an
+external medical TPA and proactively coordinating notice scope.
+L5 — Real-time assist: Fired at 3:00 — COBRA scope inquiry surfaced ancillary COBRA applicability, life conversion distinction, and the
+group's notice generation history. Duplicate-notice risk was agent-identified, not system-surfaced; recommend adding an external-TPA
+flag.

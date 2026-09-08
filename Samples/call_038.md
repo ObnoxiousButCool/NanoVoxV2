@@ -1,57 +1,77 @@
-# Call #38 — Building a Package Quote Across Four Carriers
+# Call #38 — Member Believed She Had Vision Coverage — She Never Did
 
-- **Agent:** Priya
-- **Caller:** BROKER
-- **Tier:** GOOD
-- **Score:** 90/100
-- **Sentiment Arc:** NEUTRAL → SATISFIED
-- **Resolution:** RESOLVED
-- **Date:** 2026-09-15
-- **Start:** 12:05:00
-- **End:** 12:12:44
-- **AHT:** 7m 44s
-- **Duration:** ~8 min
-- **Topics:** quoting · multi-carrier · package · proposal
+- **Agent:** Kayla
+- **Caller:** MEMBER
+- **Tier:** POOR
+- **Score:** 35/100
+- **Sentiment Arc:** FRUSTRATED → CHURN RISK
+- **Resolution:** UNRESOLVED
+- **Date:** 2026-09-10
+- **Start:** 11:32:00
+- **End:** 11:37:42
+- **AHT:** 5m 42s
+- **Duration:** ~6 min
+- **Queue:** Claims & EOB
+- **Broker Signal:** Anthony Salerno: named aloud by the caller
+- **Topics:** coverage misunderstanding · vision not elected · broker failure · churn risk
 
-**Member context:** Park Benefits · Broker Grant Park · 70-life group, dental vision chiro life
+**Member context:** Diane Kowalski, 49 · Member ID CB-4483310 · dental only
 
 ## Transcript
 
-Agent Priya: Thank you for calling Choice Administrators, this is Priya.
- Caller: Grant Park, agency AG-7710. I'm building a full ancillary package for a 70-life group — dental, vision, chiro, life. I want to make
-sure I'm structuring the quote the right way.
-Agent Priya: Happy to help. Are you quoting all four as employer-sponsored, or a mix?
- Caller: Employer-sponsored dental and vision, voluntary chiro and life.
-Agent Priya: That's a common and sensible structure. Two things worth knowing. Voluntary lines each carry their own participation
-minimum, so chiro and life are tested separately — one can fail without affecting the other.
- Caller: So I should set expectations that chiro might not make participation.
-Agent Priya: Chiro and acupuncture typically has lower take-up than life, yes. Worth flagging in the proposal so it isn't a surprise at
-implementation.
- Caller: Noted. And the employer-sponsored lines?
-Agent Priya: If the employer contributes 50% or more of employee-only premium on dental and vision, participation minimums are
-substantially relaxed. Below that threshold they apply as if voluntary.
- Caller: Good. Can I quote multiple dental carriers side by side in one proposal?
-Agent Priya: Yes, and I'd recommend it for a group this size. The quoting engine will return Ameritas, Anthem, Delta and MetLife options
-on the same census. Employees then choose at enrollment, which is the point of the exchange.
- Caller: That's the pitch, really.
-Agent Priya: It is. One practical note — if you present four dental options plus vision plus two voluntary lines, employees can find it
-overwhelming. Most brokers narrow to two or three dental choices in the final proposal.
- Caller: That's useful advice. Thank you.
+Agent Kayla: Choice Administrators, this is Kayla. This call may be recorded for quality and training. Can I take your name and member ID?
+
+Caller: Diane Kowalski, member ID CB-4483310.
+
+Agent Kayla: Thank you. I have the record open — go ahead.
+
+Caller: I had an eye exam and they said I have no vision coverage. I've been paying for it for two years.
+
+Agent Kayla: Let me look. You have dental only.
+
+Caller: I was told I had both. My broker, Anthony Salerno, enrolled me and said dental and vision.
+
+Agent Kayla: There's only dental on the account.
+
+Caller: So what have I been paying for?
+
+Agent Kayla: Your deduction would be dental only.
+
+Caller: Can you tell me the amount?
+
+Agent Kayla: We don't see payroll deductions, that's your employer.
+
+Caller: So I don't know whether I've been overcharged.
+
+Agent Kayla: Your employer would know.
+
+Caller: Can vision be added now?
+
+Agent Kayla: Only at open enrollment.
+
+Caller: When is that?
+
+Agent Kayla: It varies by group.
+
+Caller: Can you check mine?
+
+Agent Kayla: It's usually in the autumn.
+
+Caller: Honestly, if this is the level of information available I'll take the dental off too and go elsewhere.
 
 ## AI Insights Panel — NanoVox 5-Layer Output
 
-L1 — Transcription & understanding: Call type: Package quote structuring. Caller: BROKER. Tone: neutral → satisfied. Duration: 8 min.
-Pre-sale, 70 lives.
-L2 — Call insights: Broker structuring a four-line ancillary package. Agent confirmed participation testing is per voluntary line, explained the
-50% employer contribution threshold, confirmed multi-carrier side-by-side quoting, and advised narrowing dental options to avoid choice
-overload. Resolution: RESOLVED.
-L3 — Agent quality: Agent Score: 90/100. POSITIVE: asked about structure before answering (+), explained per-line participation testing
-(+), flagged chiro take-up risk so the broker can set expectations (+), gave the contribution threshold precisely (+), offered practical proposal
-advice beyond the technical answer (+).
-L4 — Operational BI: PROCESS OPPORTUNITY · Owner: Broker Relations — brokers structuring multi-line packages benefit from
-consultative support that is currently only available if they happen to reach an experienced agent. Recommend a broker quoting guide
-covering participation testing by line, contribution thresholds, and proposal design.
-L5 — Real-time assist: Fired at 2:00 — package quote inquiry surfaced participation rules by line and contribution thresholds. Proposal
-design advice was agent-supplied; worth capturing.
-
-— COST SHARE & POLICY —
+L1 — Transcription & understanding: Call type: Coverage line misunderstanding. Caller: MEMBER (Diane Kowalski, CB-4483310).
+Tone: frustrated → churn risk. Duration: 5 min. ■ Cancellation intent stated.
+L2 — Call insights: Member believed she held vision coverage for two years; only dental was ever enrolled. Agent confirmed dental
+only, could not identify the group's open enrollment dates, did not log the broker failure, and did not respond to cancellation intent.
+Resolution: UNRESOLVED.
+L3 — Agent quality: Agent Score: 35/100. NEGATIVE: could not state the group's open enrollment dates, which are on the group record
+(-), no broker log despite the broker being named (-), did not offer to check whether a vision election was ever submitted and lost (-), no
+retention response to explicit cancellation intent (-), left the member unable to determine whether she has been overcharged (-).
+POSITIVE: correctly confirmed the enrolled lines (+).
+L4 — Operational BI: BROKER ATTRIBUTION · Owner: Broker Relations — Anthony Salerno represented dental and vision enrollment;
+only dental was submitted. Sixth flagged issue for this broker. CHURN SIGNAL: member intends to cancel all coverage. PROCESS:
+open enrollment dates are group-level data and must be answerable at first contact.
+L5 — Real-time assist: SHOULD HAVE FIRED at 1:00 — member-reported coverage that does not exist is an enrollment discrepancy
+trigger. At 4:30 — cancellation intent. Neither fired.
