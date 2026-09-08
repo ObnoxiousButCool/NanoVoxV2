@@ -7,6 +7,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { AppProviders } from '@/app/providers'
 import { OverviewPage } from '@/features/overview/OverviewPage'
 import chartStyles from '@/shared/ui/charts.module.css'
+import { requestUrl } from '@/test/requestUrl'
 
 const OVERVIEW = {
   metrics: {
@@ -662,7 +663,7 @@ describe('OverviewPage', () => {
 
       const pulseUrls = vi
         .mocked(fetch)
-        .mock.calls.map(([url]) => String(url))
+        .mock.calls.map(([input]) => requestUrl(input))
         .filter((url) => url.includes('/dashboard/pulse'))
 
       expect(pulseUrls.some((url) => url.includes('centre='))).toBe(true)
