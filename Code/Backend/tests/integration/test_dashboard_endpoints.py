@@ -128,18 +128,57 @@ class TestPulseEndpoint:
             body["latest"]["resolution_rate"] - body["previous"]["resolution_rate"], abs=0.1
         )
 
-    def test_the_sentiment_arc_is_reported_beside_it(self, seeded: TestClient) -> None:
+    def test_the_sentiment_field_is_zeroed_now_the_card_is_gone(self, seeded: TestClient) -> None:
+        # commented out as no longer needed on frontend. The field stays on the
+        # response shape rather than being removed, so this pins it at zero
+        # instead of dropping the coverage.
         body = seeded.get("/api/v1/dashboard/pulse").json()
         sentiment = body["sentiment"]
 
-        assert (
-            sentiment["improved"]
-            + sentiment["unchanged"]
-            + sentiment["worsened"]
-            + sentiment["unclassified"]
-            == TOTAL_CALLS
-        )
-        assert 0 <= sentiment["improved_rate"] <= 100
+        assert sentiment == {
+            "improved": 0,
+            "unchanged": 0,
+            "worsened": 0,
+            "unclassified": 0,
+            "improved_rate": 0,
+        }
+
+    def test_an_anchor_ends_the_window_on_the_week_containing_it(self, seeded: TestClient) -> None:
+        body = seeded.get("/api/v1/dashboard/pulse", params={"anchor": "2026-08-04"}).json()
+
+        assert [point["label"] for point in body["points"]] == ["27 Jul", "3 Aug"]
+        assert body["latest"]["label"] == "3 Aug"
+
+    def test_an_anchor_before_every_week_yields_an_empty_window(self, seeded: TestClient) -> None:
+        body = seeded.get("/api/v1/dashboard/pulse", params={"anchor": "2020-01-01"}).json()
+
+        assert body["points"] == []
+        assert body["latest"] is None
+
+    def test_available_weeks_names_every_week_regardless_of_the_anchor(
+        self, seeded: TestClient
+    ) -> None:
+        # The picker that reads this needs the whole span to offer, not just
+        # whatever window an anchor happens to have narrowed `points` to.
+        body = seeded.get("/api/v1/dashboard/pulse", params={"anchor": "2026-08-04"}).json()
+
+        assert body["available_weeks"] == ["2026-07-27", "2026-08-03", "2026-08-10"]
+
+    def test_a_month_returns_every_one_of_its_own_weeks_rather_than_a_trailing_window(
+        self, seeded: TestClient
+    ) -> None:
+        body = seeded.get("/api/v1/dashboard/pulse", params={"month": "2026-08-15"}).json()
+
+        assert [point["label"] for point in body["points"]] == ["3 Aug", "10 Aug"]
+
+    def test_a_month_takes_precedence_over_an_anchor_given_alongside_it(
+        self, seeded: TestClient
+    ) -> None:
+        body = seeded.get(
+            "/api/v1/dashboard/pulse", params={"anchor": "2026-08-04", "month": "2026-07-01"}
+        ).json()
+
+        assert [point["label"] for point in body["points"]] == ["27 Jul"]
 
 
 class TestWorkMixEndpoint:

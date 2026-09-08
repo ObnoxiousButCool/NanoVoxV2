@@ -418,6 +418,21 @@
         "title": "AttentionItemResponse",
         "type": "object"
       },
+      "Body_import_corpus_api_v1_corpus_imports_post": {
+        "properties": {
+          "file": {
+            "contentMediaType": "application/octet-stream",
+            "description": "A call-corpus PDF.",
+            "title": "File",
+            "type": "string"
+          }
+        },
+        "required": [
+          "file"
+        ],
+        "title": "Body_import_corpus_api_v1_corpus_imports_post",
+        "type": "object"
+      },
       "BrokerResponse": {
         "properties": {
           "broker_name": {
@@ -930,6 +945,38 @@
         "title": "ComponentStatus",
         "type": "string"
       },
+      "CorpusImportResponse": {
+        "properties": {
+          "calls": {
+            "items": {
+              "$ref": "#/components/schemas/ImportedCallResponse"
+            },
+            "title": "Calls",
+            "type": "array"
+          },
+          "directory": {
+            "title": "Directory",
+            "type": "string"
+          },
+          "name": {
+            "description": "Directory this corpus was saved as.",
+            "title": "Name",
+            "type": "string"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "name",
+          "directory",
+          "total",
+          "calls"
+        ],
+        "title": "CorpusImportResponse",
+        "type": "object"
+      },
       "CorpusStatusResponse": {
         "properties": {
           "active_run_id": {
@@ -969,6 +1016,29 @@
           "active_run_id"
         ],
         "title": "CorpusStatusResponse",
+        "type": "object"
+      },
+      "CorpusVersionResponse": {
+        "properties": {
+          "directory": {
+            "title": "Directory",
+            "type": "string"
+          },
+          "files": {
+            "title": "Files",
+            "type": "integer"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "directory",
+          "files"
+        ],
+        "title": "CorpusVersionResponse",
         "type": "object"
       },
       "DurationBandResponse": {
@@ -1276,6 +1346,138 @@
           "is_thin"
         ],
         "title": "HourlyPointResponse",
+        "type": "object"
+      },
+      "ImportedCallResponse": {
+        "properties": {
+          "agent": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Agent"
+          },
+          "broker": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Broker signal as 'Name: what they did', if any.",
+            "title": "Broker"
+          },
+          "caller": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Caller"
+          },
+          "filename": {
+            "title": "Filename",
+            "type": "string"
+          },
+          "has_panel": {
+            "description": "Whether the authored insights panel came through.",
+            "title": "Has Panel",
+            "type": "boolean"
+          },
+          "number": {
+            "title": "Number",
+            "type": "integer"
+          },
+          "queue": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Queue"
+          },
+          "reference": {
+            "description": "The reference a corpus run would store this call under.",
+            "title": "Reference",
+            "type": "string"
+          },
+          "repeat": {
+            "description": "Whether this call is marked as a repeat contact.",
+            "title": "Repeat",
+            "type": "boolean"
+          },
+          "resolution": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resolution"
+          },
+          "score": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Score"
+          },
+          "tier": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tier"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "turns": {
+            "description": "Non-blank transcript lines extracted for this call.",
+            "title": "Turns",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "number",
+          "reference",
+          "title",
+          "filename",
+          "agent",
+          "caller",
+          "tier",
+          "score",
+          "resolution",
+          "queue",
+          "turns",
+          "has_panel",
+          "broker",
+          "repeat"
+        ],
+        "title": "ImportedCallResponse",
         "type": "object"
       },
       "L4CategoryEntry": {
@@ -1823,6 +2025,15 @@
       },
       "PulseResponse": {
         "properties": {
+          "available_weeks": {
+            "description": "Every week the corpus spans, oldest first \u2014 what a period picker offers, as distinct from `points`, which is only the anchored window.",
+            "items": {
+              "format": "date",
+              "type": "string"
+            },
+            "title": "Available Weeks",
+            "type": "array"
+          },
           "delta": {
             "anyOf": [
               {
@@ -1874,7 +2085,8 @@
           "previous",
           "delta",
           "sentiment",
-          "undated_calls"
+          "undated_calls",
+          "available_weeks"
         ],
         "title": "PulseResponse",
         "type": "object"
@@ -3251,6 +3463,71 @@
         ]
       }
     },
+    "/api/v1/corpus/imports": {
+      "get": {
+        "operationId": "list_corpus_imports_api_v1_corpus_imports_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/CorpusVersionResponse"
+                  },
+                  "title": "Response List Corpus Imports Api V1 Corpus Imports Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Corpora that have been imported, newest first",
+        "tags": [
+          "corpus"
+        ]
+      },
+      "post": {
+        "description": "Extract every call from a corpus PDF and save it as corpus markdown.\n\nSaved under its own name in the import library, never over the corpus in\nuse: the stored analyses are only meaningful against the transcripts they\nwere made from, so replacing those silently would leave the dashboard\ndescribing calls that no longer exist.\n\nNothing is analysed here. Import produces files; a run spends money.",
+        "operationId": "import_corpus_api_v1_corpus_imports_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_import_corpus_api_v1_corpus_imports_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CorpusImportResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Convert an uploaded corpus document into sample call files",
+        "tags": [
+          "corpus"
+        ]
+      }
+    },
     "/api/v1/corpus/runs": {
       "get": {
         "operationId": "list_runs_api_v1_corpus_runs_get",
@@ -3616,6 +3893,46 @@
     "/api/v1/dashboard/pulse": {
       "get": {
         "operationId": "get_pulse_api_v1_dashboard_pulse_get",
+        "parameters": [
+          {
+            "description": "End the window on the week containing this date.",
+            "in": "query",
+            "name": "anchor",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "End the window on the week containing this date.",
+              "title": "Anchor"
+            }
+          },
+          {
+            "description": "Every week of this date's calendar month, instead of a trailing window. Takes precedence over `anchor` if both are given.",
+            "in": "query",
+            "name": "month",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Every week of this date's calendar month, instead of a trailing window. Takes precedence over `anchor` if both are given.",
+              "title": "Month"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -3626,6 +3943,16 @@
               }
             },
             "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
           }
         },
         "summary": "Which way the centre is moving, week by week",

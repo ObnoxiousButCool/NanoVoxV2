@@ -36,6 +36,7 @@ import {
   startRun,
   type AnalyzeRequest,
   type CallFilters,
+  type PulseParams,
   type StartRunRequest,
 } from '@/shared/api/endpoints'
 import type { Analysis, CorpusRun } from '@/shared/api/types'
@@ -56,7 +57,8 @@ export const queryKeys = {
   resolutionTime: ['dashboard', 'resolution-time'] as const,
   timeValue: ['dashboard', 'time-value'] as const,
   membersAtRisk: ['dashboard', 'members-at-risk'] as const,
-  pulse: ['dashboard', 'pulse'] as const,
+  pulse: (params: PulseParams = {}) =>
+    ['dashboard', 'pulse', params.month ?? 'no-month', params.anchor ?? 'latest'] as const,
   workMix: ['dashboard', 'work-mix'] as const,
   corpus: ['corpus'] as const,
   corpusImports: ['corpus', 'imports'] as const,
@@ -144,8 +146,11 @@ export function useMembersAtRisk() {
   })
 }
 
-export function usePulse() {
-  return useQuery({ queryKey: queryKeys.pulse, queryFn: ({ signal }) => fetchPulse(signal) })
+export function usePulse(params: PulseParams = {}) {
+  return useQuery({
+    queryKey: queryKeys.pulse(params),
+    queryFn: ({ signal }) => fetchPulse(params, signal),
+  })
 }
 
 export function useWorkMix() {

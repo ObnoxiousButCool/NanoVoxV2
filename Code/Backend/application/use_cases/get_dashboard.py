@@ -18,6 +18,7 @@ omitted, so the absence is visible rather than implied (plan §6.5).
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import date
 
 from application.ports.read_models import (
     AgentAggregate,
@@ -41,11 +42,7 @@ from domain.aggregation.resolution_time import (
     ResolutionTime,
     resolution_time,
 )
-from domain.aggregation.sentiment_movement import (
-    SentimentArc,
-    SentimentMovement,
-    sentiment_movement,
-)
+from domain.aggregation.sentiment_movement import SentimentMovement
 from domain.aggregation.signal_attribution import primary_category_by_call
 from domain.aggregation.significance import AgentRating, rate_agent
 from domain.aggregation.statistics import (
@@ -57,7 +54,7 @@ from domain.aggregation.statistics import (
     percentage,
 )
 from domain.aggregation.time_value import TimeValue, time_value
-from domain.aggregation.trend import Trend, TrendCall, trend
+from domain.aggregation.trend import Trend, TrendCall, month_window, trend, windowed
 from domain.scoring.rubric import Rubric
 from domain.taxonomy import Taxonomy
 from domain.value_objects.caller_type import CallerType
@@ -310,6 +307,9 @@ class Pulse:
 
     trend: Trend
     sentiment: SentimentMovement
+    # Every week the corpus spans, unwindowed — what a period picker offers,
+    # as distinct from ``trend.points``, which is only the anchored window.
+    available_weeks: tuple[date, ...]
 
 
 @dataclass(frozen=True)
@@ -321,26 +321,38 @@ class WorkMix:
 
 
 class GetPulse:
-    """Builds the weekly trend and the sentiment arc that goes beside it."""
+    """Builds the weekly trend, windowed to end at ``anchor`` or, if ``month``
+    is given instead, narrowed to that calendar month's own weeks."""
 
     def __init__(self, repository: ReadModelRepository) -> None:
         self._repository = repository
 
-    async def execute(self) -> Pulse:
+    async def execute(self, anchor: date | None = None, month: date | None = None) -> Pulse:
         facts = await self._repository.call_facts()
+        full_trend = trend(
+            TrendCall(
+                started_at=fact.started_at,
+                score=fact.score,
+                resolution=fact.resolution,
+                duration_seconds=fact.duration_seconds,
+            )
+            for fact in facts
+        )
+        # A month takes precedence over an anchor rather than the two being
+        # rejected together: the two callers that build this request — the
+        # trailing-window view and the whole-month view — never send both.
+        selected = (
+            month_window(full_trend, month) if month is not None else windowed(full_trend, anchor)
+        )
         return Pulse(
-            trend=trend(
-                TrendCall(
-                    started_at=fact.started_at,
-                    score=fact.score,
-                    resolution=fact.resolution,
-                    duration_seconds=fact.duration_seconds,
-                )
-                for fact in facts
-            ),
-            sentiment=sentiment_movement(
-                SentimentArc(start=fact.sentiment_start, end=fact.sentiment_end) for fact in facts
-            ),
+            trend=selected,
+            # commented out as no longer needed on frontend.
+            # sentiment=sentiment_movement(  # noqa: ERA001
+            #     SentimentArc(start=fact.sentiment_start, end=fact.sentiment_end)  # noqa: ERA001
+            #     for fact in facts
+            # ),
+            sentiment=SentimentMovement(improved=0, unchanged=0, worsened=0, unclassified=0),
+            available_weeks=tuple(point.starting for point in full_trend.points),
         )
 
 

@@ -6,6 +6,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { AppProviders } from '@/app/providers'
 import { OverviewPage } from '@/features/overview/OverviewPage'
+import chartStyles from '@/shared/ui/charts.module.css'
 
 const OVERVIEW = {
   metrics: {
@@ -277,8 +278,9 @@ const PULSE = {
     resolution_rate: -54.2,
     median_handle_minutes: -1.5,
   },
-  sentiment: { improved: 44, unchanged: 5, worsened: 1, unclassified: 0, improved_rate: 88 },
+  sentiment: { improved: 0, unchanged: 0, worsened: 0, unclassified: 0, improved_rate: 0 },
   undated_calls: 0,
+  available_weeks: ['2026-08-31', '2026-09-07', '2026-09-14'],
 }
 
 const WORK_MIX = {
@@ -511,12 +513,15 @@ describe('OverviewPage', () => {
   it('shows an owner carrying no signals as a dash', async () => {
     renderOverview()
 
-    await screen.findByText('Member Communications')
-    expect(screen.getByText('Provider Relations')).toBeInTheDocument()
-    // One dash on the page: the owner carrying no signals. An agent below the
-    // significance threshold used to be the other one, and now shows their
-    // average — it is the tier that is withheld, not the arithmetic.
-    expect(screen.getAllByText('—')).toHaveLength(1)
+    const heading = await screen.findByText('Signals by owner')
+    const card = heading.closest('section')
+    if (!card) throw new Error('signals card has no containing section')
+
+    // One dash in this card: the owner carrying no signals. Scoped to the
+    // card itself — "How long an answer takes" has its own dash for its own
+    // reason, covered by its own test, and is not what this one is about.
+    expect(within(card).getByText('Provider Relations')).toBeInTheDocument()
+    expect(within(card).getAllByText('—')).toHaveLength(1)
   })
 
   it('points a fresh install at Analyze instead of showing empty charts', async () => {
@@ -548,8 +553,8 @@ describe('OverviewPage', () => {
       // the week has to come before the five-week trend.
       renderOverview()
 
-      const week = await screen.findByText('Calls this week')
-      const trend = await screen.findByText('Five weeks of resolution and quality')
+      const week = await screen.findByText('Calls Monitored')
+      const trend = await screen.findByText('Overall Call Quality vs Average Handling Time')
 
       expect(week.compareDocumentPosition(trend)).toBe(Node.DOCUMENT_POSITION_FOLLOWING)
     })
@@ -559,6 +564,14 @@ describe('OverviewPage', () => {
 
       expect(await screen.findByText(/54.2 pts on last week/)).toBeInTheDocument()
       expect(screen.getByText(/18.5 pts on last week/)).toBeInTheDocument()
+    })
+
+    it('reports the call count as a percentage move against last week', async () => {
+      // 7 calls against 8 the week before: a percentage of the count itself,
+      // not of some other metric shown beside it.
+      renderOverview()
+
+      expect(await screen.findByText(/12.5% on last week/)).toBeInTheDocument()
     })
 
     it('marks a fall as bad and a rise as good, per measure', async () => {
@@ -579,25 +592,92 @@ describe('OverviewPage', () => {
     })
   })
 
-  describe('the weekly trend', () => {
-    it('gives every week as a value, not only as a line', async () => {
-      // The plot is SVG with no text in it. The table is the same data in the
-      // form a screen reader and a printed page can use.
-      renderOverview()
+  describe('quality vs handling time', () => {
+    it('draws a point on each line for every week that measured it', async () => {
+      // The week with no calls (7 Sep) has neither figure, so it contributes
+      // no point to either line — two lines, two measured weeks each.
+      const { container } = renderOverview()
 
-      const table = await screen.findByRole('table', { name: /weekly series/i })
-      expect(within(table).getByText('87.5%')).toBeInTheDocument()
-      expect(within(table).getByText('33.3%')).toBeInTheDocument()
+      await screen.findByText('Overall Call Quality vs Average Handling Time')
+      expect(container.getElementsByClassName((chartStyles.point ?? ''))).toHaveLength(4)
     })
 
-    it('shows a week with no calls as a gap rather than a zero', async () => {
-      // A zero would read as "nobody was helped that week" instead of "nobody
-      // called that week".
+    it("shows a week's numbers on hover", async () => {
+      const user = userEvent.setup()
       renderOverview()
 
-      const table = await screen.findByRole('table', { name: /weekly series/i })
-      const week = within(table).getByRole('row', { name: /7 Sep/ })
-      expect(within(week).getAllByText('—')).toHaveLength(2)
+      const point = await screen.findByRole('img', { name: /31 Aug/ })
+      await user.hover(point)
+
+      expect(screen.getByText('Quality 88')).toBeInTheDocument()
+      expect(screen.getByText('AHT 8m')).toBeInTheDocument()
+    })
+  })
+
+  describe('syncing the graph filter from the page filter', () => {
+    async function pageHeaderScope(container: HTMLElement): Promise<HTMLElement> {
+      await screen.findByText('Operations dashboard')
+      const header = container.querySelector('header')
+      if (!header) throw new Error('page header not found')
+      return header
+    }
+
+    async function graphCard(): Promise<HTMLElement> {
+      const heading = await screen.findByText('Overall Call Quality vs Average Handling Time')
+      const card = heading.closest('section')
+      if (!card) throw new Error('quality-vs-handling-time card has no containing section')
+      return card
+    }
+
+    it("seeds the graph filter's mode and month when the page filter changes to Month", async () => {
+      const user = userEvent.setup()
+      const { container } = renderOverview()
+      const header = await pageHeaderScope(container)
+      const card = await graphCard()
+
+      // Defaults to 3-week until the page filter says otherwise.
+      expect(within(card).getByLabelText('View by')).toHaveValue('week')
+
+      await user.selectOptions(within(header).getByLabelText('View by'), 'month')
+      await user.selectOptions(within(header).getByLabelText('Month'), '2026-08')
+
+      expect(within(card).getByLabelText('View by')).toHaveValue('month')
+      expect(await within(card).findByText('August 2026')).toBeInTheDocument()
+    })
+
+    it('lets the graph filter move to 3-week mode on its own week, without disturbing the page filter', async () => {
+      const user = userEvent.setup()
+      const { container } = renderOverview()
+      const header = await pageHeaderScope(container)
+      const card = await graphCard()
+
+      await user.selectOptions(within(header).getByLabelText('View by'), 'month')
+      await user.selectOptions(within(header).getByLabelText('Month'), '2026-08')
+      await within(card).findByText('August 2026')
+
+      await user.selectOptions(within(card).getByLabelText('View by'), 'week')
+      await user.click(within(card).getByRole('button', { name: 'Shift the window forward two weeks' }))
+
+      expect(within(card).getByLabelText('View by')).toHaveValue('week')
+      // The page filter never moved off August.
+      expect(within(header).getByLabelText('View by')).toHaveValue('month')
+      expect(within(header).getByLabelText('Month')).toHaveValue('2026-08')
+    })
+
+    it("lets the graph filter browse to a different month than the page filter's", async () => {
+      const user = userEvent.setup()
+      const { container } = renderOverview()
+      const header = await pageHeaderScope(container)
+      const card = await graphCard()
+
+      await user.selectOptions(within(header).getByLabelText('View by'), 'month')
+      await user.selectOptions(within(header).getByLabelText('Month'), '2026-08')
+      await within(card).findByText('August 2026')
+
+      await user.click(within(card).getByRole('button', { name: 'Shift to the next month' }))
+
+      expect(within(card).getByText('September 2026')).toBeInTheDocument()
+      expect(within(header).getByLabelText('Month')).toHaveValue('2026-08')
     })
   })
 

@@ -115,21 +115,18 @@
   color: var(--slate-2);
 }
 
-/* Metric strip */
+/* Metric strip. Column count follows however many cards are passed in — this
+   component now backs strips of four and of five cards on the same page,
+   and a fixed column count meant for one left the other's cards stretched or
+   cramped. */
 .metrics {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: 12px;
   /* The same gap a card leaves under itself. Without it the strip's lower
      border sat flush against the top border of the card beneath, reading as
      one box divided rather than as two things. */
   margin-bottom: 14px;
-}
-
-@media (max-width: 1080px) {
-  .metrics {
-    grid-template-columns: repeat(2, 1fr);
-  }
 }
 
 .metric {
@@ -208,73 +205,68 @@
    to the card, which would otherwise smear a 2px line into a wedge. */
 .trendLine {
   fill: none;
-  stroke-width: 2;
+  stroke-width: 1.75;
   stroke-linejoin: round;
   stroke-linecap: round;
   vector-effect: non-scaling-stroke;
 }
 
-.trendAxis {
+/* --- Quality-vs-handling-time trend -------------------------------------- */
+
+.scatterArea {
+  position: relative;
   flex: 1;
-  display: flex;
-  justify-content: space-between;
-  margin-top: 6px;
-  font: 500 10px/1 var(--font-body);
-  color: var(--slate-2);
+  min-width: 0;
 }
 
-/* --- The values behind a chart ------------------------------------------ */
-
-/* Every plot here is drawn in SVG with no text in it, which makes it unreadable
-   to a screen reader and to a printed page. The table is the same data in the
-   form those two can use, so it is markup rather than an image description. */
-/* The values behind a chart never squeeze: a narrow card scrolls this table
-   sideways rather than wrapping an identifier down the middle of a row. */
-.dataScroll {
-  overflow-x: auto;
+/* A plain HTML dot, not an SVG `<circle>`: the plot's box is far wider than
+   it is tall, and a shape stretched by that much turns a circle sized in the
+   SVG's own coordinate space into an ellipse. Sized in CSS pixels instead, a
+   dot stays a dot whatever the box's aspect ratio is. */
+.point {
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  border: 1.5px solid #fff;
+  box-shadow: 0 0 0 1px rgb(0 0 0 / 8%);
+  pointer-events: none;
 }
 
-.dataTable {
-  width: 100%;
-  min-width: 320px;
-  border-collapse: collapse;
-  margin-top: 14px;
-  font: 400 11.5px/1.5 var(--font-body);
+.pointActive {
+  width: 9px;
+  height: 9px;
+  border-color: var(--ink);
 }
 
-.dataTable th,
-.dataTable td {
-  padding: 4px 6px;
-  text-align: right;
-  border-bottom: 1px solid var(--rule);
+/* One per week, spanning the full height of the plot: a much easier hover and
+   keyboard-tab target than the point markers themselves, which is the point
+   of drawing it — the reader is picking a week, not aiming at a dot. */
+.hoverColumn {
+  fill: transparent;
+  cursor: pointer;
+}
+
+.hoverColumn:focus-visible {
+  outline: none;
+  fill: rgb(20 81 79 / 6%);
+}
+
+.scatterTooltip {
+  position: absolute;
+  transform: translate(-50%, -125%);
+  background: var(--ink);
+  color: #fff;
+  padding: 6px 9px;
+  border-radius: var(--r);
+  font-size: 11px;
+  line-height: 1.4;
   white-space: nowrap;
-}
-
-.dataTable thead th {
-  font: 600 10px/1.4 var(--font-body);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--slate-2);
-}
-
-/* Every value column the same width, whatever its heading is called.
-   Sized by content, the resolution heading claimed 537px and the score heading
-   399px, so two figures meant to be read against each other sat 140px apart
-   with the wider one stranded mid-card. The label column takes the surplus. */
-.dataTable thead th:not(:first-child) {
-  width: 150px;
-}
-
-.dataTable tbody th,
-.dataTable thead th:first-child {
-  text-align: left;
-  font-weight: 500;
-  color: var(--ink-2);
-}
-
-.dataTable td {
-  font-family: var(--font-mono);
-  color: var(--slate);
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  z-index: 1;
 }
 
 .swatch {
@@ -288,16 +280,6 @@
 
 .faint {
   color: var(--slate-2);
-}
-
-.visuallyHidden {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip: rect(0 0 0 0);
-  clip-path: inset(50%);
-  white-space: nowrap;
 }
 
 /* --- Period-over-period movement ---------------------------------------- */
@@ -373,8 +355,6 @@
 
 /* --- Legend ------------------------------------------------------------- */
 
-/* Above the plot, not only in the table header beneath it: a reader looking at
-   two coloured lines should not have to scroll to learn which is which. */
 .legend {
   display: flex;
   flex-wrap: wrap;
@@ -384,7 +364,6 @@
   color: var(--slate);
 }
 
-.legendItem {
-  display: inline-flex;
-  align-items: center;
+.legendRight {
+  justify-content: flex-end;
 }

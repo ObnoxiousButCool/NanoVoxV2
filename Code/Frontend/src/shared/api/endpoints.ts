@@ -148,8 +148,24 @@ export function fetchMembersAtRisk(signal?: AbortSignal): Promise<MembersAtRisk>
   return getJson<MembersAtRisk>('/dashboard/members-at-risk', signal ? { signal } : {})
 }
 
-export function fetchPulse(signal?: AbortSignal): Promise<Pulse> {
-  return getJson<Pulse>('/dashboard/pulse', signal ? { signal } : {})
+export interface PulseParams {
+  /** Ends the weekly window on the week containing this date. Omitted, with
+   *  no `month` either, the API returns the latest window. */
+  readonly anchor?: string
+  /** Every week of this date's calendar month, instead of a trailing window.
+   *  Takes precedence over `anchor` if both are given. */
+  readonly month?: string
+}
+
+export function fetchPulse(params: PulseParams = {}, signal?: AbortSignal): Promise<Pulse> {
+  const query = new URLSearchParams()
+  if (params.month) {
+    query.set('month', params.month)
+  } else if (params.anchor) {
+    query.set('anchor', params.anchor)
+  }
+  const encoded = query.toString()
+  return getJson<Pulse>(`/dashboard/pulse${encoded ? `?${encoded}` : ''}`, signal ? { signal } : {})
 }
 
 export function fetchWorkMix(signal?: AbortSignal): Promise<WorkMix> {

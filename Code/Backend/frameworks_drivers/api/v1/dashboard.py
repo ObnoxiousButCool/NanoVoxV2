@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from datetime import date
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Query
 from pydantic import BaseModel, Field
 
 from application.use_cases.get_dashboard import (
@@ -451,6 +451,10 @@ class PulseResponse(BaseModel):
     delta: TrendDeltaResponse | None
     sentiment: SentimentMovementResponse
     undated_calls: int
+    available_weeks: list[date] = Field(
+        description="Every week the corpus spans, oldest first — what a period "
+        "picker offers, as distinct from `points`, which is only the anchored window."
+    )
 
 
 class CallerBreakdownResponse(BaseModel):
@@ -636,8 +640,21 @@ def _difference(later: float | None, earlier: float | None) -> float | None:
     response_model=PulseResponse,
     summary="Which way the centre is moving, week by week",
 )
-async def get_pulse(use_case: PulseDep) -> PulseResponse:
-    pulse = await use_case.execute()
+async def get_pulse(
+    use_case: PulseDep,
+    # Query() as a default is FastAPI's own idiom for declaring a query
+    # parameter's metadata; ruff's B008 doesn't special-case this annotation
+    # shape, but the call is inert (it builds a field spec, not a value).
+    anchor: date | None = Query(  # noqa: B008
+        default=None, description="End the window on the week containing this date."
+    ),
+    month: date | None = Query(  # noqa: B008
+        default=None,
+        description="Every week of this date's calendar month, instead of a trailing window. "
+        "Takes precedence over `anchor` if both are given.",
+    ),
+) -> PulseResponse:
+    pulse = await use_case.execute(anchor=anchor, month=month)
     latest, previous = pulse.trend.latest, pulse.trend.previous
 
     delta = (
@@ -666,6 +683,7 @@ async def get_pulse(use_case: PulseDep) -> PulseResponse:
             improved_rate=pulse.sentiment.improved_rate,
         ),
         undated_calls=pulse.trend.undated_calls,
+        available_weeks=list(pulse.available_weeks),
     )
 
 

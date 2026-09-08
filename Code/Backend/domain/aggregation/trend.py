@@ -32,8 +32,12 @@ __all__ = [
     "Trend",
     "TrendCall",
     "TrendPoint",
+    "month_window",
     "trend",
+    "windowed",
 ]
+
+DEFAULT_WINDOW = 3
 
 _RESOLVED = "RESOLVED"
 
@@ -146,3 +150,46 @@ def trend(calls: Iterable[TrendCall]) -> Trend:
         points=tuple(_point(week, by_week.get(week, [])) for week in weeks),
         undated_calls=len(every) - len(dated),
     )
+
+
+def windowed(full: Trend, anchor: date | None, size: int = DEFAULT_WINDOW) -> Trend:
+    """The trailing ``size`` weeks ending at ``anchor``.
+
+    ``anchor`` names any date within the week a reader wants the series to end
+    on — a filter, not a bucket boundary, so it need not fall on a Monday. The
+    trailing weeks it selects are what a reader who picked "September" or "the
+    week of the 14th" expects to see: that period and the ones before it, not
+    that period in isolation.
+
+    ``None``, or an anchor after every week the corpus has, means the latest
+    available window — today's default. An anchor before every week the corpus
+    has yields an empty series rather than the wrong end of it.
+    """
+    if anchor is None:
+        return Trend(points=full.points[-size:], undated_calls=full.undated_calls)
+
+    cutoff = next(
+        (index for index, point in enumerate(full.points) if point.starting > anchor),
+        len(full.points),
+    )
+    return Trend(
+        points=full.points[max(0, cutoff - size) : cutoff], undated_calls=full.undated_calls
+    )
+
+
+def month_window(full: Trend, month: date) -> Trend:
+    """Every week whose Monday falls in the same calendar month as ``month``.
+
+    A week that starts in one month and runs into the next belongs to
+    whichever month its Monday is in — the same convention a reader grouping
+    weeks by month would reach for, and the one the page-level month filter
+    already uses. Unlike ``windowed``, there is no fixed count here: a month
+    is four weeks or five depending on where its days fall, and the point of
+    picking a month is to see all of them, not a trailing sample.
+    """
+    matching = tuple(
+        point
+        for point in full.points
+        if point.starting.year == month.year and point.starting.month == month.month
+    )
+    return Trend(points=matching, undated_calls=full.undated_calls)

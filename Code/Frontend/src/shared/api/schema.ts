@@ -95,6 +95,34 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/corpus/imports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Corpora that have been imported, newest first */
+        get: operations["list_corpus_imports_api_v1_corpus_imports_get"];
+        put?: never;
+        /**
+         * Convert an uploaded corpus document into sample call files
+         * @description Extract every call from a corpus PDF and save it as corpus markdown.
+         *
+         *     Saved under its own name in the import library, never over the corpus in
+         *     use: the stored analyses are only meaningful against the transcripts they
+         *     were made from, so replacing those silently would leave the dashboard
+         *     describing calls that no longer exist.
+         *
+         *     Nothing is analysed here. Import produces files; a run spends money.
+         */
+        post: operations["import_corpus_api_v1_corpus_imports_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/corpus/runs": {
         parameters: {
             query?: never;
@@ -555,6 +583,14 @@ export interface components {
             /** Why */
             why: string;
         };
+        /** Body_import_corpus_api_v1_corpus_imports_post */
+        Body_import_corpus_api_v1_corpus_imports_post: {
+            /**
+             * File
+             * @description A call-corpus PDF.
+             */
+            file: string;
+        };
         /** BrokerResponse */
         BrokerResponse: {
             /** Broker Name */
@@ -759,6 +795,20 @@ export interface components {
          * @enum {string}
          */
         ComponentStatus: "up" | "down";
+        /** CorpusImportResponse */
+        CorpusImportResponse: {
+            /** Calls */
+            calls: components["schemas"]["ImportedCallResponse"][];
+            /** Directory */
+            directory: string;
+            /**
+             * Name
+             * @description Directory this corpus was saved as.
+             */
+            name: string;
+            /** Total */
+            total: number;
+        };
         /** CorpusStatusResponse */
         CorpusStatusResponse: {
             /** Active Run Id */
@@ -774,6 +824,15 @@ export interface components {
             outstanding: number;
             /** Total Calls */
             total_calls: number;
+        };
+        /** CorpusVersionResponse */
+        CorpusVersionResponse: {
+            /** Directory */
+            directory: string;
+            /** Files */
+            files: number;
+            /** Name */
+            name: string;
         };
         /** DurationBandResponse */
         DurationBandResponse: {
@@ -908,6 +967,52 @@ export interface components {
             label: string;
             /** Resolution Rate */
             resolution_rate: number | null;
+        };
+        /** ImportedCallResponse */
+        ImportedCallResponse: {
+            /** Agent */
+            agent: string | null;
+            /**
+             * Broker
+             * @description Broker signal as 'Name: what they did', if any.
+             */
+            broker: string | null;
+            /** Caller */
+            caller: string | null;
+            /** Filename */
+            filename: string;
+            /**
+             * Has Panel
+             * @description Whether the authored insights panel came through.
+             */
+            has_panel: boolean;
+            /** Number */
+            number: number;
+            /** Queue */
+            queue: string | null;
+            /**
+             * Reference
+             * @description The reference a corpus run would store this call under.
+             */
+            reference: string;
+            /**
+             * Repeat
+             * @description Whether this call is marked as a repeat contact.
+             */
+            repeat: boolean;
+            /** Resolution */
+            resolution: string | null;
+            /** Score */
+            score: number | null;
+            /** Tier */
+            tier: string | null;
+            /** Title */
+            title: string;
+            /**
+             * Turns
+             * @description Non-blank transcript lines extracted for this call.
+             */
+            turns: number;
         };
         /** L4CategoryEntry */
         L4CategoryEntry: {
@@ -1147,6 +1252,11 @@ export interface components {
         };
         /** PulseResponse */
         PulseResponse: {
+            /**
+             * Available Weeks
+             * @description Every week the corpus spans, oldest first — what a period picker offers, as distinct from `points`, which is only the anchored window.
+             */
+            available_weeks: string[];
             delta: components["schemas"]["TrendDeltaResponse"] | null;
             latest: components["schemas"]["TrendPointResponse"] | null;
             /** Points */
@@ -1659,6 +1769,59 @@ export interface operations {
             };
         };
     };
+    list_corpus_imports_api_v1_corpus_imports_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CorpusVersionResponse"][];
+                };
+            };
+        };
+    };
+    import_corpus_api_v1_corpus_imports_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_import_corpus_api_v1_corpus_imports_post"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CorpusImportResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     list_runs_api_v1_corpus_runs_get: {
         parameters: {
             query?: {
@@ -1947,7 +2110,12 @@ export interface operations {
     };
     get_pulse_api_v1_dashboard_pulse_get: {
         parameters: {
-            query?: never;
+            query?: {
+                /** @description End the window on the week containing this date. */
+                anchor?: string | null;
+                /** @description Every week of this date's calendar month, instead of a trailing window. Takes precedence over `anchor` if both are given. */
+                month?: string | null;
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -1961,6 +2129,15 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PulseResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

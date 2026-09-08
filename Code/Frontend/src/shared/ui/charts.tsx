@@ -9,6 +9,7 @@
  * misreading the dashboard is meant to prevent.
  */
 
+import { useState } from 'react'
 import type { ReactNode } from 'react'
 
 import { cx } from '@/shared/ui/cx'
@@ -173,150 +174,241 @@ export function Metric({
   )
 }
 
-export interface TrendSeries {
+export interface TimeSeriesPoint {
   readonly label: string
-  readonly color: string
-  /** One value per point, `null` where the period measured nothing. */
-  readonly values: readonly (number | null)[]
-  /** Axis ceiling. Fixed per series so two series can share one plot. */
-  readonly max: number
-  readonly format: (value: number) => string
+  /** `null` where the week measured nothing — breaks the line rather than
+   *  interpolating across it. */
+  readonly quality: number | null
+  readonly ahtMinutes: number | null
+}
+
+const QUALITY_TICKS = [100, 75, 50, 25, 0]
+const AHT_TICK_COUNT = 5
+
+/** Padding keeps the highest and lowest weeks off the right axis's own edge. */
+const AHT_AXIS_PADDING = 0.12
+
+const SERIES_COLOURS = { quality: '#B26A00', aht: '#14514F' } as const
+
+/** Splits a series into runs of consecutive measured points, so a week that
+ *  measured nothing breaks the line instead of being interpolated through. */
+function runs(xs: readonly number[], ys: readonly (number | null)[]): { x: number; y: number }[][] {
+  const result: { x: number; y: number }[][] = []
+  let run: { x: number; y: number }[] = []
+  for (const [index, y] of ys.entries()) {
+    if (y === null) {
+      if (run.length > 0) result.push(run)
+      run = []
+    } else {
+      const x = xs[index]
+      if (x !== undefined) run.push({ x, y })
+    }
+  }
+  if (run.length > 0) result.push(run)
+  return result
 }
 
 /**
- * A weekly series, drawn as a line per measure.
+ * Overall Call Quality and Average Handling Time, one line each, over time.
  *
- * Two measures on different scales share one plot — a score out of 100 and a
- * percentage — because the question is whether they move together, and two
- * stacked charts make that comparison an act of memory. Each series carries its
- * own ceiling and is drawn to the same box, so the shapes are comparable while
- * the values stay in their own units.
- *
- * A period that measured nothing breaks the line rather than interpolating
- * across it. A straight segment through a week nobody called would draw a
- * measurement that was never taken.
+ * The two are on different scales — a score out of 100 and a duration in
+ * minutes — so they read against their own axis: quality fixed to the 0–100
+ * box every score on this dashboard uses, handling time scaled to the weeks
+ * actually on the plot. A week that measured neither is a gap in both lines,
+ * not a guess at zero.
  */
-export function TrendLine({
-  series,
-  labels,
-  height = 150,
+export function DualLineTrend({
+  points,
+  height = 220,
 }: {
-  series: readonly TrendSeries[]
-  labels: readonly string[]
+  points: readonly TimeSeriesPoint[]
   height?: number
 }) {
+  const [activeIndex, setActiveIndex] = useState<number | null>(null)
+
+  if (points.length === 0) {
+    return <p className={styles.faint}>No week in this window measured either figure.</p>
+  }
+
+  const minutesValues = points
+    .map((point) => point.ahtMinutes)
+    .filter((value): value is number => value !== null)
+
+  if (minutesValues.length === 0) {
+    return <p className={styles.faint}>No week in this window measured either figure.</p>
+  }
+
+  const rawMin = Math.min(...minutesValues)
+  const rawMax = Math.max(...minutesValues)
+  const pad = (rawMax - rawMin || rawMax || 1) * AHT_AXIS_PADDING
+  const domainMin = Math.max(0, rawMin - pad)
+  const domainMax = rawMax + pad
+  const domainSpan = domainMax - domainMin || 1
+
   const width = 100
-  const step = labels.length > 1 ? width / (labels.length - 1) : 0
-  // Every series here is drawn to the same ceiling, so one axis describes them
-  // all. Ticks are the reader's only way to tell a fall of four points from a
-  // fall of forty — the line shape alone is the same either way.
-  const ceiling = Math.max(...series.map((line) => line.max))
-  const ticks = [100, 75, 50, 25, 0].map((share) => Math.round((ceiling * share) / 100))
+  const step = points.length > 1 ? width / (points.length - 1) : 0
+  const xs = points.map((_, index) => (points.length > 1 ? index * step : width / 2))
+
+  const qualityY = points.map((point) => (point.quality === null ? null : 100 - point.quality))
+  const ahtY = points.map((point) =>
+    point.ahtMinutes === null ? null : 100 - ((point.ahtMinutes - domainMin) / domainSpan) * 100,
+  )
+
+  const ahtTicks = Array.from({ length: AHT_TICK_COUNT }, (_, index) =>
+    (domainMax - (domainSpan * index) / (AHT_TICK_COUNT - 1)).toFixed(1),
+  )
+
+  const active = activeIndex === null ? null : points[activeIndex]
+  const clear = () => {
+    setActiveIndex(null)
+  }
 
   return (
     <div className={styles.trend}>
-      <div className={styles.legend}>
-        {series.map((line) => (
-          <span key={line.label} className={styles.legendItem}>
-            <span className={styles.swatch} style={{ background: line.color }} />
-            {line.label}
-          </span>
-        ))}
+      <div className={cx(styles.legend, styles.legendRight)}>
+        <span className={styles.legendItem}>
+          <span className={styles.swatch} style={{ background: SERIES_COLOURS.quality }} />
+          Overall Call Quality
+        </span>
+        <span className={styles.legendItem}>
+          <span className={styles.swatch} style={{ background: SERIES_COLOURS.aht }} />
+          Average Handling Time
+        </span>
       </div>
 
       <div className={styles.plotRow}>
         <div className={styles.axisY} style={{ height }}>
-          {ticks.map((tick) => (
+          {QUALITY_TICKS.map((tick) => (
             <span key={tick}>{tick}</span>
           ))}
         </div>
-      <svg
-        className={styles.trendPlot}
-        viewBox={`0 0 ${String(width)} 100`}
-        preserveAspectRatio="none"
-        style={{ height }}
-        role="img"
-        aria-label={`Weekly trend: ${series.map((line) => line.label).join(', ')}`}
-      >
-        {[0, 25, 50, 75, 100].map((y) => (
-          <line key={y} x1="0" x2={width} y1={y} y2={y} className={styles.trendRule} />
-        ))}
-        {series.map((line) => {
-          const points = line.values.map((value, index) => ({
-            x: labels.length > 1 ? index * step : width / 2,
-            y: value === null ? null : 100 - (Math.min(value, line.max) * 100) / line.max,
-          }))
-
-          // Split into runs of consecutive measured points, so a gap stays a gap.
-          const runs: { x: number; y: number }[][] = []
-          let run: { x: number; y: number }[] = []
-          for (const point of points) {
-            if (point.y === null) {
-              if (run.length > 0) runs.push(run)
-              run = []
-            } else {
-              run.push({ x: point.x, y: point.y })
-            }
-          }
-          if (run.length > 0) runs.push(run)
-
-          return (
-            <g key={line.label}>
-              {runs.map((segment) => (
-                <polyline
-                  key={`${line.label}-${String(segment[0]?.x ?? 0)}`}
-                  className={styles.trendLine}
-                  stroke={line.color}
-                  points={segment.map((p) => `${String(p.x)},${String(p.y)}`).join(' ')}
-                />
-              ))}
-            </g>
-          )
-        })}
-      </svg>
+        <div className={styles.scatterArea} style={{ height }}>
+          <svg
+            className={styles.trendPlot}
+            viewBox={`0 0 ${String(width)} 100`}
+            preserveAspectRatio="none"
+            style={{ height }}
+            role="img"
+            aria-label="Overall Call Quality and Average Handling Time, week by week"
+          >
+            {QUALITY_TICKS.map((tick) => (
+              <line
+                key={tick}
+                x1="0"
+                x2={width}
+                y1={100 - tick}
+                y2={100 - tick}
+                className={styles.trendRule}
+              />
+            ))}
+            {xs.map((x, index) => (
+              <rect
+                key={points[index]?.label ?? index}
+                className={styles.hoverColumn}
+                x={x - step / 2}
+                y="0"
+                width={step || width}
+                height="100"
+                tabIndex={0}
+                role="img"
+                aria-label={hoverLabel(points[index])}
+                onMouseEnter={() => {
+                  setActiveIndex(index)
+                }}
+                onFocus={() => {
+                  setActiveIndex(index)
+                }}
+                onMouseLeave={clear}
+                onBlur={clear}
+              />
+            ))}
+            {runs(xs, qualityY).map((segment) => (
+              <polyline
+                key={`quality-${String(segment[0]?.x ?? 0)}`}
+                className={styles.trendLine}
+                stroke={SERIES_COLOURS.quality}
+                points={segment.map((p) => `${String(p.x)},${String(p.y)}`).join(' ')}
+              />
+            ))}
+            {runs(xs, ahtY).map((segment) => (
+              <polyline
+                key={`aht-${String(segment[0]?.x ?? 0)}`}
+                className={styles.trendLine}
+                stroke={SERIES_COLOURS.aht}
+                points={segment.map((p) => `${String(p.x)},${String(p.y)}`).join(' ')}
+              />
+            ))}
+          </svg>
+          {/* Plain HTML dots, positioned by the same percentages as the SVG
+              points, rather than SVG `<circle>` elements: the plot's box is
+              far wider than it is tall, and a shape stretched by that much
+              turns a circle into an ellipse. A circle sized in CSS pixels
+              stays a circle whatever the box's aspect ratio is. */}
+          {xs.map((x, index) => {
+            const y = qualityY[index]
+            if (y === undefined || y === null) return null
+            return (
+              <span
+                key={`quality-point-${points[index]?.label ?? String(index)}`}
+                className={cx(styles.point, index === activeIndex && styles.pointActive)}
+                style={{ left: `${String(x)}%`, top: `${String(y)}%`, background: SERIES_COLOURS.quality }}
+                aria-hidden="true"
+              />
+            )
+          })}
+          {xs.map((x, index) => {
+            const y = ahtY[index]
+            if (y === undefined || y === null) return null
+            return (
+              <span
+                key={`aht-point-${points[index]?.label ?? String(index)}`}
+                className={cx(styles.point, index === activeIndex && styles.pointActive)}
+                style={{ left: `${String(x)}%`, top: `${String(y)}%`, background: SERIES_COLOURS.aht }}
+                aria-hidden="true"
+              />
+            )
+          })}
+          {active ? (
+            <div
+              className={styles.scatterTooltip}
+              style={{ left: `${String(xs[activeIndex ?? 0])}%`, top: '0%' }}
+            >
+              <b>{active.label}</b>
+              <span>Quality {active.quality ?? '—'}</span>
+              <span>AHT {active.ahtMinutes ?? '—'}m</span>
+            </div>
+          ) : null}
+        </div>
+        <div className={styles.axisY} style={{ height }}>
+          {ahtTicks.map((tick, index) => (
+            // Ticks can repeat when the window's handling time barely moves;
+            // the index keeps each one distinct without implying a real key.
+            <span key={`${tick}-${String(index)}`}>{tick}m</span>
+          ))}
+        </div>
       </div>
 
       <div className={styles.plotRow}>
         <div className={styles.axisYSpacer} />
-        <div className={styles.trendAxis}>
-          {labels.map((label) => (
-            <span key={label}>{label}</span>
+        <div className={styles.axisX}>
+          {points.map((point) => (
+            <span key={point.label}>{point.label}</span>
           ))}
         </div>
-      </div>
-      <div className={styles.dataScroll}>
-      <table className={styles.dataTable}>
-        <caption className={styles.visuallyHidden}>The weekly series, as values</caption>
-        <thead>
-          <tr>
-            <th scope="col">Week</th>
-            {series.map((line) => (
-              <th key={line.label} scope="col">
-                <span className={styles.swatch} style={{ background: line.color }} />
-                {line.label}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {labels.map((label, index) => (
-            <tr key={label}>
-              <th scope="row">{label}</th>
-              {series.map((line) => {
-                const value = line.values[index]
-                return (
-                  <td key={line.label}>
-                    {value === null || value === undefined ? '—' : line.format(value)}
-                  </td>
-                )
-              })}
-            </tr>
-          ))}
-        </tbody>
-      </table>
+        <div className={styles.axisYSpacer} />
       </div>
     </div>
   )
+}
+
+function hoverLabel(point: TimeSeriesPoint | undefined): string {
+  if (!point) return ''
+  const quality = point.quality === null ? 'no quality figure' : `quality ${String(point.quality)}`
+  const aht =
+    point.ahtMinutes === null
+      ? 'no handling time figure'
+      : `average handling time ${String(point.ahtMinutes)} minutes`
+  return `${point.label}: ${quality}, ${aht}`
 }
 
 /**

@@ -27,6 +27,7 @@
  *   volume is real; a tier on four calls is not.
  */
 
+import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 
 import {
@@ -39,6 +40,7 @@ import {
   useSignals,
   useWorkMix,
 } from '@/shared/api/queries'
+import type { PulseParams } from '@/shared/api/endpoints'
 import type { AgentPerformance, Overview } from '@/shared/api/types'
 import {
   Bar,
@@ -48,11 +50,24 @@ import {
   Legend,
   Metric,
   MetricStrip,
-  TrendLine,
+  DualLineTrend,
 } from '@/shared/ui/charts'
 import { maskMemberId, maskedMemberIdLabel } from '@/shared/ui/memberId'
 import { Card, Failure, Loading, Note, PageHeader } from '@/shared/ui/primitives'
+import { GraphPeriodFilter, type GraphFilterMode } from './GraphPeriodFilter'
+import { PeriodFilter, type Granularity } from './PeriodFilter'
+import { addDays } from './weekWindow'
 import styles from './OverviewPage.module.css'
+
+/** Half of the graph's 15-day window, in days either side of its centre. */
+const GRAPH_WINDOW_HALF_WIDTH_DAYS = 7
+
+/** The graph's own request, given its mode and the day it is currently set
+ *  to — any day within a month in month mode, the centre day in week mode. */
+function graphPulseParams(mode: GraphFilterMode, value: string | undefined): PulseParams {
+  if (!value) return {}
+  return mode === 'month' ? { month: value } : { anchor: addDays(value, GRAPH_WINDOW_HALF_WIDTH_DAYS) }
+}
 
 /** The prototype's outcome colours. */
 const OUTCOME_COLOURS = {
@@ -496,12 +511,25 @@ function ResolutionByAgent({ agents }: { agents: readonly AgentPerformance[] }) 
   )
 }
 
-function PulseStrip() {
-  const pulse = usePulse()
+/** Percentage change between two figures, or `null` when there is nothing to
+ *  divide by — a previous-period reading of zero is a gap, not a meaningful
+ *  "infinite" swing. */
+function percentChange(
+  current: number | null | undefined,
+  previous: number | null | undefined,
+): number | null {
+  if (current === null || current === undefined || !previous) {
+    return null
+  }
+  return ((current - previous) / previous) * 100
+}
+
+function PulseStrip({ anchor }: { anchor: string | undefined }) {
+  const pulse = usePulse(anchor ? { anchor } : {})
 
   if (pulse.isPending) return <Loading what="this week" />
   if (pulse.error) return <Failure error={pulse.error} what="the weekly trend" />
-  const { latest, delta, sentiment } = pulse.data
+  const { latest, previous, delta } = pulse.data
 
   if (!latest) {
     return <Note>No call carries a start time, so there is no week to report.</Note>
@@ -510,10 +538,10 @@ function PulseStrip() {
   return (
     <MetricStrip>
       <DeltaMetric
-        label="Calls this week"
+        label="Calls Monitored"
         value={latest.calls}
-        delta={delta?.calls}
-        format={(value) => `${String(value)} call${value === 1 ? '' : 's'}`}
+        delta={percentChange(latest.calls, previous?.calls)}
+        format={(value) => `${value.toFixed(1)}%`}
         goodDirection="neutral"
       />
       <DeltaMetric
@@ -544,28 +572,12 @@ function PulseStrip() {
         // them apart — the card below it can.
         goodDirection="neutral"
       />
-      <Metric
-        label="Sentiment improved"
-        value={`${String(sentiment.improved_rate)}%`}
-        sub={
-          <>
-            {/* All three buckets, so the percentage can be checked against them.
-                Naming only the improved and the worse left the calls that ended
-                in the same state unaccounted for, and the figure unverifiable. */}
-            <b>{sentiment.improved}</b> better · <b>{sentiment.unchanged}</b> same ·{' '}
-            <b>{sentiment.worsened}</b> worse
-          </>
-        }
-      />
     </MetricStrip>
   )
 }
 
-/** Colours for the two headline series. Distinct in hue and in lightness. */
-const TREND_COLOURS = { resolution: '#14514F', score: '#B26A00' } as const
-
-function TrendCard() {
-  const pulse = usePulse()
+function QualityVsHandlingTimeCard({ params }: { params: PulseParams }) {
+  const pulse = usePulse(params)
 
   if (pulse.isPending) return <Loading what="the trend" />
   if (pulse.error) return <Failure error={pulse.error} what="the weekly trend" />
@@ -573,31 +585,13 @@ function TrendCard() {
   if (points.length === 0) return null
 
   return (
-    <>
-      <TrendLine
-        labels={points.map((point) => point.label)}
-        series={[
-          {
-            label: 'First Call Resolution (FCR)',
-            color: TREND_COLOURS.resolution,
-            // A field the API may omit and a field it may send as null both
-            // mean the same thing — that week has no figure — and the chart
-            // knows one spelling of it. Collapsing the two here keeps a third
-            // way of saying "no value" out of the chart's contract.
-            values: points.map((point) => point.resolution_rate ?? null),
-            max: 100,
-            format: (value) => `${String(value)}%`,
-          },
-          {
-            label: 'Average Call Score',
-            color: TREND_COLOURS.score,
-            values: points.map((point) => point.median_score ?? null),
-            max: 100,
-            format: (value) => String(value),
-          },
-        ]}
-      />
-    </>
+    <DualLineTrend
+      points={points.map((point) => ({
+        label: point.label,
+        quality: point.median_score ?? null,
+        ahtMinutes: point.median_handle_minutes ?? null,
+      }))}
+    />
   )
 }
 
@@ -708,6 +702,34 @@ export function OverviewPage() {
   const agents = useAgents()
   const signals = useSignals()
 
+  // The header filter drives the metric cards. The graph's own filter is
+  // seeded from it — mode and all — but only at the moment the header filter
+  // itself changes; from then on the two are independent, which is why the
+  // graph's mode and value get their own state rather than being derived
+  // from the header's on every render.
+  const [globalAnchor, setGlobalAnchor] = useState<string | undefined>(undefined)
+  const [globalGranularity, setGlobalGranularity] = useState<Granularity>('week')
+  const [graphMode, setGraphMode] = useState<GraphFilterMode>('week')
+  const [graphValue, setGraphValue] = useState<string | undefined>(undefined)
+  useEffect(() => {
+    setGraphMode(globalGranularity)
+    setGraphValue(globalAnchor)
+  }, [globalAnchor, globalGranularity])
+
+  // A stable query — its key never changes — purely to source the calendar
+  // pickers' available weeks and the corpus's true latest week. Sourcing
+  // that from the header's or the graph's own pulse query instead would
+  // unmount the pickers (and any state they hold) every time their own
+  // anchor changed, since each anchor is a different query that starts back
+  // at "no data yet".
+  const corpus = usePulse()
+  const availableWeeks = corpus.data?.available_weeks ?? []
+  const latestWeek = corpus.data?.latest?.starting
+  // Both pickers need a concrete day to draw themselves around even before a
+  // reader has ever touched them.
+  const resolvedGraphValue = graphValue ?? latestWeek
+  const graphParams = graphPulseParams(graphMode, resolvedGraphValue)
+
   if (overview.isPending) {
     return <Loading what="the dashboard" />
   }
@@ -733,21 +755,95 @@ export function OverviewPage() {
 
   return (
     <>
-      <PageHeader title="Operations dashboard" />
+      <PageHeader
+        title="Operations dashboard"
+        actions={
+          <PeriodFilter
+            availableWeeks={availableWeeks}
+            anchor={globalAnchor}
+            onChange={setGlobalAnchor}
+            onGranularityChange={setGlobalGranularity}
+          />
+        }
+      />
 
       {/* --- Where we stand -------------------------------------------------
           The first viewport answers "which way are we going", which is what a
           leader manages against. It used to answer "who is at risk" — a
           scrolling list of member identifiers — while the totals sat fifteen
           hundred pixels below it and carried no direction at all. */}
-      <PulseStrip />
+      <PulseStrip anchor={globalAnchor} />
+
+      {/* --- The detail behind it ---------------------------------------------
+          Kept in full, and moved up beside the figures it elaborates on —
+          it used to sit below the coaching charts, level with material that
+          answers a different question entirely. */}
+      <MetricStrip>
+        <Metric label="Calls analyzed" value={metrics.total_calls} sub="From stored analyses" />
+        <Metric
+          label="Average Call Score"
+          value={metrics.median_score}
+          sub={
+            <>
+              Median of every call; mean <b>{metrics.mean_score}</b>
+              {metrics.median_score === metrics.mean_score
+                ? ' — distribution is even'
+                : ' — distribution is split'}
+            </>
+          }
+        />
+        <Metric
+          label="First Call Resolution (FCR)"
+          value={`${String(metrics.first_contact_resolution_rate)}%`}
+          sub={
+            <>
+              Industry range <b>65–75%</b>
+            </>
+          }
+        />
+        <Metric
+          label="Escalation rate"
+          value={`${String(metrics.escalation_rate)}%`}
+          sub={
+            // A flat 0% beside an industry range reads as a broken feed. It is
+            // not: no call in this corpus was ever marked escalated, and saying
+            // so is the difference between a finding and a suspected bug.
+            metrics.escalation_rate === 0 ? (
+              <>No analyzed call was escalated</>
+            ) : (
+              <>
+                Industry range <b>8–12%</b>
+              </>
+            )
+          }
+        />
+        <Metric
+          label="Broker-attributed"
+          value={metrics.broker_signal_count}
+          sub={
+            <>
+              Across <b>{metrics.distinct_broker_count}</b> named brokers
+            </>
+          }
+        />
+      </MetricStrip>
 
       <Card
         className={styles.solo}
-        title="Five weeks of resolution and quality"
-        hint="Both series are drawn to the same 0–100 box so their shapes can be compared. A week with no calls breaks the line rather than being drawn through, so a gap is missing data and not a collapse. A call that states no start time belongs to no week and is left out of the series entirely."
+        title="Overall Call Quality vs Average Handling Time"
+        hint="Two lines over time, each read against its own axis: quality on the left, out of 100; handling time on the right, in minutes. Hover or focus a week for both exact numbers. A week that measured nothing breaks the line rather than being drawn through, so a gap is missing data and not a collapse. In 3-week mode, shows the three weeks centred on whichever week is picked below — the week itself, the one before it, and the one after. In Month mode, shows every week of the picked month."
+        actions={
+          resolvedGraphValue ? (
+            <GraphPeriodFilter
+              mode={graphMode}
+              onModeChange={setGraphMode}
+              value={resolvedGraphValue}
+              onChange={setGraphValue}
+            />
+          ) : null
+        }
       >
-        <TrendCard />
+        <QualityVsHandlingTimeCard params={graphParams} />
       </Card>
 
       {/* --- Who is affected -------------------------------------------------
@@ -820,59 +916,6 @@ export function OverviewPage() {
       >
         <TimeValueCard />
       </Card>
-
-      {/* --- The detail behind it -------------------------------------------
-          Kept in full and demoted. Nothing here is wrong; it is simply the
-          second question, and it was being asked first. */}
-      <MetricStrip>
-        <Metric label="Calls analyzed" value={metrics.total_calls} sub="From stored analyses" />
-        <Metric
-          label="Average Call Score"
-          value={metrics.median_score}
-          sub={
-            <>
-              Median of every call; mean <b>{metrics.mean_score}</b>
-              {metrics.median_score === metrics.mean_score
-                ? ' — distribution is even'
-                : ' — distribution is split'}
-            </>
-          }
-        />
-        <Metric
-          label="First-contact resolution"
-          value={`${String(metrics.first_contact_resolution_rate)}%`}
-          sub={
-            <>
-              Industry range <b>65–75%</b>
-            </>
-          }
-        />
-        <Metric
-          label="Escalation rate"
-          value={`${String(metrics.escalation_rate)}%`}
-          sub={
-            // A flat 0% beside an industry range reads as a broken feed. It is
-            // not: no call in this corpus was ever marked escalated, and saying
-            // so is the difference between a finding and a suspected bug.
-            metrics.escalation_rate === 0 ? (
-              <>No analyzed call was escalated</>
-            ) : (
-              <>
-                Industry range <b>8–12%</b>
-              </>
-            )
-          }
-        />
-        <Metric
-          label="Broker-attributed"
-          value={metrics.broker_signal_count}
-          sub={
-            <>
-              Across <b>{metrics.distinct_broker_count}</b> named brokers
-            </>
-          }
-        />
-      </MetricStrip>
 
       {/* The two tallest cards on the page share a row, and the two shortest
           share the next one. Paired by subject alone, a 198px histogram sat

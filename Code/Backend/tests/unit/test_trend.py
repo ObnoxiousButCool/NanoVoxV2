@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from datetime import date, datetime
 
-from domain.aggregation.trend import TrendCall, trend
+from domain.aggregation.trend import TrendCall, month_window, trend
 
 
 def call(
@@ -149,3 +149,48 @@ class TestWhatCannotBePlaced:
 
         assert result.latest is not None
         assert result.previous is None
+
+
+class TestMonthWindow:
+    def test_keeps_only_weeks_whose_monday_falls_in_the_month(self) -> None:
+        # 31 Aug's Monday is in August even though the week runs into
+        # September; 7, 14, 21 and 28 Sep are the rest of September's weeks.
+        full = trend(
+            [
+                call("2026-08-31T09:00:00"),
+                call("2026-09-07T09:00:00"),
+                call("2026-09-14T09:00:00"),
+                call("2026-09-21T09:00:00"),
+                call("2026-09-28T09:00:00"),
+            ]
+        )
+
+        result = month_window(full, date(2026, 9, 15))
+
+        assert [point.label for point in result.points] == ["7 Sep", "14 Sep", "21 Sep", "28 Sep"]
+
+    def test_a_week_starting_in_the_target_month_but_running_into_the_next_is_kept(self) -> None:
+        full = trend([call("2026-08-31T09:00:00")])
+
+        result = month_window(full, date(2026, 8, 3))
+
+        assert [point.label for point in result.points] == ["31 Aug"]
+
+    def test_a_month_with_no_weeks_is_an_empty_series_not_an_error(self) -> None:
+        full = trend([call("2026-08-31T09:00:00")])
+
+        result = month_window(full, date(2027, 1, 1))
+
+        assert result.points == ()
+
+    def test_carries_the_undated_count_through_unchanged(self) -> None:
+        full = trend(
+            [
+                call("2026-09-07T09:00:00"),
+                TrendCall(started_at=None, score=50, resolution="RESOLVED", duration_seconds=None),
+            ]
+        )
+
+        result = month_window(full, date(2026, 9, 1))
+
+        assert result.undated_calls == 1

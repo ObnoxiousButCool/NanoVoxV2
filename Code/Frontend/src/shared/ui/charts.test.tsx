@@ -1,15 +1,17 @@
-import { render, screen, within } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { describe, expect, it } from 'vitest'
 
 import {
   Bar,
   DeltaMetric,
+  DualLineTrend,
   Histogram,
   Legend,
   Metric,
   MetricStrip,
-  TrendLine,
 } from '@/shared/ui/charts'
+import chartStyles from '@/shared/ui/charts.module.css'
 
 describe('Bar', () => {
   it('sizes segments by share so different call volumes stay comparable', () => {
@@ -125,59 +127,77 @@ describe('Metric', () => {
   })
 })
 
-describe('TrendLine', () => {
-  const series = [
-    {
-      label: 'First Call Resolution (FCR)',
-      color: '#14514F',
-      values: [87.5, null, 33.3],
-      max: 100,
-      format: (value: number) => `${String(value)}%`,
-    },
+describe('DualLineTrend', () => {
+  const points = [
+    { label: '31 Aug', quality: 79, ahtMinutes: 6.2 },
+    { label: '7 Sep', quality: 78, ahtMinutes: 7.5 },
+    { label: '14 Sep', quality: null, ahtMinutes: null },
+    { label: '21 Sep', quality: 69.5, ahtMinutes: 8.1 },
   ]
 
-  it('labels the vertical scale so a fall can be sized', () => {
-    // Without ticks a reader sees that the line falls and cannot see whether it
-    // fell four points or forty, which is the whole question.
-    render(<TrendLine series={series} labels={['31 Aug', '7 Sep', '14 Sep']} />)
+  it('labels the quality scale so a fall can be sized', () => {
+    render(<DualLineTrend points={points} />)
 
     for (const tick of ['0', '25', '50', '75', '100']) {
       expect(screen.getByText(tick)).toBeInTheDocument()
     }
   })
 
-  it('names each series beside its colour, above the plot', () => {
-    // Colour alone is not a label, and the table is below the fold.
-    render(<TrendLine series={series} labels={['31 Aug', '7 Sep', '14 Sep']} />)
+  it('labels the handling-time scale against the weeks actually plotted', () => {
+    render(<DualLineTrend points={points} />)
 
-    expect(screen.getAllByText('First Call Resolution (FCR)').length).toBeGreaterThan(1)
+    // Padded a little past the 6.2-8.1 range the fixture spans.
+    expect(screen.getByText(/^8\.\dm$/)).toBeInTheDocument()
+    expect(screen.getByText(/^6\.0m$/)).toBeInTheDocument()
   })
 
-  it('names every period along the horizontal axis', () => {
-    // The labels are the axis now that the caption explaining them is gone, so
-    // a period losing its label would leave the plot unreadable.
-    render(<TrendLine series={series} labels={['31 Aug', '7 Sep', '14 Sep']} />)
+  it('draws one point per week that measured that figure', () => {
+    // Three weeks have a quality figure, three have a handling-time figure —
+    // the unmeasured week (14 Sep) contributes to neither.
+    const { container } = render(<DualLineTrend points={points} />)
 
-    for (const label of ['31 Aug', '7 Sep', '14 Sep']) {
+    expect(container.getElementsByClassName((chartStyles.point ?? ''))).toHaveLength(6)
+  })
+
+  it('breaks each line where a week measured nothing', () => {
+    // Two lines, each broken into two runs by the unmeasured week: four
+    // polylines in total, not two drawn straight through the gap.
+    const { container } = render(<DualLineTrend points={points} />)
+
+    expect(container.querySelectorAll('polyline')).toHaveLength(4)
+  })
+
+  it("shows a week's numbers on hover", async () => {
+    const user = userEvent.setup()
+    render(<DualLineTrend points={points} />)
+
+    const column = screen.getByRole('img', { name: /31 Aug/ })
+    await user.hover(column)
+
+    expect(screen.getByText('Quality 79')).toBeInTheDocument()
+    expect(screen.getByText('AHT 6.2m')).toBeInTheDocument()
+  })
+
+  it("shows a week's numbers on keyboard focus, not only on hover", async () => {
+    const user = userEvent.setup()
+    render(<DualLineTrend points={points} />)
+
+    await user.tab()
+    expect(screen.getByText('Quality 79')).toBeInTheDocument()
+  })
+
+  it('names every week along the horizontal axis', () => {
+    render(<DualLineTrend points={points} />)
+
+    for (const label of ['31 Aug', '7 Sep', '14 Sep', '21 Sep']) {
       expect(screen.getAllByText(label).length).toBeGreaterThan(0)
     }
   })
 
-  it('breaks the line where a period measured nothing', () => {
-    // Two runs, not one line drawn through the gap: a straight segment across
-    // an unmeasured week draws a measurement that was never taken.
-    const { container } = render(
-      <TrendLine series={series} labels={['31 Aug', '7 Sep', '14 Sep']} />,
-    )
+  it('says so rather than drawing a plot with nothing measured', () => {
+    render(<DualLineTrend points={[{ label: '31 Aug', quality: null, ahtMinutes: null }]} />)
 
-    expect(container.querySelectorAll('polyline')).toHaveLength(2)
-  })
-
-  it('gives the missing period a dash rather than a zero', () => {
-    render(<TrendLine series={series} labels={['31 Aug', '7 Sep', '14 Sep']} />)
-
-    const row = screen.getByRole('row', { name: /7 Sep/ })
-    expect(within(row).getByText('—')).toBeInTheDocument()
+    expect(screen.getByText(/No week in this window measured either figure/)).toBeInTheDocument()
   })
 })
 
