@@ -38,3 +38,8 @@ Desktop.ini
 # the tracked Samples/ files hold, kept per-upload so an import cannot
 # overwrite the corpus a stored analysis was made from.
 Samples/imported/
+
+# Database backups taken before a corpus re-run. One multi-megabyte binary
+# per run, and the committed Data/nanovox.db already carries the state that
+# matters, so these stay local.
+Data/backup/
