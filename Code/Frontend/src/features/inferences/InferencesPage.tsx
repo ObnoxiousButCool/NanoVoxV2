@@ -109,9 +109,25 @@ export function InferencesPage() {
       <PageHeader title="Inferences" />
 
       <div className={page.stack}>
-        {items.length === 0 ? (
-          <Card title="Nothing has crossed a threshold">
-            <Empty title="No inference to report">
+        {/* First, and above the findings. The findings name what went wrong
+            across the corpus; this names the individuals it is happening to,
+            and a member carrying warning signs is the thing somebody picks up
+            the phone about today. Rendered whether or not any rule fired — the
+            two come from different endpoints, and a clean findings list does
+            not mean no member is at risk. */}
+        <Card
+          title="Members at risk"
+          hint="Ranked by how many warning signs a member shows, not by a predicted probability: no factor here has yet been measured against a member who actually left. The score is the lowest any one of their calls was given, which is what separates two members showing the same signs."
+        >
+          <MembersAtRisk />
+        </Card>
+
+        {/* The queue given a heading of its own. Standalone it was a run of
+            bordered rows under the page title, which left the reader to infer
+            what they were looking at from the rows themselves. */}
+        <Card title="Findings">
+          {items.length === 0 ? (
+            <Empty title="Nothing has crossed a threshold">
               <Note>
                 {/* The distinction matters operationally: one of these means the
                     system is working and the month was clean, the other means
@@ -121,25 +137,16 @@ export function InferencesPage() {
                 calls it takes, lives in <code>dashboard.yaml</code>.
               </Note>
             </Empty>
-          </Card>
-        ) : (
-          <div className={styles.queue}>
-            {items.map((item) => (
-              <InferenceItem key={`${item.rule_id}-${item.subject}`} item={item} />
-            ))}
-          </div>
-        )}
-
-        {/* Below the findings, not above them: the findings name what went wrong
-            across the corpus, and this names the individuals it happened to.
-            Rendered whether or not any rule fired — the two come from different
-            endpoints, and a clean findings list does not mean no member is
-            carrying warning signs. */}
-        <Card
-          title="Members at risk"
-          hint="Ranked by how many warning signs a member shows, not by a predicted probability: no factor here has yet been measured against a member who actually left. The score is the lowest any one of their calls was given, which is what separates two members showing the same signs."
-        >
-          <MembersAtRisk />
+          ) : (
+            /* `.queue` carries the 14px it needs when it is the page's own
+               block. Inside a card the card supplies that space, and the two
+               together read as a gap the list is missing a row from. */
+            <div className={cx(styles.queue, page.nested)}>
+              {items.map((item) => (
+                <InferenceItem key={`${item.rule_id}-${item.subject}`} item={item} />
+              ))}
+            </div>
+          )}
         </Card>
       </div>
     </>

@@ -206,6 +206,17 @@ describe('InferencesPage', () => {
     expect(screen.queryByRole('link', { name: /call history/ })).not.toBeInTheDocument()
   })
 
+  it('leads with the members at risk and heads the queue as findings', async () => {
+    // Order is the point of the screen: the at-risk members are who somebody
+    // rings today, the findings are what to fix over the month. Asserted
+    // because nothing else here would notice the two swapping back.
+    renderInferences()
+
+    await screen.findByText('Agents are not escalating clinical urgency')
+    const headings = screen.getAllByRole('heading', { level: 3 }).map((h) => h.textContent)
+    expect(headings).toEqual(['Members at risk', 'Findings'])
+  })
+
   it('says the rules ran when nothing crossed a threshold', async () => {
     // Distinct from "nothing was checked".
     renderInferences({ ...OVERVIEW, attention: [] })

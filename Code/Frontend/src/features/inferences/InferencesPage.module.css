@@ -7,3 +7,14 @@
   display: grid;
   gap: 14px;
 }
+
+/* The findings queue when it sits inside a card rather than standing as the
+   page's own block. It keeps a bottom margin for the standalone case (the
+   brokers page still uses it that way); within a card the card's padding is
+   already the space beneath the last row. */
+/* Doubled deliberately. Both selectors are one class, so which of two
+   stylesheets wins would otherwise come down to the order the bundler emits
+   them in — not something this rule should depend on. */
+.nested.nested {
+  margin-bottom: 0;
+}
