@@ -66,109 +66,80 @@ export function AnalyzePage() {
         subtitle="Paste a transcript. Processing runs on the configured provider."
       />
 
-      <div className={styles.layout}>
-        <Card
-          title="Transcript"
-          subtitle="One speaker turn per line, formatted as Speaker: text"
-        >
-          <label className="visually-hidden" htmlFor="transcript">
-            Transcript
-          </label>
-          <textarea
-            id="transcript"
-            className={styles.textarea}
-            placeholder={PLACEHOLDER}
-            value={transcript}
-            disabled={running}
-            onChange={(event) => {
-              setTranscript(event.target.value)
-            }}
-          />
+      <Card title="Transcript" subtitle="One speaker turn per line, formatted as Speaker: text">
+        <label className="visually-hidden" htmlFor="transcript">
+          Transcript
+        </label>
+        <textarea
+          id="transcript"
+          className={styles.textarea}
+          placeholder={PLACEHOLDER}
+          value={transcript}
+          disabled={running}
+          onChange={(event) => {
+            setTranscript(event.target.value)
+          }}
+        />
 
-          <div className={styles.actions}>
-            <span className={styles.counter} role="status">
-              {turns} turn{turns === 1 ? '' : 's'} detected
-            </span>
-            <div className={styles.buttons}>
-              <Button
-                onClick={() => {
-                  setTranscript('')
-                  analyse.reset()
-                }}
-                disabled={running || transcript.length === 0}
-              >
-                Clear
-              </Button>
-              <Button variant="primary" onClick={submit} disabled={!canSubmit}>
-                {running ? 'Analyzing…' : 'Analyze'}
-              </Button>
-            </div>
+        <div className={styles.actions}>
+          <span className={styles.counter} role="status">
+            {turns} turn{turns === 1 ? '' : 's'} detected
+          </span>
+          <div className={styles.buttons}>
+            <Button
+              onClick={() => {
+                setTranscript('')
+                analyse.reset()
+              }}
+              disabled={running || transcript.length === 0}
+            >
+              Clear
+            </Button>
+            <Button variant="primary" onClick={submit} disabled={!canSubmit}>
+              {running ? 'Analyzing…' : 'Analyze'}
+            </Button>
           </div>
+        </div>
 
-          {warning ? (
-            /* Above the general guidance, because it is about this paste rather
-               than about the format in general. Submission is still allowed:
-               the mid-line test can fire on an ordinary sentence, and refusing
-               a transcript on a heuristic is worse than scoring one badly with
-               the reason on screen. */
-            <Alert tone="medium" title="This will not parse the way it reads">
-              {warning}
-            </Alert>
-          ) : null}
+        {warning ? (
+          /* Above the general guidance, because it is about this paste rather
+             than about the format in general. Submission is still allowed:
+             the mid-line test can fire on an ordinary sentence, and refusing
+             a transcript on a heuristic is worse than scoring one badly with
+             the reason on screen. */
+          <Alert tone="medium" title="This will not parse the way it reads">
+            {warning}
+          </Alert>
+        ) : null}
 
-          {transcript.length > 0 && turns === 0 ? (
-            <Note>
-              No speaker prefixes found. Every line needs one, like
-              &ldquo;Agent Sarah:&rdquo; or &ldquo;Member:&rdquo; — the parser uses them to
-              separate speakers.
-            </Note>
-          ) : (
-            <Note>
-              Turns are detected from the speaker prefix. If everything lands on one line, the
-              prefixes are missing.
-            </Note>
-          )}
+        {transcript.length > 0 && turns === 0 ? (
+          /* Shown only when the paste actually has no prefixes. The standing
+             explanation that used to sit here in every other case told a
+             reader whose transcript was parsing fine something they did not
+             need. */
+          <Note>
+            No speaker prefixes found. Every line needs one, like
+            &ldquo;Agent Sarah:&rdquo; or &ldquo;Member:&rdquo; — the parser uses them to
+            separate speakers.
+          </Note>
+        ) : null}
 
-          {running ? (
-            <div className={styles.running} style={{ marginTop: 12 }}>
-              <span className={styles.spinner} aria-hidden="true" />
-              <span>
-                Running five layers. On a local model this takes several minutes for a full
-                transcript.
-              </span>
-            </div>
-          ) : null}
+        {running ? (
+          <div className={styles.running} style={{ marginTop: 12 }}>
+            <span className={styles.spinner} aria-hidden="true" />
+            <span>
+              Running five layers. On a local model this takes several minutes for a full
+              transcript.
+            </span>
+          </div>
+        ) : null}
 
-          {analyse.error ? (
-            <div style={{ marginTop: 12 }}>
-              <AnalysisFailure error={analyse.error} />
-            </div>
-          ) : null}
-        </Card>
-
-        <aside>
-          <Card title="What runs">
-            <dl>
-              {[
-                ['L1', 'Speakers, tone, flags'],
-                ['L2', 'Summary, topics, outcome'],
-                ['L3', 'Agent scoring'],
-                ['L4', 'Action signals'],
-                ['L5', 'Assist replay'],
-              ].map(([layer, what]) => (
-                <div key={layer} className={styles.kv}>
-                  <dt>{layer}</dt>
-                  <dd>{what}</dd>
-                </div>
-              ))}
-            </dl>
-            <Note>
-              The score is computed from a fixed rubric, not written by the model, so the same
-              transcript always scores the same.
-            </Note>
-          </Card>
-        </aside>
-      </div>
+        {analyse.error ? (
+          <div style={{ marginTop: 12 }}>
+            <AnalysisFailure error={analyse.error} />
+          </div>
+        ) : null}
+      </Card>
     </>
   )
 }
