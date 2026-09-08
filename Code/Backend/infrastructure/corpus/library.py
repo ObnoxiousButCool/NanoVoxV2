@@ -16,7 +16,7 @@ from __future__ import annotations
 
 import re
 import shutil
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 from application.ports.corpus_document import CorpusLibrary, SavedCorpus
@@ -93,7 +93,14 @@ class FileSystemCorpusLibrary(CorpusLibrary):
 
 
 def _modified(directory: Path) -> datetime:
+    """When this import was written, for ordering newest first.
+
+    Both paths are timezone-aware, and have to be: the two are compared against
+    each other by the sort, and mixing a naive datetime with an aware one raises
+    rather than sorting wrongly.
+    """
     try:
-        return datetime.fromtimestamp(directory.stat().st_mtime)  # noqa: DTZ006
+        return datetime.fromtimestamp(directory.stat().st_mtime, tz=timezone.utc)
     except OSError:  # pragma: no cover - a directory removed under us
-        return datetime.min
+        # Sorts last, which is where a directory we cannot stat belongs.
+        return datetime.min.replace(tzinfo=timezone.utc)

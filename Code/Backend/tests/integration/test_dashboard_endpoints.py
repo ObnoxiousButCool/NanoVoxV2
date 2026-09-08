@@ -217,7 +217,7 @@ class TestTaxonomyEndpoint:
     ) -> None:
         body = client.get("/api/v1/taxonomy").json()
 
-        assert len(body["categories"]) == 9
+        assert len(body["categories"]) == 10
         assert len(body["l4_categories"]) == 6
         assert "UNRESOLVED" in body["resolutions"]
         assert body["tiers"]["good"] == 86
@@ -236,7 +236,7 @@ class TestEmptyDatabase:
         assert body["attention"] == []
         assert body["histogram"]["total"] == 0
         # Categories are still listed so the chart has its shape.
-        assert len(body["categories"]) == 9
+        assert len(body["categories"]) == 10
 
     def test_agents_and_brokers_are_empty_lists_not_errors(self, client: TestClient) -> None:
         assert client.get("/api/v1/dashboard/agents").json() == []

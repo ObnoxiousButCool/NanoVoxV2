@@ -20,17 +20,25 @@ CLINICAL_RISK = "clinical_risk"
 
 
 class TestShippedTaxonomy:
-    def test_loads_the_categories_from_the_corpus_index_and_the_two_added_since(
+    def test_loads_the_categories_from_the_corpus_index_and_the_three_added_since(
         self,
     ) -> None:
         taxonomy = load_taxonomy(DEFAULT_TAXONOMY_PATH)
 
         # DEC-02: seven from call_corpus_v3_index.xlsx, plus copay and
-        # coverage_termination, which the index folded into Coverage & Benefits.
-        assert len(taxonomy.categories) == 9
+        # coverage_termination, which the index folded into Coverage & Benefits,
+        # plus life_beneficiary, which the v6 corpus queues separately and the
+        # index had no home for at all.
+        assert len(taxonomy.categories) == 10
         assert taxonomy.category("coverage_benefits").label == "Coverage & Benefits"
-        assert taxonomy.category("copay").label == "Copay & Cost Share"
         assert taxonomy.category("coverage_termination").label == "Coverage Termination"
+        assert taxonomy.category("life_beneficiary").label == "Life & Beneficiary"
+        # The label is deliberately not "Copay ...". The code cannot change —
+        # it is stored on every analysed call — and a model reading the bare
+        # code chose this category for none of the v6 corpus's hundred calls
+        # while a quarter of them were cost-share questions, so the breadth has
+        # to be carried by the label and the description instead.
+        assert taxonomy.category("copay").label == "Cost Share & Limits"
 
     def test_every_category_says_what_it_covers(self) -> None:
         # The description is not decoration: it is sent to the model as the

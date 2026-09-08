@@ -64,6 +64,10 @@ class SignalType:
     code: str
     label: str
     severity: Severity
+    # Optional so the field can be added to a signal without every existing
+    # taxonomy file becoming invalid. It is what the model is told the code
+    # means, and a signal without one is described to the model by its label.
+    description: str | None = None
 
     def __post_init__(self) -> None:
         if not self.code.strip():

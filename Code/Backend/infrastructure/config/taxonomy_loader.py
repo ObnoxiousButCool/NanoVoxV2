@@ -72,6 +72,7 @@ def _signal_types(reader: YamlReader) -> list[SignalType]:
             code=entry.string("code"),
             label=entry.string("label"),
             severity=entry.enum("severity", Severity, expected=f"one of {_SEVERITY_VALUES}"),
+            description=entry.optional_string("description"),
         )
         for entry in reader.sequence_of_mappings("signal_types")
     ]

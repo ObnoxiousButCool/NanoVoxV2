@@ -68,7 +68,14 @@ def _glossary(instruction: str, entries: Sequence[Described]) -> str:
     lines = [instruction, "", "The codes, and what each one covers:"]
     for entry in entries:
         meaning = entry.description or entry.label
-        lines.append(f"- {entry.code} ({entry.label}): {' '.join(meaning.split())}")
+        # The label is dropped where it only restates the code, which is the
+        # case for vocabularies whose codes are already words rather than
+        # snake_case: "PARTIALLY RESOLVED (Partially Resolved)" tells the model
+        # nothing and is paid for on every call.
+        squashed = entry.code.replace("_", "").replace(" ", "").casefold()
+        restates_the_code = entry.label.replace(" ", "").casefold() == squashed
+        name = entry.code if restates_the_code else f"{entry.code} ({entry.label})"
+        lines.append(f"- {name}: {' '.join(meaning.split())}")
     return "\n".join(lines)
 
 
@@ -118,7 +125,14 @@ def build_analysis_schemas(taxonomy: Taxonomy, rubric: Rubric) -> AnalysisSchema
 
     raised_signal = create_model(
         "RaisedSignalOut",
-        code=(signal_codes, Field(description="The condition this call raises.")),
+        code=(
+            signal_codes,
+            Field(
+                description=_glossary(
+                    "The condition this call raises.", taxonomy.signal_types
+                )
+            ),
+        ),
         evidence_turn_seq=(
             int,
             Field(description="Zero-based index of the transcript turn that proves this."),
@@ -156,6 +170,12 @@ def build_analysis_schemas(taxonomy: Taxonomy, rubric: Rubric) -> AnalysisSchema
         ),
         signals=(
             _list_of(raised_signal),
+            # What each code means now lives in taxonomy.yaml and is sent with
+            # the `code` field. The clinical_risk prompt below is kept anyway,
+            # deliberately duplicating part of that definition: it is the one
+            # signal a rubric gate depends on, and trading a known-good safety
+            # prompt for tidiness is not a trade to make without measuring it.
+            # If it is ever removed, check the gate still fires.
             Field(
                 description=(
                     "Conditions this call raises, each with the words that prove it. "
@@ -191,7 +211,14 @@ def build_analysis_schemas(taxonomy: Taxonomy, rubric: Rubric) -> AnalysisSchema
                 description=_glossary("The single best-fitting call category.", taxonomy.categories)
             ),
         ),
-        resolution=(resolutions, Field(description="The outcome for the member.")),
+        resolution=(
+            resolutions,
+            Field(
+                description=_glossary(
+                    "The outcome for the member.", tuple(Resolution)
+                )
+            ),
+        ),
         topics=(list[str], Field(description="Up to six topic keywords.")),
         key_moments=(
             _list_of(key_moment),

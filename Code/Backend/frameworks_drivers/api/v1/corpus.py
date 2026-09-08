@@ -13,6 +13,7 @@ import asyncio
 import json
 from collections.abc import AsyncIterator
 from datetime import datetime
+from typing import Annotated
 
 from fastapi import APIRouter, File, Query, UploadFile, status
 from fastapi.responses import StreamingResponse
@@ -262,7 +263,7 @@ def _import_response(result: CorpusImport) -> CorpusImportResponse:
 )
 async def import_corpus(
     use_case: ImportCorpusDocumentDep,
-    file: UploadFile = File(description="A call-corpus PDF."),
+    file: Annotated[UploadFile, File(description="A call-corpus PDF.")],
 ) -> CorpusImportResponse:
     """Extract every call from a corpus PDF and save it as corpus markdown.
 
