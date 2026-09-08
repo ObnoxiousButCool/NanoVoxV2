@@ -150,17 +150,25 @@ export function fetchMembersAtRisk(signal?: AbortSignal): Promise<MembersAtRisk>
 
 export interface PulseParams {
   /** Ends the weekly window on the week containing this date. Omitted, with
-   *  no `month` either, the API returns the latest window. */
+   *  no `month` or `centre` either, the API returns the latest window. */
   readonly anchor?: string
-  /** Every week of this date's calendar month, instead of a trailing window.
-   *  Takes precedence over `anchor` if both are given. */
+  /** Every week of this date's calendar month, instead of a trailing window. */
   readonly month?: string
+  /** The week either side of this date's own week, instead of a trailing
+   *  window. Empty if this date falls in no week the corpus has — a
+   *  trailing window has no such date and would silently answer with
+   *  whichever weeks it does have instead. */
+  readonly centre?: string
 }
 
 export function fetchPulse(params: PulseParams = {}, signal?: AbortSignal): Promise<Pulse> {
   const query = new URLSearchParams()
+  // Exactly one of these is ever set by a caller; this order only matters
+  // if that stops being true.
   if (params.month) {
     query.set('month', params.month)
+  } else if (params.centre) {
+    query.set('centre', params.centre)
   } else if (params.anchor) {
     query.set('anchor', params.anchor)
   }

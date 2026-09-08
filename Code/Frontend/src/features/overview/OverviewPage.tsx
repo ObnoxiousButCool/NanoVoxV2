@@ -54,17 +54,18 @@ import {
 import { Card, Failure, Loading, Note, PageHeader } from '@/shared/ui/primitives'
 import { GraphPeriodFilter, type GraphFilterMode } from './GraphPeriodFilter'
 import { PeriodFilter, type Granularity } from './PeriodFilter'
-import { addDays } from './weekWindow'
 import styles from './OverviewPage.module.css'
 
-/** Half of the graph's 15-day window, in days either side of its centre. */
-const GRAPH_WINDOW_HALF_WIDTH_DAYS = 7
-
 /** The graph's own request, given its mode and the day it is currently set
- *  to — any day within a month in month mode, the centre day in week mode. */
+ *  to — any day within a month in month mode, the centre day in week mode.
+ *  `centre` asks the API a question with a real "no" answer — is this date
+ *  actually inside a week the corpus has — which a trailing window ending
+ *  `anchor` days later cannot: that mechanism always answers with whichever
+ *  weeks are trailing at-or-before the anchor, however far past the data it
+ *  falls, mislabelling them as the requested period. */
 function graphPulseParams(mode: GraphFilterMode, value: string | undefined): PulseParams {
   if (!value) return {}
-  return mode === 'month' ? { month: value } : { anchor: addDays(value, GRAPH_WINDOW_HALF_WIDTH_DAYS) }
+  return mode === 'month' ? { month: value } : { centre: value }
 }
 
 /** The prototype's outcome colours. */
@@ -323,7 +324,6 @@ function TimeValueCard() {
     </>
   )
 }
-
 
 function ResolutionByAgent({ agents }: { agents: readonly AgentPerformance[] }) {
   if (agents.length === 0) {

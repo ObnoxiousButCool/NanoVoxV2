@@ -7,6 +7,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { AppProviders } from '@/app/providers'
 import { OverviewPage } from '@/features/overview/OverviewPage'
 import chartStyles from '@/shared/ui/charts.module.css'
+import { requestUrl } from '@/test/requestUrl'
 
 const OVERVIEW = {
   metrics: {
@@ -640,6 +641,33 @@ describe('OverviewPage', () => {
 
       expect(within(card).getByText('September 2026')).toBeInTheDocument()
       expect(within(header).getByLabelText('Month')).toHaveValue('2026-08')
+    })
+
+    it('asks the API for a centre, never a trailing-window anchor derived from it', async () => {
+      // The regression this guards: the graph used to translate its centre
+      // into `anchor = centre + 7 days` to reuse the page filter's trailing
+      // window. That mechanism has no way to say "there is nothing here" —
+      // asked for a week nowhere near the data, it silently answers with
+      // whichever weeks are trailing at-or-before that point instead, so
+      // picking (say) November showed September's data under November's
+      // label. `centre` is a distinct, honest request the API can answer
+      // "nothing" to.
+      const user = userEvent.setup()
+      renderOverview()
+      const card = await graphCard()
+      const forward = await within(card).findByRole('button', {
+        name: 'Shift the window forward two weeks',
+      })
+
+      await user.click(forward)
+
+      const pulseUrls = vi
+        .mocked(fetch)
+        .mock.calls.map(([input]) => requestUrl(input))
+        .filter((url) => url.includes('/dashboard/pulse'))
+
+      expect(pulseUrls.some((url) => url.includes('centre='))).toBe(true)
+      expect(pulseUrls.every((url) => !url.includes('anchor='))).toBe(true)
     })
   })
 

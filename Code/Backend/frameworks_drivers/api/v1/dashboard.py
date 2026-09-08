@@ -650,11 +650,15 @@ async def get_pulse(
     ),
     month: date | None = Query(  # noqa: B008
         default=None,
-        description="Every week of this date's calendar month, instead of a trailing window. "
-        "Takes precedence over `anchor` if both are given.",
+        description="Every week of this date's calendar month, instead of a trailing window.",
+    ),
+    centre: date | None = Query(  # noqa: B008
+        default=None,
+        description="The week either side of this date's own week, instead of a trailing "
+        "window. Empty if this date does not fall in any week the corpus has.",
     ),
 ) -> PulseResponse:
-    pulse = await use_case.execute(anchor=anchor, month=month)
+    pulse = await use_case.execute(anchor=anchor, month=month, centre=centre)
     latest, previous = pulse.trend.latest, pulse.trend.previous
 
     delta = (

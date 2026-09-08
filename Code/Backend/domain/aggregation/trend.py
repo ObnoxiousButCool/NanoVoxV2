@@ -32,12 +32,14 @@ __all__ = [
     "Trend",
     "TrendCall",
     "TrendPoint",
+    "centred_window",
     "month_window",
     "trend",
     "windowed",
 ]
 
 DEFAULT_WINDOW = 3
+DEFAULT_HALF_WIDTH = 1
 
 _RESOLVED = "RESOLVED"
 
@@ -193,3 +195,34 @@ def month_window(full: Trend, month: date) -> Trend:
         if point.starting.year == month.year and point.starting.month == month.month
     )
     return Trend(points=matching, undated_calls=full.undated_calls)
+
+
+def centred_window(full: Trend, centre: date, half_width: int = DEFAULT_HALF_WIDTH) -> Trend:
+    """The week containing ``centre``, plus ``half_width`` weeks either side.
+
+    Unlike ``windowed``, this asks a question with a real "no" answer: is
+    ``centre`` actually inside a week the corpus has? ``windowed`` is a
+    trailing count — "the last N weeks at or before this point" — which is
+    well-defined for *any* anchor no matter how far past the data it falls,
+    because "at or before" never runs out of candidates once at least one
+    week exists. That is right for a reader picking a week to end a report
+    on, and wrong for a reader picking a week to centre one on: asked for
+    November against a corpus that stops in September, a trailing count
+    answers with September anyway, mislabelled as if it were the requested
+    week. Failing to find a week that actually contains ``centre`` and
+    returning nothing instead is the fix — the corpus has no opinion about
+    November, and a chart is more honest empty than wrong.
+    """
+    index = next(
+        (
+            i
+            for i, point in enumerate(full.points)
+            if point.starting <= centre < point.starting + timedelta(days=7)
+        ),
+        None,
+    )
+    if index is None:
+        return Trend(points=(), undated_calls=full.undated_calls)
+
+    window = full.points[max(0, index - half_width) : index + half_width + 1]
+    return Trend(points=window, undated_calls=full.undated_calls)
