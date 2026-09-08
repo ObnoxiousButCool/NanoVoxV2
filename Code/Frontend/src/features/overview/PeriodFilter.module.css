@@ -1,0 +1,28 @@
+/* Mirrors the filter-dropdown pattern already established in CallsPage. */
+
+.filters {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.dropdown {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font: 600 10px/1 var(--font-body);
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--slate-2);
+}
+
+.dropdown select {
+  font: 400 12.5px/1.2 var(--font-body);
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--ink);
+  padding: 6px 8px;
+  border: 1px solid var(--rule);
+  border-radius: var(--r);
+  background: #fff;
+}

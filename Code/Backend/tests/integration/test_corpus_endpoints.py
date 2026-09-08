@@ -10,7 +10,9 @@ from __future__ import annotations
 import asyncio
 import json
 import threading
+import time
 from collections.abc import Iterator
+from contextlib import contextmanager
 from pathlib import Path
 from typing import Any
 
@@ -84,7 +86,11 @@ class GatedProvider(ScriptedLayerProvider):
     gate = threading.Event()
 
     async def complete(self, request: LlmRequest[TModel]) -> StructuredResult[TModel]:
-        while not GatedProvider.gate.is_set():
+        # A polled threading.Event rather than an asyncio.Event, which ASYNC110
+        # would prefer: the gate is released from the test's own thread, and
+        # asyncio.Event is not safe to set from outside the loop's thread. The
+        # sleep yields, so the request serving the stream still runs.
+        while not GatedProvider.gate.is_set():  # noqa: ASYNC110
             await asyncio.sleep(0.01)
         return await super().complete(request)
 
@@ -149,8 +155,40 @@ def wait_for_finish(client: TestClient, run_id: int) -> dict[str, Any]:
     return body
 
 
+@contextmanager
+def released_once_watching(app: FastAPI) -> Iterator[None]:
+    """Let the parked worker finish once the stream is actually listening.
+
+    This TestClient does not hand back a streaming response until the ASGI call
+    has completed, so a stream on a run that never ends never returns — and the
+    thread inside ``client.stream`` cannot release the gate itself. Something
+    outside it has to.
+
+    Keyed on the subscription rather than on a delay: the release happens after
+    the endpoint has read the run and opened its subscription, so the snapshot is
+    still taken mid-run and the assertion cannot flake on a slow machine.
+    """
+    bus = app.state.container.events
+
+    def release() -> None:
+        # Only this one stream is ever open in these tests, so a subscriber at
+        # all is this subscriber.
+        deadline = time.monotonic() + 5
+        while time.monotonic() < deadline and bus.subscriber_count == 0:
+            time.sleep(0.01)
+        GatedProvider.gate.set()
+
+    watcher = threading.Thread(target=release, daemon=True)
+    watcher.start()
+    try:
+        yield
+    finally:
+        GatedProvider.gate.set()
+        watcher.join(timeout=5)
+
+
 class TestCorpusStatus:
-    def test_it_reports_the_corpus_before_anything_is_analysed(self, client: TestClient) -> None:
+    def test_it_reports_the_corpus_before_anything_is_analyzed(self, client: TestClient) -> None:
         body = client.get(CORPUS).json()
 
         assert body["total_calls"] == CORPUS_SIZE
@@ -180,7 +218,7 @@ class TestStartingARun:
         assert body["progress"]["completed"] == CORPUS_SIZE
         assert body["progress"]["percent_complete"] == 100.0
 
-    def test_the_analysed_calls_reach_the_dashboard(self, client: TestClient) -> None:
+    def test_the_analyzed_calls_reach_the_dashboard(self, client: TestClient) -> None:
         # The point of the run: the corpus becomes the dashboard's data.
         wait_for_finish(client, start(client)["id"])
 
@@ -201,7 +239,9 @@ class TestStartingARun:
     ) -> None:
         # The provider is built first precisely so this is a 404 on the request
         # rather than a run that exists only to fail on its first call.
-        def refuse(self: Container, name: str | None = None, model: str | None = None) -> LLMProvider:
+        def refuse(
+            self: Container, name: str | None = None, model: str | None = None
+        ) -> LLMProvider:
             raise NotFoundError("Unknown model provider: 'nope'.")
 
         monkeypatch.setattr(Container, "create_provider", refuse)
@@ -234,7 +274,9 @@ class TestCostGuard:
 
     def test_providers_declare_whether_they_cost_money(self, client: TestClient) -> None:
         # The screen cannot warn about a cost it cannot see.
-        providers = {item["name"]: item for item in client.get("/api/v1/providers").json()["providers"]}
+        providers = {
+            item["name"]: item for item in client.get("/api/v1/providers").json()["providers"]
+        }
 
         assert providers["ollama"]["billable"] is False
         assert providers["openai"]["billable"] is True
@@ -242,14 +284,14 @@ class TestCostGuard:
 
 
 class TestIdempotencyOverHttp:
-    def test_a_second_run_skips_what_is_already_analysed(self, client: TestClient) -> None:
+    def test_a_second_run_skips_what_is_already_analyzed(self, client: TestClient) -> None:
         wait_for_finish(client, start(client)["id"])
 
         second = wait_for_finish(client, start(client)["id"])
 
         assert second["progress"]["skipped"] == CORPUS_SIZE
         assert second["progress"]["completed"] == 0
-        assert "Already analysed" in second["items"][0]["message"]
+        assert "Already analyzed" in second["items"][0]["message"]
 
     def test_forcing_re_analyses_every_call(self, client: TestClient) -> None:
         wait_for_finish(client, start(client)["id"])
@@ -310,7 +352,7 @@ class TestCancelAndResume:
 
 
 class TestClearingTheCorpus:
-    def test_it_removes_every_analysed_call_and_run(self, client: TestClient) -> None:
+    def test_it_removes_every_analyzed_call_and_run(self, client: TestClient) -> None:
         run_id = start(client)["id"]
         wait_for_finish(client, run_id)
         assert client.get(CORPUS).json()["analysed_calls"] == CORPUS_SIZE
@@ -381,14 +423,17 @@ class TestReadingRuns:
 
 class TestProgressStream:
     def test_it_opens_with_a_snapshot_so_a_late_client_is_not_blank(
-        self, client: TestClient
+        self, client: TestClient, app: FastAPI
     ) -> None:
         # Attaching halfway through would otherwise show nothing until the next
         # call finished — minutes of apparently broken screen.
         GatedProvider.gate.clear()
         run_id = start(client)["id"]
 
-        with client.stream("GET", f"{RUNS}/{run_id}/stream") as response:
+        with (
+            released_once_watching(app),
+            client.stream("GET", f"{RUNS}/{run_id}/stream") as response,
+        ):
             assert response.headers["content-type"].startswith("text/event-stream")
             first = read_event(response.iter_lines())
 
@@ -396,14 +441,17 @@ class TestProgressStream:
         assert first["progress"]["total"] == CORPUS_SIZE
 
     def test_the_snapshot_carries_the_whole_state_not_a_delta(
-        self, client: TestClient
+        self, client: TestClient, app: FastAPI
     ) -> None:
         # A client that reconnects mid-run rebuilds everything from this one
         # frame, so it has to be complete on its own.
         GatedProvider.gate.clear()
         run_id = start(client)["id"]
 
-        with client.stream("GET", f"{RUNS}/{run_id}/stream") as response:
+        with (
+            released_once_watching(app),
+            client.stream("GET", f"{RUNS}/{run_id}/stream") as response,
+        ):
             snapshot = read_event(response.iter_lines())
 
         assert snapshot["run_id"] == run_id
@@ -459,7 +507,9 @@ class TestResumeIsAtomic:
         GatedProvider.gate.set()
         wait_for_finish(client, run_id)
 
-        def refuse(self: Container, name: str | None = None, model: str | None = None) -> LLMProvider:
+        def refuse(
+            self: Container, name: str | None = None, model: str | None = None
+        ) -> LLMProvider:
             raise NotFoundError("Unknown model provider: 'gone'.")
 
         monkeypatch.setattr(Container, "create_provider", refuse)

@@ -6,6 +6,7 @@ import pytest
 
 from domain.aggregation.resolution_time import (
     DurationBandSettings,
+    ResolutionTime,
     resolution_time,
 )
 from domain.errors import ValidationError
@@ -14,7 +15,7 @@ BANDS = DurationBandSettings(lower_bounds=(0, 10, 20))
 LABELS = {"pharmacy": "Pharmacy", "claims": "Claims", "appeals": "Appeals"}
 
 
-def summarise(durations: dict[str, tuple[int, ...]], total: int = 10) -> object:
+def summarise(durations: dict[str, tuple[int, ...]], total: int = 10) -> ResolutionTime:
     return resolution_time(durations, labels=LABELS, total_calls=total, settings=BANDS)
 
 

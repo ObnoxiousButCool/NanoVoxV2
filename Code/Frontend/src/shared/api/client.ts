@@ -133,6 +133,23 @@ export async function postJson<T>(
   )
 }
 
+/**
+ * Issue a POST carrying multipart form data — an uploaded file.
+ *
+ * No `Content-Type` header is set, deliberately. `fetch` derives it from the
+ * `FormData` body along with the multipart boundary it generated, and a header
+ * set here would replace that with a boundary-less value the server cannot
+ * parse. The failure is a confusing 422 about a missing field rather than
+ * anything that mentions the header.
+ */
+export async function postFormData<T>(
+  path: string,
+  body: FormData,
+  options: RequestOptions = {},
+): Promise<T> {
+  return request<T>(path, { method: 'POST', headers: { Accept: 'application/json' }, body }, options)
+}
+
 /** Issue a DELETE against the API and parse the JSON response. */
 export async function deleteJson<T>(path: string, options: RequestOptions = {}): Promise<T> {
   return request<T>(path, { method: 'DELETE', headers: { Accept: 'application/json' } }, options)

@@ -1,5 +1,5 @@
 /**
- * Paste a transcript, choose a provider, run the five-layer analysis.
+ * Paste a transcript and run the five-layer analysis.
  *
  * The wait is the design problem here: a local model takes minutes on a full
  * transcript. The screen says so before the user commits, and keeps saying it
@@ -12,8 +12,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAnalyzeTranscript } from '@/shared/api/queries'
 import { ApiError, NetworkError } from '@/shared/api/client'
 import { Alert, Button, Card, Note, PageHeader } from '@/shared/ui/primitives'
-import { countTurns } from './countTurns'
-import { ProviderPicker, type ProviderSelection } from './ProviderPicker'
+import { countTurns, transcriptWarning } from './countTurns'
 import styles from './AnalyzePage.module.css'
 
 const PLACEHOLDER = `Agent Sarah: Choice Administrators member services, this is Sarah.
@@ -39,17 +38,19 @@ function AnalysisFailure({ error }: { error: Error }) {
 
 export function AnalyzePage() {
   const [transcript, setTranscript] = useState('')
-  const [selection, setSelection] = useState<ProviderSelection>({ provider: null, model: null })
   const navigate = useNavigate()
   const analyse = useAnalyzeTranscript()
 
   const turns = countTurns(transcript)
+  // Advisory. A transcript can parse into turns and still not read the way it
+  // will be scored — the case this catches costs a provider call to discover.
+  const warning = transcriptWarning(transcript)
   const running = analyse.isPending
   const canSubmit = turns > 0 && !running
 
   const submit = () => {
     analyse.mutate(
-      { transcript, provider: selection.provider, model: selection.model },
+      { transcript, provider: null, model: null },
       {
         onSuccess: (analysis) => {
           navigate(`/calls/${String(analysis.id)}`)
@@ -104,6 +105,17 @@ export function AnalyzePage() {
             </div>
           </div>
 
+          {warning ? (
+            /* Above the general guidance, because it is about this paste rather
+               than about the format in general. Submission is still allowed:
+               the mid-line test can fire on an ordinary sentence, and refusing
+               a transcript on a heuristic is worse than scoring one badly with
+               the reason on screen. */
+            <Alert tone="medium" title="This will not parse the way it reads">
+              {warning}
+            </Alert>
+          ) : null}
+
           {transcript.length > 0 && turns === 0 ? (
             <Note>
               No speaker prefixes found. Every line needs one, like
@@ -135,11 +147,7 @@ export function AnalyzePage() {
         </Card>
 
         <aside>
-          <Card title="Provider">
-            <ProviderPicker selection={selection} onChange={setSelection} disabled={running} />
-          </Card>
-
-          <Card title="What runs" className="stackTop">
+          <Card title="What runs">
             <dl>
               {[
                 ['L1', 'Speakers, tone, flags'],

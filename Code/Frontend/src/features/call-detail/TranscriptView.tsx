@@ -9,19 +9,27 @@
  * The quote is matched with the same tolerance the backend validator uses:
  * whitespace and case, nothing more. If it does not match, the line is left
  * alone rather than approximated.
+ *
+ * Identifiers a member read out loud are masked here too. Ranges are found in
+ * the stored text and the characters are taken from the masked copy, which is
+ * only sound because masking preserves length — so a quote spanning a card
+ * number still highlights, and the hidden digits stay hidden inside it.
  */
 
 import type { ReactNode } from 'react'
 
 import type { Marker, Turn } from '@/shared/api/types'
 import { cx } from '@/shared/ui/cx'
+import { maskIdentifiersInText } from '@/shared/ui/memberId'
 import { findQuoteRange } from './quoteRange'
 import styles from './CallDetail.module.css'
 
-function highlight(text: string, quotes: readonly string[]): ReactNode {
+function highlight(source: string, quotes: readonly string[]): ReactNode {
+  // Quotes are located in the stored text, then read out of the masked copy.
+  const text = maskIdentifiersInText(source)
   const ranges: [number, number][] = []
   for (const quote of quotes) {
-    const range = findQuoteRange(text, quote)
+    const range = findQuoteRange(source, quote)
     if (range) {
       ranges.push(range)
     }

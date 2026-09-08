@@ -1,7 +1,17 @@
 import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { describe, expect, it } from 'vitest'
 
-import { Bar, Histogram, Legend, Metric, MetricStrip } from '@/shared/ui/charts'
+import {
+  Bar,
+  DeltaMetric,
+  DualLineTrend,
+  Histogram,
+  Legend,
+  Metric,
+  MetricStrip,
+} from '@/shared/ui/charts'
+import chartStyles from '@/shared/ui/charts.module.css'
 
 describe('Bar', () => {
   it('sizes segments by share so different call volumes stay comparable', () => {
@@ -114,5 +124,130 @@ describe('Metric', () => {
     const { container } = render(<Metric label="Calls" value={12} />)
 
     expect(container.textContent).toBe('Calls12')
+  })
+})
+
+describe('DualLineTrend', () => {
+  const points = [
+    { label: '31 Aug', quality: 79, ahtMinutes: 6.2 },
+    { label: '7 Sep', quality: 78, ahtMinutes: 7.5 },
+    { label: '14 Sep', quality: null, ahtMinutes: null },
+    { label: '21 Sep', quality: 69.5, ahtMinutes: 8.1 },
+  ]
+
+  it('labels the quality scale so a fall can be sized', () => {
+    render(<DualLineTrend points={points} />)
+
+    for (const tick of ['0', '25', '50', '75', '100']) {
+      expect(screen.getByText(tick)).toBeInTheDocument()
+    }
+  })
+
+  it('labels the handling-time scale against the weeks actually plotted', () => {
+    render(<DualLineTrend points={points} />)
+
+    // Padded a little past the 6.2-8.1 range the fixture spans.
+    expect(screen.getByText(/^8\.\dm$/)).toBeInTheDocument()
+    expect(screen.getByText(/^6\.0m$/)).toBeInTheDocument()
+  })
+
+  it('draws one point per week that measured that figure', () => {
+    // Three weeks have a quality figure, three have a handling-time figure —
+    // the unmeasured week (14 Sep) contributes to neither.
+    const { container } = render(<DualLineTrend points={points} />)
+
+    expect(container.getElementsByClassName((chartStyles.point ?? ''))).toHaveLength(6)
+  })
+
+  it('breaks each line where a week measured nothing', () => {
+    // Two lines, each broken into two runs by the unmeasured week: four
+    // polylines in total, not two drawn straight through the gap.
+    const { container } = render(<DualLineTrend points={points} />)
+
+    expect(container.querySelectorAll('polyline')).toHaveLength(4)
+  })
+
+  it("shows a week's numbers on hover", async () => {
+    const user = userEvent.setup()
+    render(<DualLineTrend points={points} />)
+
+    const column = screen.getByRole('img', { name: /31 Aug/ })
+    await user.hover(column)
+
+    expect(screen.getByText('Quality 79')).toBeInTheDocument()
+    expect(screen.getByText('AHT 6.2m')).toBeInTheDocument()
+  })
+
+  it("shows a week's numbers on keyboard focus, not only on hover", async () => {
+    const user = userEvent.setup()
+    render(<DualLineTrend points={points} />)
+
+    await user.tab()
+    expect(screen.getByText('Quality 79')).toBeInTheDocument()
+  })
+
+  it('names every week along the horizontal axis', () => {
+    render(<DualLineTrend points={points} />)
+
+    for (const label of ['31 Aug', '7 Sep', '14 Sep', '21 Sep']) {
+      expect(screen.getAllByText(label).length).toBeGreaterThan(0)
+    }
+  })
+
+  it('says so rather than drawing a plot with nothing measured', () => {
+    render(<DualLineTrend points={[{ label: '31 Aug', quality: null, ahtMinutes: null }]} />)
+
+    expect(screen.getByText(/No week in this window measured either figure/)).toBeInTheDocument()
+  })
+})
+
+describe('DeltaMetric', () => {
+  it('carries the direction in words as well as in colour', () => {
+    // The page prints in monochrome and is read by people who cannot separate
+    // red from green, so the arrow and the sentence do the work colour does.
+    render(
+      <DeltaMetric
+        label="First Call Resolution (FCR)"
+        value="57%"
+        delta={-23.8}
+        format={(value) => `${String(value)} pts`}
+      />,
+    )
+
+    expect(screen.getByText(/▼ 23.8 pts on last week/)).toBeInTheDocument()
+  })
+
+  it('reads a fall as bad when up is good, and the reverse', () => {
+    const { container: falling } = render(
+      <DeltaMetric label="A" value="1" delta={-5} format={String} goodDirection="up" />,
+    )
+    const { container: rising } = render(
+      <DeltaMetric label="B" value="1" delta={5} format={String} goodDirection="up" />,
+    )
+
+    const bad = falling.querySelector('span')?.className
+    const good = rising.querySelector('span')?.className
+    expect(bad).not.toEqual(good)
+  })
+
+  it('treats a measure with no good direction as neither', () => {
+    // Handle time: a shorter call is an answer found faster or a member brushed
+    // off, and this figure cannot tell them apart.
+    const { container: neutral } = render(
+      <DeltaMetric label="A" value="1" delta={-5} format={String} goodDirection="neutral" />,
+    )
+    const { container: bad } = render(
+      <DeltaMetric label="B" value="1" delta={-5} format={String} goodDirection="up" />,
+    )
+
+    expect(neutral.querySelector('span')?.className).not.toEqual(
+      bad.querySelector('span')?.className,
+    )
+  })
+
+  it('says there is nothing to compare against rather than showing zero', () => {
+    render(<DeltaMetric label="A" value="1" delta={null} format={String} />)
+
+    expect(screen.getByText('No previous week')).toBeInTheDocument()
   })
 })

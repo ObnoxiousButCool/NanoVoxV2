@@ -43,7 +43,7 @@ import {
 } from '@/shared/ui/primitives'
 import styles from './CorpusPage.module.css'
 
-/** Layers per call — the corpus is analysed five times over. */
+/** Layers per call — the corpus is analyzed five times over. */
 const LAYERS_PER_CALL = 5
 
 function statusTone(status: string): 'high' | 'medium' | 'low' | 'neutral' {
@@ -83,7 +83,7 @@ function ProgressBar({ progress }: { progress: RunProgress }) {
           <b>{progress.finished}</b> of {progress.total}
         </span>
         <span className={styles.tallies}>
-          {progress.completed} analysed
+          {progress.completed} analyzed
           {progress.skipped > 0 ? ` · ${String(progress.skipped)} skipped` : ''}
           {progress.failed > 0 ? ` · ${String(progress.failed)} failed` : ''}
           {progress.cancelled > 0 ? ` · ${String(progress.cancelled)} cancelled` : ''}
@@ -164,7 +164,7 @@ function ActiveRun({ run, onFinished }: { run: CorpusRun; onFinished: () => void
 
       {status === 'CANCELLING' ? (
         <Note>
-          Stopping after the call in flight. The call being analysed is left to finish rather than
+          Stopping after the call in flight. The call being analyzed is left to finish rather than
           abandoned half-written.
         </Note>
       ) : null}
@@ -236,7 +236,7 @@ export function CorpusPage() {
       {status.error ? <Failure error={status.error} what="the corpus" /> : null}
 
       {status.data ? (
-        <Card title="What will be analysed">
+        <Card title="What will be analyzed">
           <div className={styles.summary}>
             <div>
               <b>{status.data.total_calls}</b>
@@ -244,7 +244,7 @@ export function CorpusPage() {
             </div>
             <div>
               <b>{status.data.analysed_calls}</b>
-              <span>already analysed</span>
+              <span>already analyzed</span>
             </div>
             <div>
               <b>{outstanding}</b>
@@ -354,17 +354,17 @@ export function CorpusPage() {
             )}
             {!force && outstanding === 0 && total > 0 && activeId === null ? (
               <Note>
-                Every call is already analysed. Tick the box above to replace them.
+                Every call is already analyzed. Tick the box above to replace them.
               </Note>
             ) : null}
           </div>
 
           {confirmingClear ? (
-            <Alert tone="broker" title="This deletes every analysed call">
-              All {status.data.analysed_calls} analysed call
+            <Alert tone="broker" title="This deletes every analyzed call">
+              All {status.data.analysed_calls} analyzed call
               {status.data.analysed_calls === 1 ? '' : 's'} and their layers, signals, scores and
               run history will be removed. The transcripts in the corpus folder are untouched, so
-              they can be analysed again. <b>Ground truth is kept</b> — it is hand-labelled and
+              they can be analyzed again. <b>Ground truth is kept</b> — it is hand-labelled and
               re-analysis cannot regenerate it. This cannot be undone.
             </Alert>
           ) : null}
@@ -431,7 +431,7 @@ export function CorpusPage() {
                     {entry.provider} · {entry.model}
                   </span>
                   <span className={styles.runCounts}>
-                    {entry.progress.completed}/{entry.progress.total} analysed
+                    {entry.progress.completed}/{entry.progress.total} analyzed
                   </span>
                 </button>
               </li>
@@ -443,7 +443,7 @@ export function CorpusPage() {
       {runs.data && runs.data.length === 0 ? (
         <Card>
           <Empty title="No runs yet">
-            Nothing has been analysed in bulk. Starting a run rebuilds every dashboard figure from
+            Nothing has been analyzed in bulk. Starting a run rebuilds every dashboard figure from
             the corpus.
           </Empty>
         </Card>

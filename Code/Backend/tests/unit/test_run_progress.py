@@ -1,7 +1,7 @@
 """Run state and the progress derived from it.
 
 The rules here decide what a progress bar claims, so each one is a statement
-about honesty rather than arithmetic: a skipped call is not an analysed one, a
+about honesty rather than arithmetic: a skipped call is not an analyzed one, a
 cancelled run is not a failed one, and a run nobody can resume must not offer to.
 """
 
@@ -50,8 +50,8 @@ def run(*statuses: RunItemStatus, status: RunStatus = RunStatus.COMPLETED) -> Co
 
 class TestProgress:
     def test_the_four_outcomes_are_counted_separately(self) -> None:
-        # A run that skipped ninety and analysed ten is not the same event as one
-        # that analysed a hundred.
+        # A run that skipped ninety and analyzed ten is not the same event as one
+        # that analyzed a hundred.
         progress = summarise([COMPLETED, COMPLETED, SKIPPED, FAILED, PENDING])
 
         assert progress.total == 5
@@ -86,9 +86,7 @@ class TestRunStatus:
         assert status.is_terminal
         assert not status.is_active
 
-    @pytest.mark.parametrize(
-        "status", [RunStatus.PENDING, RunStatus.RUNNING, RunStatus.CANCELLING]
-    )
+    @pytest.mark.parametrize("status", [RunStatus.PENDING, RunStatus.RUNNING, RunStatus.CANCELLING])
     def test_a_cancelling_run_still_counts_as_working(self, status: RunStatus) -> None:
         # It has a call in flight, so a second run must still be refused.
         assert status.is_active
@@ -136,18 +134,14 @@ class TestItemInvariants:
     def test_a_completed_item_must_name_the_call_it_produced(self) -> None:
         # Otherwise the dashboard counts a call nobody can open.
         with pytest.raises(ValueError, match="without a stored call"):
-            CorpusRunItem(
-                source_id="call_001", reference="C0001", title="Test", status=COMPLETED
-            )
+            CorpusRunItem(source_id="call_001", reference="C0001", title="Test", status=COMPLETED)
 
     @pytest.mark.parametrize("status", [FAILED, SKIPPED])
     def test_a_failure_or_a_skip_must_say_why(self, status: RunItemStatus) -> None:
         with pytest.raises(ValueError, match="without a reason"):
-            CorpusRunItem(
-                source_id="call_001", reference="C0001", title="Test", status=status
-            )
+            CorpusRunItem(source_id="call_001", reference="C0001", title="Test", status=status)
 
     def test_the_calls_a_run_produced_are_listed(self) -> None:
         subject = run(COMPLETED, FAILED, COMPLETED)
 
-        assert subject.analysed_call_ids == (1, 1)
+        assert subject.analyzed_call_ids == (1, 1)

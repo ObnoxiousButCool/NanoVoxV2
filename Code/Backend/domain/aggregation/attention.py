@@ -101,8 +101,18 @@ class AttentionItem:
     """One ranked item on the queue."""
 
     rule_id: str
+    kind: RuleKind
     title: str
     subject: str
+    subject_key: str
+    """The code of the thing counted, where `subject` is its label.
+
+    An item is a claim about a specific set of calls, and a reader who believes
+    the claim will want to see them. Only the label survived before, which is
+    what a person reads and not what the calls list filters on — so the queue
+    could state "13 calls" and offer no way to reach the 13. Carried with the
+    kind, which says which of the four things the key names."""
+
     why: str
     owner: str
     severity: Severity
@@ -144,8 +154,10 @@ def evaluate_rules(
             items.append(
                 AttentionItem(
                     rule_id=rule.id,
+                    kind=rule.kind,
                     title=rule.title.format(subject=group.label, count=count),
                     subject=group.label,
+                    subject_key=group.key,
                     why=rule.why.format(
                         subject=group.label,
                         count=count,

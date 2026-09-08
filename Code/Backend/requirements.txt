@@ -9,6 +9,11 @@ SQLAlchemy[asyncio]>=2.0.36,<2.1
 aiosqlite>=0.20,<1.0
 alembic>=1.14,<2.0
 PyYAML>=6.0,<7.0
+# Multipart form parsing, which FastAPI needs to accept an uploaded file.
+python-multipart>=0.0.9,<1.0
+# Reading the call-corpus PDF. A runtime dependency since the corpus can be
+# imported from the Corpus import screen, not only by the offline script.
+pypdf>=5.1,<7.0
 
 # Model providers. Official SDKs rather than hand-rolled HTTP: they track API
 # changes, expose typed errors, and are the supported path for structured output.

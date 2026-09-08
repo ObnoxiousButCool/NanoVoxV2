@@ -118,14 +118,12 @@ def _failure_mode(calls: Sequence[CallTime]) -> FailureMode:
     return FailureMode(
         calls=len(calls),
         minutes=sum(call.duration_minutes for call in calls),
-        average_score=(
-            round(sum(call.score for call in calls) / len(calls), 1) if calls else 0.0
-        ),
+        average_score=(round(sum(call.score for call in calls) / len(calls), 1) if calls else 0.0),
     )
 
 
 def _category(code: str, label: str, calls: Sequence[CallTime]) -> CategoryMinutes:
-    minutes = {outcome: 0 for outcome in _OUTCOME_ORDER}
+    minutes = dict.fromkeys(_OUTCOME_ORDER, 0)
     for call in calls:
         # An outcome the taxonomy does not list still has to be counted
         # somewhere, or the bars would not sum to the total beside them.

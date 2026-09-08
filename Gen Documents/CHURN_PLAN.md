@@ -5,7 +5,7 @@ into *"which members are about to leave?"*
 
 ---
 
-## Does any of this need the corpus re-analysed?
+## Does any of this need the corpus re-analyzed?
 
 **Five of the six do not.** Only the new signal type needs a model, and even that
 can be narrowed to about eight calls instead of a hundred.
@@ -150,7 +150,7 @@ So the regex is roughly half precise. It is a **triage tool, not a detector**:
 > Re-analysing a call replaces its whole analysis, so those calls' scores may
 > shift slightly. Acceptable for eight; not something to do casually to a hundred.
 
-For calls that were never re-analysed, exit intent is simply absent — which is
+For calls that were never re-analyzed, exit intent is simply absent — which is
 honest, and matches how the system already treats a layer it could not produce.
 
 ### 3.3 Put it on the Overview
@@ -243,5 +243,5 @@ members' behaviour.
 ## Also worth fixing while here
 
 The corpus reads **102**, not 100: two `PASTED` analyses duplicate call C0100.
-Nothing dedupes a pasted transcript against a call already analysed. Minor now,
+Nothing dedupes a pasted transcript against a call already analyzed. Minor now,
 but it quietly inflates every rate on the dashboard.

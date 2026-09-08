@@ -7,11 +7,11 @@ a cancel or a crash leaves a record that says exactly what was done. Nothing abo
 the run's progress lives only in the worker's memory.
 
 **It is idempotent.** A call that already has an analysis is skipped with a reason
-rather than analysed twice. ``force`` replaces instead, and replacement deletes
+rather than analyzed twice. ``force`` replaces instead, and replacement deletes
 the old call first — leaving both would double every figure on the dashboard.
 
 **One failure is not a failed run.** A call that fails is recorded as failed, with
-the reason, and the run carries on. Ninety-nine analysed calls are worth having;
+the reason, and the run carries on. Ninety-nine analyzed calls are worth having;
 abandoning them because the hundredth timed out is not a trade anyone would take.
 """
 
@@ -36,8 +36,8 @@ from domain.entities.corpus_run import CorpusRun, CorpusRunItem
 from domain.errors import ConflictError, NanoVoxError, NotFoundError, ValidationError
 from domain.value_objects.run_status import RunItemStatus, RunStatus
 
-SKIPPED_ALREADY_ANALYSED = "Already analysed. Re-run with force to replace it."
-CANCELLED_BY_OPERATOR = "Cancelled before this call was analysed."
+SKIPPED_ALREADY_ANALYZED = "Already analyzed. Re-run with force to replace it."
+CANCELLED_BY_OPERATOR = "Cancelled before this call was analyzed."
 INTERRUPTED_REASON = "The process stopped while this run was working."
 
 
@@ -236,7 +236,7 @@ class CorpusRunWorker:
     async def _resolve_skips(
         self, run_id: int, pending: Sequence[CorpusRunItem], force: bool
     ) -> list[CorpusRunItem]:
-        """Mark already-analysed calls as skipped, or clear the way to replace them."""
+        """Mark already-analyzed calls as skipped, or clear the way to replace them."""
         stored = await self._analyses.existing_references([item.reference for item in pending])
         if not stored:
             return list(pending)
@@ -252,7 +252,7 @@ class CorpusRunWorker:
                     item.source_id,
                     RunItemStatus.SKIPPED,
                     now=self._clock.now(),
-                    message=SKIPPED_ALREADY_ANALYSED,
+                    message=SKIPPED_ALREADY_ANALYZED,
                 )
                 continue
             # Replace, never duplicate: the reference is unique, and a second row
@@ -322,6 +322,17 @@ class CorpusRunWorker:
                     source=AnalysisSource.CORPUS_RUN,
                     reference=call.reference,
                     duration_minutes=call.duration_minutes,
+                    duration_seconds=call.duration_seconds,
+                    started_at=call.started_at,
+                    ended_at=call.ended_at,
+                    caller_type=call.caller_type,
+                    # Stated in the file header, like the durations above, and
+                    # like them not recoverable from the words: across the
+                    # shipped corpus 28 files name the member and only 3 of
+                    # those names are ever spoken in the call.
+                    member_context=(
+                        call.ground_truth.member_context if call.ground_truth else None
+                    ),
                 ),
                 provider,
             )
@@ -407,7 +418,7 @@ class CorpusRunWorker:
 
 def _completion_message(run: CorpusRun) -> str:
     progress = run.progress
-    parts = [f"{progress.completed} analysed"]
+    parts = [f"{progress.completed} analyzed"]
     if progress.skipped:
         parts.append(f"{progress.skipped} skipped")
     if progress.failed:
@@ -440,7 +451,7 @@ class ListCorpusRuns:
 
 @dataclass(frozen=True)
 class CorpusStatus:
-    """What is in the corpus, and how much of it has been analysed."""
+    """What is in the corpus, and how much of it has been analyzed."""
 
     location: str
     total_calls: int

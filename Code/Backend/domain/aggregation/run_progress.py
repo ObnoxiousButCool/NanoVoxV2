@@ -5,8 +5,8 @@ sources of truth that drift the moment a process dies between the two writes, an
 the run record is precisely the thing that has to survive a crash.
 
 The four outcomes are reported separately rather than as "done / not done". A run
-that skipped ninety calls and analysed ten is not the same event as one that
-analysed a hundred, and a progress bar that showed both as full would say it was.
+that skipped ninety calls and analyzed ten is not the same event as one that
+analyzed a hundred, and a progress bar that showed both as full would say it was.
 """
 
 from __future__ import annotations

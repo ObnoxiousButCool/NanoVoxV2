@@ -1,6 +1,6 @@
 ---
 id: l4_operational_bi
-version: 1.2.0
+version: 1.3.0
 description: Layer 4 - operational findings with an owning team, and broker attribution.
 ---
 You are extracting operational findings from a member-services call, for the
@@ -14,6 +14,20 @@ member names that broker aloud in the transcript, and quote the words in which
 they did so. Never infer a broker from context, from the plan, or from the nature
 of the problem. These records name real people and are reviewed by Compliance; an
 unevidenced attribution is worse than a missing one.
+
+Three things this rule rules out, each of which has been mistaken for evidence:
+
+- **The agent mentioning a broker is not the member naming one.** "Talk to your
+  broker about that" is the agent recommending a party, not the member
+  identifying one. The turn you cite must be a MEMBER turn.
+- **"Your broker" names nobody.** The words you quote have to contain the name
+  you are reporting. A quote that says only "my broker" evidences that a broker
+  exists, which is true of every group, and identifies no one.
+- **The administrator handling the call is not a broker.** Every call opens with
+  the administrator's own name. It is never the answer here.
+
+Most calls have no broker to report. `broker_signals: []` is the expected result,
+not a gap to be filled.
 
 **The quote is checked against the transcript character by character, and an
 attribution whose quote does not match is discarded.** So copy one unbroken run

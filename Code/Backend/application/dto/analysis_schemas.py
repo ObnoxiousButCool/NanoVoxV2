@@ -22,8 +22,9 @@ empty list and normalised afterwards.
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from dataclasses import dataclass
-from typing import Any, Literal
+from typing import Any, Literal, Protocol
 
 from pydantic import BaseModel, Field, create_model
 
@@ -48,6 +49,36 @@ def _one_of(values: tuple[str, ...]) -> Any:
     return Literal[values]
 
 
+def _glossary(instruction: str, entries: Sequence[Described]) -> str:
+    """An instruction followed by what each code in the vocabulary means.
+
+    The ``Literal`` constrains *which* codes may be answered; it carries no hint
+    as to what any of them stands for. A model choosing from bare snake_case has
+    to infer the meaning from the code, and it infers wrongly: one corpus call
+    about changing a life-insurance beneficiary after a divorce was filed as
+    ``broker_attributed`` — nothing in the transcript mentions a broker, but the
+    product is broker-sold and none of the other codes read like a fit. The
+    description that would have ruled it out ("the member's issue originates
+    with broker conduct or advice") lives in the taxonomy and was never sent.
+
+    Sending the glossary costs a few hundred tokens once per call and makes
+    ``taxonomy.yaml`` the whole definition of a category, rather than the code
+    being the definition and the file being documentation.
+    """
+    lines = [instruction, "", "The codes, and what each one covers:"]
+    for entry in entries:
+        meaning = entry.description or entry.label
+        # The label is dropped where it only restates the code, which is the
+        # case for vocabularies whose codes are already words rather than
+        # snake_case: "PARTIALLY RESOLVED (Partially Resolved)" tells the model
+        # nothing and is paid for on every call.
+        squashed = entry.code.replace("_", "").replace(" ", "").casefold()
+        restates_the_code = entry.label.replace(" ", "").casefold() == squashed
+        name = entry.code if restates_the_code else f"{entry.code} ({entry.label})"
+        lines.append(f"- {name}: {' '.join(meaning.split())}")
+    return "\n".join(lines)
+
+
 def _list_of(model: Any) -> Any:
     """``list[model]`` for a model class built at runtime.
 
@@ -55,6 +86,19 @@ def _list_of(model: Any) -> Any:
     scattered as ignores across every field below.
     """
     return list[model]
+
+
+class Described(Protocol):
+    """A taxonomy record that can define itself: a call category or an L4 one."""
+
+    @property
+    def code(self) -> str: ...
+
+    @property
+    def label(self) -> str: ...
+
+    @property
+    def description(self) -> str | None: ...
 
 
 @dataclass(frozen=True)
@@ -79,6 +123,31 @@ def build_analysis_schemas(taxonomy: Taxonomy, rubric: Rubric) -> AnalysisSchema
     severities = _one_of(tuple(member.value for member in Severity))
     polarities = _one_of(tuple(member.value for member in Polarity))
 
+    raised_signal = create_model(
+        "RaisedSignalOut",
+        code=(
+            signal_codes,
+            Field(
+                description=_glossary(
+                    "The condition this call raises.", taxonomy.signal_types
+                )
+            ),
+        ),
+        evidence_turn_seq=(
+            int,
+            Field(description="Zero-based index of the transcript turn that proves this."),
+        ),
+        quote=(
+            str,
+            Field(
+                description=(
+                    "The member's or agent's own words from that turn, copied exactly. "
+                    "Not a paraphrase: the text is matched against the turn."
+                )
+            ),
+        ),
+    )
+
     l1 = create_model(
         "L1Understanding",
         call_type=(str, Field(description="What the member called about, in a short phrase.")),
@@ -100,12 +169,20 @@ def build_analysis_schemas(taxonomy: Taxonomy, rubric: Rubric) -> AnalysisSchema
             Field(description="Up to eight salient terms or phrases from the call."),
         ),
         signals=(
-            _list_of(signal_codes),
+            _list_of(raised_signal),
+            # What each code means now lives in taxonomy.yaml and is sent with
+            # the `code` field. The clinical_risk prompt below is kept anyway,
+            # deliberately duplicating part of that definition: it is the one
+            # signal a rubric gate depends on, and trading a known-good safety
+            # prompt for tidiness is not a trade to make without measuring it.
+            # If it is ever removed, check the gate still fires.
             Field(
                 description=(
-                    "Conditions this call raises. Include 'clinical_risk' whenever the "
-                    "member describes symptoms or a lapse in essential medication that "
-                    "the agent did not escalate. Empty list if none apply."
+                    "Conditions this call raises, each with the words that prove it. "
+                    "Include 'clinical_risk' whenever the member describes symptoms or "
+                    "a lapse in essential medication that the agent did not escalate. "
+                    "A signal whose quote is not in the turn it cites is discarded, so "
+                    "raise one only where the transcript says it. Empty list if none."
                 )
             ),
         ),
@@ -128,8 +205,20 @@ def build_analysis_schemas(taxonomy: Taxonomy, rubric: Rubric) -> AnalysisSchema
             str,
             Field(description="What happened and how it ended, in two or three sentences."),
         ),
-        category=(categories, Field(description="The single best-fitting call category.")),
-        resolution=(resolutions, Field(description="The outcome for the member.")),
+        category=(
+            categories,
+            Field(
+                description=_glossary("The single best-fitting call category.", taxonomy.categories)
+            ),
+        ),
+        resolution=(
+            resolutions,
+            Field(
+                description=_glossary(
+                    "The outcome for the member.", tuple(Resolution)
+                )
+            ),
+        ),
         topics=(list[str], Field(description="Up to six topic keywords.")),
         key_moments=(
             _list_of(key_moment),
@@ -180,7 +269,15 @@ def build_analysis_schemas(taxonomy: Taxonomy, rubric: Rubric) -> AnalysisSchema
 
     l4_signal = create_model(
         "L4SignalOut",
-        category=(l4_categories, Field(description="The action category this finding belongs to.")),
+        category=(
+            l4_categories,
+            Field(
+                description=_glossary(
+                    "The action category this finding belongs to.",
+                    taxonomy.l4_categories,
+                )
+            ),
+        ),
         severity=(severities, Field(description="How serious this finding is.")),
         narrative=(str, Field(description="What was found and why it matters.")),
         recommended_action=(str, Field(description="What the owning team should do.")),

@@ -16,15 +16,15 @@ Three counting rules are enforced in SQL and are each easy to get subtly wrong:
 from __future__ import annotations
 
 from collections.abc import Mapping
-
 from typing import Any
 
-from sqlalchemy import Select, case, distinct, func, or_, select
+from sqlalchemy import Select, case, distinct, extract, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from application.ports.read_models import (
     AgentAggregate,
     BrokerAggregate,
+    CallFact,
     CallFilters,
     CallSort,
     CallSummary,
@@ -77,9 +77,7 @@ def _order_clauses(sort: CallSort, *, descending: bool) -> list[Any]:
     appearing twice while another never appears at all.
     """
     if sort is CallSort.SEVERITY:
-        clauses = [
-            clause.reverse_sort() if descending else clause for clause in _SEVERITY_ORDER
-        ]
+        clauses = [clause.reverse_sort() if descending else clause for clause in _SEVERITY_ORDER]
         return [*clauses, CallRow.id.asc()]
 
     column = _SORT_COLUMNS[sort]
@@ -450,6 +448,33 @@ class SqlReadModelRepository(ReadModelRepository):
             offset=offset,
         )
 
+    async def call_facts(self) -> tuple[CallFact, ...]:
+        """Every call, reduced to the dimensions the dashboard slices by."""
+        async with self._session_factory() as session:
+            rows = await session.execute(
+                select(
+                    CallRow.started_at,
+                    CallRow.score,
+                    CallRow.resolution,
+                    CallRow.duration_seconds,
+                    CallRow.caller_type,
+                    CallRow.sentiment_start,
+                    CallRow.sentiment_end,
+                )
+            )
+            return tuple(
+                CallFact(
+                    started_at=started_at,
+                    score=int(score),
+                    resolution=str(resolution),
+                    duration_seconds=int(seconds) if seconds is not None else None,
+                    caller_type=str(caller) if caller else None,
+                    sentiment_start=str(start) if start else None,
+                    sentiment_end=str(end) if end else None,
+                )
+                for started_at, score, resolution, seconds, caller, start, end in rows
+            )
+
     async def distinct_agents(self) -> tuple[str, ...]:
         async with self._session_factory() as session:
             rows = await session.scalars(
@@ -499,6 +524,7 @@ def _to_summary(
         agent_name=row.agent_name,
         member_id=row.member_id,
         member_name=row.member_name,
+        caller_type=row.caller_type,
         resolution=row.resolution,
         score=row.score,
         score_status=row.score_status,
@@ -535,6 +561,8 @@ def _apply(statement: Select[Any], filters: CallFilters) -> Select[Any]:
                 )
             )
         )
+    if filters.caller_type:
+        statement = statement.where(CallRow.caller_type == filters.caller_type)
     if filters.member_id:
         statement = statement.where(CallRow.member_id == filters.member_id)
     if filters.signal_code:
@@ -543,6 +571,21 @@ def _apply(statement: Select[Any], filters: CallFilters) -> Select[Any]:
                 select(CallSignalRow.call_id).where(CallSignalRow.code == filters.signal_code)
             )
         )
+    if filters.l4_category_code:
+        # As with brokers, matched by the findings raised on the call rather than
+        # by a column: one call can raise findings in several L4 categories.
+        statement = statement.where(
+            CallRow.id.in_(
+                select(L4SignalRow.call_id).where(
+                    L4SignalRow.category_code == filters.l4_category_code
+                )
+            )
+        )
+    if filters.started_hour is not None:
+        # Read from the stored timestamp the same way the hourly aggregation
+        # reads it — the bar's count and this list have to agree, or the chart
+        # is offering a drill-down to a different set of calls than it drew.
+        statement = statement.where(extract("hour", CallRow.started_at) == filters.started_hour)
     if filters.search:
         pattern = f"%{filters.search}%"
         statement = statement.where(

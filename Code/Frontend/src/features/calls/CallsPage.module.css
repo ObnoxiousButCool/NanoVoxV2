@@ -181,6 +181,16 @@
   color: var(--ink-2);
 }
 
+/* Who called, above whoever they were. Set small and quiet: on a member's call
+   it repeats what the name already says, and it only has to carry the column on
+   the twenty-two rows where there is no member to name. */
+.callerType {
+  display: block;
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  color: var(--slate);
+}
+
 .memberId {
   display: block;
   font-family: var(--font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);

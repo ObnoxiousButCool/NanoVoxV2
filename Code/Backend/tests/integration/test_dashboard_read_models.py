@@ -23,9 +23,11 @@ from application.use_cases.get_dashboard import (
     GetOverview,
     GetSignalDistribution,
 )
+from domain.aggregation.attention import RuleKind
 from domain.attribution_notes import quote_not_found_note
 from domain.scoring.rubric import Rubric
 from domain.taxonomy import Taxonomy
+from domain.value_objects.caller_type import CallerType
 from domain.value_objects.resolution import Resolution
 from domain.value_objects.severity import Severity
 from domain.value_objects.tier import Tier
@@ -44,6 +46,7 @@ from infrastructure.persistence.repositories.read_models import SqlReadModelRepo
 from infrastructure.persistence.tables import CallRow
 from tests.support.corpus import (
     ESCALATED_COUNT,
+    MEMBER_CALLS,
     RESOLVED_COUNT,
     SCORES,
     TOTAL_CALLS,
@@ -206,22 +209,26 @@ class TestAttentionQueue:
         ranks = [item.rank_key for item in items]
         assert ranks == sorted(ranks, reverse=True)
 
-    async def test_a_broker_below_the_threshold_stays_off_the_queue(
-        self, overview: GetOverview
-    ) -> None:
-        # Trent has 3 negatives and reaches it; Nunez has 0 and does not.
+    async def test_broker_conduct_stays_off_the_queue(self, overview: GetOverview) -> None:
+        # Trent has 3 negatives — enough to have reached the queue while a broker
+        # rule was configured. He is kept off it because the brokers screen
+        # already reports him, net rather than cumulative and with the sentence
+        # behind every signal. Two screens reporting one finding is how the two
+        # come to disagree.
         items = (await overview.execute()).attention
 
-        brokers = [item.subject for item in items if item.rule_id == "broker_conduct_pattern"]
-        assert brokers == ["Marcus Trent"]
+        assert [item for item in items if item.kind is RuleKind.BROKER_NEGATIVE] == []
+        assert all("Trent" not in item.subject for item in items)
 
     async def test_narratives_are_filled_from_counts_not_written_by_a_model(
         self, overview: GetOverview
     ) -> None:
+        # The claim in an item's prose is the number that was counted, not a
+        # sentence a model wrote about it.
         items = (await overview.execute()).attention
 
-        trent = next(item for item in items if item.subject == "Marcus Trent")
-        assert "Marcus Trent in 3 calls" in trent.why
+        breakdown = next(item for item in items if item.kind is RuleKind.L4_CATEGORY_VOLUME)
+        assert f"{breakdown.count} of" in breakdown.why
 
     async def test_every_item_names_an_owner(self, overview: GetOverview) -> None:
         # An item nobody owns will not get done.
@@ -288,9 +295,7 @@ class TestAgentPerformance:
 
 
 class TestMemberAggregates:
-    async def test_calls_are_grouped_by_member(
-        self, read_models: SqlReadModelRepository
-    ) -> None:
+    async def test_calls_are_grouped_by_member(self, read_models: SqlReadModelRepository) -> None:
         members = await read_models.member_call_counts()
 
         assert members
@@ -495,6 +500,41 @@ class TestCallsList:
         assert page.total == 5
         assert all(item.score <= 59 for item in page.items)
 
+    async def test_filter_by_caller_type(self, read_models: SqlReadModelRepository) -> None:
+        """An employer's call is not a member's, and the list has to separate them.
+
+        Half the shipped corpus is an employer or a broker calling. Without this
+        filter the only way to read the employer population was to know which
+        references belonged to it.
+        """
+        page = await read_models.list_calls(
+            CallFilters(caller_type=CallerType.EMPLOYER.value), limit=50, offset=0
+        )
+
+        assert page.total == 1
+        assert page.items[0].reference == "F0009"
+        assert page.items[0].caller_type == "EMPLOYER"
+
+    async def test_the_caller_type_reaches_the_row(
+        self, read_models: SqlReadModelRepository
+    ) -> None:
+        # Stored is not shown: the column exists only if the read model carries it.
+        page = await read_models.list_calls(CallFilters(), limit=50, offset=0)
+        by_reference = {item.reference: item.caller_type for item in page.items}
+
+        assert by_reference["F0009"] == "EMPLOYER"
+        assert by_reference["F0010"] == "BROKER"
+        assert by_reference["F0001"] == "MEMBER"
+
+    async def test_members_are_the_rest_of_the_corpus(
+        self, read_models: SqlReadModelRepository
+    ) -> None:
+        page = await read_models.list_calls(
+            CallFilters(caller_type=CallerType.MEMBER.value), limit=50, offset=0
+        )
+
+        assert page.total == MEMBER_CALLS
+
     async def test_filter_by_signal(self, read_models: SqlReadModelRepository) -> None:
         page = await read_models.list_calls(
             CallFilters(signal_code="clinical_risk"), limit=50, offset=0
@@ -570,9 +610,7 @@ class TestCallsList:
 
     async def test_filter_by_member(self, read_models: SqlReadModelRepository) -> None:
         # How the at-risk list opens a member's calls.
-        page = await read_models.list_calls(
-            CallFilters(member_id="CHM-REPEAT"), limit=50, offset=0
-        )
+        page = await read_models.list_calls(CallFilters(member_id="CHM-REPEAT"), limit=50, offset=0)
 
         assert page.total == 2
         assert all(item.member_id == "CHM-REPEAT" for item in page.items)
@@ -582,15 +620,11 @@ class TestCallsList:
     ) -> None:
         # Not "every call": a filter that silently does nothing is worse than one
         # that returns an empty list, because the caller believes the result.
-        page = await read_models.list_calls(
-            CallFilters(member_id="CHM-NOBODY"), limit=50, offset=0
-        )
+        page = await read_models.list_calls(CallFilters(member_id="CHM-NOBODY"), limit=50, offset=0)
 
         assert page.total == 0
 
-    async def test_the_member_is_on_every_row(
-        self, read_models: SqlReadModelRepository
-    ) -> None:
+    async def test_the_member_is_on_every_row(self, read_models: SqlReadModelRepository) -> None:
         # The calls screen shows it, so it has to survive the read model.
         page = await read_models.list_calls(CallFilters(), limit=5, offset=0)
 

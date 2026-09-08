@@ -1,5 +1,5 @@
 /**
- * Every analysed call, most urgent first.
+ * Every analyzed call, most urgent first.
  *
  * Sorted by severity by default — the prototype's stated rule, "the calls that
  * need action surface first". A withheld score outranks everything, then the
@@ -21,6 +21,7 @@ import type { CallSummary, Taxonomy } from '@/shared/api/types'
 import { Button, Card, Chip, Empty, Failure, Loading, Note, PageHeader } from '@/shared/ui/primitives'
 import { toneForResolution } from '@/shared/ui/tone'
 import { cx } from '@/shared/ui/cx'
+import { maskMemberId, maskedMemberIdLabel } from '@/shared/ui/memberId'
 import styles from './CallsPage.module.css'
 
 const PAGE_SIZE = 25
@@ -51,9 +52,10 @@ const COLUMNS: readonly { readonly label: string; readonly sort: CallSortKey | n
   { label: 'Member issue', sort: null },
   { label: 'Category', sort: 'category' },
   { label: 'Agent', sort: 'agent' },
-  // Not sortable: the API sorts by the columns it has an index for, and a
-  // member identifier is something you filter to, not order by.
-  { label: 'Member', sort: null },
+  // Not sortable: the API sorts by the columns it has an index for, and neither
+  // a caller type nor a member identifier is something you order by — you
+  // filter to one.
+  { label: 'Caller', sort: null },
   { label: 'Outcome', sort: 'resolution' },
   { label: 'Score', sort: 'score' },
   { label: 'Signals', sort: null },
@@ -139,6 +141,18 @@ function categoryLabel(code: string, categories: Taxonomy['categories'] | undefi
   return categories?.find((entry) => entry.code === code)?.label ?? code
 }
 
+/**
+ * The human label for an L4 finding code.
+ *
+ * Same reasoning as `categoryLabel`, over a different taxonomy: an inference
+ * links here by code, and "member_communication_gap" in a filter chip is a
+ * database value shown to a person. Falls back to the code so an inference
+ * whose category has been retired still says what it filtered on.
+ */
+function l4Label(code: string, l4Categories: Taxonomy['l4_categories'] | undefined): string {
+  return l4Categories?.find((entry) => entry.code === code)?.label ?? code
+}
+
 function CallRow({
   call,
   categories,
@@ -162,17 +176,21 @@ function CallRow({
       <td>{categoryLabel(call.category, categories)}</td>
       <td>{call.agent_name ?? '—'}</td>
       <td className={styles.member}>
+        {/* Outside the link: an employer or broker call has no member to open,
+            and half the corpus is one of those. Before this column said who
+            called, those rows showed a dash and looked like missing data. */}
+        <span className={styles.callerType}>{call.caller_type ?? '—'}</span>
         {call.member_id ? (
           <Link className={styles.rowLink} to={`/calls?member=${encodeURIComponent(call.member_id)}`}>
             {/* Stacked rather than "Name (ID)" on one line: this column sits in
                 an already-wide table, and one long string would either wrap
                 mid-identifier or push the outcome and score off-screen. */}
             {call.member_name ? <span className={styles.memberName}>{call.member_name}</span> : null}
-            <span className={styles.memberId}>{call.member_id}</span>
+            <span className={styles.memberId} title={maskedMemberIdLabel(call.member_id)}>
+              {maskMemberId(call.member_id)}
+            </span>
           </Link>
-        ) : (
-          '—'
-        )}
+        ) : null}
       </td>
       <td>
         <Chip tone={toneForResolution(call.resolution)}>{call.resolution}</Chip>
@@ -220,6 +238,17 @@ export function CallsPage() {
   const category = searchParams.get('category')
   const resolution = searchParams.get('resolution')
   const signal = searchParams.get('signal')
+  // An L4 finding category, arrived at from an inference. The finding taxonomy
+  // rather than the call category above: a Coverage & Benefits call can raise a
+  // Process Breakdown finding, so the two narrow the table differently.
+  const l4Category = searchParams.get('l4_category')
+  // An hour of the day, arrived at from the hourly chart. Read as text and
+  // passed through: the API validates the 0-23 range, and repairing a
+  // malformed one here would filter on an hour nobody asked for.
+  const hour = searchParams.get('hour')
+  // MEMBER, EMPLOYER or BROKER. Three populations that reach the same queue and
+  // are read very differently, so the table has to be able to show one of them.
+  const caller = searchParams.get('caller')
   // One member's calls, arrived at from the at-risk list.
   const member = searchParams.get('member')
   // A score band, arrived at from the histogram. Read as text and passed
@@ -227,11 +256,15 @@ export function CallsPage() {
   // recover from a malformed one would filter on something nobody asked for.
   const minScore = searchParams.get('min_score')
   const maxScore = searchParams.get('max_score')
-  // Call reference on load, so the list reads in corpus order and a call is
-  // where it was last time. Severity remains one press of the Score column away,
-  // and any sort survives in the URL — this is only what an unsorted visit gets.
+  // Call reference on load, so a call is where it was last time. Severity
+  // remains one press of the Score column away, and any sort survives in the
+  // URL — this is only what an unsorted visit gets.
   const sort = (searchParams.get('sort') ?? 'reference') as CallSortKey
-  const descending = searchParams.get('direction') === 'desc'
+  // Newest first by default: a call history is read from the most recent end,
+  // and the far end of fifty rows is not where anyone starts. An explicit
+  // direction in the URL still wins, so a shared link keeps its order.
+  const direction = searchParams.get('direction')
+  const descending = direction === null ? true : direction === 'desc'
 
   const filters: CallFilters = QUICK_FILTERS.filter((filter) =>
     activeFilters.includes(filter.id),
@@ -245,6 +278,11 @@ export function CallsPage() {
     ...(category ? { category } : {}),
     ...(resolution ? { resolution } : {}),
     ...(signal ? { signal } : {}),
+    ...(l4Category ? { l4_category: l4Category } : {}),
+    // Not `hour ? ...`: midnight is "0", which is falsy as a string only by
+    // accident of it being a number in disguise. Tested for presence instead.
+    ...(hour !== null && hour !== '' ? { hour: Number(hour) } : {}),
+    ...(caller ? { caller } : {}),
     ...(member ? { member } : {}),
     ...(minScore ? { min_score: Number(minScore) } : {}),
     ...(maxScore ? { max_score: Number(maxScore) } : {}),
@@ -279,7 +317,18 @@ export function CallsPage() {
 
   const narrowed =
     activeFilters.length > 0 ||
-    Boolean(agent || broker || category || resolution || signal || member || scoreBand)
+    Boolean(
+      agent ||
+        broker ||
+        category ||
+        resolution ||
+        signal ||
+        l4Category ||
+        hour ||
+        caller ||
+        member ||
+        scoreBand,
+    )
 
   const { data, isPending, error } = useCalls(filters)
 
@@ -294,7 +343,6 @@ export function CallsPage() {
     <>
       <PageHeader
         title="Calls"
-        subtitle="In call order by default. Press a column to sort by it — Score surfaces the calls that need action first."
         actions={
           <div className={styles.filters}>
             <Dropdown
@@ -331,6 +379,17 @@ export function CallsPage() {
               }}
             />
             <Dropdown
+              label="Caller"
+              value={caller ?? ''}
+              options={(taxonomy.data?.caller_types ?? []).map((value) => ({
+                value,
+                label: value.charAt(0) + value.slice(1).toLowerCase(),
+              }))}
+              onChange={(value) => {
+                setParam('caller', value)
+              }}
+            />
+            <Dropdown
               label="Signal"
               value={signal ?? ''}
               options={(taxonomy.data?.signal_types ?? []).map((entry) => ({
@@ -362,9 +421,27 @@ export function CallsPage() {
                 Broker: {broker} &times;
               </Button>
             ) : null}
+            {l4Category ? (
+              <Button className={styles.active} aria-pressed onClick={clearParam('l4_category')}>
+                Finding: {l4Label(l4Category, taxonomy.data?.l4_categories)} &times;
+              </Button>
+            ) : null}
+            {hour ? (
+              <Button className={styles.active} aria-pressed onClick={clearParam('hour')}>
+                Hour: {hour.padStart(2, '0')}:00 &times;
+              </Button>
+            ) : null}
+            {caller ? (
+              <Button className={styles.active} aria-pressed onClick={clearParam('caller')}>
+                Caller: {caller} &times;
+              </Button>
+            ) : null}
             {member ? (
               <Button className={styles.active} aria-pressed onClick={clearParam('member')}>
-                Member: {member} &times;
+                {/* Masked here too. The whole identifier is in the address bar
+                    either way, but the chip is what sits on screen while the
+                    list is read. */}
+                Member: {maskMemberId(member)} &times;
               </Button>
             ) : null}
             {scoreBand ? (
@@ -407,7 +484,7 @@ export function CallsPage() {
           <Empty title="No calls match">
             {narrowed
               ? 'Clear a filter to widen the search.'
-              : 'Nothing has been analysed yet.'}
+              : 'Nothing has been analyzed yet.'}
           </Empty>
         ) : null}
         {data && data.items.length > 0 ? (

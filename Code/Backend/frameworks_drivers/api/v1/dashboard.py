@@ -7,7 +7,9 @@ actionable rather than merely readable.
 
 from __future__ import annotations
 
-from fastapi import APIRouter
+from datetime import date
+
+from fastapi import APIRouter, Query
 from pydantic import BaseModel, Field
 
 from application.use_cases.get_dashboard import (
@@ -16,15 +18,21 @@ from application.use_cases.get_dashboard import (
     Overview,
     SignalDistributionEntry,
 )
+from domain.aggregation.attention import AttentionItem, RuleKind
+from domain.aggregation.member_risk import RiskFactor
+from domain.aggregation.trend import TrendPoint
+from domain.value_objects.resolution import Resolution
 from frameworks_drivers.api.dependencies import (
     AgentPerformanceDep,
     BrokerScorecardDep,
     EffortMetricsDep,
     MembersAtRiskDep,
     OverviewDep,
+    PulseDep,
     ResolutionTimeDep,
     SignalDistributionDep,
     TimeValueDep,
+    WorkMixDep,
 )
 
 router = APIRouter(prefix="/dashboard", tags=["dashboard"])
@@ -80,6 +88,17 @@ class AttentionItemResponse(BaseModel):
     count: int
     unresolved: int
     references: list[str]
+    call_filter: dict[str, str] = Field(
+        description=(
+            "The calls list query that returns exactly the calls this item "
+            "counted, as query-string parameters. Sent from here rather than "
+            "rebuilt by the client from the rule id: the rule kinds are a "
+            "server-side vocabulary, and a client mapping them itself would "
+            "quietly produce a dead link the first time a kind is added. Empty "
+            "when the item's subject has no filter, which is a gap to close "
+            "rather than a state to design for."
+        )
+    )
 
 
 class OverviewResponse(BaseModel):
@@ -278,8 +297,26 @@ class MemberAtRiskResponse(BaseModel):
     references: list[str]
 
 
+class RiskFactorResponse(BaseModel):
+    """One column of the signal matrix."""
+
+    code: str
+    label: str
+    short_label: str
+
+
 class MembersAtRiskResponse(BaseModel):
     members: list[MemberAtRiskResponse]
+    factor_vocabulary: list[RiskFactorResponse] = Field(
+        description=(
+            "Every factor this system can observe, in a fixed order, whether or "
+            "not any member is currently showing it. A client drawing a column "
+            "per factor takes them from here: a factor added to the domain and "
+            "not to the client would otherwise go unread with nothing to show "
+            "for it, and an absent column is indistinguishable from a column of "
+            "no findings."
+        )
+    )
     basis: str = Field(
         description=(
             "What this list is. Stated on the response because a client must not "
@@ -323,11 +360,32 @@ def _overview_response(overview: Overview) -> OverviewResponse:
                 count=item.count,
                 unresolved=item.unresolved,
                 references=list(item.references),
+                call_filter=_call_filter(item),
             )
             for item in overview.attention
         ],
         taxonomy_coverage=overview.taxonomy_coverage,
     )
+
+
+def _call_filter(item: AttentionItem) -> dict[str, str]:
+    """The calls list query that reproduces an attention item's count.
+
+    Each rule kind counts calls by one dimension, and each dimension is a filter
+    the calls list already accepts — so the mapping is total, and a new kind
+    added without a filter shows up here as a missing branch rather than as a
+    link that silently returns every call.
+    """
+    if item.kind is RuleKind.SIGNAL_PRESENT:
+        return {"signal": item.subject_key}
+    if item.kind is RuleKind.L4_CATEGORY_VOLUME:
+        return {"l4_category": item.subject_key}
+    if item.kind is RuleKind.BROKER_NEGATIVE:
+        return {"broker": item.subject_key}
+    # Unresolved in a category: the rule counts only the unresolved ones, so the
+    # outcome belongs in the filter. Without it the link would open the whole
+    # category and contradict the count it was opened from.
+    return {"category": item.subject_key, "resolution": Resolution.UNRESOLVED.value}
 
 
 def _agent_response(agent: AgentPerformance) -> AgentResponse:
@@ -356,6 +414,74 @@ def _broker_response(broker: BrokerScorecardEntry) -> BrokerResponse:
         discarded=broker.discarded,
         call_references=list(broker.call_references),
     )
+
+
+class TrendPointResponse(BaseModel):
+    starting: date
+    label: str
+    calls: int
+    median_score: float | None = Field(
+        default=None, description="Absent for a week with no calls, which is a gap not a zero."
+    )
+    resolution_rate: float | None = None
+    median_handle_minutes: float | None = None
+
+
+class TrendDeltaResponse(BaseModel):
+    """The most recent week against the one before it."""
+
+    calls: int
+    median_score: float | None
+    resolution_rate: float | None
+    median_handle_minutes: float | None
+
+
+class SentimentMovementResponse(BaseModel):
+    improved: int
+    unchanged: int
+    worsened: int
+    unclassified: int
+    improved_rate: float
+
+
+class PulseResponse(BaseModel):
+    points: list[TrendPointResponse]
+    latest: TrendPointResponse | None
+    previous: TrendPointResponse | None
+    delta: TrendDeltaResponse | None
+    sentiment: SentimentMovementResponse
+    undated_calls: int
+    available_weeks: list[date] = Field(
+        description="Every week the corpus spans, oldest first — what a period "
+        "picker offers, as distinct from `points`, which is only the anchored window."
+    )
+
+
+class CallerBreakdownResponse(BaseModel):
+    caller_type: str
+    calls: int
+    share: float
+    resolution_rate: float
+    average_score: float
+    average_handle_minutes: float | None
+
+
+class HourlyPointResponse(BaseModel):
+    hour: int
+    label: str
+    calls: int
+    average_score: float | None
+    resolution_rate: float | None
+    is_thin: bool = Field(description="Too few calls in this hour to read anything into.")
+
+
+class WorkMixResponse(BaseModel):
+    callers: list[CallerBreakdownResponse]
+    caller_total: int
+    unattributed_calls: int
+    hours: list[HourlyPointResponse]
+    busiest_hour: str | None
+    weakest_hour: str | None
 
 
 @router.get("/overview", response_model=OverviewResponse, summary="What needs attention")
@@ -468,7 +594,13 @@ async def get_members_at_risk(use_case: MembersAtRiskDep) -> MembersAtRiskRespon
                 references=list(member.references),
             )
             for member in members
-        ]
+        ],
+        factor_vocabulary=[
+            RiskFactorResponse(
+                code=factor.value, label=factor.label, short_label=factor.short_label
+            )
+            for factor in RiskFactor
+        ],
     )
 
 
@@ -483,3 +615,110 @@ async def get_signals(use_case: SignalDistributionDep) -> SignalsResponse:
 
 def _signal_entry(entry: SignalDistributionEntry) -> SignalEntryResponse:
     return SignalEntryResponse(**entry.__dict__)
+
+
+def _trend_point(point: TrendPoint) -> TrendPointResponse:
+    return TrendPointResponse(
+        starting=point.starting,
+        label=point.label,
+        calls=point.calls,
+        median_score=point.median_score,
+        resolution_rate=point.resolution_rate,
+        median_handle_minutes=point.median_handle_minutes,
+    )
+
+
+def _difference(later: float | None, earlier: float | None) -> float | None:
+    """The move between two weeks, or None when either week did not measure it."""
+    if later is None or earlier is None:
+        return None
+    return round(later - earlier, 1)
+
+
+@router.get(
+    "/pulse",
+    response_model=PulseResponse,
+    summary="Which way the centre is moving, week by week",
+)
+async def get_pulse(
+    use_case: PulseDep,
+    # Query() as a default is FastAPI's own idiom for declaring a query
+    # parameter's metadata; ruff's B008 doesn't special-case this annotation
+    # shape, but the call is inert (it builds a field spec, not a value).
+    anchor: date | None = Query(  # noqa: B008
+        default=None, description="End the window on the week containing this date."
+    ),
+    month: date | None = Query(  # noqa: B008
+        default=None,
+        description="Every week of this date's calendar month, instead of a trailing window. "
+        "Takes precedence over `anchor` if both are given.",
+    ),
+) -> PulseResponse:
+    pulse = await use_case.execute(anchor=anchor, month=month)
+    latest, previous = pulse.trend.latest, pulse.trend.previous
+
+    delta = (
+        TrendDeltaResponse(
+            calls=latest.calls - previous.calls,
+            median_score=_difference(latest.median_score, previous.median_score),
+            resolution_rate=_difference(latest.resolution_rate, previous.resolution_rate),
+            median_handle_minutes=_difference(
+                latest.median_handle_minutes, previous.median_handle_minutes
+            ),
+        )
+        if latest and previous
+        else None
+    )
+
+    return PulseResponse(
+        points=[_trend_point(point) for point in pulse.trend.points],
+        latest=_trend_point(latest) if latest else None,
+        previous=_trend_point(previous) if previous else None,
+        delta=delta,
+        sentiment=SentimentMovementResponse(
+            improved=pulse.sentiment.improved,
+            unchanged=pulse.sentiment.unchanged,
+            worsened=pulse.sentiment.worsened,
+            unclassified=pulse.sentiment.unclassified,
+            improved_rate=pulse.sentiment.improved_rate,
+        ),
+        undated_calls=pulse.trend.undated_calls,
+        available_weeks=list(pulse.available_weeks),
+    )
+
+
+@router.get(
+    "/work-mix",
+    response_model=WorkMixResponse,
+    summary="Who calls, and when the calls come",
+)
+async def get_work_mix(use_case: WorkMixDep) -> WorkMixResponse:
+    mix = await use_case.execute()
+    return WorkMixResponse(
+        callers=[
+            CallerBreakdownResponse(
+                caller_type=row.caller_type,
+                calls=row.calls,
+                share=row.share,
+                resolution_rate=row.resolution_rate,
+                average_score=row.average_score,
+                average_handle_minutes=row.average_handle_minutes,
+            )
+            for row in mix.callers.callers
+        ],
+        caller_total=mix.callers.total_calls,
+        unattributed_calls=mix.callers.unattributed_calls,
+        hours=[
+            HourlyPointResponse(
+                hour=point.hour,
+                label=point.label,
+                calls=point.calls,
+                average_score=point.average_score,
+                resolution_rate=point.resolution_rate,
+                is_thin=point.is_thin,
+            )
+            for point in mix.hours.hours
+        ],
+        busiest_hour=mix.hours.busiest.label if mix.hours.busiest else None,
+        weakest_hour=mix.hours.weakest.label if mix.hours.weakest else None,
+    )

@@ -65,7 +65,7 @@ class RunItemStatus(str, Enum):
         """Whether a resume should pick this item up again.
 
         A failed item is retried, a skipped one is not: skipping was a decision
-        about the item ("already analysed"), while failing was an accident.
+        about the item ("already analyzed"), while failing was an accident.
         """
         return self in _UNFINISHED_ITEMS
 

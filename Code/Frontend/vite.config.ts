@@ -31,10 +31,15 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./src/test/setup.ts'],
     css: false,
-    // Tests must not depend on a developer's .env file.
+    // Tests must not depend on a developer's .env file. Vite still *loads*
+    // that file, so every flag a test asserts on has to be pinned here or the
+    // suite's result turns on whatever the developer last toggled locally —
+    // flipping VITE_SHOW_CORPUS_RUN to false in .env failed the rail tests
+    // while nothing about the rail had changed.
     env: {
       VITE_API_BASE_URL: 'http://api.test/api/v1',
       VITE_APP_NAME: 'NanoVox',
+      VITE_SHOW_CORPUS_RUN: 'true',
     },
     coverage: {
       provider: 'v8',

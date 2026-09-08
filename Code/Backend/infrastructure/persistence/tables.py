@@ -1,4 +1,4 @@
-"""ORM mapping for analysed calls.
+"""ORM mapping for analyzed calls.
 
 Findings are stored as rows, not only inside the layer JSON. The dashboard has to
 aggregate across calls — signals by owner, brokers by name, score distributions —
@@ -37,7 +37,7 @@ _LABEL = 256
 
 
 class CallRow(Base):
-    """One analysed call."""
+    """One analyzed call."""
 
     __tablename__ = "calls"
 
@@ -59,6 +59,11 @@ class CallRow(Base):
     member_name: Mapped[str | None] = mapped_column(String(_SHORT))
     member_context: Mapped[str | None] = mapped_column(Text)
     duration_minutes: Mapped[int | None] = mapped_column(Integer)
+    duration_seconds: Mapped[int | None] = mapped_column(Integer)
+    # Indexed: every time-of-day and trend query orders or filters on it.
+    started_at: Mapped[datetime | None] = mapped_column(DateTime)
+    ended_at: Mapped[datetime | None] = mapped_column(DateTime)
+    caller_type: Mapped[str | None] = mapped_column(String(_SHORT))
 
     score: Mapped[int] = mapped_column(Integer, nullable=False)
     score_status: Mapped[str] = mapped_column(String(_SHORT), nullable=False)
@@ -292,7 +297,7 @@ class RunItemRow(Base):
     message: Mapped[str] = mapped_column(Text, nullable=False, default="")
 
     # SET NULL, not CASCADE: deleting a call must not erase the record that it was
-    # once analysed. The item stays, saying so, with nothing to open.
+    # once analyzed. The item stays, saying so, with nothing to open.
     call_id: Mapped[int | None] = mapped_column(ForeignKey("calls.id", ondelete="SET NULL"))
 
     started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))

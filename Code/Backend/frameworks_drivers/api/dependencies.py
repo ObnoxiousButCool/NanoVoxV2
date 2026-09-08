@@ -18,12 +18,15 @@ from application.use_cases.get_dashboard import (
     GetBrokerScorecard,
     GetEffortMetrics,
     GetMembersAtRisk,
-    GetResolutionTime,
-    GetTimeValue,
     GetOverview,
+    GetPulse,
+    GetResolutionTime,
     GetSignalDistribution,
+    GetTimeValue,
+    GetWorkMix,
 )
 from application.use_cases.get_health import GetHealth
+from application.use_cases.import_corpus_document import ImportCorpusDocument
 from application.use_cases.list_providers import ListProviders
 from application.use_cases.run_corpus import (
     CancelCorpusRun,
@@ -99,6 +102,14 @@ def get_signal_distribution_use_case(container: ContainerDep) -> GetSignalDistri
     return container.get_signal_distribution()
 
 
+def get_pulse_use_case(container: ContainerDep) -> GetPulse:
+    return container.get_pulse()
+
+
+def get_work_mix_use_case(container: ContainerDep) -> GetWorkMix:
+    return container.get_work_mix()
+
+
 def get_start_corpus_run_use_case(container: ContainerDep) -> StartCorpusRun:
     return container.start_corpus_run()
 
@@ -109,6 +120,10 @@ def get_cancel_corpus_run_use_case(container: ContainerDep) -> CancelCorpusRun:
 
 def get_clear_corpus_use_case(container: ContainerDep) -> ClearCorpus:
     return container.clear_corpus()
+
+
+def get_import_corpus_document_use_case(container: ContainerDep) -> ImportCorpusDocument:
+    return container.import_corpus_document()
 
 
 def get_resume_corpus_run_use_case(container: ContainerDep) -> ResumeCorpusRun:
@@ -147,6 +162,8 @@ EffortMetricsDep = Annotated[GetEffortMetrics, Depends(get_effort_metrics_use_ca
 ResolutionTimeDep = Annotated[GetResolutionTime, Depends(get_resolution_time_use_case)]
 TimeValueDep = Annotated[GetTimeValue, Depends(get_time_value_use_case)]
 MembersAtRiskDep = Annotated[GetMembersAtRisk, Depends(get_members_at_risk_use_case)]
+PulseDep = Annotated[GetPulse, Depends(get_pulse_use_case)]
+WorkMixDep = Annotated[GetWorkMix, Depends(get_work_mix_use_case)]
 StartCorpusRunDep = Annotated[StartCorpusRun, Depends(get_start_corpus_run_use_case)]
 CancelCorpusRunDep = Annotated[CancelCorpusRun, Depends(get_cancel_corpus_run_use_case)]
 ResumeCorpusRunDep = Annotated[ResumeCorpusRun, Depends(get_resume_corpus_run_use_case)]
@@ -154,5 +171,8 @@ GetCorpusRunDep = Annotated[GetCorpusRun, Depends(get_corpus_run_use_case)]
 ListCorpusRunsDep = Annotated[ListCorpusRuns, Depends(get_list_corpus_runs_use_case)]
 CorpusStatusDep = Annotated[GetCorpusStatus, Depends(get_corpus_status_use_case)]
 ClearCorpusDep = Annotated[ClearCorpus, Depends(get_clear_corpus_use_case)]
+ImportCorpusDocumentDep = Annotated[
+    ImportCorpusDocument, Depends(get_import_corpus_document_use_case)
+]
 ReadModelsDep = Annotated[SqlReadModelRepository, Depends(get_read_models)]
 AnalysisRepositoryDep = Annotated[SqlAnalysisRepository, Depends(get_analysis_repository)]

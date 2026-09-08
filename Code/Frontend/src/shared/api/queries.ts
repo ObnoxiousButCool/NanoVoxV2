@@ -16,8 +16,10 @@ import {
   fetchBrokers,
   fetchCall,
   fetchCalls,
+  fetchCorpusImports,
   fetchCorpusStatus,
   fetchHealth,
+  importCorpusDocument,
   fetchOverview,
   fetchProviders,
   fetchRun,
@@ -26,12 +28,15 @@ import {
   fetchMembersAtRisk,
   fetchResolutionTime,
   fetchTimeValue,
+  fetchPulse,
+  fetchWorkMix,
   fetchSignals,
   fetchTaxonomy,
   resumeRun,
   startRun,
   type AnalyzeRequest,
   type CallFilters,
+  type PulseParams,
   type StartRunRequest,
 } from '@/shared/api/endpoints'
 import type { Analysis, CorpusRun } from '@/shared/api/types'
@@ -52,7 +57,11 @@ export const queryKeys = {
   resolutionTime: ['dashboard', 'resolution-time'] as const,
   timeValue: ['dashboard', 'time-value'] as const,
   membersAtRisk: ['dashboard', 'members-at-risk'] as const,
+  pulse: (params: PulseParams = {}) =>
+    ['dashboard', 'pulse', params.month ?? 'no-month', params.anchor ?? 'latest'] as const,
+  workMix: ['dashboard', 'work-mix'] as const,
   corpus: ['corpus'] as const,
+  corpusImports: ['corpus', 'imports'] as const,
   runs: ['corpus', 'runs'] as const,
   run: (runId: number) => ['corpus', 'run', runId] as const,
 }
@@ -137,6 +146,17 @@ export function useMembersAtRisk() {
   })
 }
 
+export function usePulse(params: PulseParams = {}) {
+  return useQuery({
+    queryKey: queryKeys.pulse(params),
+    queryFn: ({ signal }) => fetchPulse(params, signal),
+  })
+}
+
+export function useWorkMix() {
+  return useQuery({ queryKey: queryKeys.workMix, queryFn: ({ signal }) => fetchWorkMix(signal) })
+}
+
 export function useSignals() {
   return useQuery({ queryKey: queryKeys.signals, queryFn: ({ signal }) => fetchSignals(signal) })
 }
@@ -163,7 +183,7 @@ export function useRun(runId: number | null) {
 /**
  * Everything a run changes, refreshed together.
  *
- * A run rewrites the calls it analysed, so every dashboard figure counted from
+ * A run rewrites the calls it analyzed, so every dashboard figure counted from
  * them is stale the moment it finishes. Invalidating only the run would leave
  * the Overview showing the numbers from before.
  */
@@ -194,7 +214,7 @@ export function useResumeRun() {
 }
 
 /**
- * Discard every analysed call.
+ * Discard every analyzed call.
  *
  * Invalidates the same keys a finished run does, and for the same reason: the
  * calls are gone, so every dashboard figure counted from them is now wrong.
@@ -235,6 +255,32 @@ export function useAnalyzeTranscript() {
       client.setQueryData(queryKeys.call(analysis.id), analysis)
       void client.invalidateQueries({ queryKey: ['calls'] })
       void client.invalidateQueries({ queryKey: ['dashboard'] })
+    },
+  })
+}
+
+/** Corpora that have been imported, newest first. */
+export function useCorpusImports() {
+  return useQuery({
+    queryKey: queryKeys.corpusImports,
+    queryFn: ({ signal }) => fetchCorpusImports(signal),
+  })
+}
+
+/**
+ * Import a corpus document.
+ *
+ * Only the import list is invalidated. Nothing else changes: the import writes
+ * to its own directory and analyses nothing, so calls and dashboard figures are
+ * exactly as they were.
+ */
+export function useImportCorpusDocument() {
+  const client = useQueryClient()
+
+  return useMutation({
+    mutationFn: importCorpusDocument,
+    onSuccess: () => {
+      void client.invalidateQueries({ queryKey: queryKeys.corpusImports })
     },
   })
 }

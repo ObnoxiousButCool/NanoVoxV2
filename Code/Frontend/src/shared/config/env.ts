@@ -9,10 +9,22 @@
 export interface AppConfig {
   readonly apiBaseUrl: string
   readonly appName: string
+  /**
+   * Whether the corpus run screen appears in the rail.
+   *
+   * A switch rather than a deletion: the route and the page exist either way,
+   * so turning it off keeps the screen reachable by address for whoever is
+   * running the corpus, while keeping it out of a demo audience's reach. On
+   * unless the environment says otherwise.
+   */
+  readonly showCorpusRun: boolean
 }
 
 /** Only the variables this module actually reads — not the whole Vite env. */
-export type ConfigSource = Pick<ImportMetaEnv, 'VITE_API_BASE_URL' | 'VITE_APP_NAME'>
+export type ConfigSource = Pick<
+  ImportMetaEnv,
+  'VITE_API_BASE_URL' | 'VITE_APP_NAME' | 'VITE_SHOW_CORPUS_RUN'
+>
 
 function required(name: keyof ConfigSource, value: string | undefined): string {
   const trimmed = value?.trim()
@@ -22,6 +34,32 @@ function required(name: keyof ConfigSource, value: string | undefined): string {
     )
   }
   return trimmed
+}
+
+const TRUE_WORDS = new Set(['true', '1', 'yes', 'on'])
+const FALSE_WORDS = new Set(['false', '0', 'no', 'off'])
+
+/**
+ * A yes/no setting, or the default when it is not set at all.
+ *
+ * Anything unrecognised throws rather than being read as false. A typo like
+ * `VITE_SHOW_CORPUS_RUN=flase` silently hiding a screen is exactly the kind of
+ * misconfiguration this module exists to make loud.
+ */
+function flag(name: keyof ConfigSource, value: string | undefined, fallback: boolean): boolean {
+  const normalised = value?.trim().toLowerCase()
+  if (!normalised) {
+    return fallback
+  }
+  if (TRUE_WORDS.has(normalised)) {
+    return true
+  }
+  if (FALSE_WORDS.has(normalised)) {
+    return false
+  }
+  throw new Error(
+    `${name} must be true or false, got ${JSON.stringify(value)}.`,
+  )
 }
 
 function validateBaseUrl(value: string): string {
@@ -45,6 +83,7 @@ export function readConfig(env: ConfigSource): AppConfig {
   return {
     apiBaseUrl: validateBaseUrl(required('VITE_API_BASE_URL', env.VITE_API_BASE_URL)),
     appName: required('VITE_APP_NAME', env.VITE_APP_NAME),
+    showCorpusRun: flag('VITE_SHOW_CORPUS_RUN', env.VITE_SHOW_CORPUS_RUN, true),
   }
 }
 

@@ -1,0 +1,252 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1880 1120" width="1880" height="1120" role="img" aria-label="Product architecture: channels, five capability layers from experience down to trust and governance, and the audiences each serves, with build status per capability">
+<defs>
+  <filter id="sh" x="-14%" y="-24%" width="128%" height="150%">
+    <feDropShadow dx="0" dy="1.6" stdDeviation="2.6" flood-color="#0d2242"
+                  flood-opacity="0.10"/></filter>
+  <filter id="ic" x="-24%" y="-24%" width="148%" height="148%">
+    <feDropShadow dx="0" dy="1.4" stdDeviation="1.8" flood-color="#0d2242"
+                  flood-opacity="0.22"/></filter>
+  <marker id="aN" viewBox="0 0 10 10" refX="8.6" refY="5" markerWidth="6.4"
+          markerHeight="6.4" orient="auto-start-reverse">
+    <path d="M 0 1.6 L 9 5 L 0 8.4 z" fill="#8fa0b3"/></marker>
+</defs>
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="24.0" y="46.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="22" fill="#16212e" font-weight="600" text-anchor="start">NanoVox — Product Architecture</text>
+<text x="24.0" y="70.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="13" fill="#61707e" font-weight="400" text-anchor="start">Proof of concept — what the product is made of, who each part serves, and what is built so far</text>
+<text x="149.0" y="112.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#61707e" font-weight="600" text-anchor="middle" letter-spacing="0.12em">WHERE IT COMES FROM</text>
+<rect x="24.0" y="132.0" width="250.0" height="160.0" rx="12" fill="#ffffff" stroke="#143a6b" stroke-width="1.6" filter="url(#sh)"/>
+<rect x="40.0" y="148.0" width="38.0" height="38.0" rx="8" fill="#143a6b" filter="url(#ic)"/>
+<g transform="translate(45.0,153.0) scale(1.167)" fill="#ffffff" stroke="#ffffff" stroke-linejoin="round" stroke-linecap="round" color="#143a6b"><path d="M12 6.5C10.3 5 7.8 4.4 4 4.6v13.2c3.8-.2 6.3.4 8 1.9 1.7-1.5 4.2-2.1 8-1.9V4.6c-3.8-.2-6.3.4-8 1.9z" fill="none" stroke-width="2"/><path d="M12 6.5v13" stroke-width="1.6"/></g>
+<circle cx="256.0" cy="152.0" r="4.5" fill="#1c7a4b"/>
+<text x="40.0" y="208.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="13" fill="#143a6b" font-weight="600" text-anchor="start" letter-spacing="0.02em">PASTED TRANSCRIPT</text>
+<text x="40.0" y="230.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11.5" fill="#33414f" font-weight="400" text-anchor="start">One call, analysed on</text>
+<text x="40.0" y="247.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11.5" fill="#33414f" font-weight="400" text-anchor="start">demand from the UI</text>
+<rect x="24.0" y="314.0" width="250.0" height="160.0" rx="12" fill="#ffffff" stroke="#dde4ec" stroke-width="1.6" stroke-dasharray="7 5"/>
+<rect x="40.0" y="330.0" width="38.0" height="38.0" rx="8" fill="#9aa8b6" filter="url(#ic)"/>
+<g transform="translate(45.0,335.0) scale(1.167)" fill="#ffffff" stroke="#ffffff" stroke-linejoin="round" stroke-linecap="round" color="#9aa8b6"><path d="M7 3h4l2 5-2.5 1.5a12 12 0 0 0 4 4L16 11l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 5 5a2 2 0 0 1 2-2z"/></g>
+<circle cx="256.0" cy="334.0" r="4.5" fill="#9aa8b6"/>
+<text x="40.0" y="390.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="13" fill="#9aa8b6" font-weight="600" text-anchor="start" letter-spacing="0.02em">RECORDED &amp; LIVE CALLS</text>
+<text x="40.0" y="412.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11.5" fill="#61707e" font-weight="400" text-anchor="start">Needs speech-to-text</text>
+<text x="40.0" y="429.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11.5" fill="#61707e" font-weight="400" text-anchor="start">before it can join</text>
+<rect x="24.0" y="496.0" width="250.0" height="160.0" rx="12" fill="#ffffff" stroke="#dde4ec" stroke-width="1.6" stroke-dasharray="7 5"/>
+<rect x="40.0" y="512.0" width="38.0" height="38.0" rx="8" fill="#9aa8b6" filter="url(#ic)"/>
+<g transform="translate(45.0,517.0) scale(1.167)" fill="#ffffff" stroke="#ffffff" stroke-linejoin="round" stroke-linecap="round" color="#9aa8b6"><path d="M4 5h16a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1h-8l-5 4v-4H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z"/></g>
+<circle cx="256.0" cy="516.0" r="4.5" fill="#9aa8b6"/>
+<text x="40.0" y="572.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="13" fill="#9aa8b6" font-weight="600" text-anchor="start" letter-spacing="0.02em">EMAIL &amp; CHAT</text>
+<text x="40.0" y="594.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11.5" fill="#61707e" font-weight="400" text-anchor="start">Already text — joins the</text>
+<text x="40.0" y="611.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11.5" fill="#61707e" font-weight="400" text-anchor="start">same pipeline at redaction</text>
+<rect x="24.0" y="692.0" width="250.0" height="400.0" rx="12" fill="#f3f6fa" stroke="#c9d7e8" stroke-width="1.4"/>
+<text x="42.0" y="726.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#143a6b" font-weight="600" text-anchor="start" letter-spacing="0.12em">HOW TO READ THIS</text>
+<text x="42.0" y="760.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11.5" fill="#33414f" font-weight="400" text-anchor="start">Bands are capability layers.</text>
+<text x="42.0" y="778.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11.5" fill="#33414f" font-weight="400" text-anchor="start">The lower a band sits, the</text>
+<text x="42.0" y="796.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11.5" fill="#33414f" font-weight="400" text-anchor="start">more of the product rests</text>
+<text x="42.0" y="814.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11.5" fill="#33414f" font-weight="400" text-anchor="start">on it.</text>
+<text x="42.0" y="850.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11.5" fill="#33414f" font-weight="400" text-anchor="start">Nothing should reach a model</text>
+<text x="42.0" y="868.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11.5" fill="#33414f" font-weight="400" text-anchor="start">call without passing the</text>
+<text x="42.0" y="886.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11.5" fill="#33414f" font-weight="400" text-anchor="start">trust layer. Today that layer</text>
+<text x="42.0" y="904.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11.5" fill="#33414f" font-weight="400" text-anchor="start">is a seam, not a control.</text>
+<text x="42.0" y="940.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11.5" fill="#33414f" font-weight="400" text-anchor="start">Email and chat are already</text>
+<text x="42.0" y="958.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11.5" fill="#33414f" font-weight="400" text-anchor="start">text, so they skip straight</text>
+<text x="42.0" y="976.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11.5" fill="#33414f" font-weight="400" text-anchor="start">to redaction — a channel, not</text>
+<text x="42.0" y="994.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11.5" fill="#33414f" font-weight="400" text-anchor="start">a second product.</text>
+<rect x="300.0" y="132.0" width="1290.0" height="176.0" rx="14" fill="#f3f6fa" stroke="#c9d7e8" stroke-width="1.5"/>
+<rect x="320.0" y="144.0" width="34.0" height="34.0" rx="8" fill="#143a6b" filter="url(#ic)"/>
+<g transform="translate(325.0,149.0) scale(1.000)" fill="#ffffff" stroke="#ffffff" stroke-linejoin="round" stroke-linecap="round" color="#143a6b"><rect x="3" y="4.5" width="18" height="12" rx="2" fill="none" stroke-width="2"/><path d="M9 20h6M12 16.5V20" stroke-width="1.9"/></g>
+<text x="364.0" y="166.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="14.5" fill="#143a6b" font-weight="600" text-anchor="start" letter-spacing="0.07em">EXPERIENCE</text>
+<text x="489.5" y="166.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="14.5" fill="#143a6b" font-weight="600" text-anchor="start">·</text>
+<text x="505.5" y="166.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="12.5" fill="#143a6b" font-weight="400" text-anchor="start">what people touch</text>
+<rect x="320.0" y="188.0" width="235.6" height="110.0" rx="9" fill="#ffffff" stroke="#dfe5ec" stroke-width="1.2" filter="url(#sh)"/>
+<circle cx="540.6" cy="203.0" r="4.5" fill="#1c7a4b"/>
+<text x="334.0" y="215.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="12.5" fill="#143a6b" font-weight="600" text-anchor="start" letter-spacing="0.02em">DASHBOARD</text>
+<text x="334.0" y="239.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#33414f" font-weight="400" text-anchor="start">Where we stand, and the</text>
+<text x="334.0" y="254.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#33414f" font-weight="400" text-anchor="start">detail behind it</text>
+<rect x="573.6" y="188.0" width="235.6" height="110.0" rx="9" fill="#ffffff" stroke="#dfe5ec" stroke-width="1.2" filter="url(#sh)"/>
+<circle cx="794.2" cy="203.0" r="4.5" fill="#1c7a4b"/>
+<text x="587.6" y="215.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="12.5" fill="#143a6b" font-weight="600" text-anchor="start" letter-spacing="0.02em">INFERENCES</text>
+<text x="587.6" y="239.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#33414f" font-weight="400" text-anchor="start">What the calls add up to,</text>
+<text x="587.6" y="254.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#33414f" font-weight="400" text-anchor="start">ranked with an owner</text>
+<rect x="827.2" y="188.0" width="235.6" height="110.0" rx="9" fill="#ffffff" stroke="#dfe5ec" stroke-width="1.2" filter="url(#sh)"/>
+<circle cx="1047.8" cy="203.0" r="4.5" fill="#1c7a4b"/>
+<text x="841.2" y="215.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="12.5" fill="#143a6b" font-weight="600" text-anchor="start" letter-spacing="0.02em">CALL EXPLORER</text>
+<text x="841.2" y="239.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#33414f" font-weight="400" text-anchor="start">Every call, with the quote</text>
+<text x="841.2" y="254.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#33414f" font-weight="400" text-anchor="start">behind each judgement</text>
+<rect x="1080.8" y="188.0" width="235.6" height="110.0" rx="9" fill="#ffffff" stroke="#dfe5ec" stroke-width="1.2" filter="url(#sh)"/>
+<circle cx="1301.4" cy="203.0" r="4.5" fill="#1c7a4b"/>
+<text x="1094.8" y="215.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="12.5" fill="#143a6b" font-weight="600" text-anchor="start" letter-spacing="0.02em">BROKER SCORECARD</text>
+<text x="1094.8" y="239.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#33414f" font-weight="400" text-anchor="start">Conduct signals members</text>
+<text x="1094.8" y="254.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#33414f" font-weight="400" text-anchor="start">named aloud</text>
+<rect x="1334.4" y="188.0" width="235.6" height="110.0" rx="9" fill="#ffffff" stroke="#dde4ec" stroke-width="1.2" stroke-dasharray="5 4"/>
+<circle cx="1555.0" cy="203.0" r="4.5" fill="#9aa8b6"/>
+<text x="1348.4" y="215.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="12.5" fill="#9aa8b6" font-weight="600" text-anchor="start" letter-spacing="0.02em">AGENT ASSIST</text>
+<text x="1348.4" y="239.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#61707e" font-weight="400" text-anchor="start">Guidance card on the</text>
+<text x="1348.4" y="254.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#61707e" font-weight="400" text-anchor="start">desktop, mid-call</text>
+<rect x="300.0" y="328.0" width="1290.0" height="176.0" rx="14" fill="#f0f8f3" stroke="#bcdcca" stroke-width="1.5"/>
+<rect x="320.0" y="340.0" width="34.0" height="34.0" rx="8" fill="#1c7a4b" filter="url(#ic)"/>
+<g transform="translate(325.0,345.0) scale(1.000)" fill="#ffffff" stroke="#ffffff" stroke-linejoin="round" stroke-linecap="round" color="#1c7a4b"><circle cx="10.5" cy="10.5" r="6.6" fill="none" stroke-width="2"/><path d="m7.8 10.6 2 2 3.4-3.8" fill="none" stroke-width="2"/><path d="m15.4 15.4 4.4 4.4" fill="none" stroke-width="2.2"/></g>
+<text x="364.0" y="362.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="14.5" fill="#1c7a4b" font-weight="600" text-anchor="start" letter-spacing="0.07em">ACTION &amp; OUTCOME</text>
+<text x="550.4" y="362.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="14.5" fill="#1c7a4b" font-weight="600" text-anchor="start">·</text>
+<text x="566.4" y="362.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="12.5" fill="#1c7a4b" font-weight="400" text-anchor="start">what changes because of it</text>
+<rect x="320.0" y="384.0" width="235.6" height="110.0" rx="9" fill="#ffffff" stroke="#dfe5ec" stroke-width="1.2" filter="url(#sh)"/>
+<circle cx="540.6" cy="399.0" r="4.5" fill="#1c7a4b"/>
+<text x="334.0" y="411.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="12.5" fill="#1c7a4b" font-weight="600" text-anchor="start" letter-spacing="0.02em">AGENT SCORECARD</text>
+<text x="334.0" y="435.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#33414f" font-weight="400" text-anchor="start">A score with evidence</text>
+<text x="334.0" y="450.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#33414f" font-weight="400" text-anchor="start">behind every marker</text>
+<rect x="573.6" y="384.0" width="235.6" height="110.0" rx="9" fill="#ffffff" stroke="#dfe5ec" stroke-width="1.2" filter="url(#sh)"/>
+<circle cx="794.2" cy="399.0" r="4.5" fill="#1c7a4b"/>
+<text x="587.6" y="411.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="12.5" fill="#1c7a4b" font-weight="600" text-anchor="start" letter-spacing="0.02em">RANKED ACTIONS</text>
+<text x="587.6" y="435.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#33414f" font-weight="400" text-anchor="start">Findings with an owner,</text>
+<text x="587.6" y="450.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#33414f" font-weight="400" text-anchor="start">not a wall of charts</text>
+<rect x="827.2" y="384.0" width="235.6" height="110.0" rx="9" fill="#ffffff" stroke="#dfe5ec" stroke-width="1.2" filter="url(#sh)"/>
+<circle cx="1047.8" cy="399.0" r="4.5" fill="#1c7a4b"/>
+<text x="841.2" y="411.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="12.5" fill="#1c7a4b" font-weight="600" text-anchor="start" letter-spacing="0.02em">TREND &amp; ROOT CAUSE</text>
+<text x="841.2" y="435.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#33414f" font-weight="400" text-anchor="start">Repeat drivers across calls,</text>
+<text x="841.2" y="450.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#33414f" font-weight="400" text-anchor="start">not one at a time</text>
+<rect x="1080.8" y="384.0" width="235.6" height="110.0" rx="9" fill="#ffffff" stroke="#dfe5ec" stroke-width="1.2" filter="url(#sh)"/>
+<circle cx="1301.4" cy="399.0" r="4.5" fill="#e8791a"/>
+<text x="1094.8" y="411.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="12.5" fill="#1c7a4b" font-weight="600" text-anchor="start" letter-spacing="0.02em">MEMBER AT RISK</text>
+<text x="1094.8" y="435.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#33414f" font-weight="400" text-anchor="start">Churn signals surfaced</text>
+<text x="1094.8" y="450.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#33414f" font-weight="400" text-anchor="start">before renewal</text>
+<rect x="1334.4" y="384.0" width="235.6" height="110.0" rx="9" fill="#ffffff" stroke="#dde4ec" stroke-width="1.2" stroke-dasharray="5 4"/>
+<circle cx="1555.0" cy="399.0" r="4.5" fill="#9aa8b6"/>
+<text x="1348.4" y="411.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="12.5" fill="#9aa8b6" font-weight="600" text-anchor="start" letter-spacing="0.02em">ESCALATION</text>
+<text x="1348.4" y="435.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#61707e" font-weight="400" text-anchor="start">Notify when risk crosses</text>
+<text x="1348.4" y="450.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#61707e" font-weight="400" text-anchor="start">a set line</text>
+<rect x="300.0" y="524.0" width="1290.0" height="176.0" rx="14" fill="#fdf7f0" stroke="#f3d0aa" stroke-width="1.5"/>
+<rect x="320.0" y="536.0" width="34.0" height="34.0" rx="8" fill="#e8791a" filter="url(#ic)"/>
+<g transform="translate(325.0,541.0) scale(1.000)" fill="#ffffff" stroke="#ffffff" stroke-linejoin="round" stroke-linecap="round" color="#e8791a"><circle cx="10.5" cy="10.5" r="6.6" fill="none" stroke-width="2"/><path d="m7.2 11.4 2-2.6 2 3 2.2-3.4" fill="none" stroke-width="1.8"/><path d="m15.4 15.4 4.4 4.4" fill="none" stroke-width="2.2"/></g>
+<text x="364.0" y="558.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="14.5" fill="#e8791a" font-weight="600" text-anchor="start" letter-spacing="0.07em">INTELLIGENCE</text>
+<text x="511.4" y="558.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="14.5" fill="#e8791a" font-weight="600" text-anchor="start">·</text>
+<text x="527.4" y="558.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="12.5" fill="#e8791a" font-weight="400" text-anchor="start">five layers, one model call each</text>
+<rect x="320.0" y="580.0" width="235.6" height="110.0" rx="9" fill="#ffffff" stroke="#dfe5ec" stroke-width="1.2" filter="url(#sh)"/>
+<circle cx="540.6" cy="595.0" r="4.5" fill="#1c7a4b"/>
+<text x="334.0" y="607.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="12.5" fill="#e8791a" font-weight="600" text-anchor="start" letter-spacing="0.02em">L1 · UNDERSTANDING</text>
+<text x="334.0" y="631.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#33414f" font-weight="400" text-anchor="start">Call type, caller, tone,</text>
+<text x="334.0" y="646.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#33414f" font-weight="400" text-anchor="start">duration</text>
+<rect x="573.6" y="580.0" width="235.6" height="110.0" rx="9" fill="#ffffff" stroke="#dfe5ec" stroke-width="1.2" filter="url(#sh)"/>
+<circle cx="794.2" cy="595.0" r="4.5" fill="#1c7a4b"/>
+<text x="587.6" y="607.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="12.5" fill="#e8791a" font-weight="600" text-anchor="start" letter-spacing="0.02em">L2 · CALL INSIGHTS</text>
+<text x="587.6" y="631.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#33414f" font-weight="400" text-anchor="start">What happened, and whether</text>
+<text x="587.6" y="646.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#33414f" font-weight="400" text-anchor="start">it was resolved</text>
+<rect x="827.2" y="580.0" width="235.6" height="110.0" rx="9" fill="#ffffff" stroke="#dfe5ec" stroke-width="1.2" filter="url(#sh)"/>
+<circle cx="1047.8" cy="595.0" r="4.5" fill="#1c7a4b"/>
+<text x="841.2" y="607.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="12.5" fill="#e8791a" font-weight="600" text-anchor="start" letter-spacing="0.02em">L3 · AGENT QUALITY</text>
+<text x="841.2" y="631.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#33414f" font-weight="400" text-anchor="start">Evidence markers — the</text>
+<text x="841.2" y="646.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#33414f" font-weight="400" text-anchor="start">rubric does the arithmetic</text>
+<rect x="1080.8" y="580.0" width="235.6" height="110.0" rx="9" fill="#ffffff" stroke="#dfe5ec" stroke-width="1.2" filter="url(#sh)"/>
+<circle cx="1301.4" cy="595.0" r="4.5" fill="#1c7a4b"/>
+<text x="1094.8" y="607.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="12.5" fill="#e8791a" font-weight="600" text-anchor="start" letter-spacing="0.02em">L4 · OPERATIONAL BI</text>
+<text x="1094.8" y="631.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#33414f" font-weight="400" text-anchor="start">The systemic issue, its</text>
+<text x="1094.8" y="646.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#33414f" font-weight="400" text-anchor="start">owner and a recommendation</text>
+<rect x="1334.4" y="580.0" width="235.6" height="110.0" rx="9" fill="#ffffff" stroke="#dfe5ec" stroke-width="1.2" filter="url(#sh)"/>
+<circle cx="1555.0" cy="595.0" r="4.5" fill="#1c7a4b"/>
+<text x="1348.4" y="607.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="12.5" fill="#e8791a" font-weight="600" text-anchor="start" letter-spacing="0.02em">L5 · REAL-TIME ASSIST</text>
+<text x="1348.4" y="631.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#33414f" font-weight="400" text-anchor="start">What fired — or should have</text>
+<text x="1348.4" y="646.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#33414f" font-weight="400" text-anchor="start">fired, and did not</text>
+<rect x="300.0" y="720.0" width="1290.0" height="176.0" rx="14" fill="#f3f6fa" stroke="#c9d7e8" stroke-width="1.5"/>
+<rect x="320.0" y="732.0" width="34.0" height="34.0" rx="8" fill="#0d2b52" filter="url(#ic)"/>
+<g transform="translate(325.0,737.0) scale(1.000)" fill="#ffffff" stroke="#ffffff" stroke-linejoin="round" stroke-linecap="round" color="#0d2b52"><path d="M12 3 21 8l-9 5-9-5z" fill="none" stroke-width="2" stroke-linejoin="round"/><path d="m3 12.5 9 5 9-5" fill="none" stroke-width="1.8" stroke-linejoin="round"/><path d="m3 16.8 9 5 9-5" fill="none" stroke-width="1.8" stroke-linejoin="round"/></g>
+<text x="364.0" y="754.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="14.5" fill="#0d2b52" font-weight="600" text-anchor="start" letter-spacing="0.07em">FOUNDATION</text>
+<text x="489.5" y="754.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="14.5" fill="#0d2b52" font-weight="600" text-anchor="start">·</text>
+<text x="505.5" y="754.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="12.5" fill="#0d2b52" font-weight="400" text-anchor="start">what every capability runs on</text>
+<rect x="320.0" y="776.0" width="235.6" height="110.0" rx="9" fill="#ffffff" stroke="#dfe5ec" stroke-width="1.2" filter="url(#sh)"/>
+<circle cx="540.6" cy="791.0" r="4.5" fill="#1c7a4b"/>
+<text x="334.0" y="803.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="12.5" fill="#0d2b52" font-weight="600" text-anchor="start" letter-spacing="0.02em">LLM GATEWAY</text>
+<text x="334.0" y="827.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#33414f" font-weight="400" text-anchor="start">One interface — Ollama,</text>
+<text x="334.0" y="842.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#33414f" font-weight="400" text-anchor="start">OpenAI, Anthropic</text>
+<rect x="573.6" y="776.0" width="235.6" height="110.0" rx="9" fill="#ffffff" stroke="#dfe5ec" stroke-width="1.2" filter="url(#sh)"/>
+<circle cx="794.2" cy="791.0" r="4.5" fill="#1c7a4b"/>
+<text x="587.6" y="803.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="12.5" fill="#0d2b52" font-weight="600" text-anchor="start" letter-spacing="0.02em">SCORING RUBRIC</text>
+<text x="587.6" y="827.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#33414f" font-weight="400" text-anchor="start">Config-driven weights; same</text>
+<text x="587.6" y="842.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#33414f" font-weight="400" text-anchor="start">call, same score</text>
+<rect x="827.2" y="776.0" width="235.6" height="110.0" rx="9" fill="#ffffff" stroke="#dfe5ec" stroke-width="1.2" filter="url(#sh)"/>
+<circle cx="1047.8" cy="791.0" r="4.5" fill="#1c7a4b"/>
+<text x="841.2" y="803.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="12.5" fill="#0d2b52" font-weight="600" text-anchor="start" letter-spacing="0.02em">INSIGHT STORE</text>
+<text x="841.2" y="827.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#33414f" font-weight="400" text-anchor="start">One structured record per</text>
+<text x="841.2" y="842.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#33414f" font-weight="400" text-anchor="start">call — queryable, auditable</text>
+<rect x="1080.8" y="776.0" width="235.6" height="110.0" rx="9" fill="#ffffff" stroke="#dde4ec" stroke-width="1.2" stroke-dasharray="5 4"/>
+<circle cx="1301.4" cy="791.0" r="4.5" fill="#9aa8b6"/>
+<text x="1094.8" y="803.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="12.5" fill="#9aa8b6" font-weight="600" text-anchor="start" letter-spacing="0.02em">KNOWLEDGE BASE · RAG</text>
+<text x="1094.8" y="827.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#61707e" font-weight="400" text-anchor="start">Approved answers, cited to</text>
+<text x="1094.8" y="842.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#61707e" font-weight="400" text-anchor="start">a document</text>
+<rect x="1334.4" y="776.0" width="235.6" height="110.0" rx="9" fill="#ffffff" stroke="#dde4ec" stroke-width="1.2" stroke-dasharray="5 4"/>
+<circle cx="1555.0" cy="791.0" r="4.5" fill="#9aa8b6"/>
+<text x="1348.4" y="803.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="12.5" fill="#9aa8b6" font-weight="600" text-anchor="start" letter-spacing="0.02em">SPEECH TO TEXT</text>
+<text x="1348.4" y="827.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#61707e" font-weight="400" text-anchor="start">Speaker-separated, live</text>
+<text x="1348.4" y="842.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#61707e" font-weight="400" text-anchor="start">and batch</text>
+<rect x="300.0" y="916.0" width="1290.0" height="176.0" rx="14" fill="#fdf3f3" stroke="#f0c6c6" stroke-width="1.5"/>
+<rect x="320.0" y="928.0" width="34.0" height="34.0" rx="8" fill="#d92b2b" filter="url(#ic)"/>
+<g transform="translate(325.0,933.0) scale(1.000)" fill="#ffffff" stroke="#ffffff" stroke-linejoin="round" stroke-linecap="round" color="#d92b2b"><path d="M12 2.5 20.5 6v6.5c0 5-3.7 8.8-8.5 10-4.8-1.2-8.5-5-8.5-10V6z" fill="none" stroke-width="2"/><rect x="9" y="10.5" width="6" height="5" rx="1" fill="currentColor" stroke="none"/><path d="M10.2 10.5V9a1.8 1.8 0 0 1 3.6 0v1.5" fill="none" stroke-width="1.6"/></g>
+<text x="364.0" y="950.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="14.5" fill="#d92b2b" font-weight="600" text-anchor="start" letter-spacing="0.07em">TRUST &amp; GOVERNANCE</text>
+<text x="572.3" y="950.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="14.5" fill="#d92b2b" font-weight="600" text-anchor="start">·</text>
+<text x="588.3" y="950.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="12.5" fill="#d92b2b" font-weight="400" text-anchor="start">the floor everything stands on</text>
+<text x="1570.0" y="950.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11.5" fill="#61707e" font-weight="400" text-anchor="end">9 further controls specified separately</text>
+<rect x="320.0" y="972.0" width="193.3" height="110.0" rx="9" fill="#ffffff" stroke="#dfe5ec" stroke-width="1.2" filter="url(#sh)"/>
+<circle cx="498.3" cy="987.0" r="4.5" fill="#e8791a"/>
+<text x="334.0" y="999.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="12.5" fill="#d92b2b" font-weight="600" text-anchor="start" letter-spacing="0.02em">PHI REDACTION</text>
+<text x="334.0" y="1023.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#33414f" font-weight="400" text-anchor="start">Seam exists and is called —</text>
+<text x="334.0" y="1038.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#33414f" font-weight="400" text-anchor="start">no-op until built</text>
+<rect x="531.3" y="972.0" width="193.3" height="110.0" rx="9" fill="#ffffff" stroke="#dfe5ec" stroke-width="1.2" filter="url(#sh)"/>
+<circle cx="709.7" cy="987.0" r="4.5" fill="#e8791a"/>
+<text x="545.3" y="999.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="12.5" fill="#d92b2b" font-weight="600" text-anchor="start" letter-spacing="0.02em">PROVIDER GATING</text>
+<text x="545.3" y="1023.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#33414f" font-weight="400" text-anchor="start">Only BAA-covered</text>
+<text x="545.3" y="1038.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#33414f" font-weight="400" text-anchor="start">providers for real data</text>
+<rect x="742.7" y="972.0" width="193.3" height="110.0" rx="9" fill="#ffffff" stroke="#dde4ec" stroke-width="1.2" stroke-dasharray="5 4"/>
+<circle cx="921.0" cy="987.0" r="4.5" fill="#9aa8b6"/>
+<text x="756.7" y="999.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="12.5" fill="#9aa8b6" font-weight="600" text-anchor="start" letter-spacing="0.02em">CONSENT &amp; NOTICE</text>
+<text x="756.7" y="1023.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#61707e" font-weight="400" text-anchor="start">Recording and AI notice;</text>
+<text x="756.7" y="1038.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#61707e" font-weight="400" text-anchor="start">jurisdictions differ</text>
+<rect x="954.0" y="972.0" width="193.3" height="110.0" rx="9" fill="#ffffff" stroke="#dfe5ec" stroke-width="1.2" filter="url(#sh)"/>
+<circle cx="1132.3" cy="987.0" r="4.5" fill="#1c7a4b"/>
+<text x="968.0" y="999.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="12.5" fill="#d92b2b" font-weight="600" text-anchor="start" letter-spacing="0.02em">MODEL CALL AUDIT</text>
+<text x="968.0" y="1023.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#33414f" font-weight="400" text-anchor="start">Provider, model, prompt</text>
+<text x="968.0" y="1038.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#33414f" font-weight="400" text-anchor="start">recorded per call</text>
+<rect x="1165.3" y="972.0" width="193.3" height="110.0" rx="9" fill="#ffffff" stroke="#dfe5ec" stroke-width="1.2" filter="url(#sh)"/>
+<circle cx="1343.7" cy="987.0" r="4.5" fill="#1c7a4b"/>
+<text x="1179.3" y="999.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="12.5" fill="#d92b2b" font-weight="600" text-anchor="start" letter-spacing="0.02em">DATA RESIDENCY</text>
+<text x="1179.3" y="1023.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#33414f" font-weight="400" text-anchor="start">A local-only lane —</text>
+<text x="1179.3" y="1038.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#33414f" font-weight="400" text-anchor="start">nothing leaves the tenant</text>
+<rect x="1376.7" y="972.0" width="193.3" height="110.0" rx="9" fill="#ffffff" stroke="#dde4ec" stroke-width="1.2" stroke-dasharray="5 4"/>
+<circle cx="1555.0" cy="987.0" r="4.5" fill="#9aa8b6"/>
+<text x="1390.7" y="999.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="12.5" fill="#9aa8b6" font-weight="600" text-anchor="start" letter-spacing="0.02em">ACCESS CONTROL</text>
+<text x="1390.7" y="1023.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#61707e" font-weight="400" text-anchor="start">Role-scoped access and</text>
+<text x="1390.7" y="1038.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#61707e" font-weight="400" text-anchor="start">an access audit trail</text>
+<text x="1735.0" y="112.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#61707e" font-weight="600" text-anchor="middle" letter-spacing="0.12em">WHO IT SERVES</text>
+<rect x="1614.0" y="132.0" width="242.0" height="160.0" rx="12" fill="#ffffff" stroke="#dde4ec" stroke-width="1.4" stroke-dasharray="6 5"/>
+<rect x="1716.0" y="146.0" width="38.0" height="38.0" rx="9" fill="#9aa8b6" filter="url(#ic)"/>
+<g transform="translate(1721.0,151.0) scale(1.167)" fill="#ffffff" stroke="#ffffff" stroke-linejoin="round" stroke-linecap="round" color="#9aa8b6"><rect x="4.5" y="9.5" width="15" height="10.5" rx="2" fill="none" stroke-width="2"/><path d="M8 9.5V7a4 4 0 0 1 8 0v2.5" fill="none" stroke-width="2"/><path d="M12 12.8v3.6M10.2 14.6h3.6" stroke-width="1.9"/></g>
+<circle cx="1838.0" cy="152.0" r="4.5" fill="#9aa8b6"/>
+<text x="1735.0" y="208.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="13.5" fill="#9aa8b6" font-weight="600" text-anchor="middle" letter-spacing="0.03em">AGENT</text>
+<text x="1735.0" y="230.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11.5" fill="#61707e" font-weight="400" text-anchor="middle">Live guidance while</text>
+<text x="1735.0" y="247.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11.5" fill="#61707e" font-weight="400" text-anchor="middle">the call is happening</text>
+<rect x="1614.0" y="314.0" width="242.0" height="160.0" rx="12" fill="#ffffff" stroke="#dfe5ec" stroke-width="1.4" filter="url(#sh)"/>
+<rect x="1716.0" y="328.0" width="38.0" height="38.0" rx="9" fill="#1c7a4b" filter="url(#ic)"/>
+<g transform="translate(1721.0,333.0) scale(1.167)" fill="#ffffff" stroke="#ffffff" stroke-linejoin="round" stroke-linecap="round" color="#1c7a4b"><path d="M12 3.2a6 6 0 0 0-6 6v3.9l-2 3.1h16l-2-3.1V9.2a6 6 0 0 0-6-6z" fill="none" stroke-width="2" stroke-linejoin="round"/><path d="M9.8 19.2a2.2 2.2 0 0 0 4.4 0" fill="none" stroke-width="2"/></g>
+<circle cx="1838.0" cy="334.0" r="4.5" fill="#1c7a4b"/>
+<text x="1735.0" y="390.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="13.5" fill="#1c7a4b" font-weight="600" text-anchor="middle" letter-spacing="0.03em">SUPERVISOR</text>
+<text x="1735.0" y="412.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11.5" fill="#33414f" font-weight="400" text-anchor="middle">Every call scored, not a</text>
+<text x="1735.0" y="429.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11.5" fill="#33414f" font-weight="400" text-anchor="middle">sample — alerting later</text>
+<rect x="1614.0" y="496.0" width="242.0" height="160.0" rx="12" fill="#ffffff" stroke="#dfe5ec" stroke-width="1.4" filter="url(#sh)"/>
+<rect x="1716.0" y="510.0" width="38.0" height="38.0" rx="9" fill="#1c7a4b" filter="url(#ic)"/>
+<g transform="translate(1721.0,515.0) scale(1.167)" fill="#ffffff" stroke="#ffffff" stroke-linejoin="round" stroke-linecap="round" color="#1c7a4b"><rect x="3.5" y="4" width="17" height="16" rx="2" fill="none" stroke-width="2"/><path d="M7.5 15.5v-3M12 15.5v-6.5M16.5 15.5v-4.5" stroke-width="2" stroke-linecap="round"/></g>
+<circle cx="1838.0" cy="516.0" r="4.5" fill="#1c7a4b"/>
+<text x="1735.0" y="572.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="13.5" fill="#1c7a4b" font-weight="600" text-anchor="middle" letter-spacing="0.03em">LEADERSHIP</text>
+<text x="1735.0" y="594.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11.5" fill="#33414f" font-weight="400" text-anchor="middle">Trends, topics and agent</text>
+<text x="1735.0" y="611.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11.5" fill="#33414f" font-weight="400" text-anchor="middle">quality — one set of numbers</text>
+<rect x="1614.0" y="692.0" width="242.0" height="232.0" rx="12" fill="#f7f9fb" stroke="#dde4ec" stroke-width="1.4"/>
+<text x="1632.0" y="726.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#16212e" font-weight="600" text-anchor="start" letter-spacing="0.09em">WHERE THIS BUILD STANDS</text>
+<circle cx="1638.0" cy="765.0" r="4.5" fill="#1c7a4b"/>
+<text x="1654.0" y="772.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="21" fill="#1c7a4b" font-weight="600" text-anchor="start">17</text>
+<text x="1688.0" y="764.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#33414f" font-weight="600" text-anchor="start" letter-spacing="0.06em">LIVE</text>
+<text x="1688.0" y="780.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#61707e" font-weight="400" text-anchor="start">Built and running</text>
+<text x="1688.0" y="794.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#61707e" font-weight="400" text-anchor="start">in the POC</text>
+<circle cx="1638.0" cy="823.0" r="4.5" fill="#e8791a"/>
+<text x="1654.0" y="830.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="21" fill="#e8791a" font-weight="600" text-anchor="start">3</text>
+<text x="1688.0" y="822.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#33414f" font-weight="600" text-anchor="start" letter-spacing="0.06em">NEXT</text>
+<text x="1688.0" y="838.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#61707e" font-weight="400" text-anchor="start">Seam exists, nothing yet</text>
+<circle cx="1638.0" cy="881.0" r="4.5" fill="#9aa8b6"/>
+<text x="1654.0" y="888.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="21" fill="#9aa8b6" font-weight="600" text-anchor="start">6</text>
+<text x="1688.0" y="880.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#33414f" font-weight="600" text-anchor="start" letter-spacing="0.06em">LATER</text>
+<text x="1688.0" y="896.0" font-family="'Segoe UI','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="11" fill="#61707e" font-weight="400" text-anchor="start">Designed, not started</text>
+<path d="M 280.0 612.0 L 292.0 612.0" fill="none" stroke="#8fa0b3" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#aN)"/>
+<path d="M 1596.0 220.0 L 1606.0 220.0" fill="none" stroke="#8fa0b3" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#aN)"/>
+</svg>

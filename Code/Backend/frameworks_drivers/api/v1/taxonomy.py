@@ -10,6 +10,7 @@ from __future__ import annotations
 from fastapi import APIRouter
 from pydantic import BaseModel
 
+from domain.value_objects.caller_type import CallerType
 from domain.value_objects.resolution import Resolution
 from domain.value_objects.severity import Severity
 from frameworks_drivers.api.dependencies import ContainerDep
@@ -48,6 +49,7 @@ class TaxonomyResponse(BaseModel):
     signal_types: list[SignalTypeEntry]
     sentiment_states: list[str]
     resolutions: list[str]
+    caller_types: list[str]
     severities: list[str]
     tiers: TierThresholdsEntry
     rubric_version: str
@@ -77,6 +79,10 @@ async def get_taxonomy(container: ContainerDep) -> TaxonomyResponse:
         ],
         sentiment_states=list(taxonomy.sentiment_states),
         resolutions=[member.value for member in Resolution],
+        # The vocabulary, not the values present in the data: an empty option is
+        # information — nobody from that population called — and a dropdown
+        # built from a GROUP BY would silently drop it.
+        caller_types=[member.value for member in CallerType],
         severities=[member.value for member in Severity],
         tiers=TierThresholdsEntry(
             good=rubric.tiers.good,

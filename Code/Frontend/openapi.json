@@ -355,6 +355,14 @@
       },
       "AttentionItemResponse": {
         "properties": {
+          "call_filter": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "The calls list query that returns exactly the calls this item counted, as query-string parameters. Sent from here rather than rebuilt by the client from the rule id: the rule kinds are a server-side vocabulary, and a client mapping them itself would quietly produce a dead link the first time a kind is added. Empty when the item's subject has no filter, which is a gap to close rather than a state to design for.",
+            "title": "Call Filter",
+            "type": "object"
+          },
           "count": {
             "title": "Count",
             "type": "integer"
@@ -404,9 +412,25 @@
           "severity",
           "count",
           "unresolved",
-          "references"
+          "references",
+          "call_filter"
         ],
         "title": "AttentionItemResponse",
+        "type": "object"
+      },
+      "Body_import_corpus_api_v1_corpus_imports_post": {
+        "properties": {
+          "file": {
+            "contentMediaType": "application/octet-stream",
+            "description": "A call-corpus PDF.",
+            "title": "File",
+            "type": "string"
+          }
+        },
+        "required": [
+          "file"
+        ],
+        "title": "Body_import_corpus_api_v1_corpus_imports_post",
         "type": "object"
       },
       "BrokerResponse": {
@@ -533,6 +557,17 @@
             "title": "Broker Names",
             "type": "array"
           },
+          "caller_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Caller Type"
+          },
           "category": {
             "title": "Category",
             "type": "string"
@@ -620,6 +655,51 @@
           "broker_names"
         ],
         "title": "CallSummaryResponse",
+        "type": "object"
+      },
+      "CallerBreakdownResponse": {
+        "properties": {
+          "average_handle_minutes": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Average Handle Minutes"
+          },
+          "average_score": {
+            "title": "Average Score",
+            "type": "number"
+          },
+          "caller_type": {
+            "title": "Caller Type",
+            "type": "string"
+          },
+          "calls": {
+            "title": "Calls",
+            "type": "integer"
+          },
+          "resolution_rate": {
+            "title": "Resolution Rate",
+            "type": "number"
+          },
+          "share": {
+            "title": "Share",
+            "type": "number"
+          }
+        },
+        "required": [
+          "caller_type",
+          "calls",
+          "share",
+          "resolution_rate",
+          "average_score",
+          "average_handle_minutes"
+        ],
+        "title": "CallerBreakdownResponse",
         "type": "object"
       },
       "CallsPageResponse": {
@@ -805,7 +885,7 @@
       "ClearedCorpusResponse": {
         "properties": {
           "calls": {
-            "description": "Analysed calls removed.",
+            "description": "Analyzed calls removed.",
             "title": "Calls",
             "type": "integer"
           },
@@ -865,6 +945,38 @@
         "title": "ComponentStatus",
         "type": "string"
       },
+      "CorpusImportResponse": {
+        "properties": {
+          "calls": {
+            "items": {
+              "$ref": "#/components/schemas/ImportedCallResponse"
+            },
+            "title": "Calls",
+            "type": "array"
+          },
+          "directory": {
+            "title": "Directory",
+            "type": "string"
+          },
+          "name": {
+            "description": "Directory this corpus was saved as.",
+            "title": "Name",
+            "type": "string"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "name",
+          "directory",
+          "total",
+          "calls"
+        ],
+        "title": "CorpusImportResponse",
+        "type": "object"
+      },
       "CorpusStatusResponse": {
         "properties": {
           "active_run_id": {
@@ -904,6 +1016,29 @@
           "active_run_id"
         ],
         "title": "CorpusStatusResponse",
+        "type": "object"
+      },
+      "CorpusVersionResponse": {
+        "properties": {
+          "directory": {
+            "title": "Directory",
+            "type": "string"
+          },
+          "files": {
+            "title": "Files",
+            "type": "integer"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "directory",
+          "files"
+        ],
+        "title": "CorpusVersionResponse",
         "type": "object"
       },
       "DurationBandResponse": {
@@ -1160,6 +1295,191 @@
         "title": "HistogramResponse",
         "type": "object"
       },
+      "HourlyPointResponse": {
+        "properties": {
+          "average_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Average Score"
+          },
+          "calls": {
+            "title": "Calls",
+            "type": "integer"
+          },
+          "hour": {
+            "title": "Hour",
+            "type": "integer"
+          },
+          "is_thin": {
+            "description": "Too few calls in this hour to read anything into.",
+            "title": "Is Thin",
+            "type": "boolean"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "resolution_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resolution Rate"
+          }
+        },
+        "required": [
+          "hour",
+          "label",
+          "calls",
+          "average_score",
+          "resolution_rate",
+          "is_thin"
+        ],
+        "title": "HourlyPointResponse",
+        "type": "object"
+      },
+      "ImportedCallResponse": {
+        "properties": {
+          "agent": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Agent"
+          },
+          "broker": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Broker signal as 'Name: what they did', if any.",
+            "title": "Broker"
+          },
+          "caller": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Caller"
+          },
+          "filename": {
+            "title": "Filename",
+            "type": "string"
+          },
+          "has_panel": {
+            "description": "Whether the authored insights panel came through.",
+            "title": "Has Panel",
+            "type": "boolean"
+          },
+          "number": {
+            "title": "Number",
+            "type": "integer"
+          },
+          "queue": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Queue"
+          },
+          "reference": {
+            "description": "The reference a corpus run would store this call under.",
+            "title": "Reference",
+            "type": "string"
+          },
+          "repeat": {
+            "description": "Whether this call is marked as a repeat contact.",
+            "title": "Repeat",
+            "type": "boolean"
+          },
+          "resolution": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resolution"
+          },
+          "score": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Score"
+          },
+          "tier": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tier"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "turns": {
+            "description": "Non-blank transcript lines extracted for this call.",
+            "title": "Turns",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "number",
+          "reference",
+          "title",
+          "filename",
+          "agent",
+          "caller",
+          "tier",
+          "score",
+          "resolution",
+          "queue",
+          "turns",
+          "has_panel",
+          "broker",
+          "repeat"
+        ],
+        "title": "ImportedCallResponse",
+        "type": "object"
+      },
       "L4CategoryEntry": {
         "properties": {
           "code": {
@@ -1353,6 +1673,14 @@
             "title": "Basis",
             "type": "string"
           },
+          "factor_vocabulary": {
+            "description": "Every factor this system can observe, in a fixed order, whether or not any member is currently showing it. A client drawing a column per factor takes them from here: a factor added to the domain and not to the client would otherwise go unread with nothing to show for it, and an absent column is indistinguishable from a column of no findings.",
+            "items": {
+              "$ref": "#/components/schemas/RiskFactorResponse"
+            },
+            "title": "Factor Vocabulary",
+            "type": "array"
+          },
           "members": {
             "items": {
               "$ref": "#/components/schemas/MemberAtRiskResponse"
@@ -1362,7 +1690,8 @@
           }
         },
         "required": [
-          "members"
+          "members",
+          "factor_vocabulary"
         ],
         "title": "MembersAtRiskResponse",
         "type": "object"
@@ -1694,6 +2023,74 @@
         "title": "ProvidersResponse",
         "type": "object"
       },
+      "PulseResponse": {
+        "properties": {
+          "available_weeks": {
+            "description": "Every week the corpus spans, oldest first \u2014 what a period picker offers, as distinct from `points`, which is only the anchored window.",
+            "items": {
+              "format": "date",
+              "type": "string"
+            },
+            "title": "Available Weeks",
+            "type": "array"
+          },
+          "delta": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TrendDeltaResponse"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "latest": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TrendPointResponse"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "points": {
+            "items": {
+              "$ref": "#/components/schemas/TrendPointResponse"
+            },
+            "title": "Points",
+            "type": "array"
+          },
+          "previous": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TrendPointResponse"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "sentiment": {
+            "$ref": "#/components/schemas/SentimentMovementResponse"
+          },
+          "undated_calls": {
+            "title": "Undated Calls",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "points",
+          "latest",
+          "previous",
+          "delta",
+          "sentiment",
+          "undated_calls",
+          "available_weeks"
+        ],
+        "title": "PulseResponse",
+        "type": "object"
+      },
       "ResolutionTimeResponse": {
         "properties": {
           "bands": {
@@ -1738,6 +2135,30 @@
           "categories"
         ],
         "title": "ResolutionTimeResponse",
+        "type": "object"
+      },
+      "RiskFactorResponse": {
+        "description": "One column of the signal matrix.",
+        "properties": {
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "short_label": {
+            "title": "Short Label",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "label",
+          "short_label"
+        ],
+        "title": "RiskFactorResponse",
         "type": "object"
       },
       "RunItemResponse": {
@@ -2045,6 +2466,39 @@
         "title": "ScoreResponse",
         "type": "object"
       },
+      "SentimentMovementResponse": {
+        "properties": {
+          "improved": {
+            "title": "Improved",
+            "type": "integer"
+          },
+          "improved_rate": {
+            "title": "Improved Rate",
+            "type": "number"
+          },
+          "unchanged": {
+            "title": "Unchanged",
+            "type": "integer"
+          },
+          "unclassified": {
+            "title": "Unclassified",
+            "type": "integer"
+          },
+          "worsened": {
+            "title": "Worsened",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "improved",
+          "unchanged",
+          "worsened",
+          "unclassified",
+          "improved_rate"
+        ],
+        "title": "SentimentMovementResponse",
+        "type": "object"
+      },
       "SignalEntryResponse": {
         "properties": {
           "code": {
@@ -2170,6 +2624,13 @@
       },
       "TaxonomyResponse": {
         "properties": {
+          "caller_types": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Caller Types",
+            "type": "array"
+          },
           "categories": {
             "items": {
               "$ref": "#/components/schemas/CategoryEntry"
@@ -2226,6 +2687,7 @@
           "signal_types",
           "sentiment_states",
           "resolutions",
+          "caller_types",
           "severities",
           "tiers",
           "rubric_version"
@@ -2310,6 +2772,114 @@
         "title": "TimeValueResponse",
         "type": "object"
       },
+      "TrendDeltaResponse": {
+        "description": "The most recent week against the one before it.",
+        "properties": {
+          "calls": {
+            "title": "Calls",
+            "type": "integer"
+          },
+          "median_handle_minutes": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Median Handle Minutes"
+          },
+          "median_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Median Score"
+          },
+          "resolution_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resolution Rate"
+          }
+        },
+        "required": [
+          "calls",
+          "median_score",
+          "resolution_rate",
+          "median_handle_minutes"
+        ],
+        "title": "TrendDeltaResponse",
+        "type": "object"
+      },
+      "TrendPointResponse": {
+        "properties": {
+          "calls": {
+            "title": "Calls",
+            "type": "integer"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "median_handle_minutes": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Median Handle Minutes"
+          },
+          "median_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Absent for a week with no calls, which is a gap not a zero.",
+            "title": "Median Score"
+          },
+          "resolution_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resolution Rate"
+          },
+          "starting": {
+            "format": "date",
+            "title": "Starting",
+            "type": "string"
+          }
+        },
+        "required": [
+          "starting",
+          "label",
+          "calls"
+        ],
+        "title": "TrendPointResponse",
+        "type": "object"
+      },
       "TurnResponse": {
         "properties": {
           "role": {
@@ -2383,6 +2953,64 @@
           "type"
         ],
         "title": "ValidationError",
+        "type": "object"
+      },
+      "WorkMixResponse": {
+        "properties": {
+          "busiest_hour": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Busiest Hour"
+          },
+          "caller_total": {
+            "title": "Caller Total",
+            "type": "integer"
+          },
+          "callers": {
+            "items": {
+              "$ref": "#/components/schemas/CallerBreakdownResponse"
+            },
+            "title": "Callers",
+            "type": "array"
+          },
+          "hours": {
+            "items": {
+              "$ref": "#/components/schemas/HourlyPointResponse"
+            },
+            "title": "Hours",
+            "type": "array"
+          },
+          "unattributed_calls": {
+            "title": "Unattributed Calls",
+            "type": "integer"
+          },
+          "weakest_hour": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Weakest Hour"
+          }
+        },
+        "required": [
+          "callers",
+          "caller_total",
+          "unattributed_calls",
+          "hours",
+          "busiest_hour",
+          "weakest_hour"
+        ],
+        "title": "WorkMixResponse",
         "type": "object"
       }
     }
@@ -2564,6 +3192,24 @@
             }
           },
           {
+            "description": "Who called: MEMBER, EMPLOYER or BROKER.",
+            "in": "query",
+            "name": "caller",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Who called: MEMBER, EMPLOYER or BROKER.",
+              "title": "Caller"
+            }
+          },
+          {
             "description": "Member identifier, as stated in the call.",
             "in": "query",
             "name": "member",
@@ -2597,6 +3243,44 @@
               ],
               "description": "Signal code, e.g. clinical_risk.",
               "title": "Signal"
+            }
+          },
+          {
+            "description": "The hour of the day a call started, 0-23, in the wall-clock the source stated. Matches the hourly chart's bars.",
+            "in": "query",
+            "name": "hour",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 23,
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "The hour of the day a call started, 0-23, in the wall-clock the source stated. Matches the hourly chart's bars.",
+              "title": "Hour"
+            }
+          },
+          {
+            "description": "L4 finding category code. The finding taxonomy, not the call category: a Coverage & Benefits call can raise a Process Breakdown finding.",
+            "in": "query",
+            "name": "l4_category",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "L4 finding category code. The finding taxonomy, not the call category: a Coverage & Benefits call can raise a Process Breakdown finding.",
+              "title": "L4 Category"
             }
           },
           {
@@ -2688,7 +3372,7 @@
             "description": "Validation Error"
           }
         },
-        "summary": "List analysed calls",
+        "summary": "List analyzed calls",
         "tags": [
           "calls"
         ]
@@ -2751,7 +3435,7 @@
             "description": "Successful Response"
           }
         },
-        "summary": "How large the corpus is, and how much of it is analysed",
+        "summary": "How large the corpus is, and how much of it is analyzed",
         "tags": [
           "corpus"
         ]
@@ -2759,7 +3443,7 @@
     },
     "/api/v1/corpus/analyses": {
       "delete": {
-        "description": "Empty the corpus so it can be re-analysed from nothing.\n\nRefused with a 409 while a run is working: the worker would be writing to\nrows this is deleting.",
+        "description": "Empty the corpus so it can be re-analyzed from nothing.\n\nRefused with a 409 while a run is working: the worker would be writing to\nrows this is deleting.",
         "operationId": "clear_corpus_api_v1_corpus_analyses_delete",
         "responses": {
           "200": {
@@ -2773,7 +3457,72 @@
             "description": "Successful Response"
           }
         },
-        "summary": "Discard every analysed call, keeping ground truth",
+        "summary": "Discard every analyzed call, keeping ground truth",
+        "tags": [
+          "corpus"
+        ]
+      }
+    },
+    "/api/v1/corpus/imports": {
+      "get": {
+        "operationId": "list_corpus_imports_api_v1_corpus_imports_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/CorpusVersionResponse"
+                  },
+                  "title": "Response List Corpus Imports Api V1 Corpus Imports Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Corpora that have been imported, newest first",
+        "tags": [
+          "corpus"
+        ]
+      },
+      "post": {
+        "description": "Extract every call from a corpus PDF and save it as corpus markdown.\n\nSaved under its own name in the import library, never over the corpus in\nuse: the stored analyses are only meaningful against the transcripts they\nwere made from, so replacing those silently would leave the dashboard\ndescribing calls that no longer exist.\n\nNothing is analysed here. Import produces files; a run spends money.",
+        "operationId": "import_corpus_api_v1_corpus_imports_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_import_corpus_api_v1_corpus_imports_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CorpusImportResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Convert an uploaded corpus document into sample call files",
         "tags": [
           "corpus"
         ]
@@ -3141,6 +3890,77 @@
         ]
       }
     },
+    "/api/v1/dashboard/pulse": {
+      "get": {
+        "operationId": "get_pulse_api_v1_dashboard_pulse_get",
+        "parameters": [
+          {
+            "description": "End the window on the week containing this date.",
+            "in": "query",
+            "name": "anchor",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "End the window on the week containing this date.",
+              "title": "Anchor"
+            }
+          },
+          {
+            "description": "Every week of this date's calendar month, instead of a trailing window. Takes precedence over `anchor` if both are given.",
+            "in": "query",
+            "name": "month",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Every week of this date's calendar month, instead of a trailing window. Takes precedence over `anchor` if both are given.",
+              "title": "Month"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PulseResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Which way the centre is moving, week by week",
+        "tags": [
+          "dashboard"
+        ]
+      }
+    },
     "/api/v1/dashboard/resolution-time": {
       "get": {
         "operationId": "get_resolution_time_api_v1_dashboard_resolution_time_get",
@@ -3199,6 +4019,27 @@
           }
         },
         "summary": "What the time on calls bought, in minutes",
+        "tags": [
+          "dashboard"
+        ]
+      }
+    },
+    "/api/v1/dashboard/work-mix": {
+      "get": {
+        "operationId": "get_work_mix_api_v1_dashboard_work_mix_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkMixResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Who calls, and when the calls come",
         "tags": [
           "dashboard"
         ]

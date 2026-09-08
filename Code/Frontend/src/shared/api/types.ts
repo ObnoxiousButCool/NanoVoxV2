@@ -38,7 +38,13 @@ export type Effort = Schemas['EffortResponse']
 export type ResolutionTime = Schemas['ResolutionTimeResponse']
 export type TimeValue = Schemas['TimeValueResponse']
 export type MembersAtRisk = Schemas['MembersAtRiskResponse']
+export type Pulse = Schemas['PulseResponse']
+export type TrendPoint = Schemas['TrendPointResponse']
+export type WorkMix = Schemas['WorkMixResponse']
+export type CallerBreakdown = Schemas['CallerBreakdownResponse']
+export type HourlyPoint = Schemas['HourlyPointResponse']
 export type MemberAtRisk = Schemas['MemberAtRiskResponse']
+export type RiskFactor = Schemas['RiskFactorResponse']
 
 export type CorpusStatus = Schemas['CorpusStatusResponse']
 export type CorpusRun = Schemas['RunResponse']
@@ -61,4 +67,38 @@ export const LAYER_META: Record<LayerId, { title: string; subtitle: string }> = 
   L3: { title: 'How well it was handled', subtitle: 'Agent quality' },
   L4: { title: 'What to do about it', subtitle: 'Operational BI · this call' },
   L5: { title: 'Real-time assist', subtitle: 'Replay — what would have triggered' },
+}
+
+/** One call extracted from an uploaded corpus document. */
+export interface ImportedCall {
+  readonly number: number
+  /** The reference a corpus run would store this call under. */
+  readonly reference: string
+  readonly title: string
+  readonly filename: string
+  readonly agent: string | null
+  readonly caller: string | null
+  readonly tier: string | null
+  readonly score: number | null
+  readonly resolution: string | null
+  readonly queue: string | null
+  /** Non-blank transcript lines extracted. Zero would mean extraction failed. */
+  readonly turns: number
+  readonly has_panel: boolean
+  /** Broker signal as `Name: what they did`, if the call carried one. */
+  readonly broker: string | null
+  readonly repeat: boolean
+}
+
+export interface CorpusImport {
+  readonly name: string
+  readonly directory: string
+  readonly total: number
+  readonly calls: readonly ImportedCall[]
+}
+
+export interface CorpusVersion {
+  readonly name: string
+  readonly directory: string
+  readonly files: number
 }

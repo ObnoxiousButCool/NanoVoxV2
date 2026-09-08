@@ -86,8 +86,25 @@ tiers:
   average: 60
 
 # --- Significance ----------------------------------------------------------
-# Agents below this many calls are shown but not tier-rated. Four agents in the
-# corpus have four calls each; rating them would be unfair and misleading.
+# Agents below this many calls are shown but not tier-rated. Their average is
+# still published — withholding it would tell an agent nothing — and what is
+# held back is only the GOOD / AVERAGE / POOR label.
+#
+# Five is the honest floor, and on the current corpus it costs nothing: the v5
+# corpus gives every one of its thirteen agents between six and ten calls, so
+# four, five and six all rate the same thirteen agents.
+#
+# It was briefly four, for the v4 corpus, where nine of thirteen agents had
+# exactly four calls and a threshold of five would have left one agent on the
+# board — a column with one entry in thirteen reports nothing. That was a
+# concession to a thin corpus rather than a judgement about how many calls it
+# takes to earn a label, and the concession is no longer needed.
+#
+# Five rather than four because of what a single call can do: one call moves a
+# four-call average by up to four points, so an agent sitting within four points
+# of the GOOD boundary could cross it on one call. That is also why the label is
+# separated from the average at all — the average is defensible well below five
+# calls, the confidence in a band is not.
 min_calls_for_tier_rating: 5
 
 # --- Gates -----------------------------------------------------------------

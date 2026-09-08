@@ -16,7 +16,7 @@ import { useBrokers } from '@/shared/api/queries'
 import type { BrokerScorecard } from '@/shared/api/types'
 import { Alert, Card, Chip, Empty, Failure, Loading, Note, PageHeader } from '@/shared/ui/primitives'
 import { cx } from '@/shared/ui/cx'
-import styles from '@/features/overview/OverviewPage.module.css'
+import styles from '@/shared/ui/queue.module.css'
 
 function BrokerCard({ broker }: { broker: BrokerScorecard }) {
   const netPositive = broker.is_net_positive
@@ -108,7 +108,7 @@ export function BrokersPage() {
       {data && data.length === 0 ? (
         <Card>
           <Empty title="No broker signals recorded">
-            No member has named a broker in an analysed call. Shown as an empty result rather than
+            No member has named a broker in an analyzed call. Shown as an empty result rather than
             omitted, so the absence is visible.
           </Empty>
         </Card>

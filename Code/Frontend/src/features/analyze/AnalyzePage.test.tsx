@@ -119,14 +119,6 @@ describe('AnalyzePage', () => {
     expect(screen.getByRole('button', { name: 'Analyze' })).toBeDisabled()
   })
 
-  it('lists unusable providers with the reason rather than hiding them', async () => {
-    renderPage()
-
-    const openai = await screen.findByRole('option', { name: /openai/ })
-    expect(openai).toBeDisabled()
-    expect(openai).toHaveTextContent('unavailable')
-  })
-
   it('warns that a local run takes minutes', async () => {
     const user = userEvent.setup()
     stubApi(() => new Promise(() => undefined))
@@ -148,16 +140,15 @@ describe('AnalyzePage', () => {
     expect(await screen.findByRole('heading', { name: 'Call detail' })).toBeInTheDocument()
   })
 
-  it('sends the chosen provider and no model override', async () => {
-    // The model belongs to the provider's configuration, so the request names
-    // the provider and leaves the model to the backend.
+  it('names no provider, leaving the configured one to the backend', async () => {
+    // There is no picker on this screen. Sending nulls is what makes the page's
+    // own claim true — "processing runs on the configured provider" — and it
+    // means a change of default needs no change here.
     const user = userEvent.setup()
     const fetchFn = stubApi(() => Promise.resolve(json({ id: 7 }, 201)))
     renderPage()
 
     await user.type(screen.getByLabelText('Transcript'), TRANSCRIPT)
-    await screen.findByRole('option', { name: /ollama/ })
-    await user.selectOptions(screen.getByLabelText('Provider'), 'ollama')
     await user.click(screen.getByRole('button', { name: 'Analyze' }))
 
     await waitFor(() => {
@@ -168,29 +159,17 @@ describe('AnalyzePage', () => {
         string,
         unknown
       >
-      expect(body['provider']).toBe('ollama')
+      expect(body['provider']).toBeNull()
       expect(body['model']).toBeNull()
     })
   })
 
-  it('shows the model but offers no way to type one', async () => {
-    // A typo here would reach the API as a real model name.
+  it('offers no provider choice at all', async () => {
     renderPage()
 
-    await screen.findByRole('option', { name: /ollama/ })
+    await screen.findByLabelText('Transcript')
 
-    expect(screen.getByText('qwen2.5:7b-instruct')).toBeInTheDocument()
-    expect(screen.queryByRole('textbox', { name: 'Model' })).not.toBeInTheDocument()
-  })
-
-  it('shows the model of whichever provider is chosen', async () => {
-    const user = userEvent.setup()
-    renderPage()
-
-    await screen.findByRole('option', { name: /ollama/ })
-    await user.selectOptions(screen.getByLabelText('Provider'), 'anthropic')
-
-    expect(await screen.findByText('claude-opus-5')).toBeInTheDocument()
+    expect(screen.queryByLabelText('Provider')).not.toBeInTheDocument()
   })
 
   it('explains a failed analysis with its correlation id', async () => {

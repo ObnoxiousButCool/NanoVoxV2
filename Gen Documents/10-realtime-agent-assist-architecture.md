@@ -198,7 +198,7 @@ flowchart TB
 | React `features/{overview,calls,call-detail,brokers,corpus,diagnostics}` | Analytics UI, kept as-is | Add `features/assist` (live) and `features/supervisor` |
 | `frameworks_drivers/api/v1/*` REST | Analytics API | Add WebSocket/SSE channels for the live lane |
 | `infrastructure/llm/prompts/*.md` with `version:` front-matter | Prompt registry | Promote to a governed, environment-pinned prompt registry (§7.3) |
-| `domain/member_id.py` + `member_id_pattern` setting | Links a live call to the member's prior analysed interactions (§7.4) | Add an identification-rate metric per queue; accept CTI attached data as a second source |
+| `domain/member_id.py` + `member_id_pattern` setting | Links a live call to the member's prior analyzed interactions (§7.4) | Add an identification-rate metric per queue; accept CTI attached data as a second source |
 | *(no equivalent in POC)* | **Assertion guard** — blocks any card that states an unverifiable fact about the member | New; ~50 lines of validation, the cheapest high-value control in the design (§8.3, Appendix B) |
 
 **One line to take away:** the POC's central decision — *the model returns evidence,
@@ -728,7 +728,7 @@ that, and the design depends on the first one working:
 | Step | Mechanism |
 |---|---|
 | **Identify** | CTI attached data where the contact-centre platform supplies a member identifier; otherwise extraction from the conversation, which the POC already implements through the configurable `member_id_pattern` (`CHM######`) in `domain/member_id.py` |
-| **Link** | Match against the platform's interaction store — every call and email it has previously analysed — keyed on the resolved identifier |
+| **Link** | Match against the platform's interaction store — every call and email it has previously analyzed — keyed on the resolved identifier |
 | **Serve** | Contact counts, open/unresolved issues and prior escalations on the same topic feed the escalation rules (§7.1) and the churn model (Appendix B) |
 
 Two operational consequences worth designing for rather than discovering:
@@ -738,7 +738,7 @@ Two operational consequences worth designing for rather than discovering:
    *member not yet identified* rather than implying a first contact. Track
    **identification rate per queue** as a first-class metric from day one — it directly
    bounds how often the repeat-contact rules can fire.
-2. **Coverage starts at go-live.** The store knows about interactions it has analysed.
+2. **Coverage starts at go-live.** The store knows about interactions it has analyzed.
    Backfilling the existing call corpus through the post-call pipeline extends that history
    backwards and is worth doing before the pilot measures anything.
 

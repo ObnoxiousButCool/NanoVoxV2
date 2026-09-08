@@ -20,7 +20,9 @@ same reason the L5 panel shows a missing trigger as a finding.
 from __future__ import annotations
 
 import re
+from collections.abc import Sequence
 from dataclasses import dataclass
+from datetime import datetime
 from re import Pattern
 from typing import Any
 
@@ -32,12 +34,20 @@ from application.ports.prompts import PromptSource
 from application.ports.redaction import RedactionPort
 from domain.attribution_notes import (
     broker_name_in,
+    is_our_organisation_note,
     is_the_agent_note,
     missing_turn_note,
+    name_absent_from_quote_note,
     not_a_broker_note,
     quote_not_found_note,
+    spoken_by_the_agent_note,
 )
-from domain.broker_evidence import is_the_agent, quote_names_a_broker
+from domain.broker_evidence import (
+    is_our_organisation,
+    is_the_agent,
+    quote_names_a_broker,
+    quote_names_the_party,
+)
 from domain.entities.analysis import (
     AnalysisLayer,
     AnalysisSource,
@@ -52,14 +62,17 @@ from domain.entities.score_marker import ScoreMarker
 from domain.entities.transcript import Transcript
 from domain.errors import NanoVoxError, ValidationError
 from domain.member_id import find_member_id
+from domain.member_name import find_member_name
 from domain.parsing import parse_transcript
 from domain.scoring.marker_validation import MarkerValidator
 from domain.scoring.rubric import Rubric
 from domain.scoring.rubric_engine import RubricEngine
+from domain.signal_evidence import RaisedSignal, validate_signals
 from domain.taxonomy import Taxonomy
 from domain.value_objects.polarity import Polarity
 from domain.value_objects.resolution import Resolution
 from domain.value_objects.severity import Severity
+from domain.value_objects.speaker import SpeakerRole
 
 L1_PROMPT = "l1_understanding"
 L2_PROMPT = "l2_insights"
@@ -100,6 +113,20 @@ class AnalyzeTranscriptCommand:
     # actually contains. Pasted transcripts carry no header, so they still fall
     # back to the estimate.
     duration_minutes: int | None = None
+    # The rest of what the source states about the call. Carried through
+    # untouched: no model sees them, and none of them is derived.
+    duration_seconds: int | None = None
+    started_at: datetime | None = None
+    ended_at: datetime | None = None
+    caller_type: str | None = None
+    # Who the member is, as the source states it. The corpus header carries it
+    # in the form the name reader expects — "Priya Raman, 36 · ChoiceBuilder
+    # dental · ..." — and the name is almost never in the transcript itself:
+    # across the shipped corpus, 28 files name the member in the header and only
+    # 3 of those names are ever spoken. A model reading the words alone
+    # therefore cannot recover it, and writes a description of the caller
+    # instead, which is why every stored name was blank.
+    member_context: str | None = None
 
 
 class AnalyzeTranscript:
@@ -117,6 +144,7 @@ class AnalyzeTranscript:
         clock: Clock,
         member_id_pattern: Pattern[str] | None = None,
         broker_terms: Pattern[str] | None = None,
+        administrator_name: str | None = None,
     ) -> None:
         self._prompts = prompts
         self._schemas = schemas
@@ -132,6 +160,9 @@ class AnalyzeTranscript:
         # The words that make a quote evidence of a broker relationship. None
         # disables the check rather than rejecting everything.
         self._broker_terms = broker_terms
+        # Us. The one party named in every call that can never be the broker,
+        # and the name a model reaches for when it has no other.
+        self._administrator_name = administrator_name
 
     async def execute(
         self, command: AnalyzeTranscriptCommand, provider: LLMProvider
@@ -147,13 +178,22 @@ class AnalyzeTranscript:
         l1 = await self._run(provider, L1_PROMPT, self._schemas.l1, usage, transcript=rendered)
         layers.append(_layer(Layer.L1, l1))
 
+        # Checked against the transcript before anything is told about it. A
+        # signal withholds the score and opens a review queue, so it is the last
+        # claim that should be taken on trust — and, until this check existed,
+        # the only one that was. Validated here rather than at scoring time so a
+        # signal that failed its evidence is not fed to the later layers either.
+        signals = validate_signals(
+            _raised_signals(l1), transcript, (item.code for item in self._taxonomy.signal_types)
+        )
+
         l2 = await self._run(
             provider,
             L2_PROMPT,
             self._schemas.l2,
             usage,
             transcript=rendered,
-            l1_summary=_summarise_l1(l1),
+            l1_summary=_summarise_l1(l1, signals.accepted),
         )
         layers.append(_layer(Layer.L2, l2))
 
@@ -168,15 +208,22 @@ class AnalyzeTranscript:
         )
         layers.append(_layer(Layer.L3, l3))
 
-        signal_codes = tuple(_strings(l1, "signals"))
         validation = MarkerValidator(self._rubric, transcript).validate(_markers(l3))
-        score = self._engine.score(validation.accepted, signal_codes=signal_codes)
+        score = self._engine.score(
+            validation.accepted,
+            signal_codes=signals.accepted,
+            # A call whose every marker was refused is not scored, and must not
+            # report as though it were. The usual cause is a transcript that did
+            # not parse into turns, which leaves every evidence index pointing at
+            # a turn that is not there.
+            evidence_all_rejected=validation.evidence_all_rejected,
+        )
 
         # Resolved before the attributions are checked, which needs it: an
         # attribution naming the agent on the call is not a member naming a broker.
         agent_name = _text(l3, "agent_name") or _agent_from(transcript)
 
-        context = _summarise_context(l1, l2, score.score.value)
+        context = _summarise_context(l1, l2, score.score.value, signals.accepted)
 
         # --- Additive layers: a failure degrades the layer, not the call. ----
         l4, l4_error = await self._try_run(
@@ -204,6 +251,7 @@ class AnalyzeTranscript:
             _broker_signals(l4),
             transcript,
             agent_name=agent_name,
+            administrator_name=self._administrator_name,
             broker_terms=self._broker_terms,
         )
         if attributions.rejected and l4 is not None:
@@ -212,6 +260,12 @@ class AnalyzeTranscript:
             )
 
         finished = self._clock.now()
+        # The source's own words win over the model's. This is the same rule
+        # the durations follow, and for the same reason: it is authored
+        # metadata about the call rather than something derived from it. The
+        # model's version stays as the fallback for a pasted transcript, which
+        # arrives with no header at all.
+        member_context = command.member_context or _text(l1, "member_context") or None
         analysis = CallAnalysis(
             reference=command.reference or await self._repository.next_reference(),
             title=_text(l2, "title") or _text(l1, "call_type") or "Untitled call",
@@ -228,15 +282,30 @@ class AnalyzeTranscript:
             member_id=find_member_id(transcript, self._member_id_pattern)
             if self._member_id_pattern
             else None,
-            member_context=_text(l1, "member_context") or None,
+            member_context=member_context,
+            # Read on the write path, not only in the migration that added the
+            # column. Backfilling existing rows was half the job: every call
+            # analyzed afterwards stored nothing, so a rebuilt database — which
+            # is every row here — came back with the name blank on all of them.
+            member_name=find_member_name(member_context),
             duration_minutes=(
                 command.duration_minutes
                 if command.duration_minutes is not None
                 else _positive_int(l2, "duration_minutes")
             ),
-            signal_codes=signal_codes,
+            duration_seconds=command.duration_seconds,
+            started_at=command.started_at,
+            ended_at=command.ended_at,
+            caller_type=command.caller_type,
+            signal_codes=signals.accepted,
             accepted_markers=validation.accepted,
-            rejected_marker_notes=tuple(item.explanation for item in validation.rejected),
+            rejected_marker_notes=(
+                *(item.explanation for item in validation.rejected),
+                # Kept in the same place a rejected marker goes: both are the
+                # model claiming something the transcript does not say, and a
+                # reader looking for that has one list to read.
+                *signals.rejection_notes,
+            ),
             rejected_attribution_notes=attributions.rejected,
             l4_signals=self._l4_signals(l4),
             broker_signals=attributions.accepted,
@@ -326,6 +395,7 @@ class AnalyzeTranscript:
             _broker_signals(l4),
             transcript,
             agent_name=agent_name,
+            administrator_name=self._administrator_name,
             broker_terms=self._broker_terms,
         )
 
@@ -367,10 +437,20 @@ class AnalyzeTranscript:
         )
 
     def _describe_l4_categories(self) -> str:
-        return "\n".join(
-            f"- {category.code}: {category.label} (owner: {category.owner.name})"
-            for category in self._taxonomy.l4_categories
-        )
+        """The action categories, with what each one covers.
+
+        The label and the owner were always sent; the description was not, and a
+        category with no definition is chosen on whatever its name suggests.
+        Three of the six were never chosen once across the corpus —
+        compliance_risk, agent_coaching and broker_attribution — against an
+        authored expectation of nine, eight and nineteen findings.
+        """
+        lines: list[str] = []
+        for category in self._taxonomy.l4_categories:
+            lines.append(f"- {category.code}: {category.label} (owner: {category.owner.name})")
+            if category.description:
+                lines.append(f"    {category.description.strip()}")
+        return "\n".join(lines)
 
     def _prompt_versions(self) -> str:
         versions = {
@@ -470,6 +550,30 @@ def _entries(payload: dict[str, Any] | None, key: str) -> list[dict[str, Any]]:
     return [item for item in value if isinstance(item, dict)]
 
 
+def _raised_signals(payload: dict[str, Any] | None) -> list[RaisedSignal]:
+    """The signals L1 raised, with whatever evidence each one carries.
+
+    A malformed entry is kept rather than skipped, so the validator refuses it
+    and the refusal is recorded. Dropping it here would make an unevidenced
+    signal indistinguishable from one that was never raised.
+    """
+    return [
+        RaisedSignal(
+            code=_text(entry, "code"),
+            quote=_text(entry, "quote"),
+            # -1 when absent or not a number, which no transcript has, so the
+            # validator reports it as citing a turn that does not exist rather
+            # than silently pointing at turn zero.
+            evidence_turn_seq=(
+                entry["evidence_turn_seq"]
+                if isinstance(entry.get("evidence_turn_seq"), int)
+                else -1
+            ),
+        )
+        for entry in _entries(payload, "signals")
+    ]
+
+
 def _markers(payload: dict[str, Any] | None) -> list[ScoreMarker]:
     markers: list[ScoreMarker] = []
     for entry in _entries(payload, "markers"):
@@ -506,19 +610,34 @@ def _validated_attributions(
     transcript: Transcript,
     *,
     agent_name: str | None = None,
+    administrator_name: str | None = None,
     broker_terms: Pattern[str] | None = None,
 ) -> _Attributions:
     """Keep only attributions the transcript genuinely supports.
 
-    Three questions, in order of how cheaply they can be answered wrong:
+    Six questions, in order of how cheaply they can be answered wrong:
 
     1. Does the cited turn exist?
     2. Were the quoted words actually said in it?
-    3. Do those words say what the attribution claims — that this person is the
-       member's *broker*, and is not the agent who answered the call?
+    3. Is the named party someone other than the agent who answered the call?
+    4. Is it someone other than the administrator whose greeting opens it?
+    5. Do the quoted words say what the attribution claims — that this party is
+       the caller's *broker*, and that the party is who they say it is?
+    6. Were the words the caller's? An agent recommending that someone consult a
+       broker is not that someone naming one.
 
-    The third was missing, and its absence is why surgeons, pharmacies and the
-    agents themselves reached a screen that names people for Compliance review.
+    Order decides which reason a reader is given when several are true at once,
+    so it runs from the most specific defect to the least. Who was named comes
+    before what the words mean, and both come before who spoke: a quote about a
+    surgeon is not evidence of a broker whoever said it, so reporting the
+    speaker first would bury the real problem.
+
+    Only the first two existed at first, and their absence is why surgeons,
+    pharmacies and the agents themselves reached a screen that names people for
+    Compliance review. The rest arrived after the two attributions in the whole
+    timestamped corpus turned out to be an agent saying "talk to your broker"
+    filed against the plan administrator: a quote that matched its turn exactly,
+    contained the word "broker", and evidenced nothing at all.
     """
     accepted: list[BrokerSignal] = []
     rejected: list[str] = []
@@ -533,8 +652,14 @@ def _validated_attributions(
             )
         elif is_the_agent(signal.broker_name, agent_name):
             rejected.append(is_the_agent_note(signal.broker_name))
+        elif is_our_organisation(signal.broker_name, administrator_name):
+            rejected.append(is_our_organisation_note(signal.broker_name))
         elif not quote_names_a_broker(signal.quote, broker_terms):
             rejected.append(not_a_broker_note(signal.broker_name, signal.quote))
+        elif not quote_names_the_party(signal.quote, signal.broker_name):
+            rejected.append(name_absent_from_quote_note(signal.broker_name, signal.quote))
+        elif turn.role is not SpeakerRole.MEMBER:
+            rejected.append(spoken_by_the_agent_note(signal.broker_name, signal.evidence_turn_seq))
         else:
             accepted.append(signal)
 
@@ -549,8 +674,8 @@ def _attribution_correction(rejected: tuple[str, ...], transcript: Transcript) -
     """Tell the model exactly which quote failed, and show it the turn to copy."""
     lines = [
         "",
-        "CORRECTION — your previous broker_signals were rejected because their",
-        "quotes did not appear verbatim in the turn they cited:",
+        "CORRECTION — your previous broker_signals were rejected. Each reason",
+        "below is the reason that attribution failed:",
         "",
     ]
     lines.extend(f"- {note}" for note in rejected)
@@ -570,8 +695,10 @@ def _attribution_correction(rejected: tuple[str, ...], transcript: Transcript) -
             "",
             "Re-issue every broker signal you still believe is supported, quoting one",
             "unbroken run of characters copied from the turn above — no words skipped",
-            "from the middle, no punctuation changed at either end. If no continuous",
-            "span supports the attribution, omit that broker entirely.",
+            "from the middle, no punctuation changed at either end. The turn must be",
+            "one the caller spoke, and the words you quote must contain the broker's",
+            "name. If no continuous span meets all three, omit that broker entirely:",
+            "reporting none is the correct answer for most calls.",
         ]
     )
     return "\n".join(lines)
@@ -634,13 +761,15 @@ def _agent_from(transcript: Transcript) -> str | None:
     return None
 
 
-def _summarise_l1(payload: dict[str, Any]) -> str:
+def _summarise_l1(payload: dict[str, Any], signal_codes: Sequence[str]) -> str:
     return (
         f"Call type: {_text(payload, 'call_type')}. "
         f"Member sentiment: {_text(payload, 'member_sentiment_start')} to "
         f"{_text(payload, 'member_sentiment_end')}. "
         f"Agent tone: {_text(payload, 'agent_tone')}. "
-        f"Signals: {', '.join(_strings(payload, 'signals')) or 'none'}."
+        # The validated codes, not what L1 raised: a later layer must not be
+        # told about a condition whose evidence did not survive checking.
+        f"Signals: {', '.join(signal_codes) or 'none'}."
     )
 
 
@@ -651,5 +780,10 @@ def _summarise_l2(payload: dict[str, Any]) -> str:
     )
 
 
-def _summarise_context(l1: dict[str, Any], l2: dict[str, Any], score: int) -> str:
-    return f"{_summarise_l1(l1)}\n{_summarise_l2(l2)}\nComputed agent score: {score}/100."
+def _summarise_context(
+    l1: dict[str, Any], l2: dict[str, Any], score: int, signal_codes: Sequence[str]
+) -> str:
+    return (
+        f"{_summarise_l1(l1, signal_codes)}\n{_summarise_l2(l2)}\n"
+        f"Computed agent score: {score}/100."
+    )

@@ -109,6 +109,105 @@ class TestSignalsEndpoint:
         assert by_owner["Provider Relations"] == 0
 
 
+class TestPulseEndpoint:
+    """The only figure on the dashboard that says which way anything is going."""
+
+    def test_it_returns_a_week_per_point(self, seeded: TestClient) -> None:
+        body = seeded.get("/api/v1/dashboard/pulse").json()
+
+        assert [point["label"] for point in body["points"]] == ["27 Jul", "3 Aug", "10 Aug"]
+        assert sum(point["calls"] for point in body["points"]) == TOTAL_CALLS
+        assert body["undated_calls"] == 0
+
+    def test_the_delta_compares_the_last_two_weeks_with_calls(self, seeded: TestClient) -> None:
+        body = seeded.get("/api/v1/dashboard/pulse").json()
+
+        assert body["latest"]["label"] == "10 Aug"
+        assert body["previous"]["label"] == "3 Aug"
+        assert body["delta"]["resolution_rate"] == pytest.approx(
+            body["latest"]["resolution_rate"] - body["previous"]["resolution_rate"], abs=0.1
+        )
+
+    def test_the_sentiment_field_is_zeroed_now_the_card_is_gone(self, seeded: TestClient) -> None:
+        # commented out as no longer needed on frontend. The field stays on the
+        # response shape rather than being removed, so this pins it at zero
+        # instead of dropping the coverage.
+        body = seeded.get("/api/v1/dashboard/pulse").json()
+        sentiment = body["sentiment"]
+
+        assert sentiment == {
+            "improved": 0,
+            "unchanged": 0,
+            "worsened": 0,
+            "unclassified": 0,
+            "improved_rate": 0,
+        }
+
+    def test_an_anchor_ends_the_window_on_the_week_containing_it(self, seeded: TestClient) -> None:
+        body = seeded.get("/api/v1/dashboard/pulse", params={"anchor": "2026-08-04"}).json()
+
+        assert [point["label"] for point in body["points"]] == ["27 Jul", "3 Aug"]
+        assert body["latest"]["label"] == "3 Aug"
+
+    def test_an_anchor_before_every_week_yields_an_empty_window(self, seeded: TestClient) -> None:
+        body = seeded.get("/api/v1/dashboard/pulse", params={"anchor": "2020-01-01"}).json()
+
+        assert body["points"] == []
+        assert body["latest"] is None
+
+    def test_available_weeks_names_every_week_regardless_of_the_anchor(
+        self, seeded: TestClient
+    ) -> None:
+        # The picker that reads this needs the whole span to offer, not just
+        # whatever window an anchor happens to have narrowed `points` to.
+        body = seeded.get("/api/v1/dashboard/pulse", params={"anchor": "2026-08-04"}).json()
+
+        assert body["available_weeks"] == ["2026-07-27", "2026-08-03", "2026-08-10"]
+
+    def test_a_month_returns_every_one_of_its_own_weeks_rather_than_a_trailing_window(
+        self, seeded: TestClient
+    ) -> None:
+        body = seeded.get("/api/v1/dashboard/pulse", params={"month": "2026-08-15"}).json()
+
+        assert [point["label"] for point in body["points"]] == ["3 Aug", "10 Aug"]
+
+    def test_a_month_takes_precedence_over_an_anchor_given_alongside_it(
+        self, seeded: TestClient
+    ) -> None:
+        body = seeded.get(
+            "/api/v1/dashboard/pulse", params={"anchor": "2026-08-04", "month": "2026-07-01"}
+        ).json()
+
+        assert [point["label"] for point in body["points"]] == ["27 Jul"]
+
+
+class TestWorkMixEndpoint:
+    def test_every_configured_caller_gets_a_row(self, seeded: TestClient) -> None:
+        # Including the ones nobody called, which is the more interesting row.
+        body = seeded.get("/api/v1/dashboard/work-mix").json()
+
+        assert {row["caller_type"] for row in body["callers"]} == {
+            "MEMBER",
+            "EMPLOYER",
+            "BROKER",
+        }
+
+    def test_the_populations_are_measured_separately(self, seeded: TestClient) -> None:
+        body = seeded.get("/api/v1/dashboard/work-mix").json()
+        by_type = {row["caller_type"]: row for row in body["callers"]}
+
+        assert by_type["EMPLOYER"]["calls"] == 1
+        assert by_type["BROKER"]["calls"] == 1
+        assert by_type["MEMBER"]["calls"] == TOTAL_CALLS - 2
+
+    def test_hours_carry_a_thin_evidence_flag(self, seeded: TestClient) -> None:
+        body = seeded.get("/api/v1/dashboard/work-mix").json()
+
+        assert body["hours"]
+        assert all("is_thin" in hour for hour in body["hours"])
+        assert body["busiest_hour"] is not None
+
+
 class TestCallsEndpoint:
     def test_lists_calls_with_a_total_and_paging(self, seeded: TestClient) -> None:
         body = get(seeded, "/api/v1/calls", limit=4)
@@ -157,7 +256,7 @@ class TestTaxonomyEndpoint:
     ) -> None:
         body = client.get("/api/v1/taxonomy").json()
 
-        assert len(body["categories"]) == 7
+        assert len(body["categories"]) == 10
         assert len(body["l4_categories"]) == 6
         assert "UNRESOLVED" in body["resolutions"]
         assert body["tiers"]["good"] == 86
@@ -166,7 +265,7 @@ class TestTaxonomyEndpoint:
 
 
 class TestEmptyDatabase:
-    def test_the_dashboard_renders_before_any_call_is_analysed(self, client: TestClient) -> None:
+    def test_the_dashboard_renders_before_any_call_is_analyzed(self, client: TestClient) -> None:
         # A fresh install must not crash or show misleading zeros-as-percentages.
         body = client.get("/api/v1/dashboard/overview").json()
 
@@ -176,7 +275,7 @@ class TestEmptyDatabase:
         assert body["attention"] == []
         assert body["histogram"]["total"] == 0
         # Categories are still listed so the chart has its shape.
-        assert len(body["categories"]) == 7
+        assert len(body["categories"]) == 10
 
     def test_agents_and_brokers_are_empty_lists_not_errors(self, client: TestClient) -> None:
         assert client.get("/api/v1/dashboard/agents").json() == []

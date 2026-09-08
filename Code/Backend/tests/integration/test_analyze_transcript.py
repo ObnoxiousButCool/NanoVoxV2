@@ -31,6 +31,7 @@ from infrastructure.config.paths import DEFAULT_RUBRIC_PATH, DEFAULT_TAXONOMY_PA
 from infrastructure.config.rubric_loader import load_rubric
 from infrastructure.config.taxonomy_loader import load_taxonomy
 from tests.support.analysis import (
+    L1_PAYLOAD,
     L3_PAYLOAD,
     PAYLOADS_BY_PROMPT,
     InMemoryAnalysisRepository,
@@ -74,6 +75,7 @@ def build(
         # The shipped vocabulary, not a test-only one: the evidence rule these
         # tests exercise is the rule the application actually applies.
         broker_terms=compile_broker_terms(make_settings().broker_evidence_terms),
+        administrator_name=make_settings().administrator_name,
     )
     return use_case, store
 
@@ -84,6 +86,104 @@ async def analyse(
     use_case, store = build(taxonomy, rubric, provider)
     stored = await use_case.execute(AnalyzeTranscriptCommand(transcript=CALL_89), provider)
     return stored.analysis, store
+
+
+class TestTheMemberName:
+    """The name has to be read when the call is analyzed, not only backfilled.
+
+    It was added as a migration that filled in the rows already stored, and
+    nothing read it afterwards — so every call analyzed since stored nothing,
+    and a database rebuilt from the corpus came back with all fifty blank. The
+    fix belongs on the write path, and this is the test that keeps it there.
+    """
+
+    async def test_a_named_context_stores_the_name(
+        self, taxonomy: Taxonomy, rubric: Rubric
+    ) -> None:
+        payloads = dict(PAYLOADS_BY_PROMPT)
+        payloads["l1_understanding"] = {
+            **L1_PAYLOAD,
+            "member_context": "Alicia Ferrara, 34, on a Delta Dental PPO via ChoiceBuilder.",
+        }
+
+        analysis, _ = await analyse(taxonomy, rubric, ScriptedLayerProvider(payloads))
+
+        assert analysis.member_name == "Alicia Ferrara"
+
+    async def test_a_context_that_names_no_one_stores_nothing(
+        self, taxonomy: Taxonomy, rubric: Rubric
+    ) -> None:
+        # The shipped fixture context — "Member aged 68 on a CalChoice HMO plan."
+        # A name is the one thing on this dashboard a reader recognises
+        # personally, so guessing is worse than leaving the column blank.
+        analysis, _ = await analyse(taxonomy, rubric, ScriptedLayerProvider(PAYLOADS_BY_PROMPT))
+
+        assert analysis.member_name is None
+
+
+class TestSignalEvidence:
+    """A signal has to prove itself, like every other stored claim."""
+
+    async def test_an_evidenced_signal_reaches_the_score(
+        self, taxonomy: Taxonomy, rubric: Rubric
+    ) -> None:
+        analysis, _ = await analyse(taxonomy, rubric, ScriptedLayerProvider())
+
+        assert "clinical_risk" in analysis.signal_codes
+        # And it does what a signal is for: the score is held for review.
+        assert analysis.score.status is ScoreStatus.PROVISIONAL
+
+    async def test_a_signal_whose_quote_is_not_in_the_call_is_discarded(
+        self, taxonomy: Taxonomy, rubric: Rubric
+    ) -> None:
+        # The failure this check exists for: clinical_risk asserted on a call
+        # whose transcript never said it. Eight of fifty ancillary-benefit calls
+        # were flagged this way, every one wrong, each withholding a score.
+        provider = ScriptedLayerProvider(
+            payloads={
+                **PAYLOADS_BY_PROMPT,
+                "l1_understanding": {
+                    **L1_PAYLOAD,
+                    "signals": [
+                        {
+                            "code": "clinical_risk",
+                            "evidence_turn_seq": 1,
+                            "quote": "my prescription changed",
+                        }
+                    ],
+                },
+            }
+        )
+        analysis, _ = await analyse(taxonomy, rubric, provider)
+
+        assert analysis.signal_codes == ()
+        # Recorded, not silently dropped: a model inventing evidence is a
+        # finding about the model.
+        assert any("clinical_risk" in note for note in analysis.rejected_marker_notes)
+
+    async def test_a_discarded_signal_no_longer_withholds_the_score(
+        self, taxonomy: Taxonomy, rubric: Rubric
+    ) -> None:
+        # The consequence that matters: an unevidenced signal used to open a
+        # clinical review queue nobody could act on.
+        provider = ScriptedLayerProvider(
+            payloads={
+                **PAYLOADS_BY_PROMPT,
+                "l1_understanding": {
+                    **L1_PAYLOAD,
+                    "signals": [
+                        {
+                            "code": "clinical_risk",
+                            "evidence_turn_seq": 0,
+                            "quote": "nothing like this was said",
+                        }
+                    ],
+                },
+            }
+        )
+        analysis, _ = await analyse(taxonomy, rubric, provider)
+
+        assert analysis.score.status is ScoreStatus.CONFIRMED
 
 
 class TestDuration:
@@ -478,6 +578,115 @@ class TestAttributionEvidence:
         assert analysis.broker_signals == ()
         assert "does not name a broker relationship" in analysis.rejected_attribution_notes[0]
 
+    async def test_an_attribution_to_the_administrator_is_discarded(
+        self, taxonomy: Taxonomy, rubric: Rubric
+    ) -> None:
+        """C0040 and C0047: the only two attributions the corpus ever produced.
+
+        The model took the name out of the greeting that opens every call and
+        filed it against an agent saying "talk to your broker" — a quote that
+        matched its turn character for character, contained the word "broker",
+        and evidenced nothing. Two false records, and no true ones anywhere.
+        """
+        payloads = dict(PAYLOADS_BY_PROMPT)
+        payloads["l4_operational_bi"] = {
+            "signals": [],
+            "broker_signals": [
+                {
+                    "broker_name": "Choice Administrators",
+                    "polarity": "POSITIVE",
+                    "issue": "Advised the member to consult their broker.",
+                    "evidence_turn_seq": 6,
+                    "quote": "urgent care is cheaper if you want to go that route",
+                }
+            ],
+        }
+
+        analysis, _ = await analyse(taxonomy, rubric, ScriptedLayerProvider(payloads))
+
+        assert analysis.broker_signals == ()
+        assert "names the plan administrator" in analysis.rejected_attribution_notes[0]
+
+    async def test_an_attribution_the_quote_does_not_name_is_discarded(
+        self, taxonomy: Taxonomy, rubric: Rubric
+    ) -> None:
+        """A quote saying only "your broker" identifies no one at all.
+
+        The vocabulary check passes here — the word is right there — which is
+        exactly how this shape survived. A citation that never says whose broker
+        it is decorates the record rather than supporting it.
+        """
+        member_names_no_one = chr(10).join(
+            [
+                "Agent Brad: Choice Administrators, Brad.",
+                "Member: I asked my broker about it and got nowhere.",
+                "Agent Brad: Let me check that for you.",
+            ]
+        )
+        payloads = dict(PAYLOADS_BY_PROMPT)
+        payloads["l4_operational_bi"] = {
+            "signals": [],
+            "broker_signals": [
+                {
+                    "broker_name": "Marcus Trent",
+                    "polarity": "NEGATIVE",
+                    "issue": "Did not respond to the member.",
+                    "evidence_turn_seq": 1,
+                    "quote": "I asked my broker about it and got nowhere.",
+                }
+            ],
+        }
+        use_case, _ = build(taxonomy, rubric, ScriptedLayerProvider(payloads))
+
+        stored = await use_case.execute(
+            AnalyzeTranscriptCommand(transcript=member_names_no_one),
+            ScriptedLayerProvider(payloads),
+        )
+
+        assert stored.analysis.broker_signals == ()
+        assert "is not named in its own quote" in stored.analysis.rejected_attribution_notes[0]
+
+    async def test_an_attribution_quoting_the_agent_is_discarded(
+        self, taxonomy: Taxonomy, rubric: Rubric
+    ) -> None:
+        """The agent naming a broker is not the member naming one.
+
+        Everything else about this attribution holds: the quote is verbatim, it
+        says "broker", it says "Marcus Trent", and Marcus Trent is neither the
+        agent nor us. Only the speaker is wrong — and the rule has always been
+        that the *member* names their broker.
+        """
+        agent_names_the_broker = chr(10).join(
+            [
+                "Agent Brad: Choice Administrators, Brad.",
+                "Member: Nobody told me I needed prior authorisation.",
+                "Agent Brad: Your broker, Marcus Trent, can pull that from the portal.",
+            ]
+        )
+        payloads = dict(PAYLOADS_BY_PROMPT)
+        payloads["l4_operational_bi"] = {
+            "signals": [],
+            "broker_signals": [
+                {
+                    "broker_name": "Marcus Trent",
+                    "polarity": "NEGATIVE",
+                    "issue": "Did not tell the member about prior authorisation.",
+                    "evidence_turn_seq": 2,
+                    "quote": "Your broker, Marcus Trent, can pull that from the portal.",
+                }
+            ],
+        }
+        use_case, _ = build(taxonomy, rubric, ScriptedLayerProvider(payloads))
+
+        stored = await use_case.execute(
+            AnalyzeTranscriptCommand(transcript=agent_names_the_broker),
+            ScriptedLayerProvider(payloads),
+        )
+
+        assert stored.analysis.broker_signals == ()
+        note = stored.analysis.rejected_attribution_notes[0]
+        assert "which the agent spoke" in note
+
     async def test_a_genuine_attribution_survives(self, taxonomy: Taxonomy, rubric: Rubric) -> None:
         # The rule must not be so strict that it discards real evidence: a member
         # naming their own broker is exactly what the screen is for.
@@ -560,9 +769,7 @@ async def _analyse_broker_call(
 ) -> CallAnalysis:
     """Analyse a transcript in which the member does name a broker."""
     use_case, _ = build(taxonomy, rubric, provider)
-    stored = await use_case.execute(
-        AnalyzeTranscriptCommand(transcript=BROKER_CALL), provider
-    )
+    stored = await use_case.execute(AnalyzeTranscriptCommand(transcript=BROKER_CALL), provider)
     return stored.analysis
 
 
@@ -585,9 +792,7 @@ class TestAttributionRepair:
     async def test_an_elided_quote_is_re_asked_and_recovered(
         self, taxonomy: Taxonomy, rubric: Rubric
     ) -> None:
-        provider = _RetryingProvider(
-            _attribution(ELIDED_QUOTE), _attribution(CONTIGUOUS_QUOTE)
-        )
+        provider = _RetryingProvider(_attribution(ELIDED_QUOTE), _attribution(CONTIGUOUS_QUOTE))
 
         analysis = await _analyse_broker_call(taxonomy, rubric, provider)
 
@@ -601,9 +806,7 @@ class TestAttributionRepair:
     ) -> None:
         # Without the turn's text the model has nothing new to copy from, and the
         # second answer is as likely to be wrong as the first.
-        provider = _RetryingProvider(
-            _attribution(ELIDED_QUOTE), _attribution(CONTIGUOUS_QUOTE)
-        )
+        provider = _RetryingProvider(_attribution(ELIDED_QUOTE), _attribution(CONTIGUOUS_QUOTE))
 
         await _analyse_broker_call(taxonomy, rubric, provider)
 

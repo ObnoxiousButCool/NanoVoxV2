@@ -16,6 +16,7 @@ from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
 
 from application.dto.analysis_schemas import AnalysisSchemas, build_analysis_schemas
 from application.ports.clock import Clock
+from application.ports.corpus_document import CorpusDocumentReader, CorpusLibrary
 from application.ports.corpus_source import CorpusSource
 from application.ports.health_probe import HealthProbe
 from application.ports.llm_provider import LLMProvider
@@ -27,12 +28,15 @@ from application.use_cases.get_dashboard import (
     GetBrokerScorecard,
     GetEffortMetrics,
     GetMembersAtRisk,
-    GetResolutionTime,
-    GetTimeValue,
     GetOverview,
+    GetPulse,
+    GetResolutionTime,
     GetSignalDistribution,
+    GetTimeValue,
+    GetWorkMix,
 )
 from application.use_cases.get_health import GetHealth
+from application.use_cases.import_corpus_document import ImportCorpusDocument
 from application.use_cases.list_providers import ListProviders
 from application.use_cases.run_corpus import (
     CancelCorpusRun,
@@ -52,7 +56,9 @@ from infrastructure.config.dashboard_loader import DashboardConfig, load_dashboa
 from infrastructure.config.rubric_loader import load_rubric
 from infrastructure.config.settings import Settings
 from infrastructure.config.taxonomy_loader import load_taxonomy
+from infrastructure.corpus.library import FileSystemCorpusLibrary
 from infrastructure.corpus.markdown_corpus import MarkdownCorpusSource
+from infrastructure.corpus.pdf_document import PdfCorpusDocumentReader
 from infrastructure.llm.prompt_source import FilePromptSource
 from infrastructure.llm.prompts import PromptLibrary
 from infrastructure.llm.provider_probe import RegistryProviderProbe
@@ -88,6 +94,10 @@ class Container:
     redaction: RedactionPort
     dashboard: DashboardConfig
     corpus: CorpusSource
+    # Import is stateless and its store is a directory, so both are built
+    # once at startup rather than per request.
+    document_reader: CorpusDocumentReader
+    corpus_library: CorpusLibrary
     # One event bus and one runner per process: a subscriber and the worker
     # publishing to it must be looking at the same object, and a per-request
     # instance would leave every stream permanently silent.
@@ -97,6 +107,7 @@ class Container:
     # setting is blank, which turns extraction off rather than matching nothing.
     member_id_pattern: Pattern[str] | None
     broker_terms: Pattern[str] | None
+    administrator_name: str
 
     def get_health(self) -> GetHealth:
         return GetHealth(probes=self.health_probes, clock=self.clock)
@@ -152,6 +163,12 @@ class Container:
     def get_signal_distribution(self) -> GetSignalDistribution:
         return GetSignalDistribution(self.read_models(), self.taxonomy)
 
+    def get_pulse(self) -> GetPulse:
+        return GetPulse(self.read_models())
+
+    def get_work_mix(self) -> GetWorkMix:
+        return GetWorkMix(self.read_models())
+
     def run_repository(self) -> SqlRunRepository:
         return SqlRunRepository(self.session_factory)
 
@@ -188,6 +205,12 @@ class Container:
             runs=self.run_repository(),
         )
 
+    def import_corpus_document(self) -> ImportCorpusDocument:
+        return ImportCorpusDocument(
+            reader=self.document_reader,
+            library=self.corpus_library,
+        )
+
     def corpus_run_worker(self) -> CorpusRunWorker:
         return CorpusRunWorker(
             corpus=self.corpus,
@@ -213,6 +236,7 @@ class Container:
             clock=self.clock,
             member_id_pattern=self.member_id_pattern,
             broker_terms=self.broker_terms,
+            administrator_name=self.administrator_name,
         )
 
 
@@ -243,6 +267,8 @@ def build_container(settings: Settings) -> Container:
         redaction=NoRedaction(),
         dashboard=load_dashboard_config(settings.dashboard_path, taxonomy),
         corpus=MarkdownCorpusSource(settings.corpus_path, settings.corpus_glob),
+        document_reader=PdfCorpusDocumentReader(),
+        corpus_library=FileSystemCorpusLibrary(settings.corpus_path, settings.corpus_glob),
         events=InMemoryRunEventBus(),
         runner=BackgroundRunner(),
         member_id_pattern=(
@@ -251,6 +277,7 @@ def build_container(settings: Settings) -> Container:
             else None
         ),
         broker_terms=compile_broker_terms(settings.broker_evidence_terms),
+        administrator_name=settings.administrator_name,
     )
 
 

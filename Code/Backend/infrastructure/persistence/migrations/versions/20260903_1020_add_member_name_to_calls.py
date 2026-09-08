@@ -2,8 +2,8 @@
 
 Adds the column and fills it in for calls already stored.
 
-The backfill reads ``member_context``, which every analysed call already holds.
-No model is called and nothing is re-analysed: most of those summaries open with
+The backfill reads ``member_context``, which every analyzed call already holds.
+No model is called and nothing is re-analyzed: most of those summaries open with
 the member's name, and this recovers it into a column of its own.
 
 Revision ID: b3f4a19c7d02

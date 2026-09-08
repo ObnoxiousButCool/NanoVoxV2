@@ -1,0 +1,161 @@
+.picker {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.picker input[type='file'] {
+  font: inherit;
+  font-size: 12px;
+  color: var(--slate);
+  padding: 7px 9px;
+  border: 1px dashed var(--rule);
+  border-radius: var(--r);
+  background: var(--canvas);
+  max-width: 100%;
+}
+
+.picker input[type='file']::file-selector-button {
+  font: inherit;
+  font-size: 12px;
+  margin-right: 10px;
+  padding: 5px 10px;
+  border: 1px solid var(--rule);
+  border-radius: var(--r);
+  background: var(--panel);
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.summary {
+  display: flex;
+  gap: 28px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.summary div {
+  display: flex;
+  flex-direction: column;
+}
+
+.summary b {
+  font: 600 24px/1.1 var(--font-mono);
+  color: var(--ink);
+}
+
+.summary span {
+  font-size: 11px;
+  color: var(--slate-2);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-top: 3px;
+}
+
+.gaps {
+  margin: 4px 0 8px;
+  padding-left: 18px;
+}
+
+.gaps li {
+  margin: 2px 0;
+}
+
+/* The table is wide and must scroll inside the card rather than pushing the
+   page sideways. */
+.tableWrap {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.table th {
+  text-align: left;
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--slate-2);
+  font-weight: 600;
+  padding: 6px 10px 6px 0;
+  border-bottom: 1px solid var(--rule);
+  white-space: nowrap;
+}
+
+.table td {
+  padding: 6px 10px 6px 0;
+  border-bottom: 1px solid var(--rule);
+  color: var(--ink);
+  vertical-align: top;
+}
+
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.mono {
+  font-family: var(--font-mono);
+  white-space: nowrap;
+}
+
+.numeric {
+  text-align: right;
+  font-family: var(--font-mono);
+  white-space: nowrap;
+}
+
+/* A transcript this short means the header was misread, so it is coloured as a
+   finding rather than left as a number the reader has to compare by eye. */
+.numericWarn {
+  text-align: right;
+  font-family: var(--font-mono);
+  white-space: nowrap;
+  color: var(--sev-hi);
+  font-weight: 600;
+}
+
+.flags {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.versions {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.versions li {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.versions li:last-child {
+  border-bottom: none;
+}
+
+.versions b {
+  font-family: var(--font-mono);
+  color: var(--ink);
+}
+
+.versions span {
+  font-size: 11px;
+  color: var(--slate-2);
+}
+
+.versions code {
+  font-size: 11px;
+  color: var(--slate-2);
+  margin-left: auto;
+}

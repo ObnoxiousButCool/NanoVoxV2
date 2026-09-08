@@ -6,6 +6,17 @@
 
 # --- Runtime output ---------------------------------------------------------
 Logs/
+# The SQLite database is built from migrations, not from the repository:
+# scripts/start.sh and start.bat both run `alembic upgrade head`, so a fresh
+# clone gets its schema without one being committed.
+#
+# It was tracked until a merge proved why that cannot work. Git has no merge
+# strategy for a binary file, so any divergence resolves it by picking a side
+# and the loser goes silently: a merge of two branches that each carried a
+# hundred analysed calls produced an empty 4 KB database, and the only symptom
+# was the backend failing to start on "no such table: analysis_runs". Sharing
+# an analysed corpus means sharing the file directly, or re-running it.
+*.db
 *.db-wal
 *.db-shm
 
@@ -33,3 +44,13 @@ coverage/
 .vscode/
 Thumbs.db
 Desktop.ini
+
+# Imported corpora. A byproduct of the Corpus import screen: the same calls
+# the tracked Samples/ files hold, kept per-upload so an import cannot
+# overwrite the corpus a stored analysis was made from.
+Samples/imported/
+
+# Database backups taken before a corpus re-run. Covered by *.db above; kept
+# as its own rule so the whole directory stays out even if something that is
+# not a .db is written into it.
+Data/backup/

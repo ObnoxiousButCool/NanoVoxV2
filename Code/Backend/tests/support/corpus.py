@@ -33,6 +33,7 @@ from domain.entities.transcript import Transcript
 from domain.entities.turn import Turn
 from domain.scoring.rubric_engine import ScoreResult
 from domain.taxonomy import Taxonomy
+from domain.value_objects.caller_type import CallerType
 from domain.value_objects.polarity import Polarity
 from domain.value_objects.resolution import Resolution
 from domain.value_objects.score import Score, ScoreStatus
@@ -64,6 +65,9 @@ class CallSpec:
     # Defaults to one member per call. Set it explicitly to give two calls the
     # same member, which is what makes repeat contact testable.
     member_id: str | None = None
+    # Who called. Defaults to MEMBER, as most of a real corpus does; the two
+    # non-member callers below are what makes the caller filter testable.
+    caller: CallerType = CallerType.MEMBER
 
 
 # Sarah: 5 calls, scores 90/95/88/70/60 -> avg 80.6, tier-rated.
@@ -122,6 +126,9 @@ SPECS: tuple[CallSpec, ...] = (
         l4=("process_breakdown", "process_breakdown"),
         broker=("Marcus Trent", Polarity.NEGATIVE),
     ),
+    # An employer's call: a group's renewal, not a member's claim. It still has
+    # a member_id from the builder's default, which is the point — the caller
+    # type is what separates the populations, not the presence of an identifier.
     CallSpec(
         "F0009",
         "Brad",
@@ -130,6 +137,7 @@ SPECS: tuple[CallSpec, ...] = (
         55,
         l4=("process_breakdown",),
         broker=("Marcus Trent", Polarity.NEGATIVE),
+        caller=CallerType.EMPLOYER,
     ),
     CallSpec(
         "F0010",
@@ -139,6 +147,7 @@ SPECS: tuple[CallSpec, ...] = (
         50,
         l4=("process_breakdown",),
         broker=("Marcus Trent", Polarity.NEGATIVE),
+        caller=CallerType.BROKER,
     ),
     CallSpec("F0011", "Priya", "claims_eob", RESOLVED, 96),
 )
@@ -150,6 +159,7 @@ ESCALATED_COUNT = 2  # F0004, F0009
 UNRESOLVED_COUNT = 3  # F0006, F0007, F0008
 PARTIAL_COUNT = 2  # F0003, F0010
 SCORES = (90, 95, 88, 70, 60, 30, 40, 25, 55, 50, 96)
+MEMBER_CALLS = 9  # every call but F0009 and F0010
 
 
 def _transcript(reference: str) -> Transcript:
@@ -174,6 +184,7 @@ def build_analysis(spec: CallSpec, taxonomy: Taxonomy, index: int) -> CallAnalys
         # A distinct member per call unless the spec says otherwise, mirroring a
         # real corpus where most members appear once.
         member_id=spec.member_id or f"CHM{spec.reference}",
+        caller_type=spec.caller.value,
         transcript=_transcript(spec.reference),
         score=ScoreResult(
             score=score,
@@ -190,6 +201,12 @@ def build_analysis(spec: CallSpec, taxonomy: Taxonomy, index: int) -> CallAnalys
         source=AnalysisSource.CORPUS_RUN,
         agent_name=spec.agent,
         duration_minutes=6,
+        # Spread a call a day from BASE_TIME, so the fixture spans three weeks
+        # and the weekly trend has something to be a trend of. Handle time
+        # alternates either side of six minutes, which is what makes the
+        # speed-against-quality split land on a boundary worth testing.
+        duration_seconds=300 if index % 2 else 480,
+        started_at=BASE_TIME + timedelta(days=index, hours=index % 6),
         signal_codes=spec.signals,
         l4_signals=tuple(
             L4Signal(

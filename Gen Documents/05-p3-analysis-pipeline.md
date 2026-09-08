@@ -174,5 +174,5 @@ should settle it, and this argues for pulling that measurement earlier.
 and the `/calls` and `/dashboard/*` endpoints. Exit criterion: integration tests
 assert every dashboard figure against a known fixture database.
 
-P4 needs analysed calls to aggregate. It can be built and tested against fixture
+P4 needs analyzed calls to aggregate. It can be built and tested against fixture
 data without solving §7 first, so the model question does not block it.

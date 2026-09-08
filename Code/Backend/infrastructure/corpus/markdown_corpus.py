@@ -14,6 +14,7 @@ hundred calls.
 from __future__ import annotations
 
 import re
+from datetime import datetime
 from pathlib import Path
 
 from application.ports.corpus_source import CorpusSource
@@ -37,6 +38,8 @@ _MEMBER_CONTEXT = re.compile(r"^\*\*Member context:?\*\*:?\s*(?P<value>.*)$", re
 _LEADING_NUMBER = re.compile(r"^\s*(\d+)")
 
 _SENTIMENT_SEPARATORS = ("→", "->", "»")
+# Handle time as the corpus writes it: "5m 21s", "9m", "45s".
+_HANDLE_TIME = re.compile(r"^(?:(?P<minutes>\d+)\s*m)?\s*(?:(?P<seconds>\d+)\s*s)?$")
 _DIGITS = re.compile(r"(\d+)")
 
 
@@ -106,6 +109,10 @@ def parse_corpus_file(text: str, source_id: str) -> CorpusCall:
         title=title,
         transcript=transcript,
         duration_minutes=_minutes(fields.get("duration")),
+        duration_seconds=_handle_seconds(fields.get("aht")),
+        started_at=_timestamp(fields.get("date"), fields.get("start")),
+        ended_at=_timestamp(fields.get("date"), fields.get("end")),
+        caller_type=_upper(fields.get("caller")),
         ground_truth=_ground_truth(fields, panel),
         sequence=number,
     )
@@ -191,6 +198,43 @@ def _ground_truth(fields: dict[str, str], panel: str) -> GroundTruth:
         member_context=fields.get("member context") or None,
         panel_text=panel,
     )
+
+
+def _handle_seconds(value: str | None) -> int | None:
+    """Read ``5m 21s`` as 321 seconds, and a bare ``9m`` as 540.
+
+    The newer corpus states handle time to the second; the older one states only
+    whole minutes and carries no AHT line at all, which is why this is separate
+    from ``_minutes`` rather than replacing it.
+    """
+    if not value:
+        return None
+    match = _HANDLE_TIME.match(value.strip())
+    if match is None or not (match.group("minutes") or match.group("seconds")):
+        return None
+    seconds = int(match.group("minutes") or 0) * 60 + int(match.group("seconds") or 0)
+    return seconds or None
+
+
+def _timestamp(day: str | None, clock: str | None) -> datetime | None:
+    """Combine ``2026-09-24`` and ``10:41:15`` into one moment.
+
+    Both halves are needed: a time without its date cannot be ordered against
+    another call, and a date without a time cannot answer "when in the day".
+    Either missing yields None rather than a midnight that looks like real data.
+    """
+    if not day or not clock:
+        return None
+    try:
+        # Naive on purpose. The corpus states local wall-clock times ("08:00 -
+        # 17:00 Pacific"), and "was this call in the mid-morning peak?" is a
+        # question about the clock on the wall, not about an instant in UTC.
+        # Attaching a zone here would invent one the source never stated.
+        return datetime.strptime(  # noqa: DTZ007
+            f"{day.strip()} {clock.strip()}", "%Y-%m-%d %H:%M:%S"
+        )
+    except ValueError:
+        return None
 
 
 def _minutes(value: str | None) -> int | None:

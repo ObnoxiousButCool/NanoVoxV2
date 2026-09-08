@@ -18,6 +18,7 @@ omitted, so the absence is visible rather than implied (plan §6.5).
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import date
 
 from application.ports.read_models import (
     AgentAggregate,
@@ -32,16 +33,18 @@ from domain.aggregation.attention import (
     GroupCount,
     evaluate_rules,
 )
+from domain.aggregation.caller_mix import CallerCall, CallerMix, caller_mix
 from domain.aggregation.effort import EffortMetrics, effort_metrics
+from domain.aggregation.hourly import HourCall, HourlyLoad, hourly_load
 from domain.aggregation.member_risk import MemberAtRisk, members_at_risk
 from domain.aggregation.resolution_time import (
     DurationBandSettings,
     ResolutionTime,
     resolution_time,
 )
+from domain.aggregation.sentiment_movement import SentimentMovement
 from domain.aggregation.signal_attribution import primary_category_by_call
 from domain.aggregation.significance import AgentRating, rate_agent
-from domain.aggregation.time_value import TimeValue, time_value
 from domain.aggregation.statistics import (
     Histogram,
     HistogramSettings,
@@ -50,8 +53,11 @@ from domain.aggregation.statistics import (
     median,
     percentage,
 )
+from domain.aggregation.time_value import TimeValue, time_value
+from domain.aggregation.trend import Trend, TrendCall, month_window, trend, windowed
 from domain.scoring.rubric import Rubric
 from domain.taxonomy import Taxonomy
+from domain.value_objects.caller_type import CallerType
 from domain.value_objects.resolution import Resolution
 from domain.value_objects.score import Score
 
@@ -289,6 +295,95 @@ class GetAgentPerformance:
         )
 
 
+@dataclass(frozen=True)
+class Pulse:
+    """Whether the centre is getting better or worse.
+
+    Every other figure the dashboard reports is an all-time total, which answers
+    "how are we doing" and not "which way are we going" — and on this corpus the
+    two disagree flatly. Resolution reads 54% overall; the weekly series behind
+    it runs 88, 70, 43, 33, 57.
+    """
+
+    trend: Trend
+    sentiment: SentimentMovement
+    # Every week the corpus spans, unwindowed — what a period picker offers,
+    # as distinct from ``trend.points``, which is only the anchored window.
+    available_weeks: tuple[date, ...]
+
+
+@dataclass(frozen=True)
+class WorkMix:
+    """How the work is distributed — across who calls, and across the day."""
+
+    callers: CallerMix
+    hours: HourlyLoad
+
+
+class GetPulse:
+    """Builds the weekly trend, windowed to end at ``anchor`` or, if ``month``
+    is given instead, narrowed to that calendar month's own weeks."""
+
+    def __init__(self, repository: ReadModelRepository) -> None:
+        self._repository = repository
+
+    async def execute(self, anchor: date | None = None, month: date | None = None) -> Pulse:
+        facts = await self._repository.call_facts()
+        full_trend = trend(
+            TrendCall(
+                started_at=fact.started_at,
+                score=fact.score,
+                resolution=fact.resolution,
+                duration_seconds=fact.duration_seconds,
+            )
+            for fact in facts
+        )
+        # A month takes precedence over an anchor rather than the two being
+        # rejected together: the two callers that build this request — the
+        # trailing-window view and the whole-month view — never send both.
+        selected = (
+            month_window(full_trend, month) if month is not None else windowed(full_trend, anchor)
+        )
+        return Pulse(
+            trend=selected,
+            # commented out as no longer needed on frontend.
+            # sentiment=sentiment_movement(  # noqa: ERA001
+            #     SentimentArc(start=fact.sentiment_start, end=fact.sentiment_end)  # noqa: ERA001
+            #     for fact in facts
+            # ),
+            sentiment=SentimentMovement(improved=0, unchanged=0, worsened=0, unclassified=0),
+            available_weeks=tuple(point.starting for point in full_trend.points),
+        )
+
+
+class GetWorkMix:
+    """Builds the caller breakdown and the hour-of-day load."""
+
+    def __init__(self, repository: ReadModelRepository) -> None:
+        self._repository = repository
+
+    async def execute(self) -> WorkMix:
+        facts = await self._repository.call_facts()
+        return WorkMix(
+            callers=caller_mix(
+                (
+                    CallerCall(
+                        caller_type=fact.caller_type,
+                        resolution=fact.resolution,
+                        score=fact.score,
+                        duration_seconds=fact.duration_seconds,
+                    )
+                    for fact in facts
+                ),
+                known_types=[member.value for member in CallerType],
+            ),
+            hours=hourly_load(
+                HourCall(started_at=fact.started_at, score=fact.score, resolution=fact.resolution)
+                for fact in facts
+            ),
+        )
+
+
 class GetBrokerScorecard:
     """Builds the broker scorecard."""
 
@@ -434,9 +529,7 @@ class GetSignalDistribution:
         primary = primary_category_by_call(
             await self._repository.l4_findings(), self._taxonomy.l4_categories
         )
-        owner_of = {
-            category.code: category.owner.name for category in self._taxonomy.l4_categories
-        }
+        owner_of = {category.code: category.owner.name for category in self._taxonomy.l4_categories}
         # Seeded with every owner at zero, so a team with no findings keeps its
         # row rather than vanishing from the chart.
         by_owner = {category.owner.name: 0 for category in self._taxonomy.l4_categories}

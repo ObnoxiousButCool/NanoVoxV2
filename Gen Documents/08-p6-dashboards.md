@@ -18,7 +18,7 @@ share.
 | Brokers | `/brokers` | Broker Attribution Scorecard |
 
 `/overview` is now the default route. An unknown path lands there rather than on
-Analyze; Overview itself points at Analyze while nothing has been analysed, so a
+Analyze; Overview itself points at Analyze while nothing has been analyzed, so a
 fresh install still arrives somewhere it can act.
 
 ### Chart primitives — `src/shared/ui/charts.tsx`
@@ -120,6 +120,6 @@ cloud provider for the demo run.
 
 Background runner over the 100-call corpus with SSE progress, a UI trigger, cancel and
 resume, and a cost warning before a paid provider is used. Exit criterion: the full
-corpus analysed and the dashboard populated from it rather than from fixtures.
+corpus analyzed and the dashboard populated from it rather than from fixtures.
 
 At current local-model latency (~4 min/call) that run is roughly 6.5 hours.

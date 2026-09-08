@@ -5,25 +5,29 @@
  * the response type are decided once, together.
  */
 
-import { deleteJson, getJson, postJson } from '@/shared/api/client'
+import { deleteJson, getJson, postFormData, postJson } from '@/shared/api/client'
 import { getConfig } from '@/shared/config/env'
 import type {
   AgentPerformance,
   Analysis,
   BrokerScorecard,
   CallsPage,
+  CorpusImport,
   CorpusRun,
   CorpusRunSummary,
   CorpusStatus,
+  CorpusVersion,
   Effort,
   Health,
   MembersAtRisk,
   Overview,
   Providers,
+  Pulse,
   ResolutionTime,
   TimeValue,
   SignalDistribution,
   Taxonomy,
+  WorkMix,
 } from '@/shared/api/types'
 
 /** `/health` answers 503 with the report itself when a component is down. */
@@ -38,6 +42,23 @@ export interface CallFilters {
   readonly has_broker_signal?: boolean
   readonly broker?: string
   readonly signal?: string
+  /**
+   * An L4 finding category code.
+   *
+   * The finding taxonomy, not `category` above: a Coverage & Benefits call can
+   * raise a Process Breakdown finding, so the two narrow the list differently.
+   * This is how an inference opens the calls it counted.
+   */
+  readonly l4_category?: string
+  /**
+   * The hour of the day a call started, 0-23.
+   *
+   * Wall-clock as the source stated it, with no zone applied — the same
+   * reading the hourly chart uses, so a bar and the list it opens agree.
+   */
+  readonly hour?: number
+  /** Who called: MEMBER, EMPLOYER or BROKER. */
+  readonly caller?: string
   /** Member identifier, as stated in the call. */
   readonly member?: string
   readonly search?: string
@@ -127,6 +148,30 @@ export function fetchMembersAtRisk(signal?: AbortSignal): Promise<MembersAtRisk>
   return getJson<MembersAtRisk>('/dashboard/members-at-risk', signal ? { signal } : {})
 }
 
+export interface PulseParams {
+  /** Ends the weekly window on the week containing this date. Omitted, with
+   *  no `month` either, the API returns the latest window. */
+  readonly anchor?: string
+  /** Every week of this date's calendar month, instead of a trailing window.
+   *  Takes precedence over `anchor` if both are given. */
+  readonly month?: string
+}
+
+export function fetchPulse(params: PulseParams = {}, signal?: AbortSignal): Promise<Pulse> {
+  const query = new URLSearchParams()
+  if (params.month) {
+    query.set('month', params.month)
+  } else if (params.anchor) {
+    query.set('anchor', params.anchor)
+  }
+  const encoded = query.toString()
+  return getJson<Pulse>(`/dashboard/pulse${encoded ? `?${encoded}` : ''}`, signal ? { signal } : {})
+}
+
+export function fetchWorkMix(signal?: AbortSignal): Promise<WorkMix> {
+  return getJson<WorkMix>('/dashboard/work-mix', signal ? { signal } : {})
+}
+
 export function fetchSignals(signal?: AbortSignal): Promise<SignalDistribution> {
   return getJson<SignalDistribution>('/dashboard/signals', signal ? { signal } : {})
 }
@@ -173,7 +218,7 @@ export interface ClearedCorpus {
   readonly ground_truth_kept: boolean
 }
 
-/** Discard every analysed call. Ground truth is kept; the API refuses with 409
+/** Discard every analyzed call. Ground truth is kept; the API refuses with 409
  *  while a run is working. */
 export function clearCorpus(): Promise<ClearedCorpus> {
   return deleteJson<ClearedCorpus>('/corpus/analyses')
@@ -183,4 +228,20 @@ export function clearCorpus(): Promise<ClearedCorpus> {
  *  served from this origin; EventSource resolves it against the page. */
 export function runStreamUrl(runId: number): string {
   return `${getConfig().apiBaseUrl}/corpus/runs/${String(runId)}/stream`
+}
+
+/**
+ * Convert an uploaded corpus PDF into sample call files.
+ *
+ * Saved under its own name in the import library, never over the corpus in use.
+ * Nothing is analysed: this produces files, and a run spends money.
+ */
+export function importCorpusDocument(file: File): Promise<CorpusImport> {
+  const body = new FormData()
+  body.append('file', file)
+  return postFormData<CorpusImport>('/corpus/imports', body)
+}
+
+export function fetchCorpusImports(signal?: AbortSignal): Promise<CorpusVersion[]> {
+  return getJson<CorpusVersion[]>('/corpus/imports', signal ? { signal } : {})
 }

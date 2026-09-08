@@ -73,13 +73,20 @@ class Settings(BaseSettings):
     # How a member identifier looks when spoken in a call. Configuration, not
     # code: a different plan administrator issues a different format, and that
     # must not require a release. A blank value disables extraction.
-    member_id_pattern: str = r"\bCHM[-\s]?\d{6,}\b"
+    # CHM is CaliforniaChoice, CB is ChoiceBuilder. Group numbers (GRP-...) are
+    # deliberately absent: an employer's group is not a member identifier, and
+    # storing one here would make an employer's call look like a member's.
+    member_id_pattern: str = r"\b(?:CHM|CB)[-\s]?\d{6,}\b"
 
     # The words that make a quote evidence of a broker relationship. An
     # attribution whose quote contains none of them is describing somebody
     # else — a surgeon, a pharmacy, the agent on the call — and is refused.
     # Comma separated; blank disables the check.
     broker_evidence_terms: str = "broker,broker of record,BOR"
+    # Us. Every call in the corpus opens with this name, which makes it the
+    # string a model reaches for when it wants to report a broker and has none;
+    # it is also the one name that can never be one. Blank disables the check.
+    administrator_name: str = "Choice Administrators"
     # Bounded because the local path is the constrained one: Ollama serves a
     # single model, and issuing more concurrent requests than it can hold makes
     # every call slower without finishing the run any sooner.

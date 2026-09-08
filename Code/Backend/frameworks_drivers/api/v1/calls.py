@@ -33,6 +33,7 @@ class CallSummaryResponse(BaseModel):
     agent_name: str | None
     member_id: str | None = None
     member_name: str | None = None
+    caller_type: str | None = None
     resolution: str
     score: int
     score_status: str
@@ -61,6 +62,7 @@ def _summary(row: CallSummary) -> CallSummaryResponse:
         agent_name=row.agent_name,
         member_id=row.member_id,
         member_name=row.member_name,
+        caller_type=row.caller_type,
         resolution=row.resolution,
         score=row.score,
         score_status=row.score_status,
@@ -82,7 +84,7 @@ def _page(page: Page) -> CallsPageResponse:
     )
 
 
-@router.get("/calls", response_model=CallsPageResponse, summary="List analysed calls")
+@router.get("/calls", response_model=CallsPageResponse, summary="List analyzed calls")
 async def list_calls(
     repository: ReadModelsDep,
     category: Annotated[str | None, Query(description="Call category code.")] = None,
@@ -92,10 +94,34 @@ async def list_calls(
     min_score: Annotated[int | None, Query(ge=0, le=100)] = None,
     has_broker_signal: Annotated[bool | None, Query()] = None,
     broker: Annotated[str | None, Query(description="Broker name attributed on the call.")] = None,
+    caller: Annotated[
+        str | None, Query(description="Who called: MEMBER, EMPLOYER or BROKER.")
+    ] = None,
     member: Annotated[
         str | None, Query(description="Member identifier, as stated in the call.")
     ] = None,
     signal: Annotated[str | None, Query(description="Signal code, e.g. clinical_risk.")] = None,
+    hour: Annotated[
+        int | None,
+        Query(
+            ge=0,
+            le=23,
+            description=(
+                "The hour of the day a call started, 0-23, in the wall-clock "
+                "the source stated. Matches the hourly chart's bars."
+            ),
+        ),
+    ] = None,
+    l4_category: Annotated[
+        str | None,
+        Query(
+            description=(
+                "L4 finding category code. The finding taxonomy, not the call "
+                "category: a Coverage & Benefits call can raise a Process "
+                "Breakdown finding."
+            )
+        ),
+    ] = None,
     search: Annotated[str | None, Query(description="Matches title, summary or reference.")] = None,
     sort: Annotated[
         CallSort,
@@ -113,8 +139,11 @@ async def list_calls(
         min_score=min_score,
         has_broker_signal=has_broker_signal,
         broker_name=broker,
+        caller_type=caller,
         member_id=member,
         signal_code=signal,
+        l4_category_code=l4_category,
+        started_hour=hour,
         search=search,
     )
     return _page(

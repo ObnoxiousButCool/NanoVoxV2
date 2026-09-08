@@ -53,7 +53,7 @@ def test_every_part_of_an_analysis_cascades_from_its_call() -> None:
 
 def test_a_run_item_survives_the_call_it_produced() -> None:
     # The opposite rule, and deliberately so: deleting a call must not erase the
-    # record that a run once analysed it. The item stays, with nothing to open.
+    # record that a run once analyzed it. The item stays, with nothing to open.
     table = Base.metadata.tables["analysis_run_items"]
     call_fk = next(fk for fk in table.foreign_keys if fk.column.table.name == "calls")
 

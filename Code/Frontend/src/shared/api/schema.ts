@@ -28,7 +28,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** List analysed calls */
+        /** List analyzed calls */
         get: operations["list_calls_api_v1_calls_get"];
         put?: never;
         post?: never;
@@ -62,7 +62,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** How large the corpus is, and how much of it is analysed */
+        /** How large the corpus is, and how much of it is analyzed */
         get: operations["corpus_status_api_v1_corpus_get"];
         put?: never;
         post?: never;
@@ -83,13 +83,41 @@ export interface paths {
         put?: never;
         post?: never;
         /**
-         * Discard every analysed call, keeping ground truth
-         * @description Empty the corpus so it can be re-analysed from nothing.
+         * Discard every analyzed call, keeping ground truth
+         * @description Empty the corpus so it can be re-analyzed from nothing.
          *
          *     Refused with a 409 while a run is working: the worker would be writing to
          *     rows this is deleting.
          */
         delete: operations["clear_corpus_api_v1_corpus_analyses_delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/corpus/imports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Corpora that have been imported, newest first */
+        get: operations["list_corpus_imports_api_v1_corpus_imports_get"];
+        put?: never;
+        /**
+         * Convert an uploaded corpus document into sample call files
+         * @description Extract every call from a corpus PDF and save it as corpus markdown.
+         *
+         *     Saved under its own name in the import library, never over the corpus in
+         *     use: the stored analyses are only meaningful against the transcripts they
+         *     were made from, so replacing those silently would leave the dashboard
+         *     describing calls that no longer exist.
+         *
+         *     Nothing is analysed here. Import produces files; a run spends money.
+         */
+        post: operations["import_corpus_api_v1_corpus_imports_post"];
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -266,6 +294,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/dashboard/pulse": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Which way the centre is moving, week by week */
+        get: operations["get_pulse_api_v1_dashboard_pulse_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/dashboard/resolution-time": {
         parameters: {
             query?: never;
@@ -309,6 +354,23 @@ export interface paths {
         };
         /** What the time on calls bought, in minutes */
         get: operations["get_time_value_api_v1_dashboard_time_value_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/dashboard/work-mix": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Who calls, and when the calls come */
+        get: operations["get_work_mix_api_v1_dashboard_work_mix_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -495,6 +557,13 @@ export interface components {
         };
         /** AttentionItemResponse */
         AttentionItemResponse: {
+            /**
+             * Call Filter
+             * @description The calls list query that returns exactly the calls this item counted, as query-string parameters. Sent from here rather than rebuilt by the client from the rule id: the rule kinds are a server-side vocabulary, and a client mapping them itself would quietly produce a dead link the first time a kind is added. Empty when the item's subject has no filter, which is a gap to close rather than a state to design for.
+             */
+            call_filter: {
+                [key: string]: string;
+            };
             /** Count */
             count: number;
             /** Owner */
@@ -513,6 +582,14 @@ export interface components {
             unresolved: number;
             /** Why */
             why: string;
+        };
+        /** Body_import_corpus_api_v1_corpus_imports_post */
+        Body_import_corpus_api_v1_corpus_imports_post: {
+            /**
+             * File
+             * @description A call-corpus PDF.
+             */
+            file: string;
         };
         /** BrokerResponse */
         BrokerResponse: {
@@ -570,6 +647,8 @@ export interface components {
             analysed_at: string;
             /** Broker Names */
             broker_names: string[];
+            /** Caller Type */
+            caller_type?: string | null;
             /** Category */
             category: string;
             /** Id */
@@ -596,6 +675,21 @@ export interface components {
             tier: string;
             /** Title */
             title: string;
+        };
+        /** CallerBreakdownResponse */
+        CallerBreakdownResponse: {
+            /** Average Handle Minutes */
+            average_handle_minutes: number | null;
+            /** Average Score */
+            average_score: number;
+            /** Caller Type */
+            caller_type: string;
+            /** Calls */
+            calls: number;
+            /** Resolution Rate */
+            resolution_rate: number;
+            /** Share */
+            share: number;
         };
         /** CallsPageResponse */
         CallsPageResponse: {
@@ -672,7 +766,7 @@ export interface components {
         ClearedCorpusResponse: {
             /**
              * Calls
-             * @description Analysed calls removed.
+             * @description Analyzed calls removed.
              */
             calls: number;
             /**
@@ -701,6 +795,20 @@ export interface components {
          * @enum {string}
          */
         ComponentStatus: "up" | "down";
+        /** CorpusImportResponse */
+        CorpusImportResponse: {
+            /** Calls */
+            calls: components["schemas"]["ImportedCallResponse"][];
+            /** Directory */
+            directory: string;
+            /**
+             * Name
+             * @description Directory this corpus was saved as.
+             */
+            name: string;
+            /** Total */
+            total: number;
+        };
         /** CorpusStatusResponse */
         CorpusStatusResponse: {
             /** Active Run Id */
@@ -716,6 +824,15 @@ export interface components {
             outstanding: number;
             /** Total Calls */
             total_calls: number;
+        };
+        /** CorpusVersionResponse */
+        CorpusVersionResponse: {
+            /** Directory */
+            directory: string;
+            /** Files */
+            files: number;
+            /** Name */
+            name: string;
         };
         /** DurationBandResponse */
         DurationBandResponse: {
@@ -833,6 +950,70 @@ export interface components {
             /** Total */
             total: number;
         };
+        /** HourlyPointResponse */
+        HourlyPointResponse: {
+            /** Average Score */
+            average_score: number | null;
+            /** Calls */
+            calls: number;
+            /** Hour */
+            hour: number;
+            /**
+             * Is Thin
+             * @description Too few calls in this hour to read anything into.
+             */
+            is_thin: boolean;
+            /** Label */
+            label: string;
+            /** Resolution Rate */
+            resolution_rate: number | null;
+        };
+        /** ImportedCallResponse */
+        ImportedCallResponse: {
+            /** Agent */
+            agent: string | null;
+            /**
+             * Broker
+             * @description Broker signal as 'Name: what they did', if any.
+             */
+            broker: string | null;
+            /** Caller */
+            caller: string | null;
+            /** Filename */
+            filename: string;
+            /**
+             * Has Panel
+             * @description Whether the authored insights panel came through.
+             */
+            has_panel: boolean;
+            /** Number */
+            number: number;
+            /** Queue */
+            queue: string | null;
+            /**
+             * Reference
+             * @description The reference a corpus run would store this call under.
+             */
+            reference: string;
+            /**
+             * Repeat
+             * @description Whether this call is marked as a repeat contact.
+             */
+            repeat: boolean;
+            /** Resolution */
+            resolution: string | null;
+            /** Score */
+            score: number | null;
+            /** Tier */
+            tier: string | null;
+            /** Title */
+            title: string;
+            /**
+             * Turns
+             * @description Non-blank transcript lines extracted for this call.
+             */
+            turns: number;
+        };
         /** L4CategoryEntry */
         L4CategoryEntry: {
             /** Code */
@@ -912,6 +1093,11 @@ export interface components {
              * @default Observed warning signs, not a prediction. Ranked by how many signs a member shows. No weighting has been validated against real churn.
              */
             basis: string;
+            /**
+             * Factor Vocabulary
+             * @description Every factor this system can observe, in a fixed order, whether or not any member is currently showing it. A client drawing a column per factor takes them from here: a factor added to the domain and not to the client would otherwise go unread with nothing to show for it, and an absent column is indistinguishable from a column of no findings.
+             */
+            factor_vocabulary: components["schemas"]["RiskFactorResponse"][];
             /** Members */
             members: components["schemas"]["MemberAtRiskResponse"][];
         };
@@ -1064,6 +1250,22 @@ export interface components {
             /** Providers */
             providers: components["schemas"]["ProviderResponse"][];
         };
+        /** PulseResponse */
+        PulseResponse: {
+            /**
+             * Available Weeks
+             * @description Every week the corpus spans, oldest first — what a period picker offers, as distinct from `points`, which is only the anchored window.
+             */
+            available_weeks: string[];
+            delta: components["schemas"]["TrendDeltaResponse"] | null;
+            latest: components["schemas"]["TrendPointResponse"] | null;
+            /** Points */
+            points: components["schemas"]["TrendPointResponse"][];
+            previous: components["schemas"]["TrendPointResponse"] | null;
+            sentiment: components["schemas"]["SentimentMovementResponse"];
+            /** Undated Calls */
+            undated_calls: number;
+        };
         /** ResolutionTimeResponse */
         ResolutionTimeResponse: {
             /** Bands */
@@ -1084,6 +1286,18 @@ export interface components {
             resolved_calls: number;
             /** Total Calls */
             total_calls: number;
+        };
+        /**
+         * RiskFactorResponse
+         * @description One column of the signal matrix.
+         */
+        RiskFactorResponse: {
+            /** Code */
+            code: string;
+            /** Label */
+            label: string;
+            /** Short Label */
+            short_label: string;
         };
         /** RunItemResponse */
         RunItemResponse: {
@@ -1183,6 +1397,19 @@ export interface components {
             /** Value */
             value: number;
         };
+        /** SentimentMovementResponse */
+        SentimentMovementResponse: {
+            /** Improved */
+            improved: number;
+            /** Improved Rate */
+            improved_rate: number;
+            /** Unchanged */
+            unchanged: number;
+            /** Unclassified */
+            unclassified: number;
+            /** Worsened */
+            worsened: number;
+        };
         /** SignalEntryResponse */
         SignalEntryResponse: {
             /** Code */
@@ -1242,6 +1469,8 @@ export interface components {
         };
         /** TaxonomyResponse */
         TaxonomyResponse: {
+            /** Caller Types */
+            caller_types: string[];
             /** Categories */
             categories: components["schemas"]["CategoryEntry"][];
             /** L4 Categories */
@@ -1295,6 +1524,41 @@ export interface components {
             /** Unproductive Minutes */
             unproductive_minutes: number;
         };
+        /**
+         * TrendDeltaResponse
+         * @description The most recent week against the one before it.
+         */
+        TrendDeltaResponse: {
+            /** Calls */
+            calls: number;
+            /** Median Handle Minutes */
+            median_handle_minutes: number | null;
+            /** Median Score */
+            median_score: number | null;
+            /** Resolution Rate */
+            resolution_rate: number | null;
+        };
+        /** TrendPointResponse */
+        TrendPointResponse: {
+            /** Calls */
+            calls: number;
+            /** Label */
+            label: string;
+            /** Median Handle Minutes */
+            median_handle_minutes?: number | null;
+            /**
+             * Median Score
+             * @description Absent for a week with no calls, which is a gap not a zero.
+             */
+            median_score?: number | null;
+            /** Resolution Rate */
+            resolution_rate?: number | null;
+            /**
+             * Starting
+             * Format: date
+             */
+            starting: string;
+        };
         /** TurnResponse */
         TurnResponse: {
             /** Role */
@@ -1318,6 +1582,21 @@ export interface components {
             msg: string;
             /** Error Type */
             type: string;
+        };
+        /** WorkMixResponse */
+        WorkMixResponse: {
+            /** Busiest Hour */
+            busiest_hour: string | null;
+            /** Caller Total */
+            caller_total: number;
+            /** Callers */
+            callers: components["schemas"]["CallerBreakdownResponse"][];
+            /** Hours */
+            hours: components["schemas"]["HourlyPointResponse"][];
+            /** Unattributed Calls */
+            unattributed_calls: number;
+            /** Weakest Hour */
+            weakest_hour: string | null;
         };
     };
     responses: never;
@@ -1375,10 +1654,16 @@ export interface operations {
                 has_broker_signal?: boolean | null;
                 /** @description Broker name attributed on the call. */
                 broker?: string | null;
+                /** @description Who called: MEMBER, EMPLOYER or BROKER. */
+                caller?: string | null;
                 /** @description Member identifier, as stated in the call. */
                 member?: string | null;
                 /** @description Signal code, e.g. clinical_risk. */
                 signal?: string | null;
+                /** @description The hour of the day a call started, 0-23, in the wall-clock the source stated. Matches the hourly chart's bars. */
+                hour?: number | null;
+                /** @description L4 finding category code. The finding taxonomy, not the call category: a Coverage & Benefits call can raise a Process Breakdown finding. */
+                l4_category?: string | null;
                 /** @description Matches title, summary or reference. */
                 search?: string | null;
                 /** @description Column to order by. 'severity' is what needs action first. */
@@ -1480,6 +1765,59 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ClearedCorpusResponse"];
+                };
+            };
+        };
+    };
+    list_corpus_imports_api_v1_corpus_imports_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CorpusVersionResponse"][];
+                };
+            };
+        };
+    };
+    import_corpus_api_v1_corpus_imports_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_import_corpus_api_v1_corpus_imports_post"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CorpusImportResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
@@ -1770,6 +2108,40 @@ export interface operations {
             };
         };
     };
+    get_pulse_api_v1_dashboard_pulse_get: {
+        parameters: {
+            query?: {
+                /** @description End the window on the week containing this date. */
+                anchor?: string | null;
+                /** @description Every week of this date's calendar month, instead of a trailing window. Takes precedence over `anchor` if both are given. */
+                month?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PulseResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     get_resolution_time_api_v1_dashboard_resolution_time_get: {
         parameters: {
             query?: never;
@@ -1826,6 +2198,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["TimeValueResponse"];
+                };
+            };
+        };
+    };
+    get_work_mix_api_v1_dashboard_work_mix_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WorkMixResponse"];
                 };
             };
         };

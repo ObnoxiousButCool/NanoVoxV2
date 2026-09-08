@@ -17,6 +17,7 @@ function call(overrides: Record<string, unknown> = {}) {
     agent_name: 'Brad',
     member_id: 'CHM6672290',
     member_name: 'Terrence Boyd',
+    caller_type: 'MEMBER',
     resolution: 'UNRESOLVED',
     score: 30,
     tier: 'POOR',
@@ -52,10 +53,13 @@ const TAXONOMY = {
     { code: 'billing', label: 'Billing', description: null },
     { code: 'claims_eob', label: 'Claims & EOB', description: null },
   ],
-  l4_categories: [],
+  l4_categories: [
+    { code: 'process_breakdown', label: 'Process Breakdown', owner: 'Operations', default_severity: 'HIGH' },
+  ],
   signal_types: [{ code: 'clinical_risk', label: 'Clinical Risk', severity: 'CRITICAL' }],
   sentiment_states: [],
   resolutions: ['RESOLVED', 'UNRESOLVED'],
+  caller_types: ['MEMBER', 'EMPLOYER', 'BROKER'],
   severities: [],
   tiers: { good: 85, average: 70, min_calls_for_tier_rating: 5 },
   rubric_version: '1.0.0',
@@ -139,6 +143,60 @@ describe('CallsPage', () => {
     })
   })
 
+  it('narrows to one hour when the hourly chart links here', async () => {
+    const urls = stubCalls(page([call()]))
+    renderCalls('/calls?hour=13')
+
+    await screen.findByText('F0006')
+    await waitFor(() => {
+      expect(urls.some((url) => url.includes('hour=13'))).toBe(true)
+    })
+  })
+
+  it('keeps midnight, which is a falsy hour and a real one', async () => {
+    // "0" is the one hour whose string form is falsy in the wrong hands. A
+    // presence test rather than a truthiness test is what keeps it a filter.
+    const urls = stubCalls(page([call()]))
+    renderCalls('/calls?hour=0')
+
+    await screen.findByText('F0006')
+    await waitFor(() => {
+      expect(urls.some((url) => url.includes('hour=0'))).toBe(true)
+    })
+  })
+
+  it('names the hour it was narrowed to, and offers to clear it', async () => {
+    stubCalls(page([call()]))
+    renderCalls('/calls?hour=9')
+
+    expect(await screen.findByRole('button', { name: /Hour: 09:00/ })).toBeInTheDocument()
+  })
+
+  it('narrows to an L4 finding when an inference links here', async () => {
+    // The inferences page states a count and offers to show the calls behind
+    // it. If this page read every parameter but that one, the link would land
+    // on the full list and quietly contradict the number it was opened from.
+    const urls = stubCalls(page([call()]))
+    renderCalls('/calls?l4_category=process_breakdown')
+
+    await screen.findByText('F0006')
+    await waitFor(() => {
+      expect(urls.some((url) => url.includes('l4_category=process_breakdown'))).toBe(true)
+    })
+  })
+
+  it('names the finding it was narrowed to, and offers to clear it', async () => {
+    // A table silently missing three quarters of its rows is worse than an
+    // unfiltered one. The chip says why, in the taxonomy's words rather than
+    // in the code the URL carries.
+    stubCalls(page([call()]))
+    renderCalls('/calls?l4_category=process_breakdown')
+
+    expect(
+      await screen.findByRole('button', { name: /Finding: Process Breakdown/ }),
+    ).toBeInTheDocument()
+  })
+
   it('combines two filters into one query instead of replacing', async () => {
     const urls = stubCalls(page([call()]))
     renderCalls()
@@ -208,7 +266,7 @@ describe('CallsPage', () => {
     renderCalls()
 
     await screen.findByText('No calls match')
-    expect(screen.getByText('Nothing has been analysed yet.')).toBeInTheDocument()
+    expect(screen.getByText('Nothing has been analyzed yet.')).toBeInTheDocument()
 
     await userEvent.click(screen.getByRole('button', { name: 'Unresolved only' }))
     expect(await screen.findByText('Clear a filter to widen the search.')).toBeInTheDocument()
@@ -225,15 +283,39 @@ describe('CallsPage', () => {
     expect(within(row).getAllByText('—')).toHaveLength(1)
   })
 
-  it('shows a dash where the call never stated a member', async () => {
+  it('still says who called where the call never stated a member', async () => {
     // A real corpus call: the agent asks for the member ID and never gets it.
-    // Absence is a fact about the call, not a gap to fill.
-    stubCalls(page([call({ member_id: null })]))
+    // The column leads with the caller type precisely so that this row says
+    // something — before, it was a bare dash that read as missing data.
+    stubCalls(page([call({ member_id: null, member_name: null })]))
+    renderCalls()
+
+    await screen.findByText('F0006')
+    const row = screen.getAllByRole('row')[1] as HTMLElement
+    expect(within(row).getByText('MEMBER')).toBeInTheDocument()
+    expect(within(row).queryByText('••••2290')).not.toBeInTheDocument()
+  })
+
+  it('shows a dash where the caller type is unknown', async () => {
+    // A pasted transcript, not a corpus call: nothing states who was calling,
+    // and inventing MEMBER would be a guess presented as a fact.
+    stubCalls(page([call({ caller_type: null, member_id: null, member_name: null })]))
     renderCalls()
 
     await screen.findByText('F0006')
     const row = screen.getAllByRole('row')[1] as HTMLElement
     expect(within(row).getAllByText('—')).toHaveLength(1)
+  })
+
+  it("shows an employer's call as an employer's", async () => {
+    // Fifteen of the fifty shipped calls are this: a group's renewal, not a
+    // member's claim. The distinction is the whole reason the column changed.
+    stubCalls(page([call({ caller_type: 'EMPLOYER', member_id: null, member_name: null })]))
+    renderCalls()
+
+    await screen.findByText('F0006')
+    const row = screen.getAllByRole('row')[1] as HTMLElement
+    expect(within(row).getByText('EMPLOYER')).toBeInTheDocument()
   })
 
   it('names the member beside their identifier', async () => {
@@ -242,9 +324,10 @@ describe('CallsPage', () => {
 
     await screen.findByText('F0006')
     expect(screen.getByText('Terrence Boyd')).toBeInTheDocument()
-    // The identifier stays: it is what this column's link filters on, and what
-    // the member is looked up by elsewhere.
-    expect(screen.getByText('CHM6672290')).toBeInTheDocument()
+    // The identifier stays, masked to its last four characters. It is still
+    // whole in the link this column carries, which is what the list filters on.
+    expect(screen.getByText('••••2290')).toBeInTheDocument()
+    expect(screen.queryByText('CHM6672290')).not.toBeInTheDocument()
   })
 
   it('shows the identifier alone when the call never named the member', async () => {
@@ -253,7 +336,7 @@ describe('CallsPage', () => {
     renderCalls()
 
     await screen.findByText('F0006')
-    expect(screen.getByText('CHM6672290')).toBeInTheDocument()
+    expect(screen.getByText('••••2290')).toBeInTheDocument()
     expect(screen.queryByText('Terrence Boyd')).not.toBeInTheDocument()
   })
 
@@ -262,7 +345,9 @@ describe('CallsPage', () => {
     renderCalls()
 
     // The link now carries both the name and the identifier as its text.
-    const link = await screen.findByRole('link', { name: /CHM6672290/ })
+    // Masked on the face, whole in the address: the list filters on the real
+    // identifier, so hiding it from the href would break the link.
+    const link = await screen.findByRole('link', { name: new RegExp('••••2290') })
     expect(link).toHaveAttribute('href', '/calls?member=CHM6672290')
   })
 
@@ -370,6 +455,18 @@ describe('CallsPage', () => {
       })
     })
 
+    it('narrows the query by caller type', async () => {
+      const urls = stubCalls(page([call()]))
+      renderCalls()
+      await screen.findByText('F0006')
+
+      await userEvent.selectOptions(screen.getByLabelText('Caller'), 'EMPLOYER')
+
+      await waitFor(() => {
+        expect(urls.at(-1)).toContain('caller=EMPLOYER')
+      })
+    })
+
     it('narrows the query by broker', async () => {
       const urls = stubCalls(page([call()]))
       renderCalls()
@@ -415,7 +512,9 @@ describe('CallsPage', () => {
       stubCalls(page([call()]))
       renderCalls('/calls?member=CHM6672290')
 
-      const chip = await screen.findByRole('button', { name: /Member: CHM6672290/ })
+      const chip = await screen.findByRole('button', {
+        name: new RegExp('Member: ••••2290'),
+      })
       await userEvent.click(chip)
 
       expect(screen.queryByRole('button', { name: /Member:/ })).not.toBeInTheDocument()
@@ -453,7 +552,9 @@ describe('CallsPage', () => {
   })
 
   describe('the default order', () => {
-    it('loads in call order without being asked', async () => {
+    it('loads newest first without being asked', async () => {
+      // A call history is read from the most recent end; the far end of the
+      // corpus is not where anyone starts.
       const urls = stubCalls(page([call()]))
       renderCalls()
       await screen.findByText('F0006')
@@ -461,6 +562,19 @@ describe('CallsPage', () => {
       await waitFor(() => {
         const listing = urls.find((url) => url.includes('/calls?'))
         expect(listing).toContain('sort=reference')
+        expect(listing).toContain('direction=desc')
+      })
+    })
+
+    it('lets an ascending link override the default', async () => {
+      // The default is for an unsorted visit only. A shared link naming asc
+      // must not be flipped back to newest first.
+      const urls = stubCalls(page([call()]))
+      renderCalls('/calls?sort=reference&direction=asc')
+      await screen.findByText('F0006')
+
+      await waitFor(() => {
+        const listing = urls.find((url) => url.includes('/calls?'))
         expect(listing).toContain('direction=asc')
       })
     })
