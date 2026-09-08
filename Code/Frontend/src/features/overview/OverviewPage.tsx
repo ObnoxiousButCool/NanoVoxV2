@@ -288,23 +288,6 @@ function TimeValueCard() {
           />
         ))}
       </BarRows>
-
-      <div className={styles.failureModes}>
-        {[
-          { key: 'fast', title: 'Ended early, unresolved', mode: data.fast_fail },
-          { key: 'slow', title: 'Ran long, still unresolved', mode: data.slow_fail },
-        ].map((entry) => (
-          <div key={entry.key} className={styles.failureMode}>
-            <h5>{entry.title}</h5>
-            <div className={styles.failureFigures}>
-              <b>{entry.mode.calls}</b>
-              <span>
-                CALLS · {entry.mode.minutes} MIN · AVG SCORE {entry.mode.average_score}
-              </span>
-            </div>
-          </div>
-        ))}
-      </div>
     </>
   )
 }
@@ -759,8 +742,8 @@ export function OverviewPage() {
 
       <Card
         className={styles.solo}
-        title="Productive and unproductive minutes"
-        hint="The two failure modes need opposite responses. Ending early and unresolved is a member brushed off, which is a coaching signal; running long and still unresolved is a process problem, where coaching the agent would be the wrong response. They are split at the median length of a call that did resolve — derived from this corpus rather than configured, so the line stays comparable as the mix of work changes. Calls with no recorded duration are left out entirely rather than counted as zero, which would understate the minutes."
+        title="Productivity"
+        hint="Calls with no recorded duration are left out entirely rather than counted as zero, which would understate the minutes."
       >
         <TimeValueCard />
       </Card>
@@ -790,7 +773,8 @@ export function OverviewPage() {
           chart here that gains from the width: a rota is read hour by hour. */}
       <div className={styles.grid}>
         <Card
-          title="Score distribution"
+          title="Quality Distribution"
+          subtitle="Number of calls falling within quality scores"
           hint="Coach the cluster below the threshold; the rest needs no intervention. Bins are half-open — 70–80 holds 70 to 79 — except the last, which runs to 100 inclusive so the top score has somewhere to sit. Press a bar to open the calls in it."
         >
           <Histogram
@@ -813,7 +797,7 @@ export function OverviewPage() {
         </Card>
 
         <Card
-          title="What members call about"
+          title="Member Call Reasons"
           hint="A zero-count category is drawn rather than omitted: an absent bar reads as “this does not happen” rather than “this did not happen here”. If coverage drops below 90% the categories need revising, not the chart."
         >
           <BarRows>

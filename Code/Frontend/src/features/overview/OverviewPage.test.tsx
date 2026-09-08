@@ -342,7 +342,7 @@ async function resolutionCard(): Promise<HTMLElement> {
 }
 
 async function timeCard(): Promise<HTMLElement> {
-  const heading = await screen.findByText('Productive and unproductive minutes')
+  const heading = await screen.findByText('Productivity')
   const card = heading.closest('section')
   if (!card) throw new Error('time card has no containing section')
   await within(card).findByText('TOTAL TIME ON CALLS')
@@ -827,37 +827,6 @@ describe('OverviewPage', () => {
         .getAllByTitle(/bought no resolution/)
         .map((element) => element.textContent)
       expect(labels).toEqual(['Claims & EOB', 'Pharmacy'])
-    })
-
-    it('separates the two failure modes, which need opposite responses', async () => {
-      // Reported as one "12 unresolved calls", the nine agents who did the work
-      // against a system with no answer get coached for the other three's
-      // problem.
-      renderOverview()
-      const card = await timeCard()
-
-      expect(within(card).getByText('Ended early, unresolved')).toBeInTheDocument()
-      expect(within(card).getByText('Ran long, still unresolved')).toBeInTheDocument()
-      expect(within(card).getByText(/CALLS · 435 MIN · AVG SCORE 79/)).toBeInTheDocument()
-
-      // Which response each one calls for is behind the card's hint. The two
-      // boxes are only worth pairing because they need opposite responses, so
-      // that has to stay reachable even though it is no longer on the face.
-      expect(within(card).getByRole('note', { hidden: true })).toHaveTextContent(
-        'coaching the agent would be the wrong response',
-      )
-    })
-
-    it('says where the dividing line came from', async () => {
-      // A reader has to be able to tell a derived threshold from an invented
-      // one. Behind the card's hint rather than under the chart: it is a
-      // property of the measure, read once, not a finding read every day.
-      renderOverview()
-      const card = await timeCard()
-
-      expect(within(card).getByRole('note', { hidden: true })).toHaveTextContent(
-        'median length of a call that did resolve',
-      )
     })
 
     it('says so plainly when no call has a duration', async () => {
