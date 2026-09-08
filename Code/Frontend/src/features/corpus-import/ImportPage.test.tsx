@@ -11,7 +11,7 @@
 import { QueryClient } from '@tanstack/react-query'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { AppProviders } from '@/app/providers'
 import { ImportPage } from '@/features/corpus-import/ImportPage'
@@ -47,8 +47,9 @@ const CLEAN_IMPORT = {
 function stubFetch(importBody: unknown, status = 201) {
   vi.stubGlobal(
     'fetch',
-    vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
-      const url = String(input)
+    // Routed on the method rather than the URL: the screen POSTs the import and
+    // GETs the version list, so the verb alone separates them.
+    vi.fn((_input: RequestInfo | URL, init?: RequestInit) => {
       const body = init?.method === 'POST' ? importBody : []
       return Promise.resolve(
         new Response(JSON.stringify(body), {

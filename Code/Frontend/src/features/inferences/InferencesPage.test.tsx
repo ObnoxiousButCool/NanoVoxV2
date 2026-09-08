@@ -5,6 +5,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { AppProviders } from '@/app/providers'
 import { InferencesPage } from '@/features/inferences/InferencesPage'
+import { requestUrl } from '@/test/requestUrl'
 
 /**
  * One item of each rule kind, because the four kinds are exactly what decides
@@ -123,7 +124,7 @@ function renderInferences(overview: unknown = OVERVIEW, members: unknown = MEMBE
     'fetch',
     vi.fn((input: RequestInfo | URL) =>
       Promise.resolve(
-        json(String(input).includes('/dashboard/members-at-risk') ? members : overview),
+        json(requestUrl(input).includes('/dashboard/members-at-risk') ? members : overview),
       ),
     ),
   )
