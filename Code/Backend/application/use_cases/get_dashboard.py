@@ -395,7 +395,12 @@ class GetWorkMix:
                 known_types=[member.value for member in CallerType],
             ),
             hours=hourly_load(
-                HourCall(started_at=fact.started_at, score=fact.score, resolution=fact.resolution)
+                HourCall(
+                    started_at=fact.started_at,
+                    score=fact.score,
+                    resolution=fact.resolution,
+                    handle_seconds=fact.duration_seconds,
+                )
                 for fact in facts
             ),
         )

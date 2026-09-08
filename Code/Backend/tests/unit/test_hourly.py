@@ -11,13 +11,19 @@ from datetime import datetime
 from domain.aggregation.hourly import THIN_EVIDENCE_BELOW, HourCall, hourly_load
 
 
-def call(hour: int, score: int = 80, resolution: str = "RESOLVED") -> HourCall:
+def call(
+    hour: int,
+    score: int = 80,
+    resolution: str = "RESOLVED",
+    handle_seconds: int | None = None,
+) -> HourCall:
     return HourCall(
         # Naive on purpose: the corpus states local wall-clock times, and the
         # aggregation reads the hour exactly as the source gave it.
         started_at=datetime(2026, 9, 1, hour, 30),  # noqa: DTZ001
         score=score,
         resolution=resolution,
+        handle_seconds=handle_seconds,
     )
 
 
@@ -104,3 +110,53 @@ class TestTheFigures:
         result = hourly_load([call(9, resolution="RESOLVED"), call(9, resolution="UNRESOLVED")])
 
         assert result.hours[0].resolution_rate == 50.0
+
+
+class TestHandleTime:
+    """Volume alone does not size a shift; the pair of figures does.
+
+    Twenty calls at seven minutes need more people on the hour than twenty at
+    four, which is the reason this measure sits on a distribution chart at all.
+    """
+
+    def test_the_mean_is_reported_in_minutes(self) -> None:
+        result = hourly_load([call(10, handle_seconds=300), call(10, handle_seconds=600)])
+
+        assert result.hours[0].average_handle_minutes == 7.5
+
+    def test_an_hour_where_nothing_states_a_time_reports_none(self) -> None:
+        # Not 0.0. Read on a staffing chart a zero says "this hour is instant"
+        # where the truth is "this hour is unmeasured", and the two argue for
+        # opposite rosters.
+        result = hourly_load([call(10), call(10)])
+
+        assert result.hours[0].calls == 2
+        assert result.hours[0].average_handle_minutes is None
+
+    def test_the_mean_ignores_the_calls_that_state_no_time(self) -> None:
+        # Averaging over every call instead would drag the figure toward zero in
+        # proportion to how much of the hour is unmeasured — a staffing number
+        # that gets quieter the less you know.
+        result = hourly_load([call(10, handle_seconds=480), call(10), call(10)])
+
+        assert result.hours[0].average_handle_minutes == 8.0
+
+    def test_each_hour_is_averaged_on_its_own_calls(self) -> None:
+        result = hourly_load(
+            [
+                call(9, handle_seconds=240),
+                call(10, handle_seconds=600),
+                call(10, handle_seconds=600),
+            ]
+        )
+        by_hour = {point.hour: point.average_handle_minutes for point in result.hours}
+
+        assert by_hour == {9: 4.0, 10: 10.0}
+
+    def test_an_hour_with_no_calls_at_all_reports_none(self) -> None:
+        # The quiet hour kept in the middle of the day, so the gap is visible.
+        result = hourly_load([call(9, handle_seconds=300), call(11, handle_seconds=300)])
+        quiet = next(point for point in result.hours if point.hour == 10)
+
+        assert quiet.calls == 0
+        assert quiet.average_handle_minutes is None

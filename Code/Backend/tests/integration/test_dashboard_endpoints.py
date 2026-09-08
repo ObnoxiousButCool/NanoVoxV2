@@ -225,6 +225,23 @@ class TestWorkMixEndpoint:
         assert all("is_thin" in hour for hour in body["hours"])
         assert body["busiest_hour"] is not None
 
+    def test_hours_carry_their_mean_handle_time(self, seeded: TestClient) -> None:
+        # The staffing pair: how many calls arrived in an hour, and how long
+        # each one took. Volume on its own does not size a shift.
+        body = seeded.get("/api/v1/dashboard/work-mix").json()
+
+        assert all("average_handle_minutes" in hour for hour in body["hours"])
+        # Null is a legitimate value — an hour whose calls state no duration —
+        # so the assertion is that the timed ones are positive, not that every
+        # hour has a figure.
+        timed = [
+            hour["average_handle_minutes"]
+            for hour in body["hours"]
+            if hour["average_handle_minutes"] is not None
+        ]
+        assert timed, "the fixture corpus states a duration somewhere"
+        assert all(minutes > 0 for minutes in timed)
+
 
 class TestCallsEndpoint:
     def test_lists_calls_with_a_total_and_paging(self, seeded: TestClient) -> None:

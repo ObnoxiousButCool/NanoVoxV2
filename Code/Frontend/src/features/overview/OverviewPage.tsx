@@ -553,6 +553,19 @@ function HourlyCard() {
           count: hour.calls,
           // Marked, not merely low: this is the hour a rota would change for.
           isBelowThreshold: hour.label === weakest,
+          // Mean handle time, under the hour. Volume alone does not size a
+          // shift: an hour taking twenty calls at seven minutes needs more
+          // people on it than one taking twenty at four, and the pair together
+          // is the whole staffing question.
+          //
+          // An em dash where the hour states no handle time at all. Not "0.0m",
+          // which would read as instant rather than unmeasured.
+          // `toFixed(1)`, not `String`, which drops a trailing zero and prints
+          // 8.0 as "8" — leaving a monospace column reading 7.1, 7, 6.5, 8
+          // where the whole point of the column is comparing them at a glance.
+          sublabel: hour.average_handle_minutes === null
+            ? '—'
+            : `${hour.average_handle_minutes.toFixed(1)}m`,
           // "Which calls?" is the next question after "which hour?", and a
           // rota argument is won with the calls rather than with the bar.
           selectLabel: `Show the ${String(hour.calls)} ${
@@ -830,7 +843,7 @@ export function OverviewPage() {
 
         <Card
           title="Hourly call distribution"
-          hint="Calls by the hour they started. The marked hour is a staffing question rather than a coaching one. Hours with fewer than four calls are drawn but carry no finding: a rota changed on two calls is a rota changed on noise."
+          hint="Calls by the hour they started, with the mean handle time for that hour beneath it — volume alone does not size a shift, since twenty calls at seven minutes need more people than twenty at four. Handle time is averaged over the calls that state one, and shown as a dash where none do, so an unmeasured hour never reads as an instant one. The marked hour is a staffing question rather than a coaching one. Hours with fewer than four calls are drawn but carry no finding: a rota changed on two calls is a rota changed on noise, and the count above each bar is what says how much an hour rests on."
         >
           <HourlyCard />
         </Card>

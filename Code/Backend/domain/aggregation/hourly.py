@@ -17,7 +17,7 @@ zone invented here would silently shift every bar.
 
 from __future__ import annotations
 
-from collections.abc import Iterable
+from collections.abc import Iterable, Sequence
 from dataclasses import dataclass
 from datetime import datetime
 
@@ -40,11 +40,15 @@ _RESOLVED = "RESOLVED"
 
 @dataclass(frozen=True)
 class HourCall:
-    """One call, reduced to when it started and how it went."""
+    """One call, reduced to when it started, how long it took and how it went."""
 
     started_at: datetime | None
     score: int
     resolution: str
+    # Optional because the corpus does not state a handle time for every call.
+    # Defaulted so the three existing construction sites stay valid, and so an
+    # hour whose calls are all untimed reports no average rather than zero.
+    handle_seconds: int | None = None
 
 
 @dataclass(frozen=True)
@@ -56,6 +60,11 @@ class HourlyPoint:
     calls: int
     average_score: float | None
     resolution_rate: float | None
+    # Mean handle time in minutes, over the calls in this hour that stated one.
+    # None rather than 0.0 where none did: read on a staffing chart, a zero says
+    # "this hour is instant" where the truth is "this hour is unmeasured", and
+    # those argue for opposite rosters.
+    average_handle_minutes: float | None = None
 
     @property
     def is_thin(self) -> bool:
@@ -91,6 +100,20 @@ def _label(hour: int) -> str:
     return f"{hour:02d}:00"
 
 
+def _average_minutes(rows: Sequence[HourCall]) -> float | None:
+    """Mean handle time for an hour, in minutes, over the calls that stated one.
+
+    Averaged over the timed calls rather than over all of them: dividing by the
+    whole hour would drag every average toward zero in proportion to how much
+    of the hour is unmeasured, which is a staffing figure that gets quieter the
+    less you know.
+    """
+    timed = [row.handle_seconds for row in rows if row.handle_seconds is not None]
+    if not timed:
+        return None
+    return round(mean(timed) / 60, 1)
+
+
 def hourly_load(calls: Iterable[HourCall]) -> HourlyLoad:
     """Group calls by the hour they started, over the hours actually worked.
 
@@ -120,6 +143,7 @@ def hourly_load(calls: Iterable[HourCall]) -> HourlyLoad:
                     if rows
                     else None
                 ),
+                average_handle_minutes=_average_minutes(rows),
             )
             # Every hour between the first and last worked, so a quiet hour in
             # the middle of the day is a gap a reader can see.

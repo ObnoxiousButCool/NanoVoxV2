@@ -952,6 +952,11 @@ export interface components {
         };
         /** HourlyPointResponse */
         HourlyPointResponse: {
+            /**
+             * Average Handle Minutes
+             * @description Mean handle time for this hour in minutes, over the calls that stated one. Null where none did — an hour that is unmeasured, not an hour that is instant.
+             */
+            average_handle_minutes: number | null;
             /** Average Score */
             average_score: number | null;
             /** Calls */

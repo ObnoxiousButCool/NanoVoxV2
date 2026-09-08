@@ -96,6 +96,17 @@ export interface HistogramBar {
   readonly onSelect?: () => void
   /** What selecting it does, for anything that cannot see the chart. */
   readonly selectLabel?: string
+  /**
+   * A second figure under the axis label, for a measure that shares the bar's
+   * category but not its scale.
+   *
+   * Printed rather than drawn as a second bar, deliberately. The hourly card
+   * needs handle time beside call volume, and the two do not share an axis:
+   * 21 calls and 7.3 minutes on one scale would misstate the shape of both.
+   * A number is also exact where a short bar is eyeballed, and this one is read
+   * to make a rota decision.
+   */
+  readonly sublabel?: string
 }
 
 /**
@@ -145,7 +156,10 @@ export function Histogram({ bars, peak }: { bars: readonly HistogramBar[]; peak:
       </div>
       <div className={styles.histAxis}>
         {bars.map((bar) => (
-          <span key={bar.label}>{bar.label}</span>
+          <span key={bar.label}>
+            {bar.label}
+            {bar.sublabel ? <span className={styles.histSub}>{bar.sublabel}</span> : null}
+          </span>
         ))}
       </div>
     </>

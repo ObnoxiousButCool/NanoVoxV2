@@ -472,6 +472,12 @@ class HourlyPointResponse(BaseModel):
     calls: int
     average_score: float | None
     resolution_rate: float | None
+    average_handle_minutes: float | None = Field(
+        description=(
+            "Mean handle time for this hour in minutes, over the calls that stated one. "
+            "Null where none did — an hour that is unmeasured, not an hour that is instant."
+        )
+    )
     is_thin: bool = Field(description="Too few calls in this hour to read anything into.")
 
 
@@ -719,6 +725,7 @@ async def get_work_mix(use_case: WorkMixDep) -> WorkMixResponse:
                 calls=point.calls,
                 average_score=point.average_score,
                 resolution_rate=point.resolution_rate,
+                average_handle_minutes=point.average_handle_minutes,
                 is_thin=point.is_thin,
             )
             for point in mix.hours.hours

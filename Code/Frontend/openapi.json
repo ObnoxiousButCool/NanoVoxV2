@@ -1297,6 +1297,18 @@
       },
       "HourlyPointResponse": {
         "properties": {
+          "average_handle_minutes": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Mean handle time for this hour in minutes, over the calls that stated one. Null where none did \u2014 an hour that is unmeasured, not an hour that is instant.",
+            "title": "Average Handle Minutes"
+          },
           "average_score": {
             "anyOf": [
               {
@@ -1343,6 +1355,7 @@
           "calls",
           "average_score",
           "resolution_rate",
+          "average_handle_minutes",
           "is_thin"
         ],
         "title": "HourlyPointResponse",

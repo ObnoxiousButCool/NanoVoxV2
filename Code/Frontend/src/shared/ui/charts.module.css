@@ -108,12 +108,33 @@
   margin-top: 6px;
 }
 
-.histAxis span {
+/* Direct children only. The axis label may now carry a second figure inside
+   it, and as a descendant selector this rule would also claim that figure —
+   flexing it to fill the column and overriding the type it sets for itself. */
+.histAxis > span {
   flex: 1;
   text-align: center;
   font: 400 10px var(--font-mono);
   color: var(--slate-2);
 }
+
+/* A second figure under the axis label — handle time under the hour. Its own
+   line, so the two never run together into one unreadable string on a narrow
+   column, and set to match `.barCount` rather than the axis label above it:
+   both are measurements the chart is reporting, where the hour is only a
+   position on the axis. */
+.histSub {
+  display: block;
+  margin-top: 2px;
+  font: 500 10.5px var(--font-mono);
+  color: var(--slate);
+}
+
+/* Deliberately one treatment for every hour, thin or not. An hour's call count
+   is printed directly above its bar, so a reader can already see that an
+   average rests on three calls; muting or marking the figure as well restated
+   what the chart had said an inch higher. The four-call floor still governs
+   which hour is called weakest — that is a finding, and this is a figure. */
 
 /* Metric strip. Column count follows however many cards are passed in — this
    component now backs strips of four and of five cards on the same page,

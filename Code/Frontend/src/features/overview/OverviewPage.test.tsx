@@ -270,6 +270,9 @@ const WORK_MIX = {
   ],
   caller_total: 43,
   unattributed_calls: 0,
+  // Three hours on purpose: one ordinary, one thin, and one that states no
+  // handle time at all. The last two are the cases where a handle-time figure
+  // can mislead, and they are the reason the chart draws them differently.
   hours: [
     {
       hour: 10,
@@ -277,9 +280,27 @@ const WORK_MIX = {
       calls: 11,
       average_score: 73.8,
       resolution_rate: 54.5,
+      average_handle_minutes: 7.3,
       is_thin: false,
     },
-    { hour: 13, label: '13:00', calls: 6, average_score: 63.2, resolution_rate: 33, is_thin: false },
+    {
+      hour: 13,
+      label: '13:00',
+      calls: 6,
+      average_score: 63.2,
+      resolution_rate: 33,
+      average_handle_minutes: 9.4,
+      is_thin: false,
+    },
+    {
+      hour: 16,
+      label: '16:00',
+      calls: 2,
+      average_score: 80,
+      resolution_rate: 50,
+      average_handle_minutes: null,
+      is_thin: true,
+    },
   ],
   busiest_hour: '10:00',
   weakest_hour: '13:00',
@@ -708,6 +729,50 @@ describe('OverviewPage', () => {
       expect(within(card).getByRole('note', { hidden: true })).toHaveTextContent(
         'a staffing question rather than a coaching one',
       )
+    })
+
+    /** The hourly card alone: handle times are printed elsewhere on this page
+     *  too, so an unscoped query matches the caller breakdown as readily. */
+    async function hourlyCard(): Promise<HTMLElement> {
+      const heading = await screen.findByText('Hourly call distribution')
+      const card = heading.closest('section')
+      if (!card) throw new Error('hourly card has no containing section')
+      return card
+    }
+
+    it('prints the mean handle time under each hour', async () => {
+      // Volume alone does not size a shift: twenty calls at seven minutes need
+      // more people than twenty at four, so the pair has to be readable
+      // together rather than one of them being a separate card.
+      renderOverview()
+      const card = await hourlyCard()
+
+      expect(within(card).getByText('7.3m')).toBeInTheDocument()
+      expect(within(card).getByText('9.4m')).toBeInTheDocument()
+    })
+
+    it('shows a dash, not a zero, for an hour that states no handle time', async () => {
+      // "0.0m" reads as an instant hour. The truth is an unmeasured one, and
+      // the two argue for opposite rosters.
+      renderOverview()
+      const card = await hourlyCard()
+
+      expect(within(card).getByText('—')).toBeInTheDocument()
+      expect(within(card).queryByText('0m')).not.toBeInTheDocument()
+      expect(within(card).queryByText('0.0m')).not.toBeInTheDocument()
+    })
+
+    it('gives a quiet hour the same treatment as a busy one', async () => {
+      // No dimming and no mark for an hour resting on few calls: the count is
+      // printed above the bar, so the chart has already said how much the
+      // figure rests on and a second signal only repeats it.
+      renderOverview()
+      const card = await hourlyCard()
+
+      expect(
+        await screen.findByRole('button', { name: 'Show the 2 calls that started at 16:00' }),
+      ).toBeInTheDocument()
+      expect(within(card).queryByText('*')).not.toBeInTheDocument()
     })
   })
 
