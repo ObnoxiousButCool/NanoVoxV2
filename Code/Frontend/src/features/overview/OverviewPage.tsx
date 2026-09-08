@@ -158,8 +158,6 @@ function ResolutionTimeCard() {
     )
   }
 
-  const busiest = Math.max(...data.bands.map((band) => band.count), 1)
-
   return (
     <>
       <div className={styles.effortRow}>
@@ -175,20 +173,6 @@ function ResolutionTimeCard() {
           <b>{data.longest_minutes}</b>
           <span>LONGEST</span>
         </div>
-      </div>
-
-      <div className={styles.bandRow}>
-        {data.bands.map((band) => (
-          <div key={band.label} className={styles.band}>
-            <div className={styles.bandTrack}>
-              {/* A zero band keeps its bar stub. An absent bar reads as "this
-                  does not happen" rather than "this did not happen here". */}
-              <i style={{ height: `${String(Math.max((band.count * 100) / busiest, 3))}%` }} />
-            </div>
-            <b>{band.count}</b>
-            <span>{band.label} MIN</span>
-          </div>
-        ))}
       </div>
 
       <BarRows>
@@ -508,7 +492,7 @@ function QualityVsHandlingTimeCard({ params }: { params: PulseParams }) {
  * bar stays inert.
  *
  * The query is the caller's, because only the caller knows which calls its bar
- * counted. "How long an answer takes" draws resolved calls only, so its link
+ * counted. "Average Time Taken" draws resolved calls only, so its link
  * has to say so or it would open a set larger than the figure it came from.
  */
 function drillDown(label: string, query: string, populated: boolean) {
@@ -683,28 +667,6 @@ export function OverviewPage() {
           it used to sit below the coaching charts, level with material that
           answers a different question entirely. */}
       <MetricStrip>
-        <Metric label="Calls analyzed" value={metrics.total_calls} sub="From stored analyses" />
-        <Metric
-          label="Average Call Score"
-          value={metrics.median_score}
-          sub={
-            <>
-              Median of every call; mean <b>{metrics.mean_score}</b>
-              {metrics.median_score === metrics.mean_score
-                ? ' — distribution is even'
-                : ' — distribution is split'}
-            </>
-          }
-        />
-        <Metric
-          label="First Call Resolution (FCR)"
-          value={`${String(metrics.first_contact_resolution_rate)}%`}
-          sub={
-            <>
-              Industry range <b>65–75%</b>
-            </>
-          }
-        />
         <Metric
           label="Escalation rate"
           value={`${String(metrics.escalation_rate)}%`}
@@ -719,15 +681,6 @@ export function OverviewPage() {
                 Industry range <b>8–12%</b>
               </>
             )
-          }
-        />
-        <Metric
-          label="Broker-attributed"
-          value={metrics.broker_signal_count}
-          sub={
-            <>
-              Across <b>{metrics.distinct_broker_count}</b> named brokers
-            </>
           }
         />
       </MetricStrip>
@@ -826,7 +779,7 @@ export function OverviewPage() {
         </Card>
 
         <Card
-          title="How long an answer takes"
+          title="Average Time Taken"
           hint="Median minutes to resolve, slowest category first, over the calls that reached a resolution. A category that has resolved nothing shows a dash rather than a zero, because no time was measured — not a fast one."
         >
           <ResolutionTimeCard />

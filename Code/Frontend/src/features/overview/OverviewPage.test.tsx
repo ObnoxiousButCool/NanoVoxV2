@@ -334,7 +334,7 @@ afterEach(() => {
  * and pass while this one is still loading.
  */
 async function resolutionCard(): Promise<HTMLElement> {
-  const heading = await screen.findByText('How long an answer takes')
+  const heading = await screen.findByText('Average Time Taken')
   const card = heading.closest('section')
   if (!card) throw new Error('resolution card has no containing section')
   await within(card).findByText('MEDIAN MINUTES TO RESOLVE')
@@ -391,25 +391,6 @@ describe('OverviewPage', () => {
 
     expect(icon).toHaveAttribute('aria-expanded', 'true')
     expect(within(card).getByRole('note')).toBeVisible()
-  })
-
-  it('shows the median and the mean together, and says which is which', async () => {
-    // One number alone sits in the gap between the two clusters. The card is
-    // headed "Average Call Score", so the sub-line has to name the average it
-    // shows or the two figures read as a contradiction.
-    renderOverview()
-
-    await screen.findByText('65')
-    expect(screen.getByText(/Median of every call/)).toHaveTextContent('64.4')
-    expect(screen.getByText(/distribution is split/)).toBeInTheDocument()
-  })
-
-  it('prints the industry range beside the resolution rate', async () => {
-    // 41.7% means little without the 65–75% it is being judged against.
-    renderOverview()
-
-    await screen.findByText('41.7%')
-    expect(screen.getByText(/65–75%/)).toBeInTheDocument()
   })
 
   it('keeps the calls below the coaching threshold reachable from their bar', async () => {
@@ -481,7 +462,7 @@ describe('OverviewPage', () => {
     if (!card) throw new Error('signals card has no containing section')
 
     // One dash in this card: the owner carrying no signals. Scoped to the
-    // card itself — "How long an answer takes" has its own dash for its own
+    // card itself — "Average Time Taken" has its own dash for its own
     // reason, covered by its own test, and is not what this one is about.
     expect(within(card).getByText('Provider Relations')).toBeInTheDocument()
     expect(within(card).getAllByText('—')).toHaveLength(1)
@@ -757,15 +738,6 @@ describe('OverviewPage', () => {
 
       expect(within(card).getByText('12')).toBeInTheDocument()
       expect(within(card).getByText('OF 12 CALLS RESOLVED')).toBeInTheDocument()
-    })
-
-    it('draws the duration bands', async () => {
-      renderOverview()
-      const card = await resolutionCard()
-
-      expect(within(card).getByText('0-10 MIN')).toBeInTheDocument()
-      expect(within(card).getByText('10-20 MIN')).toBeInTheDocument()
-      expect(within(card).getByText('20+ MIN')).toBeInTheDocument()
     })
 
     it('breaks the time down by category, slowest first', async () => {

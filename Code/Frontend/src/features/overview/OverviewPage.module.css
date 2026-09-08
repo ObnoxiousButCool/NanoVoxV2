@@ -46,52 +46,6 @@
 }
 
 
-/* The resolution-time bands: three short columns, read left to right as the
-   distribution. Deliberately small — the category breakdown below is the part
-   that carries the detail. */
-.bandRow {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-  margin: 14px 0 18px;
-}
-
-.band {
-  text-align: center;
-}
-
-.band b {
-  display: block;
-  font-family: var(--font-display);
-  font-size: 17px;
-  color: var(--ink);
-  margin-top: 6px;
-}
-
-.band span {
-  display: block;
-  font-size: 10px;
-  letter-spacing: 0.06em;
-  color: var(--slate);
-}
-
-.bandTrack {
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  height: 54px;
-  background: var(--canvas);
-  border-radius: var(--r);
-  overflow: hidden;
-}
-
-.bandTrack i {
-  display: block;
-  width: 100%;
-  background: var(--accent);
-  border-radius: var(--r) var(--r) 0 0;
-}
-
 /* The two failure modes, side by side. Deliberately paired: the whole point is
    that these two numbers look alike and need opposite responses, which is only
    visible when they sit next to each other. */
