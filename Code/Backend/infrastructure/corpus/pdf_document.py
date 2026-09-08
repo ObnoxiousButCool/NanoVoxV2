@@ -49,7 +49,10 @@ _HEADING = re.compile(r"^Call #(?P<number>\d+)\s*[—–-]\s*(?P<title>.*)$")  #
 # after the date is optional so a version that drops a part still parses.
 _WHEN = re.compile(
     r"^\w{3}\s+(?P<date>\d{1,2}\s+\w{3}\s+\d{4})"
-    r"(?:\s*·\s*(?P<start>\d{2}:\d{2}:\d{2})(?:\s*[–-]\s*(?P<end>\d{2}:\d{2}:\d{2}))?)?"
+    # The corpus separates a time range with an en dash. Written as an escape
+    # rather than marked noqa like the classes below, because that comment
+    # would take this line past the length limit.
+    r"(?:\s*·\s*(?P<start>\d{2}:\d{2}:\d{2})(?:\s*[\u2013-]\s*(?P<end>\d{2}:\d{2}:\d{2}))?)?"
     r"(?:\s*·\s*AHT\s+(?P<aht>[\dhms\s]+?))?"
     r"(?:\s*·\s*(?P<queue>[^·]+?))?\s*$"
 )
@@ -332,7 +335,9 @@ def extract_calls(text: str) -> list[ImportedCall]:
 def _reject_duplicates(calls: list[ImportedCall]) -> None:
     """Two calls sharing a number would overwrite one another silently."""
     seen: set[int] = set()
-    clashes = sorted({call.number for call in calls if call.number in seen or seen.add(call.number)})
+    clashes = sorted(
+        {call.number for call in calls if call.number in seen or seen.add(call.number)}
+    )
     if clashes:
         raise ValidationError(
             "The document numbers two calls the same.",

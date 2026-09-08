@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import pytest
 
+from application.ports.corpus_document import ImportedCall
 from domain.errors import ValidationError
 from infrastructure.corpus.pdf_document import extract_calls, format_transcript, render
 
@@ -29,7 +30,7 @@ L1 Understanding: an employer chasing a submission.
 """
 
 
-def one(text: str):
+def one(text: str) -> ImportedCall:
     calls = extract_calls(text)
     assert len(calls) == 1
     return calls[0]
@@ -62,7 +63,7 @@ class TestV6Header:
         assert call.end == "08:57:31"
 
     def test_keeps_an_end_time_the_document_does_state(self) -> None:
-        stated = V6_CALL.replace("08:52:00 · AHT", "08:52:00 – 09:00:00 · AHT")
+        stated = V6_CALL.replace("08:52:00 · AHT", "08:52:00 \u2013 09:00:00 · AHT")
 
         assert one(stated).end == "09:00:00"
 

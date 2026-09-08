@@ -14,6 +14,8 @@ version: "1.0.0"
 # copay and coverage_termination were added afterwards, for two topics the
 # source index folded into Coverage & Benefits despite their needing different
 # answers — what a visit costs, and whether the member still has a plan at all.
+# life_beneficiary was added for the v6 corpus, which queues Life & Beneficiary
+# separately and which the index had no home for at all.
 #
 # Note on "Broker Conduct" (code: broker_attributed): it is kept here because it
 # is a category in the
@@ -25,8 +27,12 @@ categories:
   - code: coverage_benefits
     label: Coverage & Benefits
     description: >-
-      Plan design, what is and is not covered, prior authorisation. Use copay
-      instead when the member is asking what a covered service will cost.
+      Whether something is covered at all, and how the plan is designed —
+      exclusions, waiting periods, riders, eligibility for a benefit, prior
+      authorisation. Use this only where no amount and no limit is in question;
+      if the member wants to know what they will pay or how much of their
+      benefit is left, that is copay, even when answering it means explaining
+      the coverage.
   - code: claims_eob
     label: Claims & EOB
     description: Claim status, denials, explanations of benefits, appeals.
@@ -38,24 +44,56 @@ categories:
     description: Invoices, premium changes, payments, refunds.
   - code: enrollment_id_cards
     label: Enrollment & ID Cards
-    description: Enrolment, life events, tier changes, member identification.
+    description: >-
+      Getting people on and off the plan and identifying them once they are on
+      it — enrolment, a qualifying life event such as a marriage, birth or a
+      dependent ageing off, tier changes, ID cards and portal access. Where the
+      life event concerns life cover or a beneficiary, use life_beneficiary
+      instead. This category absorbed a third of the v6 corpus, so prefer a
+      more specific one wherever it fits.
   - code: pharmacy
     label: Pharmacy
     description: >-
       Formulary, pharmacy prior authorisation, refills. Prescriptions stay here
       even when the question is what the drug costs.
+  # The code stays 'copay' because it is stored on every call, but the code is
+  # the problem: given a call about an annual maximum the model reads the name,
+  # decides it is not about a copay, and files it under coverage_benefits. It
+  # chose this category for 0 of 100 calls in the v6 run while 24 of them sat
+  # in the Cost Share & Policy queue. So the label carries the breadth and the
+  # description gives a rule that decides rather than a distinction that
+  # describes.
   - code: copay
-    label: Copay & Cost Share
+    label: Cost Share & Limits
     description: >-
-      What the member owes for a specific service — copay, coinsurance,
-      deductible or annual maximum. Use this when the question is the amount
-      rather than whether the service is covered at all.
+      Any call that turns on an amount the member owes or a ceiling on what the
+      plan pays: copay, coinsurance, deductible, annual maximum, a frequency
+      limit, or what a course of treatment will cost them. This covers "why was
+      I charged", "how much of my benefit is left", "what will this cost" and
+      "why has my benefit run out" — a benefit exhausted for the year belongs
+      here, whereas a policy that has ended is coverage_termination. Where the
+      call is about both an amount and whether a
+      service is covered, choose this one — explaining a benefit in order to
+      answer a cost question is still a cost question.
   - code: coverage_termination
     label: Coverage Termination
     description: >-
       Coverage that has ended, lapsed or is about to — cancellation,
       non-payment, loss of eligibility, or a termination the member disputes.
       Use this when the member's plan itself is in question, not the benefit.
+  # Added for v6, which carries a Life & Beneficiary queue the taxonomy had no
+  # home for: all four of those calls were filed as enrollment_id_cards, which
+  # put a death claim and a beneficiary designation beside tier changes and ID
+  # card requests.
+  - code: life_beneficiary
+    label: Life & Beneficiary
+    description: >-
+      Life insurance and the people named on it — designating or changing a
+      beneficiary, filing a death claim, converting or porting cover after
+      leaving, changing a cover amount, or evidence of insurability. Use this
+      for anything where the life policy or its beneficiaries is the subject,
+      rather than enrollment_id_cards: adding life cover during a life event is
+      still this category.
   # The code stays 'broker_attributed': it is stored on every call, so changing
   # it would orphan them. Only the label a person reads is renamed — "Attributed"
   # read as "a broker was named", which is the far larger broker-signal count,
@@ -128,21 +166,56 @@ signal_types:
   - code: clinical_risk
     label: Unrecognised clinical urgency
     severity: CRITICAL
+    description: >-
+      The caller describes a physical symptom, pain, an infection, bleeding,
+      or a lapse in essential medication, and the agent answers the
+      administrative question without recognising the clinical urgency or
+      directing them to care. The test is the agent's non-response, not how
+      serious the symptom sounds: a symptom the agent does route to care is
+      handled correctly and raises nothing.
   - code: compliance_disclosure_missing
     label: Required disclosure omitted
     severity: HIGH
+    description: >-
+      A disclosure the administrator owes the caller was not made — call
+      recording not disclosed, an appeal right not stated, a notice deadline
+      not given, or the limits of what the administrator may advise not made
+      clear. Raise it for the disclosure that is absent, not for an answer
+      that was merely incomplete.
   - code: language_access
     label: Language access not provided
     severity: HIGH
+    description: >-
+      The caller cannot conduct the call in the language they need and is not
+      offered an interpreter or a route to one. A request to find a provider
+      who speaks a given language is a benefits question, not this: the caller
+      is speaking English to the agent successfully.
   - code: repeat_contact
     label: Repeat contact on an unresolved issue
     severity: MEDIUM
+    description: >-
+      The caller says they have contacted the administrator about this same
+      issue before and it is still not fixed. It must be their prior contact
+      about the same matter — a caller who mentions a previous unrelated call,
+      or who was told to call back and is doing so for the first time, is not
+      a repeat contact.
   - code: broker_conduct
     label: Broker conduct concern
     severity: HIGH
+    description: >-
+      A named broker or agency is the source of the problem: they gave the
+      caller wrong information, did not act, or are unreachable. A broker
+      merely mentioned in passing, or one who did their job, does not raise
+      this.
   - code: exemplar
     label: Exemplary handling worth replicating
     severity: LOW
+    description: >-
+      The agent did something another agent should be taught to copy — caught
+      an error nobody asked about, checked the record instead of answering
+      from memory, or prevented a cost the caller had not foreseen. Reserve it
+      for handling worth quoting in training; a call that simply went well
+      raises nothing.
 
 # --- Sentiment vocabulary --------------------------------------------------
 # The corpus contains 44 distinct arcs built from these states. Constraining both
