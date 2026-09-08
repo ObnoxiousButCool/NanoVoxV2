@@ -26,6 +26,8 @@ import type { Overview } from '@/shared/api/types'
 import { Card, Chip, Empty, Failure, Loading, Note, PageHeader } from '@/shared/ui/primitives'
 import { cx } from '@/shared/ui/cx'
 import styles from '@/shared/ui/queue.module.css'
+import { MembersAtRisk } from './MembersAtRisk'
+import page from './InferencesPage.module.css'
 
 type AttentionItem = Overview['attention'][number]
 
@@ -106,28 +108,40 @@ export function InferencesPage() {
     <>
       <PageHeader title="Inferences" />
 
-      {items.length === 0 ? (
-        <Card title="Nothing has crossed a threshold">
-          <Empty title="No inference to report">
-            <Note>
-              {/* The distinction matters operationally: one of these means the
-                  system is working and the month was clean, the other means
-                  nobody would know if it were not. */}
-              The rules ran and found nothing — which is not the same as nothing
-              having been checked. What counts as worth raising, and how many
-              calls it takes, lives in <code>dashboard.yaml</code>.
-            </Note>
-          </Empty>
-        </Card>
-      ) : (
-        <>
+      <div className={page.stack}>
+        {items.length === 0 ? (
+          <Card title="Nothing has crossed a threshold">
+            <Empty title="No inference to report">
+              <Note>
+                {/* The distinction matters operationally: one of these means the
+                    system is working and the month was clean, the other means
+                    nobody would know if it were not. */}
+                The rules ran and found nothing — which is not the same as nothing
+                having been checked. What counts as worth raising, and how many
+                calls it takes, lives in <code>dashboard.yaml</code>.
+              </Note>
+            </Empty>
+          </Card>
+        ) : (
           <div className={styles.queue}>
             {items.map((item) => (
               <InferenceItem key={`${item.rule_id}-${item.subject}`} item={item} />
             ))}
           </div>
-        </>
-      )}
+        )}
+
+        {/* Below the findings, not above them: the findings name what went wrong
+            across the corpus, and this names the individuals it happened to.
+            Rendered whether or not any rule fired — the two come from different
+            endpoints, and a clean findings list does not mean no member is
+            carrying warning signs. */}
+        <Card
+          title="Members at risk"
+          hint="Ranked by how many warning signs a member shows, not by a predicted probability: no factor here has yet been measured against a member who actually left. The score is the lowest any one of their calls was given, which is what separates two members showing the same signs."
+        >
+          <MembersAtRisk />
+        </Card>
+      </div>
     </>
   )
 }

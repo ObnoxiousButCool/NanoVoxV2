@@ -186,41 +186,6 @@ const TIME_VALUE = {
   ],
 }
 
-const VOCABULARY = [
-  { code: 'unresolved', label: 'Issue unresolved', short_label: 'Unresolved' },
-  { code: 'escalated', label: 'Escalated without resolution', short_label: 'Escalated' },
-  { code: 'ended_unhappy', label: 'Ended the call unhappy', short_label: 'Unhappy' },
-  { code: 'repeat_contact', label: 'Has called more than once', short_label: 'Repeat' },
-  { code: 'low_score', label: 'Poorly handled', short_label: 'Low score' },
-]
-
-const MEMBERS = {
-  basis: 'Observed warning signs, not a prediction.',
-  factor_vocabulary: VOCABULARY,
-  members: [
-    {
-      member_id: 'CHM5519074',
-      member_name: 'Maria Gonzalez',
-      call_count: 3,
-      factors: ['unresolved', 'ended_unhappy', 'repeat_contact'],
-      factor_labels: ['Issue unresolved', 'Ended the call unhappy', 'Has called more than once'],
-      lowest_score: 29,
-      latest_reference: 'F0006',
-      references: ['F0006', 'C0001'],
-    },
-    {
-      member_id: 'CHM8817740',
-      member_name: null,
-      call_count: 1,
-      factors: ['low_score'],
-      factor_labels: ['Poorly handled'],
-      lowest_score: 46,
-      latest_reference: 'C0002',
-      references: ['C0002'],
-    },
-  ],
-}
-
 function json(body: unknown): Response {
   return new Response(JSON.stringify(body), {
     status: 200,
@@ -323,13 +288,11 @@ function renderOverview(
   overview: unknown = OVERVIEW,
   {
     resolution = RESOLUTION,
-    members = MEMBERS,
     timeValue = TIME_VALUE,
     pulse = PULSE,
     workMix = WORK_MIX,
   }: {
     resolution?: unknown
-    members?: unknown
     timeValue?: unknown
     pulse?: unknown
     workMix?: unknown
@@ -343,7 +306,6 @@ function renderOverview(
       if (url.includes('/dashboard/signals')) return Promise.resolve(json(SIGNALS))
       if (url.includes('/dashboard/resolution-time')) return Promise.resolve(json(resolution))
       if (url.includes('/dashboard/time-value')) return Promise.resolve(json(timeValue))
-      if (url.includes('/dashboard/members-at-risk')) return Promise.resolve(json(members))
       if (url.includes('/dashboard/pulse')) return Promise.resolve(json(pulse))
       if (url.includes('/dashboard/work-mix')) return Promise.resolve(json(workMix))
       return Promise.resolve(json({}))
@@ -755,114 +717,6 @@ describe('OverviewPage', () => {
       // Two metrics carry a benchmark; the escalation one must be among them.
       expect(await screen.findByText(/8–12%/)).toBeInTheDocument()
       expect(screen.queryByText('No analyzed call was escalated')).not.toBeInTheDocument()
-    })
-  })
-
-  describe('members at risk', () => {
-    it('names the warning signs rather than scoring them', async () => {
-      // A percentage would be indistinguishable from a measured one while being
-      // invented, and would be acted on as though it were fact.
-      renderOverview()
-
-      await screen.findByText(new RegExp('••••9074'))
-      // Scoped to the matrix: several of these words also name a metric
-      // elsewhere on the page.
-      const matrix = screen.getByRole('table', { name: 'Members showing warning signs' })
-      expect(within(matrix).getByText('Unresolved')).toBeInTheDocument()
-      expect(within(matrix).getByText('Unhappy')).toBeInTheDocument()
-      expect(within(matrix).getByText('Repeat')).toBeInTheDocument()
-    })
-
-    it('draws a column for a sign nobody is currently showing', async () => {
-      // An absent column is indistinguishable from a column of no findings, so
-      // the matrix draws every factor the system can observe. No member in the
-      // fixture has escalated.
-      renderOverview()
-
-      await screen.findByText(new RegExp('••••9074'))
-      const matrix = screen.getByRole('table', { name: 'Members showing warning signs' })
-      expect(within(matrix).getByText('Escalated')).toBeInTheDocument()
-    })
-
-    it('takes its columns from the response, not from a list in the client', async () => {
-      // A factor added to the domain and not to the client would go unread with
-      // nothing on screen to say so.
-      renderOverview(OVERVIEW, {
-        members: {
-          ...MEMBERS,
-          factor_vocabulary: [
-            ...VOCABULARY,
-            { code: 'chased_us', label: 'Chased us for an answer', short_label: 'Chased' },
-          ],
-        },
-      })
-
-      const matrix = await screen.findByRole('table', { name: 'Members showing warning signs' })
-      expect(within(matrix).getByText('Chased')).toBeInTheDocument()
-    })
-
-    it('states each cell in words as well as in colour', async () => {
-      // The cells carry no text. A filled square and a colour are not readable
-      // by everyone, and they are the entire content of the row.
-      renderOverview()
-
-      const row = await screen.findByRole('row', { name: new RegExp('••••7740') })
-      expect(within(row).getByText('Poorly handled')).toBeInTheDocument()
-      expect(within(row).getByText('Not issue unresolved')).toBeInTheDocument()
-    })
-
-    it('shows the score that separates two members carrying the same signs', async () => {
-      // Ranking already used it and the card never drew it, so two rows could
-      // sit in a fixed order for a reason nothing on screen gave.
-      renderOverview()
-
-      const row = await screen.findByRole('row', { name: new RegExp('••••9074') })
-      expect(within(row).getByText('29')).toBeInTheDocument()
-    })
-
-    it('says plainly that it is not a prediction', async () => {
-      renderOverview()
-
-      await screen.findByText(new RegExp('••••9074'))
-      expect(screen.getByText(/not.*a predicted probability/i)).toBeInTheDocument()
-    })
-
-    it('links a member to all of their calls, not to one reference', async () => {
-      // Searching for the latest reference finds a single call. The row exists
-      // because the member has a history; the link has to open that history.
-      renderOverview()
-
-      // Masked on the face, whole in the href — the list filters on the real one.
-      const link = await screen.findByRole('link', { name: new RegExp('••••9074') })
-      expect(link).toHaveAttribute('href', '/calls?member=CHM5519074')
-    })
-
-    it('names the member, keeping the identifier beside it', async () => {
-      // The name is what a reader recognises; the identifier is what the calls
-      // list filters on and what other systems are looked up by. Both, not one.
-      renderOverview()
-
-      const link = await screen.findByRole('link', { name: /Maria Gonzalez/ })
-      expect(link).toHaveTextContent('Maria Gonzalez (••••9074)')
-      expect(link).toHaveAttribute('href', '/calls?member=CHM5519074')
-    })
-
-    it('shows the identifier alone when no call stated a name', async () => {
-      // A third of the corpus describes the caller instead of naming them.
-      // The identifier is still true; "Unknown" would not be.
-      renderOverview()
-
-      const link = await screen.findByRole('link', { name: '••••7740' })
-      expect(link).toHaveTextContent('••••7740')
-      // No brackets: with no name in front of it there is nothing to bracket.
-      expect(link.textContent).not.toMatch(/[()]/)
-      expect(link).toHaveAttribute('href', '/calls?member=CHM8817740')
-    })
-
-    it('reports an empty list as a result, not an omission', async () => {
-      renderOverview(OVERVIEW, { members: { basis: 'x', factor_vocabulary: VOCABULARY, members: [] } })
-
-      expect(await screen.findByText(/No member is showing a warning sign/)).toBeInTheDocument()
     })
   })
 
