@@ -1,1 +1,6 @@
 .venv/Scripts/python.exe -m uvicorn frameworks_drivers.main:app --host 127.0.0.1 --port 8000 --reload
+
+
+
+
+cd C:\Technossus\Code\NanoVox-V2\Code\Backend; if ($?) { .venv\Scripts\python.exe -m pytest -q }; if ($?) { .venv\Scripts\python.exe -m ruff check . }; if ($?) { .venv\Scripts\python.exe -m ruff format --check . }; if ($?) { .venv\Scripts\python.exe -m mypy . }; if ($?) { .venv\Scripts\python.exe -m lint_imports }
