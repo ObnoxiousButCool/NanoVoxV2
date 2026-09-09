@@ -440,7 +440,9 @@ function PulseStrip({
         value={latest.calls}
         delta={percentChange(latest.calls, previous?.calls)}
         format={(value) => `${value.toFixed(1)}%`}
-        goodDirection="neutral"
+        // More calls monitored is read as fuller coverage; a drop reads as a
+        // gap in it, matching every other figure on this strip.
+        goodDirection="up"
       />
       <DeltaMetric
         label="First Call Resolution (FCR)"

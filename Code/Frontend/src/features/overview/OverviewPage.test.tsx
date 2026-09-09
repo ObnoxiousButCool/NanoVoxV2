@@ -585,16 +585,18 @@ describe('OverviewPage', () => {
       expect(resolution.className).not.toEqual(handleTime.className)
     })
 
-    it('treats call volume as the one measure neither direction is good for', async () => {
-      // Calls Monitored is the exception: more calls is not obviously good
-      // (a busier week) or bad (a slower one), unlike every other figure on
-      // this strip, which now reads a fall or rise as bad or good.
+    it('reads a fall in call volume as bad, the same rule the rest of the strip uses', async () => {
+      // A drop in calls monitored reads as a gap in coverage, not a neutral
+      // fact — so it shares its class with resolution's own fall (also bad),
+      // and differs from handle time's fall (good, read as an efficiency win).
       const { container } = renderOverview()
       await inWeekMode(container)
 
       const calls = await screen.findByText(/12.5% from last week/)
+      const resolution = screen.getByText(/54.2 pts on last week/)
       const handleTime = screen.getByText(/1.5 min on last week/)
 
+      expect(calls.className).toEqual(resolution.className)
       expect(calls.className).not.toEqual(handleTime.className)
     })
 
