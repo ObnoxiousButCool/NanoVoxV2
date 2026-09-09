@@ -72,6 +72,16 @@
 }
 
 /* Histogram */
+
+/* The card's `.pad` is a flex column, stretched to match a taller neighbour
+   in the same row; the histogram itself is a fixed height, so any surplus
+   used to sit below the axis as dead space. Auto top/bottom margins split
+   that surplus evenly instead, centring the chart in whatever height the
+   card ends up with rather than pinning it to the top. */
+.histWrap {
+  margin: auto 0;
+}
+
 .hist {
   display: flex;
   align-items: flex-end;

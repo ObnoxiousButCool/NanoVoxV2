@@ -120,7 +120,7 @@ export function Histogram({ bars, peak }: { bars: readonly HistogramBar[]; peak:
   const tallest = Math.max(peak, 1)
 
   return (
-    <>
+    <div className={styles.histWrap}>
       <div className={styles.hist}>
         {bars.map((bar) => {
           const height = `${String(Math.max((bar.count * 100) / tallest, 2))}%`
@@ -162,7 +162,7 @@ export function Histogram({ bars, peak }: { bars: readonly HistogramBar[]; peak:
           </span>
         ))}
       </div>
-    </>
+    </div>
   )
 }
 
