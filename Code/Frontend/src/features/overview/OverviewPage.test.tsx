@@ -569,12 +569,13 @@ describe('OverviewPage', () => {
       const { container } = renderOverview()
       await inWeekMode(container)
 
-      expect(await screen.findByText(/12.5% on last week/)).toBeInTheDocument()
+      expect(await screen.findByText(/12.5% from last week/)).toBeInTheDocument()
     })
 
     it('marks a fall as bad and a rise as good, per measure', async () => {
-      // Handle time is the exception: shorter is an answer found faster or a
-      // member brushed off, and this figure cannot tell them apart.
+      // Resolution rising is good; a shorter handle time is too, read as an
+      // efficiency win — so both a fall in resolution and a fall in handle
+      // time land on opposite sides of good/bad, and their classes differ.
       const { container } = renderOverview()
       await inWeekMode(container)
 
@@ -582,6 +583,19 @@ describe('OverviewPage', () => {
       const handleTime = screen.getByText(/1.5 min on last week/)
 
       expect(resolution.className).not.toEqual(handleTime.className)
+    })
+
+    it('treats call volume as the one measure neither direction is good for', async () => {
+      // Calls Monitored is the exception: more calls is not obviously good
+      // (a busier week) or bad (a slower one), unlike every other figure on
+      // this strip, which now reads a fall or rise as bad or good.
+      const { container } = renderOverview()
+      await inWeekMode(container)
+
+      const calls = await screen.findByText(/12.5% from last week/)
+      const handleTime = screen.getByText(/1.5 min on last week/)
+
+      expect(calls.className).not.toEqual(handleTime.className)
     })
 
     it('says so rather than inventing a comparison when there is no prior week', async () => {
@@ -643,11 +657,39 @@ describe('OverviewPage', () => {
       expect(container.getElementsByClassName((chartStyles.point ?? ''))).toHaveLength(4)
     })
 
+    it('labels a point by its month, not a single date, once the graph is in Month mode', async () => {
+      // The graph itself opens on a 3-week window regardless of the header's
+      // mode, so this test switches the graph's own filter to Month first.
+      // Real month-bucketed points start on the 1st, unlike the shared
+      // fixture's weekly ones -- given here so the range comes out right.
+      const user = userEvent.setup()
+      renderOverview(OVERVIEW, {
+        pulse: {
+          ...PULSE,
+          points: [{ ...PULSE.points[0], starting: '2026-09-01', label: 'Sep 2026' }],
+        },
+      })
+
+      const heading = await screen.findByText('Overall Call Quality vs Average Handling Time')
+      const card = heading.closest('section')
+      if (!card) throw new Error('quality-vs-handling-time card has no containing section')
+      await user.selectOptions(within(card).getByLabelText('View by'), 'month')
+
+      expect(await screen.findByText('Sep 1–30')).toBeInTheDocument()
+    })
+
     it("shows a week's numbers on hover", async () => {
+      // The page opens in Month; week mode is what this test is actually
+      // about, so it switches the graph's own filter there first.
       const user = userEvent.setup()
       renderOverview()
 
-      const point = await screen.findByRole('img', { name: /31 Aug/ })
+      const heading = await screen.findByText('Overall Call Quality vs Average Handling Time')
+      const card = heading.closest('section')
+      if (!card) throw new Error('quality-vs-handling-time card has no containing section')
+      await user.selectOptions(within(card).getByLabelText('View by'), 'week')
+
+      const point = await screen.findByRole('img', { name: /31 Aug–6 Sep/ })
       await user.hover(point)
 
       expect(screen.getByText('Quality 88')).toBeInTheDocument()
@@ -872,6 +914,16 @@ describe('OverviewPage', () => {
       )
     })
 
+    it('shares a row with Productivity, each shrunk to fit it', async () => {
+      // Two full-width cards before this, each taller than it needed to be.
+      renderOverview()
+
+      const hourly = (await screen.findByText('Hourly call distribution')).closest('section')
+      const productivity = screen.getByText('Productivity').closest('section')
+      if (!hourly || !productivity) throw new Error('one of the two cards is missing')
+      expect(hourly.parentElement).toBe(productivity.parentElement)
+    })
+
     /** The hourly card alone: handle times are printed elsewhere on this page
      *  too, so an unscoped query matches the caller breakdown as readily. */
     async function hourlyCard(): Promise<HTMLElement> {
@@ -980,6 +1032,32 @@ describe('OverviewPage', () => {
       expect(await screen.findByText(/8–12%/)).toBeInTheDocument()
       expect(screen.queryByText('No analyzed call was escalated')).not.toBeInTheDocument()
     })
+
+    it('colours the benchmark caption bad once the rate passes it', async () => {
+      // The fixture's 28.6% is well past the 8-12% range.
+      renderOverview()
+
+      const caption = await screen.findByText(/8–12%/)
+      expect(caption.parentElement).toHaveClass(chartStyles.deltaBad ?? '')
+    })
+
+    it('colours the benchmark caption good at or below the range', async () => {
+      renderOverview(OVERVIEW, {
+        pulse: { ...PULSE, latest: { ...PULSE.latest, escalation_rate: 5 } },
+      })
+
+      const caption = await screen.findByText(/8–12%/)
+      expect(caption.parentElement).toHaveClass(chartStyles.deltaGood ?? '')
+    })
+
+    it('colours a zero rate good rather than leaving it untoned', async () => {
+      renderOverview(OVERVIEW, {
+        pulse: { ...PULSE, latest: { ...PULSE.latest, escalation_rate: 0 } },
+      })
+
+      const caption = await screen.findByText('No analyzed call was escalated')
+      expect(caption).toHaveClass(chartStyles.deltaGood ?? '')
+    })
   })
 
   describe('resolution time', () => {
@@ -1056,6 +1134,18 @@ describe('OverviewPage', () => {
       expect(within(card).getByText('25%')).toBeInTheDocument()
       expect(within(card).getByText('BOUGHT A RESOLUTION')).toBeInTheDocument()
       expect(within(card).getByText('7.5h')).toBeInTheDocument()
+    })
+
+    it('carries its legend in the card header, not the body', async () => {
+      // Used to sit under the stat row, level with the bars. Moved beside
+      // the title so it reads the same way the graph's own legend does.
+      renderOverview()
+      const card = await timeCard()
+
+      const header = card.querySelector<HTMLElement>('[class*=cardHeader]')
+      if (!header) throw new Error('card header not found')
+      expect(within(header).getByText('Resolved')).toBeInTheDocument()
+      expect(within(header).getByText('Partially resolved')).toBeInTheDocument()
     })
 
     it('opens every call in a category, because every outcome claimed minutes', async () => {

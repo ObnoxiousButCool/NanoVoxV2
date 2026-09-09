@@ -439,6 +439,7 @@ export function DeltaMetric({
   format,
   goodDirection = 'up',
   period = 'week',
+  preposition = 'on',
   sub,
 }: {
   label: string
@@ -450,6 +451,10 @@ export function DeltaMetric({
    *  in the caption because "on last week" under a card showing a month is a
    *  wrong statement about the arithmetic, not a loose one. */
   period?: 'week' | 'month'
+  /** The word before "last {period}" — "on" everywhere except Calls
+   *  Monitored, which reads as a count arriving "from" the prior period
+   *  rather than a score measured "on" it. */
+  preposition?: 'on' | 'from'
   sub?: ReactNode
 }) {
   const flat = delta === null || delta === undefined || delta === 0
@@ -468,7 +473,8 @@ export function DeltaMetric({
           <span className={styles.deltaFlat}>No previous {period}</span>
         ) : (
           <span className={tone}>
-            {delta > 0 ? '▲' : delta < 0 ? '▼' : '■'} {format(Math.abs(delta))} on last {period}
+            {delta > 0 ? '▲' : delta < 0 ? '▼' : '■'} {format(Math.abs(delta))} {preposition} last{' '}
+            {period}
           </span>
         )}
         {sub === undefined ? null : <div>{sub}</div>}

@@ -51,6 +51,7 @@ Desktop.ini
 # re-derived. Personal working notes, not project documentation — never meant
 # to be shared or reviewed, so it stays local and untracked.
 context-so-far.md
+demo-plan.md
 
 # Imported corpora. A byproduct of the Corpus import screen: the same calls
 # the tracked Samples/ files hold, kept per-upload so an import cannot

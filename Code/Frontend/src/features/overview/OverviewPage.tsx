@@ -53,8 +53,15 @@ import {
 import { Card, Empty, Failure, Loading, Note, PageHeader } from '@/shared/ui/primitives'
 import { GraphPeriodFilter, type GraphFilterMode } from './GraphPeriodFilter'
 import { DEFAULT_GRANULARITY, PeriodFilter, type Granularity } from './PeriodFilter'
-import { addDays, today } from './weekWindow'
+import { addDays, pointRangeLabel, today } from './weekWindow'
+import chartStyles from '@/shared/ui/charts.module.css'
 import styles from './OverviewPage.module.css'
+
+/** Escalation above this is worse than the industry range; at or below it,
+ *  a lower rate is only ever better, down to and including zero. Shared
+ *  between the value's own colour and the benchmark caption's, so the two
+ *  never disagree about whether this period reads well. */
+const ESCALATION_RATE_CEILING = 12
 
 /** The graph's own request, given its mode and the day it is currently set
  *  to — any day within a month in month mode, the centre day in week mode.
@@ -271,13 +278,9 @@ function TimeValueCard({ params }: { params: PeriodParams }) {
         </div>
         <div className={styles.effortStat}>
           <b>{(data.unproductive_minutes / 60).toFixed(1)}h</b>
-          <span>BOUGHT NOTHING</span>
+          <span>BROUGHT NOTHING</span>
         </div>
       </div>
-
-      <Legend
-        items={OUTCOME_LEGEND.map((entry) => ({ label: entry.label, color: entry.color }))}
-      />
       <BarRows>
         {data.categories.map((category) => (
           <Bar
@@ -382,14 +385,6 @@ function ResolutionByAgent({ agents }: { agents: readonly AgentPerformance[] }) 
           />
         ))}
       </BarRows>
-      <Legend
-        items={[
-          { label: 'Resolved', color: OUTCOME_COLOURS.resolved },
-          { label: 'Partial', color: OUTCOME_COLOURS.partial },
-          { label: 'Escalated', color: OUTCOME_COLOURS.escalated },
-          { label: 'Unresolved', color: OUTCOME_COLOURS.unresolved },
-        ]}
-      />
     </>
   )
 }
@@ -441,6 +436,7 @@ function PulseStrip({
       <DeltaMetric
         label="Calls Monitored"
         period={granularity}
+        preposition="from"
         value={latest.calls}
         delta={percentChange(latest.calls, previous?.calls)}
         format={(value) => `${value.toFixed(1)}%`}
@@ -472,10 +468,9 @@ function PulseStrip({
         }
         delta={delta?.median_handle_minutes}
         format={(value) => `${String(value)} min`}
-        // Neither direction is good on its own. A shorter call is an answer
-        // found faster or a member brushed off, and this figure cannot tell
-        // them apart — the card below it can.
-        goodDirection="neutral"
+        // A shorter call is read as an efficiency win, matching every other
+        // figure on this strip where a fall is coloured good.
+        goodDirection="down"
       />
       <DeltaMetric
         label="Escalation rate"
@@ -490,13 +485,27 @@ function PulseStrip({
           // nobody escalated says so in words. Decided by this period's rate
           // rather than the corpus's, which is the point of the move: most
           // weeks here escalate nothing while the corpus reads 1%.
-          latest.escalation_rate === 0 ? (
-            <>No analyzed call was escalated</>
-          ) : (
-            <>
-              Industry range <b>8–12%</b>
-            </>
-          )
+          //
+          // Coloured the same way the delta above it is: green at or below
+          // the range's top, red past it — the one sub-text on this page that
+          // states a benchmark rather than a plain fact, so it is the one
+          // that gets to say whether this period read well against it.
+          <span
+            className={
+              typeof latest.escalation_rate === 'number' &&
+              latest.escalation_rate > ESCALATION_RATE_CEILING
+                ? chartStyles.deltaBad
+                : chartStyles.deltaGood
+            }
+          >
+            {latest.escalation_rate === 0 ? (
+              'No analyzed call was escalated'
+            ) : (
+              <>
+                Industry range <b>8–12%</b>
+              </>
+            )}
+          </span>
         }
       />
     </MetricStrip>
@@ -511,6 +520,10 @@ function QualityVsHandlingTimeCard({ params }: { params: PulseParams }) {
   const { points } = pulse.data
   if (points.length === 0) return null
 
+  // The only mode that buckets by month; every other request to this card
+  // (the default trailing view, and 3-week mode's `centre`) buckets weekly.
+  const bucket = params.month ? 'month' : 'week'
+
   return (
     <DualLineTrend
       // Taller than the shared default of 220, because this is the one place
@@ -524,7 +537,9 @@ function QualityVsHandlingTimeCard({ params }: { params: PulseParams }) {
       // with the box.
       height={340}
       points={points.map((point) => ({
-        label: point.label,
+        // The point's whole span, not just where it starts — "7 Sep" alone
+        // reads as a single day, and the point it labels is a week or month.
+        label: pointRangeLabel(point.starting, bucket),
         quality: point.median_score ?? null,
         ahtMinutes: point.median_handle_minutes ?? null,
       }))}
@@ -851,14 +866,6 @@ export function OverviewPage() {
         </Card>
       </div>
 
-      <Card
-        className={styles.solo}
-        title="Productivity"
-        hint="Calls with no recorded duration are left out entirely rather than counted as zero, which would understate the minutes."
-      >
-        <TimeValueCard params={headerPeriod} />
-      </Card>
-
       {/* The two tallest cards on the page share a row, and the two shortest
           share the next one. Paired by subject alone, a 198px histogram sat
           beside a 461px agent list and left a quarter of its card empty. */}
@@ -866,6 +873,16 @@ export function OverviewPage() {
         <Card
           title="Resolution by agent"
           hint="Every agent's average is shown; a starred one is not tier-rated, because the agent has fewer calls than the significance threshold. The average is real arithmetic either way — what is withheld is the GOOD, AVERAGE or POOR label, since one call moves a four-call average by four points and a tier boundary should not turn on that. The bars are outcomes, not the score: they show how the agent's calls ended."
+          actions={
+            <Legend
+              items={[
+                { label: 'Resolved', color: OUTCOME_COLOURS.resolved },
+                { label: 'Partial', color: OUTCOME_COLOURS.partial },
+                { label: 'Escalated', color: OUTCOME_COLOURS.escalated },
+                { label: 'Unresolved', color: OUTCOME_COLOURS.unresolved },
+              ]}
+            />
+          }
         >
           {agents.isPending ? <Loading what="agents" /> : null}
           {agents.error ? <Failure error={agents.error} what="agent performance" /> : null}
@@ -880,8 +897,6 @@ export function OverviewPage() {
         </Card>
       </div>
 
-      {/* The hourly chart is third and so takes the full row. It is the one
-          chart here that gains from the width: a rota is read hour by hour. */}
       <div className={styles.grid}>
         <Card
           title="Quality Distribution"
@@ -938,6 +953,23 @@ export function OverviewPage() {
             ))}
           </BarRows>
         </Card>
+      </div>
+
+      {/* Productivity and the hourly chart share a row now, each shrunk to
+          fit it -- previously two full-width cards in a row each, taking
+          more vertical space than either needed. */}
+      <div className={styles.grid}>
+        <Card
+          title="Productivity"
+          hint="Calls with no recorded duration are left out entirely rather than counted as zero, which would understate the minutes."
+          actions={
+            <Legend
+              items={OUTCOME_LEGEND.map((entry) => ({ label: entry.label, color: entry.color }))}
+            />
+          }
+        >
+          <TimeValueCard params={headerPeriod} />
+        </Card>
 
         <Card
           title="Hourly call distribution"
@@ -946,7 +978,6 @@ export function OverviewPage() {
           <HourlyCard params={headerPeriod} />
         </Card>
       </div>
-
     </>
   )
 }
