@@ -569,7 +569,7 @@ describe('OverviewPage', () => {
       const { container } = renderOverview()
       await inWeekMode(container)
 
-      expect(await screen.findByText(/12.5% on last week/)).toBeInTheDocument()
+      expect(await screen.findByText(/12.5% from last week/)).toBeInTheDocument()
     })
 
     it('marks a fall as bad and a rise as good, per measure', async () => {
