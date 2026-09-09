@@ -21,6 +21,16 @@ function toIsoDate(date: Date): string {
   return `${year}-${month}-${day}`
 }
 
+/** Today, as the same `YYYY-MM-DD` string the API speaks.
+ *
+ *  Local, not UTC: the reader's "today" is the one on their own calendar, and
+ *  `toISOString().slice(0, 10)` reports yesterday for anyone west of Greenwich
+ *  for part of their day.
+ */
+export function today(): string {
+  return toIsoDate(new Date())
+}
+
 export function addDays(iso: string, days: number): string {
   const date = parseIsoDate(iso)
   date.setDate(date.getDate() + days)

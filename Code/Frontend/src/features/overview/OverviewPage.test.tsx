@@ -655,6 +655,43 @@ describe('OverviewPage', () => {
     })
   })
 
+  describe('what the screen opens on', () => {
+    it('opens the graph on a centred window, not on the header month', async () => {
+      // The two answer different questions. The cards report a period, so the
+      // header opens on a month; the graph shows which way it is moving, which
+      // needs more than one point, so a month-wide single figure is the wrong
+      // opening shape for it.
+      renderOverview()
+
+      await screen.findByText('Overall Call Quality vs Average Handling Time')
+      const pulses = vi
+        .mocked(fetch)
+        .mock.calls.map(([input]) => requestUrl(input))
+        .filter((url) => url.includes('/dashboard/pulse'))
+
+      expect(pulses.some((url) => url.includes('centre='))).toBe(true)
+    })
+
+    it('does not let the header overwrite the graph on mount', async () => {
+      // The regression this guards, twice over. Seeding the graph from the
+      // header in an effect fires on mount as well as on change, so the
+      // header's Month default overwrote the graph's opening week -- and a
+      // "skip the first run" ref does not save it either, because StrictMode
+      // invokes effects twice and the second run proceeds. The seeding lives
+      // in the header's own change handler for exactly that reason.
+      const { container } = renderOverview()
+
+      const heading = await screen.findByText('Overall Call Quality vs Average Handling Time')
+      const header = container.querySelector('header')
+      const card = heading.closest('section')
+      if (!header || !card) throw new Error('page header or graph card is missing')
+
+      expect(within(header).getByLabelText('View by')).toHaveValue('month')
+      expect(within(card).getByLabelText('View by')).toHaveValue('week')
+    })
+  })
+
+
   describe('syncing the graph filter from the page filter', () => {
     async function pageHeaderScope(container: HTMLElement): Promise<HTMLElement> {
       await screen.findByText('Operations dashboard')
@@ -700,7 +737,7 @@ describe('OverviewPage', () => {
       await within(card).findByText('August 2026')
 
       await user.selectOptions(within(card).getByLabelText('View by'), 'week')
-      await user.click(within(card).getByRole('button', { name: 'Shift the window forward two weeks' }))
+      await user.click(within(card).getByRole('button', { name: 'Shift the window forward one week' }))
 
       expect(within(card).getByLabelText('View by')).toHaveValue('week')
       // The page filter never moved off August.
@@ -740,7 +777,7 @@ describe('OverviewPage', () => {
       await inWeekMode(container)
       const card = await graphCard()
       const forward = await within(card).findByRole('button', {
-        name: 'Shift the window forward two weeks',
+        name: 'Shift the window forward one week',
       })
 
       await user.click(forward)

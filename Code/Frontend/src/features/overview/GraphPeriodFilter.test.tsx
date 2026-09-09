@@ -13,28 +13,28 @@ describe('GraphPeriodFilter', () => {
       expect(screen.getByText('Sep 7 – Sep 27, 2026')).toBeInTheDocument()
     })
 
-    it('shifts the centre back two weeks on the left chevron', async () => {
+    it('shifts the centre back one week on the left chevron', async () => {
       const onChange = vi.fn()
       const user = userEvent.setup()
       render(
         <GraphPeriodFilter mode="week" onModeChange={vi.fn()} value="2026-09-14" onChange={onChange} />,
       )
 
-      await user.click(screen.getByRole('button', { name: 'Shift the window back two weeks' }))
+      await user.click(screen.getByRole('button', { name: 'Shift the window back one week' }))
 
-      expect(onChange).toHaveBeenCalledWith('2026-08-31')
+      expect(onChange).toHaveBeenCalledWith('2026-09-07')
     })
 
-    it('shifts the centre forward two weeks on the right chevron', async () => {
+    it('shifts the centre forward one week on the right chevron', async () => {
       const onChange = vi.fn()
       const user = userEvent.setup()
       render(
         <GraphPeriodFilter mode="week" onModeChange={vi.fn()} value="2026-09-14" onChange={onChange} />,
       )
 
-      await user.click(screen.getByRole('button', { name: 'Shift the window forward two weeks' }))
+      await user.click(screen.getByRole('button', { name: 'Shift the window forward one week' }))
 
-      expect(onChange).toHaveBeenCalledWith('2026-09-28')
+      expect(onChange).toHaveBeenCalledWith('2026-09-21')
     })
 
     it('states the period rather than offering it as a control', async () => {

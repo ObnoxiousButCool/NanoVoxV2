@@ -15,7 +15,10 @@ import styles from './GraphPeriodFilter.module.css'
 
 export type GraphFilterMode = 'week' | 'month'
 
-const WEEK_NAV_SHIFT_DAYS = 14
+// One week per press. Two moved the window by two thirds of its own width, so
+// consecutive presses showed almost disjoint periods; a week overlaps the
+// previous view by two thirds and reads as sliding rather than jumping.
+const WEEK_NAV_SHIFT_DAYS = 7
 
 export function GraphPeriodFilter({
   mode,
@@ -59,7 +62,7 @@ export function GraphPeriodFilter({
           type="button"
           className={styles.navButton}
           aria-label={
-            mode === 'month' ? 'Shift to the previous month' : 'Shift the window back two weeks'
+            mode === 'month' ? 'Shift to the previous month' : 'Shift the window back one week'
           }
           onClick={() => {
             shiftSelection(-1)
@@ -79,7 +82,7 @@ export function GraphPeriodFilter({
           type="button"
           className={styles.navButton}
           aria-label={
-            mode === 'month' ? 'Shift to the next month' : 'Shift the window forward two weeks'
+            mode === 'month' ? 'Shift to the next month' : 'Shift the window forward one week'
           }
           onClick={() => {
             shiftSelection(1)
