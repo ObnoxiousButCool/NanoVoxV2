@@ -690,17 +690,39 @@ describe('OverviewPage', () => {
       expect(link).toHaveAttribute('href', '/calls?caller=MEMBER')
     })
 
-    it('leaves a population with no calls unlinked', async () => {
-      // Nothing to open, and a link to an empty list reads as a fault.
+    it('does not draw a population that placed no call', async () => {
+      // The bars are resolution rates, and a rate over no calls does not
+      // exist. Drawn at zero the row reads as a population nobody resolved,
+      // which is the opposite of what the data says.
       renderOverview(OVERVIEW, {
         workMix: {
           ...WORK_MIX,
-          callers: [{ ...WORK_MIX.callers[0], caller_type: 'BROKER', calls: 0 }],
+          callers: [
+            WORK_MIX.callers[0],
+            { ...WORK_MIX.callers[0], caller_type: 'BROKER', calls: 0 },
+          ],
         },
       })
 
-      await screen.findByText('Broker · 0')
-      expect(screen.queryByRole('link', { name: /^Broker/ })).not.toBeInTheDocument()
+      // Scoped to the card: "Broker Conduct" is a signal category elsewhere
+      // on the page, so an unscoped query matches it and never fails.
+      const label = await screen.findByText('Member · 28')
+      const card = label.closest('section')
+      if (!card) throw new Error('caller mix has no containing section')
+      expect(within(card).queryByText(/^Broker/)).not.toBeInTheDocument()
+    })
+
+    it('says so when no call names its caller at all', async () => {
+      // Distinct from the case above: there the chart still has something to
+      // say, here it has nothing and an empty frame would not admit it.
+      renderOverview(OVERVIEW, {
+        workMix: {
+          ...WORK_MIX,
+          callers: [{ ...WORK_MIX.callers[0], calls: 0 }],
+        },
+      })
+
+      expect(await screen.findByText('No call states who was calling')).toBeInTheDocument()
     })
   })
 

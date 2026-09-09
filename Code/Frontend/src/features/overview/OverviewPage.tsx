@@ -51,7 +51,7 @@ import {
   MetricStrip,
   DualLineTrend,
 } from '@/shared/ui/charts'
-import { Card, Failure, Loading, Note, PageHeader } from '@/shared/ui/primitives'
+import { Card, Empty, Failure, Loading, Note, PageHeader } from '@/shared/ui/primitives'
 import { GraphPeriodFilter, type GraphFilterMode } from './GraphPeriodFilter'
 import { PeriodFilter, type Granularity } from './PeriodFilter'
 import styles from './OverviewPage.module.css'
@@ -495,16 +495,29 @@ function CallerMixCard() {
   if (mix.isPending) return <Loading what="the caller mix" />
   if (mix.error) return <Failure error={mix.error} what="the caller mix" />
 
+  // A population that placed no call is dropped rather than drawn as an empty
+  // bar. This chart's bars are resolution rates, and a rate over no calls is
+  // not zero — it does not exist. Drawn, the row read as a population resolved
+  // 0% of the time, which is the opposite of what the data says. "Signals by
+  // owner" beside it keeps its zeros deliberately: there the bar is a count,
+  // and a count of nothing is a real and useful zero.
+  const callers = mix.data.callers.filter((caller) => caller.calls > 0)
+
   return (
     <>
+      {callers.length === 0 ? (
+        <Empty title="No call states who was calling">
+          <Note>Every analyzed call would have to name its caller for this to be drawn.</Note>
+        </Empty>
+      ) : null}
       <BarRows>
-        {mix.data.callers.map((caller) => (
+        {callers.map((caller) => (
           <Bar
             key={caller.caller_type}
             label={drillDown(
               callerLabel(caller),
               `caller=${encodeURIComponent(caller.caller_type)}`,
-              caller.calls > 0,
+              true,
             )}
             segments={[
               {
@@ -518,7 +531,7 @@ function CallerMixCard() {
                 label: 'Not resolved on first call',
               },
             ]}
-            value={caller.calls === 0 ? '—' : `${String(caller.resolution_rate)}%`}
+            value={`${String(caller.resolution_rate)}%`}
           />
         ))}
       </BarRows>
@@ -718,7 +731,7 @@ export function OverviewPage() {
       <div className={styles.grid}>
         <Card
           title="Who calls, and who gets an answer"
-          hint="Bars are the share of each population resolved first time, not their share of the queue — the three are different sizes, and stacking them by volume would say only that members call most. An employer is a whole group’s coverage and a broker is a distribution channel; averaging all three into one resolution rate describes none of them."
+          hint="Bars are the share of each population resolved first time, not their share of the queue — the populations are different sizes, and stacking them by volume would say only that members call most. An employer is a whole group’s coverage and a broker is a distribution channel; averaging them into one resolution rate describes none of them. A population that placed no call in the period is not drawn: a resolution rate over no calls does not exist, and a bar at zero would read as one that was never resolved."
         >
           <CallerMixCard />
         </Card>
