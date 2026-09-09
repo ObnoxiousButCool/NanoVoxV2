@@ -2032,7 +2032,12 @@ export interface operations {
     };
     get_agents_api_v1_dashboard_agents_get: {
         parameters: {
-            query?: never;
+            query?: {
+                /** @description Narrow to calls from the week containing this date. */
+                anchor?: string | null;
+                /** @description Narrow to calls from this date's calendar month. */
+                month?: string | null;
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -2046,6 +2051,15 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AgentResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
@@ -2112,7 +2126,12 @@ export interface operations {
     };
     get_overview_api_v1_dashboard_overview_get: {
         parameters: {
-            query?: never;
+            query?: {
+                /** @description Narrow every figure to the week containing this date. */
+                anchor?: string | null;
+                /** @description Narrow every figure to this date's calendar month. */
+                month?: string | null;
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -2126,6 +2145,15 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["OverviewResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
@@ -2170,7 +2198,12 @@ export interface operations {
     };
     get_resolution_time_api_v1_dashboard_resolution_time_get: {
         parameters: {
-            query?: never;
+            query?: {
+                /** @description Narrow to calls from the week containing this date. */
+                anchor?: string | null;
+                /** @description Narrow to calls from this date's calendar month. */
+                month?: string | null;
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -2186,11 +2219,25 @@ export interface operations {
                     "application/json": components["schemas"]["ResolutionTimeResponse"];
                 };
             };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
         };
     };
     get_signals_api_v1_dashboard_signals_get: {
         parameters: {
-            query?: never;
+            query?: {
+                /** @description Narrow to calls from the week containing this date. */
+                anchor?: string | null;
+                /** @description Narrow to calls from this date's calendar month. */
+                month?: string | null;
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -2206,11 +2253,25 @@ export interface operations {
                     "application/json": components["schemas"]["SignalsResponse"];
                 };
             };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
         };
     };
     get_time_value_api_v1_dashboard_time_value_get: {
         parameters: {
-            query?: never;
+            query?: {
+                /** @description Narrow to calls from the week containing this date. */
+                anchor?: string | null;
+                /** @description Narrow to calls from this date's calendar month. */
+                month?: string | null;
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -2226,11 +2287,25 @@ export interface operations {
                     "application/json": components["schemas"]["TimeValueResponse"];
                 };
             };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
         };
     };
     get_work_mix_api_v1_dashboard_work_mix_get: {
         parameters: {
-            query?: never;
+            query?: {
+                /** @description Narrow to calls from the week containing this date. */
+                anchor?: string | null;
+                /** @description Narrow to calls from this date's calendar month. */
+                month?: string | null;
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -2244,6 +2319,15 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["WorkMixResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

@@ -3812,6 +3812,46 @@
     "/api/v1/dashboard/agents": {
       "get": {
         "operationId": "get_agents_api_v1_dashboard_agents_get",
+        "parameters": [
+          {
+            "description": "Narrow to calls from the week containing this date.",
+            "in": "query",
+            "name": "anchor",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Narrow to calls from the week containing this date.",
+              "title": "Anchor"
+            }
+          },
+          {
+            "description": "Narrow to calls from this date's calendar month.",
+            "in": "query",
+            "name": "month",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Narrow to calls from this date's calendar month.",
+              "title": "Month"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -3826,6 +3866,16 @@
               }
             },
             "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
           }
         },
         "summary": "Agent performance",
@@ -3904,6 +3954,46 @@
     "/api/v1/dashboard/overview": {
       "get": {
         "operationId": "get_overview_api_v1_dashboard_overview_get",
+        "parameters": [
+          {
+            "description": "Narrow every figure to the week containing this date.",
+            "in": "query",
+            "name": "anchor",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Narrow every figure to the week containing this date.",
+              "title": "Anchor"
+            }
+          },
+          {
+            "description": "Narrow every figure to this date's calendar month.",
+            "in": "query",
+            "name": "month",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Narrow every figure to this date's calendar month.",
+              "title": "Month"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -3914,6 +4004,16 @@
               }
             },
             "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
           }
         },
         "summary": "What needs attention",
@@ -4026,6 +4126,46 @@
     "/api/v1/dashboard/resolution-time": {
       "get": {
         "operationId": "get_resolution_time_api_v1_dashboard_resolution_time_get",
+        "parameters": [
+          {
+            "description": "Narrow to calls from the week containing this date.",
+            "in": "query",
+            "name": "anchor",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Narrow to calls from the week containing this date.",
+              "title": "Anchor"
+            }
+          },
+          {
+            "description": "Narrow to calls from this date's calendar month.",
+            "in": "query",
+            "name": "month",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Narrow to calls from this date's calendar month.",
+              "title": "Month"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -4036,6 +4176,16 @@
               }
             },
             "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
           }
         },
         "summary": "How long it takes to resolve a member's problem, by category",
@@ -4047,6 +4197,46 @@
     "/api/v1/dashboard/signals": {
       "get": {
         "operationId": "get_signals_api_v1_dashboard_signals_get",
+        "parameters": [
+          {
+            "description": "Narrow to calls from the week containing this date.",
+            "in": "query",
+            "name": "anchor",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Narrow to calls from the week containing this date.",
+              "title": "Anchor"
+            }
+          },
+          {
+            "description": "Narrow to calls from this date's calendar month.",
+            "in": "query",
+            "name": "month",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Narrow to calls from this date's calendar month.",
+              "title": "Month"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -4057,6 +4247,16 @@
               }
             },
             "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
           }
         },
         "summary": "L4 signal distribution",
@@ -4068,6 +4268,46 @@
     "/api/v1/dashboard/time-value": {
       "get": {
         "operationId": "get_time_value_api_v1_dashboard_time_value_get",
+        "parameters": [
+          {
+            "description": "Narrow to calls from the week containing this date.",
+            "in": "query",
+            "name": "anchor",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Narrow to calls from the week containing this date.",
+              "title": "Anchor"
+            }
+          },
+          {
+            "description": "Narrow to calls from this date's calendar month.",
+            "in": "query",
+            "name": "month",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Narrow to calls from this date's calendar month.",
+              "title": "Month"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -4078,6 +4318,16 @@
               }
             },
             "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
           }
         },
         "summary": "What the time on calls bought, in minutes",
@@ -4089,6 +4339,46 @@
     "/api/v1/dashboard/work-mix": {
       "get": {
         "operationId": "get_work_mix_api_v1_dashboard_work_mix_get",
+        "parameters": [
+          {
+            "description": "Narrow to calls from the week containing this date.",
+            "in": "query",
+            "name": "anchor",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Narrow to calls from the week containing this date.",
+              "title": "Anchor"
+            }
+          },
+          {
+            "description": "Narrow to calls from this date's calendar month.",
+            "in": "query",
+            "name": "month",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Narrow to calls from this date's calendar month.",
+              "title": "Month"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -4099,6 +4389,16 @@
               }
             },
             "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
           }
         },
         "summary": "Who calls, and when the calls come",

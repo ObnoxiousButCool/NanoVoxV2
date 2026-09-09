@@ -497,13 +497,29 @@ class WorkMixResponse(BaseModel):
 
 
 @router.get("/overview", response_model=OverviewResponse, summary="What needs attention")
-async def get_overview(use_case: OverviewDep) -> OverviewResponse:
-    return _overview_response(await use_case.execute())
+async def get_overview(
+    use_case: OverviewDep,
+    anchor: date | None = Query(  # noqa: B008
+        default=None, description="Narrow every figure to the week containing this date."
+    ),
+    month: date | None = Query(  # noqa: B008
+        default=None, description="Narrow every figure to this date's calendar month."
+    ),
+) -> OverviewResponse:
+    return _overview_response(await use_case.execute(anchor=anchor, month=month))
 
 
 @router.get("/agents", response_model=list[AgentResponse], summary="Agent performance")
-async def get_agents(use_case: AgentPerformanceDep) -> list[AgentResponse]:
-    return [_agent_response(agent) for agent in await use_case.execute()]
+async def get_agents(
+    use_case: AgentPerformanceDep,
+    anchor: date | None = Query(  # noqa: B008
+        default=None, description="Narrow to calls from the week containing this date."
+    ),
+    month: date | None = Query(  # noqa: B008
+        default=None, description="Narrow to calls from this date's calendar month."
+    ),
+) -> list[AgentResponse]:
+    return [_agent_response(agent) for agent in await use_case.execute(anchor=anchor, month=month)]
 
 
 @router.get("/brokers", response_model=list[BrokerResponse], summary="Broker scorecard")
@@ -516,8 +532,16 @@ async def get_brokers(use_case: BrokerScorecardDep) -> list[BrokerResponse]:
     response_model=TimeValueResponse,
     summary="What the time on calls bought, in minutes",
 )
-async def get_time_value(use_case: TimeValueDep) -> TimeValueResponse:
-    result = await use_case.execute()
+async def get_time_value(
+    use_case: TimeValueDep,
+    anchor: date | None = Query(  # noqa: B008
+        default=None, description="Narrow to calls from the week containing this date."
+    ),
+    month: date | None = Query(  # noqa: B008
+        default=None, description="Narrow to calls from this date's calendar month."
+    ),
+) -> TimeValueResponse:
+    result = await use_case.execute(anchor=anchor, month=month)
     return TimeValueResponse(
         total_minutes=result.total_minutes,
         resolved_minutes=result.resolved_minutes,
@@ -548,8 +572,16 @@ async def get_time_value(use_case: TimeValueDep) -> TimeValueResponse:
     response_model=ResolutionTimeResponse,
     summary="How long it takes to resolve a member's problem, by category",
 )
-async def get_resolution_time(use_case: ResolutionTimeDep) -> ResolutionTimeResponse:
-    result = await use_case.execute()
+async def get_resolution_time(
+    use_case: ResolutionTimeDep,
+    anchor: date | None = Query(  # noqa: B008
+        default=None, description="Narrow to calls from the week containing this date."
+    ),
+    month: date | None = Query(  # noqa: B008
+        default=None, description="Narrow to calls from this date's calendar month."
+    ),
+) -> ResolutionTimeResponse:
+    result = await use_case.execute(anchor=anchor, month=month)
     return ResolutionTimeResponse(
         resolved_calls=result.resolved_calls,
         total_calls=result.total_calls,
@@ -617,8 +649,16 @@ async def get_members_at_risk(use_case: MembersAtRiskDep) -> MembersAtRiskRespon
 
 
 @router.get("/signals", response_model=SignalsResponse, summary="L4 signal distribution")
-async def get_signals(use_case: SignalDistributionDep) -> SignalsResponse:
-    entries, owners = await use_case.execute()
+async def get_signals(
+    use_case: SignalDistributionDep,
+    anchor: date | None = Query(  # noqa: B008
+        default=None, description="Narrow to calls from the week containing this date."
+    ),
+    month: date | None = Query(  # noqa: B008
+        default=None, description="Narrow to calls from this date's calendar month."
+    ),
+) -> SignalsResponse:
+    entries, owners = await use_case.execute(anchor=anchor, month=month)
     return SignalsResponse(
         categories=[_signal_entry(entry) for entry in entries],
         owners=[OwnerLoadResponse(owner=load.owner, count=load.count) for load in owners],
@@ -715,8 +755,16 @@ async def get_pulse(
     response_model=WorkMixResponse,
     summary="Who calls, and when the calls come",
 )
-async def get_work_mix(use_case: WorkMixDep) -> WorkMixResponse:
-    mix = await use_case.execute()
+async def get_work_mix(
+    use_case: WorkMixDep,
+    anchor: date | None = Query(  # noqa: B008
+        default=None, description="Narrow to calls from the week containing this date."
+    ),
+    month: date | None = Query(  # noqa: B008
+        default=None, description="Narrow to calls from this date's calendar month."
+    ),
+) -> WorkMixResponse:
+    mix = await use_case.execute(anchor=anchor, month=month)
     return WorkMixResponse(
         callers=[
             CallerBreakdownResponse(

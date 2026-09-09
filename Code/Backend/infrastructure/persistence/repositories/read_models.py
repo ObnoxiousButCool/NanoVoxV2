@@ -30,6 +30,7 @@ from application.ports.read_models import (
     CallSummary,
     KeyCount,
     Page,
+    Period,
     ReadModelRepository,
 )
 from domain.aggregation.member_risk import UNHAPPY_ENDINGS, MemberCalls
@@ -95,19 +96,33 @@ def _count_if(condition: Any) -> Any:
     return func.sum(case((condition, 1), else_=0))
 
 
+def _within(statement: Select[Any], period: Period | None) -> Select[Any]:
+    """Narrow a query to calls started in ``period``, or leave it untouched.
+
+    ``None`` is every caller's default and means all-time — the behaviour
+    every one of these queries had before the page-level Week/Month filter
+    could narrow them.
+    """
+    if period is None:
+        return statement
+    start, end = period
+    return statement.where(CallRow.started_at >= start).where(CallRow.started_at < end)
+
+
 class SqlReadModelRepository(ReadModelRepository):
     """Aggregate queries over the calls tables."""
 
     def __init__(self, session_factory: async_sessionmaker[AsyncSession]) -> None:
         self._session_factory = session_factory
 
-    async def total_calls(self) -> int:
+    async def total_calls(self, period: Period | None = None) -> int:
         async with self._session_factory() as session:
-            return int(await session.scalar(select(func.count()).select_from(CallRow)) or 0)
+            statement = _within(select(func.count()).select_from(CallRow), period)
+            return int(await session.scalar(statement) or 0)
 
-    async def scores(self) -> tuple[int, ...]:
+    async def scores(self, period: Period | None = None) -> tuple[int, ...]:
         async with self._session_factory() as session:
-            rows = await session.scalars(select(CallRow.score))
+            rows = await session.scalars(_within(select(CallRow.score), period))
             return tuple(int(value) for value in rows)
 
     async def provisional_score_count(self) -> int:
@@ -121,17 +136,18 @@ class SqlReadModelRepository(ReadModelRepository):
                 or 0
             )
 
-    async def resolution_counts(self) -> tuple[KeyCount, ...]:
+    async def resolution_counts(self, period: Period | None = None) -> tuple[KeyCount, ...]:
         async with self._session_factory() as session:
-            rows = await session.execute(
-                select(CallRow.resolution, func.count()).group_by(CallRow.resolution)
+            statement = _within(
+                select(CallRow.resolution, func.count()).group_by(CallRow.resolution), period
             )
+            rows = await session.execute(statement)
             return tuple(KeyCount(key=str(key), count=int(count)) for key, count in rows)
 
-    async def category_counts(self) -> tuple[KeyCount, ...]:
+    async def category_counts(self, period: Period | None = None) -> tuple[KeyCount, ...]:
         unresolved = _count_if(CallRow.resolution == Resolution.UNRESOLVED.value)
         async with self._session_factory() as session:
-            rows = await session.execute(
+            statement = _within(
                 select(
                     CallRow.category_code,
                     func.count(),
@@ -139,8 +155,10 @@ class SqlReadModelRepository(ReadModelRepository):
                     func.group_concat(CallRow.reference),
                 )
                 .group_by(CallRow.category_code)
-                .order_by(func.count().desc())
+                .order_by(func.count().desc()),
+                period,
             )
+            rows = await session.execute(statement)
             return tuple(
                 KeyCount(
                     key=str(code),
@@ -151,9 +169,9 @@ class SqlReadModelRepository(ReadModelRepository):
                 for code, count, open_count, references in rows
             )
 
-    async def agent_aggregates(self) -> tuple[AgentAggregate, ...]:
+    async def agent_aggregates(self, period: Period | None = None) -> tuple[AgentAggregate, ...]:
         async with self._session_factory() as session:
-            rows = await session.execute(
+            statement = _within(
                 select(
                     CallRow.agent_name,
                     func.count(),
@@ -167,8 +185,10 @@ class SqlReadModelRepository(ReadModelRepository):
                 )
                 .where(CallRow.agent_name.is_not(None))
                 .group_by(CallRow.agent_name)
-                .order_by(func.avg(CallRow.score).desc())
+                .order_by(func.avg(CallRow.score).desc()),
+                period,
             )
+            rows = await session.execute(statement)
             return tuple(
                 AgentAggregate(
                     agent_name=str(name),
@@ -194,9 +214,9 @@ class SqlReadModelRepository(ReadModelRepository):
                 ) in rows
             )
 
-    async def broker_aggregates(self) -> tuple[BrokerAggregate, ...]:
+    async def broker_aggregates(self, period: Period | None = None) -> tuple[BrokerAggregate, ...]:
         async with self._session_factory() as session:
-            rows = await session.execute(
+            statement = _within(
                 select(
                     BrokerSignalRow.broker_name,
                     func.count(),
@@ -206,8 +226,10 @@ class SqlReadModelRepository(ReadModelRepository):
                 )
                 .join(CallRow, CallRow.id == BrokerSignalRow.call_id)
                 .group_by(BrokerSignalRow.broker_name)
-                .order_by(func.count().desc())
+                .order_by(func.count().desc()),
+                period,
             )
+            rows = await session.execute(statement)
             discarded = await self._discarded_attributions(session)
             return tuple(
                 BrokerAggregate(
@@ -243,10 +265,10 @@ class SqlReadModelRepository(ReadModelRepository):
                     counts[name] = counts.get(name, 0) + 1
         return counts
 
-    async def l4_category_counts(self) -> tuple[KeyCount, ...]:
+    async def l4_category_counts(self, period: Period | None = None) -> tuple[KeyCount, ...]:
         calls = func.count(distinct(L4SignalRow.call_id))
         async with self._session_factory() as session:
-            rows = await session.execute(
+            statement = _within(
                 select(
                     L4SignalRow.category_code,
                     calls,
@@ -254,19 +276,25 @@ class SqlReadModelRepository(ReadModelRepository):
                 )
                 .join(CallRow, CallRow.id == L4SignalRow.call_id)
                 .group_by(L4SignalRow.category_code)
-                .order_by(calls.desc())
+                .order_by(calls.desc()),
+                period,
             )
+            rows = await session.execute(statement)
             return tuple(
                 KeyCount(key=str(code), count=int(count), references=_split(references))
                 for code, count, references in rows
             )
 
-    async def l4_findings(self) -> tuple[L4Finding, ...]:
+    async def l4_findings(self, period: Period | None = None) -> tuple[L4Finding, ...]:
         """Every L4 finding as a row, for attribution that needs the severities."""
         async with self._session_factory() as session:
-            rows = await session.execute(
-                select(L4SignalRow.call_id, L4SignalRow.category_code, L4SignalRow.severity)
+            statement = _within(
+                select(L4SignalRow.call_id, L4SignalRow.category_code, L4SignalRow.severity).join(
+                    CallRow, CallRow.id == L4SignalRow.call_id
+                ),
+                period,
             )
+            rows = await session.execute(statement)
             return tuple(
                 L4Finding(
                     call_id=int(call_id),
@@ -300,17 +328,19 @@ class SqlReadModelRepository(ReadModelRepository):
                 for code, count, open_count, references in rows
             )
 
-    async def call_times(self) -> tuple[CallTime, ...]:
+    async def call_times(self, period: Period | None = None) -> tuple[CallTime, ...]:
         """Every timed call, reduced to what the minute ledger needs."""
         async with self._session_factory() as session:
-            rows = await session.execute(
+            statement = _within(
                 select(
                     CallRow.category_code,
                     CallRow.resolution,
                     CallRow.duration_minutes,
                     CallRow.score,
-                ).where(CallRow.duration_minutes.is_not(None))
+                ).where(CallRow.duration_minutes.is_not(None)),
+                period,
             )
+            rows = await session.execute(statement)
             return tuple(
                 CallTime(
                     category_code=str(code),
@@ -321,14 +351,18 @@ class SqlReadModelRepository(ReadModelRepository):
                 for code, resolution, minutes, score in rows
             )
 
-    async def resolved_durations_by_category(self) -> Mapping[str, tuple[int, ...]]:
+    async def resolved_durations_by_category(
+        self, period: Period | None = None
+    ) -> Mapping[str, tuple[int, ...]]:
         """Resolved calls' durations, per category."""
         async with self._session_factory() as session:
-            rows = await session.execute(
+            statement = _within(
                 select(CallRow.category_code, CallRow.duration_minutes)
                 .where(CallRow.resolution == Resolution.RESOLVED.value)
-                .where(CallRow.duration_minutes.is_not(None))
+                .where(CallRow.duration_minutes.is_not(None)),
+                period,
             )
+            rows = await session.execute(statement)
             grouped: dict[str, list[int]] = {}
             for code, minutes in rows:
                 grouped.setdefault(str(code), []).append(int(minutes))
@@ -448,10 +482,10 @@ class SqlReadModelRepository(ReadModelRepository):
             offset=offset,
         )
 
-    async def call_facts(self) -> tuple[CallFact, ...]:
+    async def call_facts(self, period: Period | None = None) -> tuple[CallFact, ...]:
         """Every call, reduced to the dimensions the dashboard slices by."""
         async with self._session_factory() as session:
-            rows = await session.execute(
+            statement = _within(
                 select(
                     CallRow.started_at,
                     CallRow.score,
@@ -460,8 +494,10 @@ class SqlReadModelRepository(ReadModelRepository):
                     CallRow.caller_type,
                     CallRow.sentiment_start,
                     CallRow.sentiment_end,
-                )
+                ),
+                period,
             )
+            rows = await session.execute(statement)
             return tuple(
                 CallFact(
                     started_at=started_at,

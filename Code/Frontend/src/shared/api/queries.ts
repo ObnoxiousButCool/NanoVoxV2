@@ -6,7 +6,7 @@
  * all of them are counted from the same stored calls.
  */
 
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
 import {
   analyzeTranscript,
@@ -36,6 +36,7 @@ import {
   startRun,
   type AnalyzeRequest,
   type CallFilters,
+  type PeriodParams,
   type PulseParams,
   type StartRunRequest,
 } from '@/shared/api/endpoints'
@@ -49,13 +50,23 @@ export const queryKeys = {
   taxonomy: ['taxonomy'] as const,
   calls: (filters: CallFilters) => ['calls', filters] as const,
   call: (callId: number) => ['call', callId] as const,
-  overview: ['dashboard', 'overview'] as const,
-  agents: ['dashboard', 'agents'] as const,
+  overview: (params: PeriodParams = {}) =>
+    ['dashboard', 'overview', params.month ?? 'no-month', params.anchor ?? 'all-time'] as const,
+  agents: (params: PeriodParams = {}) =>
+    ['dashboard', 'agents', params.month ?? 'no-month', params.anchor ?? 'all-time'] as const,
   brokers: ['dashboard', 'brokers'] as const,
-  signals: ['dashboard', 'signals'] as const,
+  signals: (params: PeriodParams = {}) =>
+    ['dashboard', 'signals', params.month ?? 'no-month', params.anchor ?? 'all-time'] as const,
   effort: ['dashboard', 'effort'] as const,
-  resolutionTime: ['dashboard', 'resolution-time'] as const,
-  timeValue: ['dashboard', 'time-value'] as const,
+  resolutionTime: (params: PeriodParams = {}) =>
+    [
+      'dashboard',
+      'resolution-time',
+      params.month ?? 'no-month',
+      params.anchor ?? 'all-time',
+    ] as const,
+  timeValue: (params: PeriodParams = {}) =>
+    ['dashboard', 'time-value', params.month ?? 'no-month', params.anchor ?? 'all-time'] as const,
   membersAtRisk: ['dashboard', 'members-at-risk'] as const,
   pulse: (params: PulseParams = {}) =>
     [
@@ -69,7 +80,8 @@ export const queryKeys = {
       // other's cache entry.
       params.bucket ?? 'week',
     ] as const,
-  workMix: ['dashboard', 'work-mix'] as const,
+  workMix: (params: PeriodParams = {}) =>
+    ['dashboard', 'work-mix', params.month ?? 'no-month', params.anchor ?? 'all-time'] as const,
   corpus: ['corpus'] as const,
   corpusImports: ['corpus', 'imports'] as const,
   runs: ['corpus', 'runs'] as const,
@@ -116,15 +128,25 @@ export function useCall(callId: number) {
   })
 }
 
-export function useOverview() {
+export function useOverview(params: PeriodParams = {}) {
   return useQuery({
-    queryKey: queryKeys.overview,
-    queryFn: ({ signal }) => fetchOverview(signal),
+    queryKey: queryKeys.overview(params),
+    queryFn: ({ signal }) => fetchOverview(params, signal),
+    // This query gates the whole Overview page's initial render, including
+    // the period filter itself. Without this, picking a different week or
+    // month would blank the entire page — filter and all — back to a
+    // loading state on every change, since a new period is a query key with
+    // no cached data yet.
+    placeholderData: keepPreviousData,
   })
 }
 
-export function useAgents() {
-  return useQuery({ queryKey: queryKeys.agents, queryFn: ({ signal }) => fetchAgents(signal) })
+export function useAgents(params: PeriodParams = {}) {
+  return useQuery({
+    queryKey: queryKeys.agents(params),
+    queryFn: ({ signal }) => fetchAgents(params, signal),
+    placeholderData: keepPreviousData,
+  })
 }
 
 export function useBrokers() {
@@ -135,17 +157,19 @@ export function useEffort() {
   return useQuery({ queryKey: queryKeys.effort, queryFn: ({ signal }) => fetchEffort(signal) })
 }
 
-export function useResolutionTime() {
+export function useResolutionTime(params: PeriodParams = {}) {
   return useQuery({
-    queryKey: queryKeys.resolutionTime,
-    queryFn: ({ signal }) => fetchResolutionTime(signal),
+    queryKey: queryKeys.resolutionTime(params),
+    queryFn: ({ signal }) => fetchResolutionTime(params, signal),
+    placeholderData: keepPreviousData,
   })
 }
 
-export function useTimeValue() {
+export function useTimeValue(params: PeriodParams = {}) {
   return useQuery({
-    queryKey: queryKeys.timeValue,
-    queryFn: ({ signal }) => fetchTimeValue(signal),
+    queryKey: queryKeys.timeValue(params),
+    queryFn: ({ signal }) => fetchTimeValue(params, signal),
+    placeholderData: keepPreviousData,
   })
 }
 
@@ -163,12 +187,20 @@ export function usePulse(params: PulseParams = {}) {
   })
 }
 
-export function useWorkMix() {
-  return useQuery({ queryKey: queryKeys.workMix, queryFn: ({ signal }) => fetchWorkMix(signal) })
+export function useWorkMix(params: PeriodParams = {}) {
+  return useQuery({
+    queryKey: queryKeys.workMix(params),
+    queryFn: ({ signal }) => fetchWorkMix(params, signal),
+    placeholderData: keepPreviousData,
+  })
 }
 
-export function useSignals() {
-  return useQuery({ queryKey: queryKeys.signals, queryFn: ({ signal }) => fetchSignals(signal) })
+export function useSignals(params: PeriodParams = {}) {
+  return useQuery({
+    queryKey: queryKeys.signals(params),
+    queryFn: ({ signal }) => fetchSignals(params, signal),
+    placeholderData: keepPreviousData,
+  })
 }
 
 export function useCorpusStatus() {

@@ -39,7 +39,7 @@ import {
   useSignals,
   useWorkMix,
 } from '@/shared/api/queries'
-import type { PulseParams } from '@/shared/api/endpoints'
+import type { PeriodParams, PulseParams } from '@/shared/api/endpoints'
 import type { AgentPerformance, Overview } from '@/shared/api/types'
 import {
   Bar,
@@ -66,6 +66,20 @@ import styles from './OverviewPage.module.css'
 function graphPulseParams(mode: GraphFilterMode, value: string | undefined): PulseParams {
   if (!value) return {}
   return mode === 'month' ? { month: value } : { centre: value }
+}
+
+/** Every other card's own request: narrowed to the picked week or month, with
+ *  no comparison to a prior period — the top strip's own comparison is built
+ *  into its `bucket` request to `/pulse` instead, since only that endpoint
+ *  has a "last week"/"last month" figure to diff against. */
+function headerPeriodParams(
+  granularity: Granularity,
+  anchor: string | undefined,
+  fallback: string | undefined,
+): PeriodParams {
+  if (granularity !== 'month') return anchor ? { anchor } : {}
+  const value = anchor ?? fallback
+  return value ? { month: value } : {}
 }
 
 /** The prototype's outcome colours. */
@@ -141,8 +155,8 @@ function scoreBandCeiling(
  * alongside the quality figures because it answers a different question about
  * the same calls.
  */
-function ResolutionTimeCard() {
-  const resolution = useResolutionTime()
+function ResolutionTimeCard({ params }: { params: PeriodParams }) {
+  const resolution = useResolutionTime(params)
 
   if (resolution.isPending) return <Loading what="resolution time" />
   if (resolution.error) return <Failure error={resolution.error} what="resolution time" />
@@ -217,8 +231,8 @@ function ResolutionTimeCard() {
  * call" is an operations question; "how many of our hours produced an answer"
  * is the one a manager answers for, and it is a different number.
  */
-function TimeValueCard() {
-  const time = useTimeValue()
+function TimeValueCard({ params }: { params: PeriodParams }) {
+  const time = useTimeValue(params)
 
   if (time.isPending) return <Loading what="the time ledger" />
   if (time.error) return <Failure error={time.error} what="the time ledger" />
@@ -511,8 +525,8 @@ function callerLabel(caller: { caller_type: string; calls: number }): string {
   return `${name} · ${String(caller.calls)}`
 }
 
-function CallerMixCard() {
-  const mix = useWorkMix()
+function CallerMixCard({ params }: { params: PeriodParams }) {
+  const mix = useWorkMix(params)
 
   if (mix.isPending) return <Loading what="the caller mix" />
   if (mix.error) return <Failure error={mix.error} what="the caller mix" />
@@ -568,9 +582,9 @@ function CallerMixCard() {
   )
 }
 
-function HourlyCard() {
+function HourlyCard({ params }: { params: PeriodParams }) {
   const navigate = useNavigate()
-  const mix = useWorkMix()
+  const mix = useWorkMix(params)
   const weakest = mix.data?.weakest_hour
 
   if (mix.isPending) return <Loading what="the day" />
@@ -617,9 +631,6 @@ function HourlyCard() {
 
 export function OverviewPage() {
   const navigate = useNavigate()
-  const overview = useOverview()
-  const agents = useAgents()
-  const signals = useSignals()
 
   // The header filter drives the metric cards. The graph's own filter is
   // seeded from it — mode and all — but only at the moment the header filter
@@ -649,6 +660,13 @@ export function OverviewPage() {
   // reader has ever touched them.
   const resolvedGraphValue = graphValue ?? latestWeek
   const graphParams = graphPulseParams(graphMode, resolvedGraphValue)
+  // What every other card reads: the same week/month the header cards do,
+  // just without a prior-period comparison to fetch alongside it.
+  const headerPeriod = headerPeriodParams(globalGranularity, globalAnchor, latestWeek)
+
+  const overview = useOverview(headerPeriod)
+  const agents = useAgents(headerPeriod)
+  const signals = useSignals(headerPeriod)
 
   if (overview.isPending) {
     return <Loading what="the dashboard" />
@@ -659,7 +677,15 @@ export function OverviewPage() {
 
   const { metrics, histogram, categories } = overview.data
 
-  if (metrics.total_calls === 0) {
+  // Whether the corpus has any analyzed call at all — not whether the
+  // *selected* week/month does. Read from the always-unscoped corpus query
+  // so picking an empty period doesn't misreport the whole app as empty.
+  // Falls back to this (possibly period-scoped) response only in the brief
+  // window before that query resolves, when no filter has been touched yet
+  // and the two therefore agree.
+  const corpusHasData = corpus.data ? availableWeeks.length > 0 : metrics.total_calls > 0
+
+  if (!corpusHasData) {
     return (
       <>
         <PageHeader title="Operations dashboard" />
@@ -757,7 +783,7 @@ export function OverviewPage() {
           title="Who calls, and who gets an answer"
           hint="Bars are the share of each population resolved first time, not their share of the queue — the populations are different sizes, and stacking them by volume would say only that members call most. An employer is a whole group’s coverage and a broker is a distribution channel; averaging them into one resolution rate describes none of them. A population that placed no call in the period is not drawn: a resolution rate over no calls does not exist, and a bar at zero would read as one that was never resolved."
         >
-          <CallerMixCard />
+          <CallerMixCard params={headerPeriod} />
         </Card>
 
         <Card
@@ -795,7 +821,7 @@ export function OverviewPage() {
         title="Productivity"
         hint="Calls with no recorded duration are left out entirely rather than counted as zero, which would understate the minutes."
       >
-        <TimeValueCard />
+        <TimeValueCard params={headerPeriod} />
       </Card>
 
       {/* The two tallest cards on the page share a row, and the two shortest
@@ -815,7 +841,7 @@ export function OverviewPage() {
           title="Average Time Taken"
           hint="Median minutes to resolve, slowest category first, over the calls that reached a resolution. A category that has resolved nothing shows a dash rather than a zero, because no time was measured — not a fast one."
         >
-          <ResolutionTimeCard />
+          <ResolutionTimeCard params={headerPeriod} />
         </Card>
       </div>
 
@@ -882,7 +908,7 @@ export function OverviewPage() {
           title="Hourly call distribution"
           hint="Calls by the hour they started, with the mean handle time for that hour beneath it — volume alone does not size a shift, since twenty calls at seven minutes need more people than twenty at four. Handle time is averaged over the calls that state one, and shown as a dash where none do, so an unmeasured hour never reads as an instant one. The marked hour is a staffing question rather than a coaching one. Hours with fewer than four calls are drawn but carry no finding: a rota changed on two calls is a rota changed on noise, and the count above each bar is what says how much an hour rests on."
         >
-          <HourlyCard />
+          <HourlyCard params={headerPeriod} />
         </Card>
       </div>
 

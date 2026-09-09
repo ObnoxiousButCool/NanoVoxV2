@@ -37,6 +37,7 @@ from domain.aggregation.caller_mix import CallerCall, CallerMix, caller_mix
 from domain.aggregation.effort import EffortMetrics, effort_metrics
 from domain.aggregation.hourly import HourCall, HourlyLoad, hourly_load
 from domain.aggregation.member_risk import MemberAtRisk, members_at_risk
+from domain.aggregation.period import resolve_period
 from domain.aggregation.resolution_time import (
     DurationBandSettings,
     ResolutionTime,
@@ -179,14 +180,17 @@ class GetOverview:
         self._histogram = histogram_settings
         self._rules = rules
 
-    async def execute(self) -> Overview:
-        total = await self._repository.total_calls()
-        scores = await self._repository.scores()
-        resolutions = {row.key: row.count for row in await self._repository.resolution_counts()}
-        categories = await self._repository.category_counts()
-        brokers = await self._repository.broker_aggregates()
+    async def execute(self, anchor: date | None = None, month: date | None = None) -> Overview:
+        period = resolve_period(anchor, month)
+        total = await self._repository.total_calls(period)
+        scores = await self._repository.scores(period)
+        resolutions = {
+            row.key: row.count for row in await self._repository.resolution_counts(period)
+        }
+        categories = await self._repository.category_counts(period)
+        brokers = await self._repository.broker_aggregates(period)
         signals = await self._repository.signal_counts()
-        l4_counts = await self._repository.l4_category_counts()
+        l4_counts = await self._repository.l4_category_counts(period)
 
         metrics = OverviewMetrics(
             total_calls=total,
@@ -279,8 +283,10 @@ class GetAgentPerformance:
         self._repository = repository
         self._rubric = rubric
 
-    async def execute(self) -> tuple[AgentPerformance, ...]:
-        aggregates = await self._repository.agent_aggregates()
+    async def execute(
+        self, anchor: date | None = None, month: date | None = None
+    ) -> tuple[AgentPerformance, ...]:
+        aggregates = await self._repository.agent_aggregates(resolve_period(anchor, month))
         return tuple(self._rate(row) for row in aggregates)
 
     def _rate(self, row: AgentAggregate) -> AgentPerformance:
@@ -407,8 +413,8 @@ class GetWorkMix:
     def __init__(self, repository: ReadModelRepository) -> None:
         self._repository = repository
 
-    async def execute(self) -> WorkMix:
-        facts = await self._repository.call_facts()
+    async def execute(self, anchor: date | None = None, month: date | None = None) -> WorkMix:
+        facts = await self._repository.call_facts(resolve_period(anchor, month))
         return WorkMix(
             callers=caller_mix(
                 (
@@ -497,13 +503,16 @@ class GetResolutionTime:
         self._taxonomy = taxonomy
         self._bands = bands
 
-    async def execute(self) -> ResolutionTime:
+    async def execute(
+        self, anchor: date | None = None, month: date | None = None
+    ) -> ResolutionTime:
+        period = resolve_period(anchor, month)
         return resolution_time(
-            await self._repository.resolved_durations_by_category(),
+            await self._repository.resolved_durations_by_category(period),
             # Every configured category, so one that never reaches a resolution
             # is visible as a zero rather than missing from the list.
             labels={category.code: category.label for category in self._taxonomy.categories},
-            total_calls=await self._repository.total_calls(),
+            total_calls=await self._repository.total_calls(period),
             settings=self._bands,
         )
 
@@ -520,9 +529,9 @@ class GetTimeValue:
         self._repository = repository
         self._taxonomy = taxonomy
 
-    async def execute(self) -> TimeValue:
+    async def execute(self, anchor: date | None = None, month: date | None = None) -> TimeValue:
         return time_value(
-            await self._repository.call_times(),
+            await self._repository.call_times(resolve_period(anchor, month)),
             labels={category.code: category.label for category in self._taxonomy.categories},
         )
 
@@ -552,9 +561,12 @@ class GetSignalDistribution:
         self._repository = repository
         self._taxonomy = taxonomy
 
-    async def execute(self) -> tuple[tuple[SignalDistributionEntry, ...], tuple[OwnerLoad, ...]]:
-        total = await self._repository.total_calls()
-        counts = {row.key: row.count for row in await self._repository.l4_category_counts()}
+    async def execute(
+        self, anchor: date | None = None, month: date | None = None
+    ) -> tuple[tuple[SignalDistributionEntry, ...], tuple[OwnerLoad, ...]]:
+        period = resolve_period(anchor, month)
+        total = await self._repository.total_calls(period)
+        counts = {row.key: row.count for row in await self._repository.l4_category_counts(period)}
 
         # Every configured category is returned, including those with no signals:
         # "Provider relations has no signals in this sample. Shown so the absence
@@ -577,7 +589,7 @@ class GetSignalDistribution:
         # the call; this rollup answers "how many calls are mine", so it has to
         # total the number of flagged calls.
         primary = primary_category_by_call(
-            await self._repository.l4_findings(), self._taxonomy.l4_categories
+            await self._repository.l4_findings(period), self._taxonomy.l4_categories
         )
         owner_of = {category.code: category.owner.name for category in self._taxonomy.l4_categories}
         # Seeded with every owner at zero, so a team with no findings keeps its

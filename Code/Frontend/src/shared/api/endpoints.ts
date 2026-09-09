@@ -120,12 +120,43 @@ export function fetchCall(callId: number, signal?: AbortSignal): Promise<Analysi
   return getJson<Analysis>(`/calls/${String(callId)}`, signal ? { signal } : {})
 }
 
-export function fetchOverview(signal?: AbortSignal): Promise<Overview> {
-  return getJson<Overview>('/dashboard/overview', signal ? { signal } : {})
+/**
+ * The page-level Week/Month filter's own request: narrow to the week
+ * containing `anchor`, or to `month`'s whole calendar month. Shared by every
+ * read-model the filter scopes — distinct from `PulseParams`, which also
+ * carries the graph's `centre`/`bucket` shapes these endpoints have no use for.
+ */
+export interface PeriodParams {
+  readonly anchor?: string
+  readonly month?: string
 }
 
-export function fetchAgents(signal?: AbortSignal): Promise<AgentPerformance[]> {
-  return getJson<AgentPerformance[]>('/dashboard/agents', signal ? { signal } : {})
+function periodQuery(params: PeriodParams): string {
+  const query = new URLSearchParams()
+  if (params.month) {
+    query.set('month', params.month)
+  } else if (params.anchor) {
+    query.set('anchor', params.anchor)
+  }
+  const encoded = query.toString()
+  return encoded ? `?${encoded}` : ''
+}
+
+export function fetchOverview(
+  params: PeriodParams = {},
+  signal?: AbortSignal,
+): Promise<Overview> {
+  return getJson<Overview>(`/dashboard/overview${periodQuery(params)}`, signal ? { signal } : {})
+}
+
+export function fetchAgents(
+  params: PeriodParams = {},
+  signal?: AbortSignal,
+): Promise<AgentPerformance[]> {
+  return getJson<AgentPerformance[]>(
+    `/dashboard/agents${periodQuery(params)}`,
+    signal ? { signal } : {},
+  )
 }
 
 export function fetchBrokers(signal?: AbortSignal): Promise<BrokerScorecard[]> {
@@ -136,12 +167,24 @@ export function fetchEffort(signal?: AbortSignal): Promise<Effort> {
   return getJson<Effort>('/dashboard/effort', signal ? { signal } : {})
 }
 
-export function fetchResolutionTime(signal?: AbortSignal): Promise<ResolutionTime> {
-  return getJson<ResolutionTime>('/dashboard/resolution-time', signal ? { signal } : {})
+export function fetchResolutionTime(
+  params: PeriodParams = {},
+  signal?: AbortSignal,
+): Promise<ResolutionTime> {
+  return getJson<ResolutionTime>(
+    `/dashboard/resolution-time${periodQuery(params)}`,
+    signal ? { signal } : {},
+  )
 }
 
-export function fetchTimeValue(signal?: AbortSignal): Promise<TimeValue> {
-  return getJson<TimeValue>('/dashboard/time-value', signal ? { signal } : {})
+export function fetchTimeValue(
+  params: PeriodParams = {},
+  signal?: AbortSignal,
+): Promise<TimeValue> {
+  return getJson<TimeValue>(
+    `/dashboard/time-value${periodQuery(params)}`,
+    signal ? { signal } : {},
+  )
 }
 
 export function fetchMembersAtRisk(signal?: AbortSignal): Promise<MembersAtRisk> {
@@ -150,9 +193,10 @@ export function fetchMembersAtRisk(signal?: AbortSignal): Promise<MembersAtRisk>
 
 export interface PulseParams {
   /** Ends the weekly window on the week containing this date. Omitted, with
-   *  no `month` or `centre` either, the API returns the latest window. */
+   *  neither `month` nor `centre` either, the API returns the latest window. */
   readonly anchor?: string
-  /** Every week of this date's calendar month, instead of a trailing window. */
+  /** Every week of this date's calendar month, instead of a trailing window.
+   *  What the graph's Month mode reads — a per-week series to plot. */
   readonly month?: string
   /** The week either side of this date's own week, instead of a trailing
    *  window. Empty if this date falls in no week the corpus has — a
@@ -186,12 +230,21 @@ export function fetchPulse(params: PulseParams = {}, signal?: AbortSignal): Prom
   return getJson<Pulse>(`/dashboard/pulse${encoded ? `?${encoded}` : ''}`, signal ? { signal } : {})
 }
 
-export function fetchWorkMix(signal?: AbortSignal): Promise<WorkMix> {
-  return getJson<WorkMix>('/dashboard/work-mix', signal ? { signal } : {})
+export function fetchWorkMix(
+  params: PeriodParams = {},
+  signal?: AbortSignal,
+): Promise<WorkMix> {
+  return getJson<WorkMix>(`/dashboard/work-mix${periodQuery(params)}`, signal ? { signal } : {})
 }
 
-export function fetchSignals(signal?: AbortSignal): Promise<SignalDistribution> {
-  return getJson<SignalDistribution>('/dashboard/signals', signal ? { signal } : {})
+export function fetchSignals(
+  params: PeriodParams = {},
+  signal?: AbortSignal,
+): Promise<SignalDistribution> {
+  return getJson<SignalDistribution>(
+    `/dashboard/signals${periodQuery(params)}`,
+    signal ? { signal } : {},
+  )
 }
 
 export function analyzeTranscript(request: AnalyzeRequest): Promise<Analysis> {

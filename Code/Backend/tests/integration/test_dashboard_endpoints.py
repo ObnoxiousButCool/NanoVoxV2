@@ -69,6 +69,25 @@ class TestOverviewEndpoint:
 
         assert body["taxonomy_coverage"] == 100.0
 
+    def test_an_anchor_narrows_every_figure_to_that_week(self, seeded: TestClient) -> None:
+        # The fixture's 11 calls span three weeks: 27 Jul (2), 3 Aug (7), and
+        # 10 Aug (2) — this anchor names the middle one.
+        body = get(seeded, "/api/v1/dashboard/overview", anchor="2026-08-04")
+
+        assert body["metrics"]["total_calls"] == 7
+
+    def test_a_month_narrows_every_figure_to_that_month(self, seeded: TestClient) -> None:
+        # The fixture's 11 calls are all dated within August by their own
+        # date (1-11 Aug), regardless of which week they fall in.
+        body = get(seeded, "/api/v1/dashboard/overview", month="2026-08-15")
+
+        assert body["metrics"]["total_calls"] == TOTAL_CALLS
+
+    def test_no_period_given_is_the_unnarrowed_all_time_total(self, seeded: TestClient) -> None:
+        body = get(seeded, "/api/v1/dashboard/overview")
+
+        assert body["metrics"]["total_calls"] == TOTAL_CALLS
+
 
 class TestAgentsEndpoint:
     def test_unrated_agents_are_returned_with_a_null_tier_and_a_note(
@@ -81,6 +100,16 @@ class TestAgentsEndpoint:
         assert "significance threshold" in by_name["Priya"]["note"]
         assert by_name["Brad"]["tier"] == "POOR"
         assert by_name["Brad"]["note"] is None
+
+    def test_an_anchor_narrows_every_agents_calls_to_that_week(self, seeded: TestClient) -> None:
+        rows = get(seeded, "/api/v1/dashboard/agents", anchor="2026-08-04")["items"]
+
+        assert sum(row["call_count"] for row in rows) == 7
+
+    def test_a_month_narrows_every_agents_calls_to_that_month(self, seeded: TestClient) -> None:
+        rows = get(seeded, "/api/v1/dashboard/agents", month="2026-08-15")["items"]
+
+        assert sum(row["call_count"] for row in rows) == TOTAL_CALLS
 
 
 class TestBrokersEndpoint:
@@ -107,6 +136,53 @@ class TestSignalsEndpoint:
 
         assert by_owner["Operations"] == 3
         assert by_owner["Provider Relations"] == 0
+
+    def test_an_anchor_narrows_the_signal_counts_to_that_week(self, seeded: TestClient) -> None:
+        baseline = seeded.get("/api/v1/dashboard/signals").json()
+        narrowed = get(seeded, "/api/v1/dashboard/signals", anchor="2026-08-04")
+
+        baseline_total = sum(row["count"] for row in baseline["categories"])
+        narrowed_total = sum(row["count"] for row in narrowed["categories"])
+        assert narrowed_total < baseline_total
+
+
+class TestTimeValueEndpoint:
+    def test_returns_the_minute_ledger(self, seeded: TestClient) -> None:
+        body = get(seeded, "/api/v1/dashboard/time-value")
+
+        assert body["total_minutes"] > 0
+        assert body["categories"]
+
+    def test_an_anchor_narrows_the_minutes_to_that_week(self, seeded: TestClient) -> None:
+        baseline = get(seeded, "/api/v1/dashboard/time-value")
+        narrowed = get(seeded, "/api/v1/dashboard/time-value", anchor="2026-08-04")
+
+        assert narrowed["total_minutes"] < baseline["total_minutes"]
+
+    def test_a_month_narrows_the_minutes_to_that_month(self, seeded: TestClient) -> None:
+        # The fixture's 11 calls are all dated within August, so a month with
+        # none narrows all the way to zero rather than merely to less.
+        narrowed = get(seeded, "/api/v1/dashboard/time-value", month="2020-01-15")
+
+        assert narrowed["total_minutes"] == 0
+
+
+class TestResolutionTimeEndpoint:
+    def test_returns_resolved_calls_against_the_total(self, seeded: TestClient) -> None:
+        body = get(seeded, "/api/v1/dashboard/resolution-time")
+
+        assert body["total_calls"] == TOTAL_CALLS
+        assert body["resolved_calls"] <= TOTAL_CALLS
+
+    def test_an_anchor_narrows_the_total_to_that_week(self, seeded: TestClient) -> None:
+        body = get(seeded, "/api/v1/dashboard/resolution-time", anchor="2026-08-04")
+
+        assert body["total_calls"] == 7
+
+    def test_a_month_narrows_the_total_to_that_month(self, seeded: TestClient) -> None:
+        body = get(seeded, "/api/v1/dashboard/resolution-time", month="2026-08-15")
+
+        assert body["total_calls"] == TOTAL_CALLS
 
 
 class TestPulseEndpoint:
@@ -198,6 +274,21 @@ class TestPulseEndpoint:
         assert body["points"] == []
         assert body["latest"] is None
 
+    def test_bucket_month_rolls_the_whole_month_into_one_point(self, seeded: TestClient) -> None:
+        # The fixture corpus's eleven calls all fall within August by their
+        # own date (1-11 Aug), unlike the weekly view where the first two
+        # land in the week starting 27 Jul.
+        body = seeded.get("/api/v1/dashboard/pulse", params={"bucket": "month"}).json()
+
+        assert body["latest"]["label"] == "Aug 2026"
+        assert body["latest"]["calls"] == TOTAL_CALLS
+        assert body["previous"] is None
+
+    def test_available_months_lists_only_months_with_a_call(self, seeded: TestClient) -> None:
+        body = seeded.get("/api/v1/dashboard/pulse").json()
+
+        assert body["available_months"] == ["2026-08-01"]
+
 
 class TestWorkMixEndpoint:
     def test_every_configured_caller_gets_a_row(self, seeded: TestClient) -> None:
@@ -224,6 +315,16 @@ class TestWorkMixEndpoint:
         assert body["hours"]
         assert all("is_thin" in hour for hour in body["hours"])
         assert body["busiest_hour"] is not None
+
+    def test_an_anchor_narrows_the_caller_totals_to_that_week(self, seeded: TestClient) -> None:
+        body = get(seeded, "/api/v1/dashboard/work-mix", anchor="2026-08-04")
+
+        assert sum(row["calls"] for row in body["callers"]) == 7
+
+    def test_a_month_narrows_the_caller_totals_to_that_month(self, seeded: TestClient) -> None:
+        body = get(seeded, "/api/v1/dashboard/work-mix", month="2026-08-15")
+
+        assert sum(row["calls"] for row in body["callers"]) == TOTAL_CALLS
 
     def test_hours_carry_their_mean_handle_time(self, seeded: TestClient) -> None:
         # The staffing pair: how many calls arrived in an hour, and how long

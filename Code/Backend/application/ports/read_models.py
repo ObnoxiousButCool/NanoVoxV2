@@ -12,7 +12,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from collections.abc import Mapping
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import date, datetime
 from enum import Enum
 
 from domain.aggregation.member_risk import MemberCalls
@@ -169,14 +169,21 @@ class KeyCount:
     references: tuple[str, ...] = field(default_factory=tuple)
 
 
+#: A half-open ``[start, end)`` date range, as returned by
+#: ``domain.aggregation.period.resolve_period``. ``None`` everywhere below
+#: means all-time — the default, unfiltered behaviour every caller had before
+#: the page-level Week/Month filter existed.
+Period = tuple[date, date]
+
+
 class ReadModelRepository(ABC):
     """Aggregate queries over analyzed calls."""
 
     @abstractmethod
-    async def total_calls(self) -> int: ...
+    async def total_calls(self, period: Period | None = None) -> int: ...
 
     @abstractmethod
-    async def scores(self) -> tuple[int, ...]:
+    async def scores(self, period: Period | None = None) -> tuple[int, ...]:
         """Every call's score, for distribution statistics."""
 
     @abstractmethod
@@ -188,24 +195,28 @@ class ReadModelRepository(ABC):
         """
 
     @abstractmethod
-    async def resolution_counts(self) -> tuple[KeyCount, ...]: ...
+    async def resolution_counts(self, period: Period | None = None) -> tuple[KeyCount, ...]: ...
 
     @abstractmethod
-    async def category_counts(self) -> tuple[KeyCount, ...]:
+    async def category_counts(self, period: Period | None = None) -> tuple[KeyCount, ...]:
         """Calls per call category, with how many of each ended unresolved."""
 
     @abstractmethod
-    async def agent_aggregates(self) -> tuple[AgentAggregate, ...]: ...
+    async def agent_aggregates(
+        self, period: Period | None = None
+    ) -> tuple[AgentAggregate, ...]: ...
 
     @abstractmethod
-    async def broker_aggregates(self) -> tuple[BrokerAggregate, ...]: ...
+    async def broker_aggregates(
+        self, period: Period | None = None
+    ) -> tuple[BrokerAggregate, ...]: ...
 
     @abstractmethod
-    async def l4_category_counts(self) -> tuple[KeyCount, ...]:
+    async def l4_category_counts(self, period: Period | None = None) -> tuple[KeyCount, ...]:
         """Calls flagged per L4 category. A call raising two signals of one category counts once."""
 
     @abstractmethod
-    async def l4_findings(self) -> tuple[L4Finding, ...]:
+    async def l4_findings(self, period: Period | None = None) -> tuple[L4Finding, ...]:
         """Every operational finding, with the call it is on and its severity.
 
         Rows rather than counts, because the owner rollup has to attribute each
@@ -219,7 +230,7 @@ class ReadModelRepository(ABC):
         """Calls raising each signal type."""
 
     @abstractmethod
-    async def call_times(self) -> tuple[CallTime, ...]:
+    async def call_times(self, period: Period | None = None) -> tuple[CallTime, ...]:
         """Category, outcome, duration and score for every timed call.
 
         Rows rather than aggregates: the minute ledger has to split failures by
@@ -229,7 +240,9 @@ class ReadModelRepository(ABC):
         """
 
     @abstractmethod
-    async def resolved_durations_by_category(self) -> Mapping[str, tuple[int, ...]]:
+    async def resolved_durations_by_category(
+        self, period: Period | None = None
+    ) -> Mapping[str, tuple[int, ...]]:
         """Durations of resolved calls, grouped by category code.
 
         Resolved only, because the figure this feeds is time *to an answer*. The
@@ -261,7 +274,7 @@ class ReadModelRepository(ABC):
     ) -> Page: ...
 
     @abstractmethod
-    async def call_facts(self) -> tuple[CallFact, ...]:
+    async def call_facts(self, period: Period | None = None) -> tuple[CallFact, ...]:
         """Every analyzed call, reduced to the dimensions the dashboard slices by."""
 
     @abstractmethod

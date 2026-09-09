@@ -494,7 +494,13 @@ describe('OverviewPage', () => {
   })
 
   it('points a fresh install at Analyze instead of showing empty charts', async () => {
-    renderOverview({ ...OVERVIEW, metrics: { ...OVERVIEW.metrics, total_calls: 0 } })
+    // Read from the always-unscoped corpus query, not the (possibly
+    // period-scoped) overview metrics — otherwise picking an empty week or
+    // month would wrongly show this for the whole app.
+    renderOverview(
+      { ...OVERVIEW, metrics: { ...OVERVIEW.metrics, total_calls: 0 } },
+      { pulse: { ...PULSE, available_weeks: [], latest: null, previous: null, delta: null } },
+    )
 
     expect(await screen.findByText('No calls analyzed yet')).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Analyze a call' })).toBeInTheDocument()
