@@ -267,7 +267,7 @@ function TimeValueCard({ params }: { params: PeriodParams }) {
         </div>
         <div className={styles.effortStat}>
           <b>{(data.unproductive_minutes / 60).toFixed(1)}h</b>
-          <span>BOUGHT NOTHING</span>
+          <span>BROUGHT NOTHING</span>
         </div>
       </div>
 
