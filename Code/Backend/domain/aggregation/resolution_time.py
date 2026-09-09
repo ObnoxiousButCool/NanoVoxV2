@@ -6,7 +6,7 @@ So the figures here are computed over **resolved calls only**. "Twelve minutes t
 an answer" is a service fact; "twelve minutes on the phone" is not.
 
 Split by category because the mix matters more than the average. A pharmacy
-query and a coverage appeal are different pieces of work, and a single median
+query and a coverage appeal are different pieces of work, and a single average
 across both describes neither — it moves when the mix of calls changes, which
 reads as a change in performance when nothing about the handling changed.
 """
@@ -17,7 +17,7 @@ from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from itertools import pairwise
 
-from domain.aggregation.statistics import median
+from domain.aggregation.statistics import mean
 from domain.errors import ValidationError
 
 __all__ = [
@@ -72,7 +72,7 @@ class CategoryResolutionTime:
     code: str
     label: str
     resolved_calls: int
-    median_minutes: float
+    average_minutes: float
     longest_minutes: int
 
 
@@ -82,9 +82,9 @@ class ResolutionTime:
 
     resolved_calls: int
     # Every analyzed call, so a reader can see what share reached a resolution
-    # at all rather than assuming the median describes the whole corpus.
+    # at all rather than assuming the average describes the whole corpus.
     total_calls: int
-    median_minutes: float
+    average_minutes: float
     longest_minutes: int
     bands: tuple[DurationBand, ...]
     categories: tuple[CategoryResolutionTime, ...]
@@ -145,8 +145,8 @@ def resolution_time(
                     code=code,
                     label=labels.get(code, code),
                     resolved_calls=len(durations_by_category.get(code, ())),
-                    median_minutes=(
-                        round(median(durations_by_category[code]), 1)
+                    average_minutes=(
+                        round(mean(durations_by_category[code]), 1)
                         if durations_by_category.get(code)
                         else 0.0
                     ),
@@ -156,14 +156,14 @@ def resolution_time(
             ),
             # Slowest first: the point of the breakdown is which work takes
             # longest, and a reader should not have to hunt for it.
-            key=lambda entry: (-entry.median_minutes, entry.label),
+            key=lambda entry: (-entry.average_minutes, entry.label),
         )
     )
 
     return ResolutionTime(
         resolved_calls=len(every),
         total_calls=total_calls,
-        median_minutes=round(median(every), 1) if every else 0.0,
+        average_minutes=round(mean(every), 1) if every else 0.0,
         longest_minutes=max(every) if every else 0,
         bands=_bands(every, settings),
         categories=categories,

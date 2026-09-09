@@ -10,7 +10,7 @@ half and then recovered — two movements a manager would act on, and the averag
 of the two is the one thing that describes neither.
 
 **Weekly, not daily.** A hundred calls over a month is three to five a day, and a
-median over three calls moves on noise. A week is the shortest bucket in which a
+average over three calls moves on noise. A week is the shortest bucket in which a
 change here is a change rather than a coin flip. Buckets start on Monday, so a
 week is the working week a manager already thinks in.
 
@@ -27,7 +27,7 @@ from dataclasses import dataclass
 from datetime import date, datetime, timedelta
 from enum import Enum
 
-from domain.aggregation.statistics import median, percentage
+from domain.aggregation.statistics import mean, percentage
 
 __all__ = [
     "Bucket",
@@ -51,8 +51,8 @@ class Bucket(str, Enum):
     """The period one point covers.
 
     A month is not four weeks added up. Every figure here is computed from the
-    calls in the bucket, so a month's median score is the median of its own
-    calls -- the median of four weekly medians is a different number, and not
+    calls in the bucket, so a month's average score is the average of its own
+    calls -- the average of four weekly averages is a different number, and not
     one the corpus contains. That is why picking a month re-buckets from the
     calls rather than folding the weekly series.
     """
@@ -79,9 +79,9 @@ class TrendPoint:
     label: str
     calls: int
     # None where the week has no calls: the series has a gap, not a zero.
-    median_score: float | None
+    average_score: float | None
     resolution_rate: float | None
-    median_handle_minutes: float | None
+    average_handle_minutes: float | None
     # Counted per period, for the same reason the resolution rate is. One call
     # escalating in a quiet week is a different fact from one escalating across
     # a hundred, and an all-time rate reports the second while a reader asking
@@ -155,9 +155,9 @@ def _point(starting: date, calls: Sequence[TrendCall], bucket: Bucket = Bucket.W
             starting=starting,
             label=_label(starting, bucket),
             calls=0,
-            median_score=None,
+            average_score=None,
             resolution_rate=None,
-            median_handle_minutes=None,
+            average_handle_minutes=None,
             escalation_rate=None,
         )
 
@@ -166,14 +166,14 @@ def _point(starting: date, calls: Sequence[TrendCall], bucket: Bucket = Bucket.W
         starting=starting,
         label=_label(starting, bucket),
         calls=len(calls),
-        median_score=median([call.score for call in calls]),
+        average_score=mean([call.score for call in calls]),
         resolution_rate=percentage(
             sum(1 for call in calls if call.resolution == _RESOLVED), len(calls)
         ),
         # Handle time is measured over the calls that state one, not over the
-        # week: a week where half the calls are untimed still has a real median
+        # week: a week where half the calls are untimed still has a real average
         # for the half that are, and reporting None there would hide it.
-        median_handle_minutes=round(median(timed) / 60, 1) if timed else None,
+        average_handle_minutes=round(mean(timed) / 60, 1) if timed else None,
         escalation_rate=percentage(
             sum(1 for call in calls if call.resolution == _ESCALATED), len(calls)
         ),

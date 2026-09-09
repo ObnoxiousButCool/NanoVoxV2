@@ -191,8 +191,8 @@ function ResolutionTimeCard({ params }: { params: PeriodParams }) {
     <>
       <div className={styles.effortRow}>
         <div className={styles.effortStat}>
-          <b>{data.median_minutes}</b>
-          <span>MEDIAN MINUTES TO RESOLVE</span>
+          <b>{data.average_minutes}</b>
+          <span>AVERAGE MINUTES TO RESOLVE</span>
         </div>
         <div className={styles.effortStat}>
           <b>{data.resolved_calls}</b>
@@ -219,19 +219,19 @@ function ResolutionTimeCard({ params }: { params: PeriodParams }) {
             title={`${category.label}: ${String(category.resolved_calls)} resolved, longest ${String(category.longest_minutes)} min`}
             segments={[
               {
-                value: category.median_minutes,
+                value: category.average_minutes,
                 color: OWNER_COLOUR,
                 label: category.label,
               },
               {
                 // Scaled against the slowest category so the bars are
                 // comparable rather than each filling its own row.
-                value: Math.max(data.longest_minutes - category.median_minutes, 0),
+                value: Math.max(data.longest_minutes - category.average_minutes, 0),
                 color: 'transparent',
                 label: 'Remainder',
               },
             ]}
-            value={category.resolved_calls === 0 ? '—' : `${String(category.median_minutes)} min`}
+            value={category.resolved_calls === 0 ? '—' : `${String(category.average_minutes)} min`}
           />
         ))}
       </BarRows>
@@ -410,7 +410,7 @@ function PulseStrip({
   granularity: Granularity
 }) {
   // Bucketed by whatever the reader picked. A month is not its last week, and
-  // it is not four weekly medians folded together either: asking the API to
+  // it is not four weekly averages folded together either: asking the API to
   // bucket by month makes every figure here a count over the month's own
   // calls. Before this, picking September reported 11 of its 89 calls.
   const month = granularity === 'month'
@@ -454,8 +454,8 @@ function PulseStrip({
       <DeltaMetric
         label="Average Call Score"
         period={granularity}
-        value={latest.median_score ?? '—'}
-        delta={delta?.median_score}
+        value={latest.average_score ?? '—'}
+        delta={delta?.average_score}
         format={(value) => `${String(value)} pts`}
         goodDirection="up"
       />
@@ -463,11 +463,11 @@ function PulseStrip({
         label="Average Handling Time (AHT)"
         period={granularity}
         value={
-          latest.median_handle_minutes === null
+          latest.average_handle_minutes === null
             ? '—'
-            : `${String(latest.median_handle_minutes)}m`
+            : `${String(latest.average_handle_minutes)}m`
         }
-        delta={delta?.median_handle_minutes}
+        delta={delta?.average_handle_minutes}
         format={(value) => `${String(value)} min`}
         // A shorter call is read as an efficiency win, matching every other
         // figure on this strip where a fall is coloured good.
@@ -539,8 +539,8 @@ function QualityVsHandlingTimeCard({ params }: { params: PulseParams }) {
         // than re-bucketing them into one, so the label always spans a week,
         // never "start of month to end of month".
         label: pointRangeLabel(point.starting, 'week'),
-        quality: point.median_score ?? null,
-        ahtMinutes: point.median_handle_minutes ?? null,
+        quality: point.average_score ?? null,
+        ahtMinutes: point.average_handle_minutes ?? null,
       }))}
     />
   )
@@ -890,7 +890,7 @@ export function OverviewPage() {
 
         <Card
           title="Average Time Taken"
-          hint="Median minutes to resolve, slowest category first, over the calls that reached a resolution. A category that has resolved nothing shows a dash rather than a zero, because no time was measured — not a fast one."
+          hint="Average minutes to resolve, slowest category first, over the calls that reached a resolution. A category that has resolved nothing shows a dash rather than a zero, because no time was measured — not a fast one."
         >
           <ResolutionTimeCard params={headerPeriod} />
         </Card>

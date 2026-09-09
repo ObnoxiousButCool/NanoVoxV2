@@ -632,8 +632,8 @@ export interface components {
          * @description The period one point covers.
          *
          *     A month is not four weeks added up. Every figure here is computed from the
-         *     calls in the bucket, so a month's median score is the median of its own
-         *     calls -- the median of four weekly medians is a different number, and not
+         *     calls in the bucket, so a month's average score is the average of its own
+         *     calls -- the average of four weekly averages is a different number, and not
          *     one the corpus contains. That is why picking a month re-buckets from the
          *     calls rather than folding the weekly series.
          * @enum {string}
@@ -750,14 +750,14 @@ export interface components {
         };
         /** CategoryResolutionTimeResponse */
         CategoryResolutionTimeResponse: {
+            /** Average Minutes */
+            average_minutes: number;
             /** Code */
             code: string;
             /** Label */
             label: string;
             /** Longest Minutes */
             longest_minutes: number;
-            /** Median Minutes */
-            median_minutes: number;
             /** Resolved Calls */
             resolved_calls: number;
         };
@@ -1290,6 +1290,8 @@ export interface components {
         };
         /** ResolutionTimeResponse */
         ResolutionTimeResponse: {
+            /** Average Minutes */
+            average_minutes: number;
             /** Bands */
             bands: components["schemas"]["DurationBandResponse"][];
             /**
@@ -1299,8 +1301,6 @@ export interface components {
             categories: components["schemas"]["CategoryResolutionTimeResponse"][];
             /** Longest Minutes */
             longest_minutes: number;
-            /** Median Minutes */
-            median_minutes: number;
             /**
              * Resolved Calls
              * @description Calls that reached a resolution. Every figure here is measured over these only — handle time across all calls rewards ending the call, not solving it.
@@ -1551,19 +1551,26 @@ export interface components {
          * @description The most recent week against the one before it.
          */
         TrendDeltaResponse: {
+            /** Average Handle Minutes */
+            average_handle_minutes: number | null;
+            /** Average Score */
+            average_score: number | null;
             /** Calls */
             calls: number;
             /** Escalation Rate */
             escalation_rate: number | null;
-            /** Median Handle Minutes */
-            median_handle_minutes: number | null;
-            /** Median Score */
-            median_score: number | null;
             /** Resolution Rate */
             resolution_rate: number | null;
         };
         /** TrendPointResponse */
         TrendPointResponse: {
+            /** Average Handle Minutes */
+            average_handle_minutes?: number | null;
+            /**
+             * Average Score
+             * @description Absent for a week with no calls, which is a gap not a zero.
+             */
+            average_score?: number | null;
             /** Calls */
             calls: number;
             /**
@@ -1573,13 +1580,6 @@ export interface components {
             escalation_rate?: number | null;
             /** Label */
             label: string;
-            /** Median Handle Minutes */
-            median_handle_minutes?: number | null;
-            /**
-             * Median Score
-             * @description Absent for a week with no calls, which is a gap not a zero.
-             */
-            median_score?: number | null;
             /** Resolution Rate */
             resolution_rate?: number | null;
             /**
@@ -2174,7 +2174,7 @@ export interface operations {
                 month?: string | null;
                 /** @description The week either side of this date's own week, instead of a trailing window. Empty if this date does not fall in any week the corpus has. */
                 centre?: string | null;
-                /** @description What one point covers. Months are re-bucketed from the calls themselves, so a month's median is the median of its own calls and not the median of its weekly medians. */
+                /** @description What one point covers. Months are re-bucketed from the calls themselves, so a month's average is the average of its own calls and not the average of its weekly averages. */
                 bucket?: components["schemas"]["Bucket"];
             };
             header?: never;

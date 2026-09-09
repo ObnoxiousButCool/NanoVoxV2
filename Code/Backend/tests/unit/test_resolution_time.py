@@ -72,16 +72,19 @@ class TestCategories:
         by_code = {entry.code: entry for entry in result.categories}
 
         assert by_code["appeals"].resolved_calls == 0
-        assert by_code["appeals"].median_minutes == 0.0
+        assert by_code["appeals"].average_minutes == 0.0
         assert by_code["appeals"].longest_minutes == 0
 
-    def test_each_category_reports_its_own_median_and_worst_case(self) -> None:
+    def test_each_category_reports_its_own_average_and_worst_case(self) -> None:
+        # The card is labelled "Average Time Taken", so the 60-minute
+        # resolution has to move the figure. A median would report 20 and leave
+        # the slowest call invisible except in the worst-case column.
         result = summarise({"claims": (10, 20, 60)})
         claims = next(entry for entry in result.categories if entry.code == "claims")
 
-        assert (claims.resolved_calls, claims.median_minutes, claims.longest_minutes) == (
+        assert (claims.resolved_calls, claims.average_minutes, claims.longest_minutes) == (
             3,
-            20.0,
+            30.0,
             60,
         )
 
@@ -104,7 +107,7 @@ class TestCategories:
         assert result.resolved_calls == 2
         assert sum(entry.resolved_calls for entry in result.categories) == 1
 
-    def test_categories_with_equal_medians_fall_back_to_their_label(self) -> None:
+    def test_categories_with_equal_averages_fall_back_to_their_label(self) -> None:
         # Something has to order them, or the chart would reshuffle between
         # runs on the same data.
         result = summarise({})
@@ -113,15 +116,15 @@ class TestCategories:
 
 
 class TestOverall:
-    def test_the_median_is_taken_across_every_resolved_call(self) -> None:
+    def test_the_average_is_taken_across_every_resolved_call(self) -> None:
         result = summarise({"pharmacy": (10,), "claims": (20, 30)})
 
         assert result.resolved_calls == 3
-        assert result.median_minutes == 20.0
+        assert result.average_minutes == 20.0
         assert result.longest_minutes == 30
 
     def test_the_total_is_carried_through_for_context(self) -> None:
-        # Without it a reader cannot tell whether the median describes the whole
+        # Without it a reader cannot tell whether the average describes the whole
         # corpus or a third of it.
         result = summarise({"pharmacy": (10,)}, total=100)
 
@@ -131,7 +134,7 @@ class TestOverall:
         result = summarise({}, total=40)
 
         assert result.resolved_calls == 0
-        assert result.median_minutes == 0.0
+        assert result.average_minutes == 0.0
         assert result.longest_minutes == 0
         # The bands are still drawn, all empty.
         assert [band.count for band in result.bands] == [0, 0, 0]

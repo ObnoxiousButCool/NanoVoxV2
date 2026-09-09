@@ -114,7 +114,7 @@ const SIGNALS = {
 const RESOLUTION = {
   resolved_calls: 6,
   total_calls: 12,
-  median_minutes: 12,
+  average_minutes: 12,
   longest_minutes: 25,
   bands: [
     { label: '0-10', lower: 0, upper: 10, count: 2 },
@@ -126,14 +126,14 @@ const RESOLUTION = {
       code: 'coverage_benefits',
       label: 'Coverage & Benefits',
       resolved_calls: 4,
-      median_minutes: 18,
+      average_minutes: 18,
       longest_minutes: 25,
     },
     {
       code: 'pharmacy',
       label: 'Pharmacy',
       resolved_calls: 2,
-      median_minutes: 8,
+      average_minutes: 8,
       longest_minutes: 9,
     },
     // Configured but has resolved nothing: shown, so the absence is visible.
@@ -141,7 +141,7 @@ const RESOLUTION = {
       code: 'claims_eob',
       label: 'Claims & EOB',
       resolved_calls: 0,
-      median_minutes: 0,
+      average_minutes: 0,
       longest_minutes: 0,
     },
   ],
@@ -201,27 +201,27 @@ const PULSE = {
       starting: '2026-08-31',
       label: '31 Aug',
       calls: 8,
-      median_score: 88,
+      average_score: 88,
       resolution_rate: 87.5,
-      median_handle_minutes: 8,
+      average_handle_minutes: 8,
       escalation_rate: 12.5,
     },
     {
       starting: '2026-09-07',
       label: '7 Sep',
       calls: 0,
-      median_score: null,
+      average_score: null,
       resolution_rate: null,
-      median_handle_minutes: null,
+      average_handle_minutes: null,
       escalation_rate: null,
     },
     {
       starting: '2026-09-14',
       label: '14 Sep',
       calls: 7,
-      median_score: 69.5,
+      average_score: 69.5,
       resolution_rate: 33.3,
-      median_handle_minutes: 6.5,
+      average_handle_minutes: 6.5,
       escalation_rate: 28.6,
     },
   ],
@@ -229,25 +229,25 @@ const PULSE = {
     starting: '2026-09-14',
     label: '14 Sep',
     calls: 7,
-    median_score: 69.5,
+    average_score: 69.5,
     resolution_rate: 33.3,
-    median_handle_minutes: 6.5,
+    average_handle_minutes: 6.5,
     escalation_rate: 28.6,
   },
   previous: {
     starting: '2026-08-31',
     label: '31 Aug',
     calls: 8,
-    median_score: 88,
+    average_score: 88,
     resolution_rate: 87.5,
-    median_handle_minutes: 8,
+    average_handle_minutes: 8,
     escalation_rate: 12.5,
   },
   delta: {
     calls: -1,
-    median_score: -18.5,
+    average_score: -18.5,
     resolution_rate: -54.2,
-    median_handle_minutes: -1.5,
+    average_handle_minutes: -1.5,
     escalation_rate: 16.1,
   },
   sentiment: { improved: 0, unchanged: 0, worsened: 0, unclassified: 0, improved_rate: 0 },
@@ -383,7 +383,7 @@ async function resolutionCard(): Promise<HTMLElement> {
   const heading = await screen.findByText('Average Time Taken')
   const card = heading.closest('section')
   if (!card) throw new Error('resolution card has no containing section')
-  await within(card).findByText('MEDIAN MINUTES TO RESOLVE')
+  await within(card).findByText('AVERAGE MINUTES TO RESOLVE')
   return card
 }
 
@@ -1073,7 +1073,7 @@ describe('OverviewPage', () => {
     })
 
     it('breaks the time down by category, slowest first', async () => {
-      // A single median across a pharmacy query and a coverage appeal describes
+      // A single average across a pharmacy query and a coverage appeal describes
       // neither, and moves when the call mix changes rather than the handling.
       renderOverview()
       const card = await resolutionCard()

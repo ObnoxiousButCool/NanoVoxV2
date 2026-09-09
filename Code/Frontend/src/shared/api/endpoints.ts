@@ -204,8 +204,8 @@ export interface PulseParams {
    *  whichever weeks it does have instead. */
   readonly centre?: string
   /** What one point covers. `month` re-buckets from the calls themselves, so a
-   *  month's median is the median of its own calls rather than the median of
-   *  its weekly medians — which is a different number, and not one the corpus
+   *  month's average is the average of its own calls rather than the average
+   *  of its weekly averages — which is a different number, and not one the corpus
    *  contains. Defaults to `week` server-side. */
   readonly bucket?: 'week' | 'month'
 }

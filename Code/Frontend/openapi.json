@@ -519,7 +519,7 @@
         "type": "object"
       },
       "Bucket": {
-        "description": "The period one point covers.\n\nA month is not four weeks added up. Every figure here is computed from the\ncalls in the bucket, so a month's median score is the median of its own\ncalls -- the median of four weekly medians is a different number, and not\none the corpus contains. That is why picking a month re-buckets from the\ncalls rather than folding the weekly series.",
+        "description": "The period one point covers.\n\nA month is not four weeks added up. Every figure here is computed from the\ncalls in the bucket, so a month's average score is the average of its own\ncalls -- the average of four weekly averages is a different number, and not\none the corpus contains. That is why picking a month re-buckets from the\ncalls rather than folding the weekly series.",
         "enum": [
           "week",
           "month"
@@ -827,6 +827,10 @@
       },
       "CategoryResolutionTimeResponse": {
         "properties": {
+          "average_minutes": {
+            "title": "Average Minutes",
+            "type": "number"
+          },
           "code": {
             "title": "Code",
             "type": "string"
@@ -839,10 +843,6 @@
             "title": "Longest Minutes",
             "type": "integer"
           },
-          "median_minutes": {
-            "title": "Median Minutes",
-            "type": "number"
-          },
           "resolved_calls": {
             "title": "Resolved Calls",
             "type": "integer"
@@ -852,7 +852,7 @@
           "code",
           "label",
           "resolved_calls",
-          "median_minutes",
+          "average_minutes",
           "longest_minutes"
         ],
         "title": "CategoryResolutionTimeResponse",
@@ -2125,6 +2125,10 @@
       },
       "ResolutionTimeResponse": {
         "properties": {
+          "average_minutes": {
+            "title": "Average Minutes",
+            "type": "number"
+          },
           "bands": {
             "items": {
               "$ref": "#/components/schemas/DurationBandResponse"
@@ -2144,10 +2148,6 @@
             "title": "Longest Minutes",
             "type": "integer"
           },
-          "median_minutes": {
-            "title": "Median Minutes",
-            "type": "number"
-          },
           "resolved_calls": {
             "description": "Calls that reached a resolution. Every figure here is measured over these only \u2014 handle time across all calls rewards ending the call, not solving it.",
             "title": "Resolved Calls",
@@ -2161,7 +2161,7 @@
         "required": [
           "resolved_calls",
           "total_calls",
-          "median_minutes",
+          "average_minutes",
           "longest_minutes",
           "bands",
           "categories"
@@ -2807,6 +2807,28 @@
       "TrendDeltaResponse": {
         "description": "The most recent week against the one before it.",
         "properties": {
+          "average_handle_minutes": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Average Handle Minutes"
+          },
+          "average_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Average Score"
+          },
           "calls": {
             "title": "Calls",
             "type": "integer"
@@ -2822,28 +2844,6 @@
             ],
             "title": "Escalation Rate"
           },
-          "median_handle_minutes": {
-            "anyOf": [
-              {
-                "type": "number"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Median Handle Minutes"
-          },
-          "median_score": {
-            "anyOf": [
-              {
-                "type": "number"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Median Score"
-          },
           "resolution_rate": {
             "anyOf": [
               {
@@ -2858,9 +2858,9 @@
         },
         "required": [
           "calls",
-          "median_score",
+          "average_score",
           "resolution_rate",
-          "median_handle_minutes",
+          "average_handle_minutes",
           "escalation_rate"
         ],
         "title": "TrendDeltaResponse",
@@ -2868,6 +2868,29 @@
       },
       "TrendPointResponse": {
         "properties": {
+          "average_handle_minutes": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Average Handle Minutes"
+          },
+          "average_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Absent for a week with no calls, which is a gap not a zero.",
+            "title": "Average Score"
+          },
           "calls": {
             "title": "Calls",
             "type": "integer"
@@ -2887,29 +2910,6 @@
           "label": {
             "title": "Label",
             "type": "string"
-          },
-          "median_handle_minutes": {
-            "anyOf": [
-              {
-                "type": "number"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Median Handle Minutes"
-          },
-          "median_score": {
-            "anyOf": [
-              {
-                "type": "number"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "description": "Absent for a week with no calls, which is a gap not a zero.",
-            "title": "Median Score"
           },
           "resolution_rate": {
             "anyOf": [
@@ -4108,14 +4108,14 @@
             }
           },
           {
-            "description": "What one point covers. Months are re-bucketed from the calls themselves, so a month's median is the median of its own calls and not the median of its weekly medians.",
+            "description": "What one point covers. Months are re-bucketed from the calls themselves, so a month's average is the average of its own calls and not the average of its weekly averages.",
             "in": "query",
             "name": "bucket",
             "required": false,
             "schema": {
               "$ref": "#/components/schemas/Bucket",
               "default": "week",
-              "description": "What one point covers. Months are re-bucketed from the calls themselves, so a month's median is the median of its own calls and not the median of its weekly medians."
+              "description": "What one point covers. Months are re-bucketed from the calls themselves, so a month's average is the average of its own calls and not the average of its weekly averages."
             }
           }
         ],

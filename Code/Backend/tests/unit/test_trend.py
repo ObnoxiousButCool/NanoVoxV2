@@ -61,9 +61,9 @@ class TestAWeekNobodyCalled:
         result = trend([call("2026-08-31T09:00:00"), call("2026-09-14T09:00:00")])
         empty = result.points[1]
 
-        assert empty.median_score is None
+        assert empty.average_score is None
         assert empty.resolution_rate is None
-        assert empty.median_handle_minutes is None
+        assert empty.average_handle_minutes is None
 
     def test_the_comparison_skips_it(self) -> None:
         # "Down on last week" has to mean the last week anybody called.
@@ -88,8 +88,10 @@ class TestTheFigures:
 
         assert result.points[0].resolution_rate == 50.0
 
-    def test_the_score_is_a_median_not_a_mean(self) -> None:
-        # The distribution is bimodal; a mean sits in a gap where no call falls.
+    def test_the_score_is_a_mean_not_a_median(self) -> None:
+        # The card reading this is labelled "Average Call Score", so a weak call
+        # has to pull the figure down. A median would report 90 here and hide
+        # the 20 entirely.
         result = trend(
             [
                 call("2026-08-31T09:00:00", score=20),
@@ -98,11 +100,11 @@ class TestTheFigures:
             ]
         )
 
-        assert result.points[0].median_score == 90.0
+        assert result.points[0].average_score == 68.3
 
     def test_handle_time_is_measured_over_the_calls_that_state_one(self) -> None:
-        # A week half of whose calls are untimed still has a real median for the
-        # half that are; reporting None would hide it.
+        # A week half of whose calls are untimed still has a real average for
+        # the half that are; reporting None would hide it.
         result = trend(
             [
                 call("2026-08-31T09:00:00", seconds=300),
@@ -111,14 +113,14 @@ class TestTheFigures:
             ]
         )
 
-        assert result.points[0].median_handle_minutes == 7.5
+        assert result.points[0].average_handle_minutes == 7.5
         assert result.points[0].calls == 3
 
     def test_a_week_with_no_timed_call_reports_no_handle_time(self) -> None:
         result = trend([call("2026-08-31T09:00:00", seconds=None)])
 
-        assert result.points[0].median_handle_minutes is None
-        assert result.points[0].median_score == 80.0
+        assert result.points[0].average_handle_minutes is None
+        assert result.points[0].average_score == 80.0
 
 
 class TestWhatCannotBePlaced:
@@ -266,8 +268,8 @@ class TestMonthBuckets:
     The dashboard's period filter used to resolve "September" to September's
     last week and leave the series weekly, so the strip reported 11 of the
     month's 89 calls. Folding the weekly points together instead would fix the
-    count and leave the medians wrong: the median of four weekly medians is not
-    the median of the calls, and it is not a number the corpus contains.
+    count and leave the averages wrong: the average of four weekly averages is
+    not the average of the calls, and it is not a number the corpus contains.
     """
 
     def test_a_month_starts_on_the_first(self) -> None:
@@ -290,20 +292,22 @@ class TestMonthBuckets:
             ("Sep 2026", 1),
         ]
 
-    def test_the_median_is_taken_over_the_month_own_calls(self) -> None:
-        # Weekly medians of 20 and 90 either side of a month boundary would
-        # average to 55. The month's own median is neither.
+    def test_the_average_is_taken_over_the_month_own_calls(self) -> None:
+        # Weekly averages of 10 and 100 either side of a month boundary would
+        # themselves average to 55. The month's own average is 32.5, because
+        # three of its four calls are in the weak week -- weighting the weeks
+        # equally would report a month the corpus does not contain.
         calls = [
             call("2026-09-07T09:00:00", score=10),
-            call("2026-09-08T09:00:00", score=30),
-            call("2026-09-21T09:00:00", score=80),
-            call("2026-09-22T09:00:00", score=100),
+            call("2026-09-08T09:00:00", score=10),
+            call("2026-09-09T09:00:00", score=10),
+            call("2026-09-21T09:00:00", score=100),
         ]
 
         month = trend(calls, Bucket.MONTH).points[0]
 
         assert month.calls == 4
-        assert month.median_score == 55.0
+        assert month.average_score == 32.5
 
     def test_the_resolution_rate_is_counted_over_the_month(self) -> None:
         calls = [
@@ -327,7 +331,7 @@ class TestMonthBuckets:
             ("Oct 2026", 0),
             ("Nov 2026", 1),
         ]
-        assert result.points[1].median_score is None
+        assert result.points[1].average_score is None
 
     def test_the_series_crosses_a_year_end(self) -> None:
         result = trend([call("2025-12-10T09:00:00"), call("2026-01-10T09:00:00")], Bucket.MONTH)

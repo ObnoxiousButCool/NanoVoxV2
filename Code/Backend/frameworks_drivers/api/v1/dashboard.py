@@ -212,7 +212,7 @@ class CategoryResolutionTimeResponse(BaseModel):
     code: str
     label: str
     resolved_calls: int
-    median_minutes: float
+    average_minutes: float
     longest_minutes: int
 
 
@@ -222,7 +222,7 @@ class ResolutionTimeResponse(BaseModel):
         "these only — handle time across all calls rewards ending the call, not solving it."
     )
     total_calls: int
-    median_minutes: float
+    average_minutes: float
     longest_minutes: int
     bands: list[DurationBandResponse]
     categories: list[CategoryResolutionTimeResponse] = Field(
@@ -420,11 +420,11 @@ class TrendPointResponse(BaseModel):
     starting: date
     label: str
     calls: int
-    median_score: float | None = Field(
+    average_score: float | None = Field(
         default=None, description="Absent for a week with no calls, which is a gap not a zero."
     )
     resolution_rate: float | None = None
-    median_handle_minutes: float | None = None
+    average_handle_minutes: float | None = None
     escalation_rate: float | None = Field(
         default=None,
         description="The share of this period's calls that escalated. Absent for a "
@@ -436,9 +436,9 @@ class TrendDeltaResponse(BaseModel):
     """The most recent week against the one before it."""
 
     calls: int
-    median_score: float | None
+    average_score: float | None
     resolution_rate: float | None
-    median_handle_minutes: float | None
+    average_handle_minutes: float | None
     escalation_rate: float | None
 
 
@@ -591,7 +591,7 @@ async def get_resolution_time(
     return ResolutionTimeResponse(
         resolved_calls=result.resolved_calls,
         total_calls=result.total_calls,
-        median_minutes=result.median_minutes,
+        average_minutes=result.average_minutes,
         longest_minutes=result.longest_minutes,
         bands=[DurationBandResponse(**band.__dict__) for band in result.bands],
         categories=[
@@ -680,9 +680,9 @@ def _trend_point(point: TrendPoint) -> TrendPointResponse:
         starting=point.starting,
         label=point.label,
         calls=point.calls,
-        median_score=point.median_score,
+        average_score=point.average_score,
         resolution_rate=point.resolution_rate,
-        median_handle_minutes=point.median_handle_minutes,
+        average_handle_minutes=point.average_handle_minutes,
         escalation_rate=point.escalation_rate,
     )
 
@@ -719,8 +719,8 @@ async def get_pulse(
     bucket: Bucket = Query(  # noqa: B008
         default=Bucket.WEEK,
         description="What one point covers. Months are re-bucketed from the calls "
-        "themselves, so a month's median is the median of its own calls and not "
-        "the median of its weekly medians.",
+        "themselves, so a month's average is the average of its own calls and not "
+        "the average of its weekly averages.",
     ),
 ) -> PulseResponse:
     pulse = await use_case.execute(anchor=anchor, month=month, centre=centre, bucket=bucket)
@@ -729,10 +729,10 @@ async def get_pulse(
     delta = (
         TrendDeltaResponse(
             calls=latest.calls - previous.calls,
-            median_score=_difference(latest.median_score, previous.median_score),
+            average_score=_difference(latest.average_score, previous.average_score),
             resolution_rate=_difference(latest.resolution_rate, previous.resolution_rate),
-            median_handle_minutes=_difference(
-                latest.median_handle_minutes, previous.median_handle_minutes
+            average_handle_minutes=_difference(
+                latest.average_handle_minutes, previous.average_handle_minutes
             ),
             escalation_rate=_difference(latest.escalation_rate, previous.escalation_rate),
         )
