@@ -849,6 +849,16 @@ describe('OverviewPage', () => {
       )
     })
 
+    it('shares a row with Productivity, each shrunk to fit it', async () => {
+      // Two full-width cards before this, each taller than it needed to be.
+      renderOverview()
+
+      const hourly = (await screen.findByText('Hourly call distribution')).closest('section')
+      const productivity = screen.getByText('Productivity').closest('section')
+      if (!hourly || !productivity) throw new Error('one of the two cards is missing')
+      expect(hourly.parentElement).toBe(productivity.parentElement)
+    })
+
     /** The hourly card alone: handle times are printed elsewhere on this page
      *  too, so an unscoped query matches the caller breakdown as readily. */
     async function hourlyCard(): Promise<HTMLElement> {

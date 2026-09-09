@@ -828,19 +828,6 @@ export function OverviewPage() {
         </Card>
       </div>
 
-      <Card
-        className={styles.solo}
-        title="Productivity"
-        hint="Calls with no recorded duration are left out entirely rather than counted as zero, which would understate the minutes."
-        actions={
-          <Legend
-            items={OUTCOME_LEGEND.map((entry) => ({ label: entry.label, color: entry.color }))}
-          />
-        }
-      >
-        <TimeValueCard params={headerPeriod} />
-      </Card>
-
       {/* The two tallest cards on the page share a row, and the two shortest
           share the next one. Paired by subject alone, a 198px histogram sat
           beside a 461px agent list and left a quarter of its card empty. */}
@@ -872,8 +859,6 @@ export function OverviewPage() {
         </Card>
       </div>
 
-      {/* The hourly chart is third and so takes the full row. It is the one
-          chart here that gains from the width: a rota is read hour by hour. */}
       <div className={styles.grid}>
         <Card
           title="Quality Distribution"
@@ -930,6 +915,23 @@ export function OverviewPage() {
             ))}
           </BarRows>
         </Card>
+      </div>
+
+      {/* Productivity and the hourly chart share a row now, each shrunk to
+          fit it -- previously two full-width cards in a row each, taking
+          more vertical space than either needed. */}
+      <div className={styles.grid}>
+        <Card
+          title="Productivity"
+          hint="Calls with no recorded duration are left out entirely rather than counted as zero, which would understate the minutes."
+          actions={
+            <Legend
+              items={OUTCOME_LEGEND.map((entry) => ({ label: entry.label, color: entry.color }))}
+            />
+          }
+        >
+          <TimeValueCard params={headerPeriod} />
+        </Card>
 
         <Card
           title="Hourly call distribution"
@@ -938,7 +940,6 @@ export function OverviewPage() {
           <HourlyCard params={headerPeriod} />
         </Card>
       </div>
-
     </>
   )
 }
