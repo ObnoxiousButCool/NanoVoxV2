@@ -559,8 +559,8 @@ describe('OverviewPage', () => {
       const { container } = renderOverview()
       await inWeekMode(container)
 
-      expect(await screen.findByText(/54.2 pts on last week/)).toBeInTheDocument()
-      expect(screen.getByText(/18.5 pts on last week/)).toBeInTheDocument()
+      expect(await screen.findByText(/54.2 pts from last week/)).toBeInTheDocument()
+      expect(screen.getByText(/18.5 pts from last week/)).toBeInTheDocument()
     })
 
     it('reports the call count as a percentage move against last week', async () => {
@@ -579,22 +579,24 @@ describe('OverviewPage', () => {
       const { container } = renderOverview()
       await inWeekMode(container)
 
-      const resolution = await screen.findByText(/54.2 pts on last week/)
-      const handleTime = screen.getByText(/1.5 min on last week/)
+      const resolution = await screen.findByText(/54.2 pts from last week/)
+      const handleTime = screen.getByText(/1.5 min from last week/)
 
       expect(resolution.className).not.toEqual(handleTime.className)
     })
 
-    it('treats call volume as the one measure neither direction is good for', async () => {
-      // Calls Monitored is the exception: more calls is not obviously good
-      // (a busier week) or bad (a slower one), unlike every other figure on
-      // this strip, which now reads a fall or rise as bad or good.
+    it('reads a fall in call volume as bad, the same rule the rest of the strip uses', async () => {
+      // A drop in calls monitored reads as a gap in coverage, not a neutral
+      // fact — so it shares its class with resolution's own fall (also bad),
+      // and differs from handle time's fall (good, read as an efficiency win).
       const { container } = renderOverview()
       await inWeekMode(container)
 
       const calls = await screen.findByText(/12.5% from last week/)
-      const handleTime = screen.getByText(/1.5 min on last week/)
+      const resolution = screen.getByText(/54.2 pts from last week/)
+      const handleTime = screen.getByText(/1.5 min from last week/)
 
+      expect(calls.className).toEqual(resolution.className)
       expect(calls.className).not.toEqual(handleTime.className)
     })
 
@@ -610,7 +612,7 @@ describe('OverviewPage', () => {
     it('asks the API to bucket by month when a month is picked', async () => {
       // Not a request detail: a month's figures have to be counted over the
       // month's own calls. Resolved to its last week instead, September
-      // reported 11 of its 89 calls under a delta captioned "on last week".
+      // reported 11 of its 89 calls under a delta captioned "from last week".
       const user = userEvent.setup()
       const { container } = renderOverview()
 
@@ -632,8 +634,8 @@ describe('OverviewPage', () => {
     })
 
     it('captions a month delta as a month, not as a week', async () => {
-      // "on last week" beneath a figure covering a month is a false statement
-      // about the arithmetic, not a loose one.
+      // "from last week" beneath a figure covering a month is a false
+      // statement about the arithmetic, not a loose one.
       const user = userEvent.setup()
       const { container } = renderOverview()
 
@@ -642,8 +644,8 @@ describe('OverviewPage', () => {
       if (!header) throw new Error('the page header is missing')
       await user.selectOptions(within(header).getByLabelText('View by'), 'month')
 
-      expect((await screen.findAllByText(/on last month/)).length).toBeGreaterThan(0)
-      expect(screen.queryByText(/on last week/)).not.toBeInTheDocument()
+      expect((await screen.findAllByText(/from last month/)).length).toBeGreaterThan(0)
+      expect(screen.queryByText(/from last week/)).not.toBeInTheDocument()
     })
   })
 
@@ -657,11 +659,10 @@ describe('OverviewPage', () => {
       expect(container.getElementsByClassName((chartStyles.point ?? ''))).toHaveLength(4)
     })
 
-    it('labels a point by its month, not a single date, once the graph is in Month mode', async () => {
-      // The graph itself opens on a 3-week window regardless of the header's
-      // mode, so this test switches the graph's own filter to Month first.
-      // Real month-bucketed points start on the 1st, unlike the shared
-      // fixture's weekly ones -- given here so the range comes out right.
+    it("labels a point by its own week even in Month mode, since Month only narrows which weeks come back", async () => {
+      // Month mode asks the API for every week of the picked month, not one
+      // point per month -- so a point still spans a week, and "1 Sep" would
+      // read as a single day rather than the week it actually covers.
       const user = userEvent.setup()
       renderOverview(OVERVIEW, {
         pulse: {
@@ -675,7 +676,7 @@ describe('OverviewPage', () => {
       if (!card) throw new Error('quality-vs-handling-time card has no containing section')
       await user.selectOptions(within(card).getByLabelText('View by'), 'month')
 
-      expect(await screen.findByText('Sep 1–30')).toBeInTheDocument()
+      expect(await screen.findByText('1–7 Sep')).toBeInTheDocument()
     })
 
     it("shows a week's numbers on hover", async () => {
@@ -1002,7 +1003,7 @@ describe('OverviewPage', () => {
       // FCR's -- worth asserting, since getting it backwards still renders.
       // "month" because the screen opens in Month; the arithmetic is the same
       // either way, and the caption naming the period is checked elsewhere.
-      expect(await screen.findByText(/16.1 pts on last month/)).toBeInTheDocument()
+      expect(await screen.findByText(/16.1 pts from last month/)).toBeInTheDocument()
     })
 
     it('explains a zero rate instead of leaving it beside a benchmark', async () => {

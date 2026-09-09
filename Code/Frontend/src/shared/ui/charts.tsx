@@ -120,7 +120,7 @@ export function Histogram({ bars, peak }: { bars: readonly HistogramBar[]; peak:
   const tallest = Math.max(peak, 1)
 
   return (
-    <>
+    <div className={styles.histWrap}>
       <div className={styles.hist}>
         {bars.map((bar) => {
           const height = `${String(Math.max((bar.count * 100) / tallest, 2))}%`
@@ -162,7 +162,7 @@ export function Histogram({ bars, peak }: { bars: readonly HistogramBar[]; peak:
           </span>
         ))}
       </div>
-    </>
+    </div>
   )
 }
 
@@ -382,16 +382,29 @@ export function DualLineTrend({
               />
             )
           })}
-          {active ? (
-            <div
-              className={styles.scatterTooltip}
-              style={{ left: `${String(xs[activeIndex ?? 0])}%`, top: '0%' }}
-            >
-              <b>{active.label}</b>
-              <span>Quality {active.quality ?? '—'}</span>
-              <span>AHT {active.ahtMinutes ?? '—'}m</span>
-            </div>
-          ) : null}
+          {active
+            ? (() => {
+                const index = activeIndex ?? 0
+                // Above whichever of the two dots sits higher, not a fixed
+                // height — pinned to the top of the box, the tooltip used to
+                // float there for every week regardless of where its dots
+                // actually fell, reading as detached from the line it describes.
+                const dotYs = [qualityY[index], ahtY[index]].filter(
+                  (y): y is number => y !== null && y !== undefined,
+                )
+                const top = dotYs.length > 0 ? Math.min(...dotYs) : 0
+                return (
+                  <div
+                    className={styles.scatterTooltip}
+                    style={{ left: `${String(xs[index])}%`, top: `${String(top)}%` }}
+                  >
+                    <b>{active.label}</b>
+                    <span>Quality {active.quality ?? '—'}</span>
+                    <span>AHT {active.ahtMinutes ?? '—'}m</span>
+                  </div>
+                )
+              })()
+            : null}
         </div>
         <div className={styles.axisY} style={{ height }}>
           {ahtTicks.map((tick, index) => (
@@ -439,7 +452,7 @@ export function DeltaMetric({
   format,
   goodDirection = 'up',
   period = 'week',
-  preposition = 'on',
+  preposition = 'from',
   sub,
 }: {
   label: string
@@ -451,9 +464,10 @@ export function DeltaMetric({
    *  in the caption because "on last week" under a card showing a month is a
    *  wrong statement about the arithmetic, not a loose one. */
   period?: 'week' | 'month'
-  /** The word before "last {period}" — "on" everywhere except Calls
-   *  Monitored, which reads as a count arriving "from" the prior period
-   *  rather than a score measured "on" it. */
+  /** The word before "last {period}". Every figure on this strip is a count
+   *  or a rate arriving from the prior period, not a score measured on it, so
+   *  "from" is the default; "on" stays available for a future figure that
+   *  reads more like a snapshot than a move. */
   preposition?: 'on' | 'from'
   sub?: ReactNode
 }) {

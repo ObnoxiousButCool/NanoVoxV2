@@ -72,6 +72,16 @@
 }
 
 /* Histogram */
+
+/* The card's `.pad` is a flex column, stretched to match a taller neighbour
+   in the same row; the histogram itself is a fixed height, so any surplus
+   used to sit below the axis as dead space. Auto top/bottom margins split
+   that surplus evenly instead, centring the chart in whatever height the
+   card ends up with rather than pinning it to the top. */
+.histWrap {
+  margin: auto 0;
+}
+
 .hist {
   display: flex;
   align-items: flex-end;
@@ -276,7 +286,11 @@
 
 .scatterTooltip {
   position: absolute;
-  transform: translate(-50%, -125%);
+  /* `top` is set inline to the higher of the two dots at the hovered point;
+     the fixed 10px here is the gap above that dot, not a share of the box's
+     height, so the tooltip sits the same visual distance off the line
+     whatever the chart's height or how far up or down the dot itself is. */
+  transform: translate(-50%, calc(-100% - 10px));
   background: var(--ink);
   color: #fff;
   padding: 6px 9px;

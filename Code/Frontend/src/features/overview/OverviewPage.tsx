@@ -436,11 +436,12 @@ function PulseStrip({
       <DeltaMetric
         label="Calls Monitored"
         period={granularity}
-        preposition="from"
         value={latest.calls}
         delta={percentChange(latest.calls, previous?.calls)}
         format={(value) => `${value.toFixed(1)}%`}
-        goodDirection="neutral"
+        // More calls monitored is read as fuller coverage; a drop reads as a
+        // gap in it, matching every other figure on this strip.
+        goodDirection="up"
       />
       <DeltaMetric
         label="First Call Resolution (FCR)"
@@ -520,10 +521,6 @@ function QualityVsHandlingTimeCard({ params }: { params: PulseParams }) {
   const { points } = pulse.data
   if (points.length === 0) return null
 
-  // The only mode that buckets by month; every other request to this card
-  // (the default trailing view, and 3-week mode's `centre`) buckets weekly.
-  const bucket = params.month ? 'month' : 'week'
-
   return (
     <DualLineTrend
       // Taller than the shared default of 220, because this is the one place
@@ -537,9 +534,11 @@ function QualityVsHandlingTimeCard({ params }: { params: PulseParams }) {
       // with the box.
       height={340}
       points={points.map((point) => ({
-        // The point's whole span, not just where it starts — "7 Sep" alone
-        // reads as a single day, and the point it labels is a week or month.
-        label: pointRangeLabel(point.starting, bucket),
+        // Every point this card ever requests is a week — `month` narrows
+        // *which* weeks come back (every week of that calendar month) rather
+        // than re-bucketing them into one, so the label always spans a week,
+        // never "start of month to end of month".
+        label: pointRangeLabel(point.starting, 'week'),
         quality: point.median_score ?? null,
         ahtMinutes: point.median_handle_minutes ?? null,
       }))}
@@ -900,7 +899,6 @@ export function OverviewPage() {
       <div className={styles.grid}>
         <Card
           title="Quality Distribution"
-          subtitle="Number of calls falling within quality scores"
           hint="Coach the cluster below the threshold; the rest needs no intervention. Bins are half-open — 70–80 holds 70 to 79 — except the last, which runs to 100 inclusive so the top score has somewhere to sit. Press a bar to open the calls in it."
         >
           <Histogram

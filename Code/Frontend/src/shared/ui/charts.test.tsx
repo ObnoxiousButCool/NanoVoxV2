@@ -214,7 +214,7 @@ describe('DeltaMetric', () => {
       />,
     )
 
-    expect(screen.getByText(/▼ 23.8 pts on last week/)).toBeInTheDocument()
+    expect(screen.getByText(/▼ 23.8 pts from last week/)).toBeInTheDocument()
   })
 
   it('reads a fall as bad when up is good, and the reverse', () => {
