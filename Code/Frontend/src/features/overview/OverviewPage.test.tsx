@@ -957,6 +957,32 @@ describe('OverviewPage', () => {
       expect(await screen.findByText(/8–12%/)).toBeInTheDocument()
       expect(screen.queryByText('No analyzed call was escalated')).not.toBeInTheDocument()
     })
+
+    it('colours the benchmark caption bad once the rate passes it', async () => {
+      // The fixture's 28.6% is well past the 8-12% range.
+      renderOverview()
+
+      const caption = await screen.findByText(/8–12%/)
+      expect(caption.parentElement).toHaveClass(chartStyles.deltaBad ?? '')
+    })
+
+    it('colours the benchmark caption good at or below the range', async () => {
+      renderOverview(OVERVIEW, {
+        pulse: { ...PULSE, latest: { ...PULSE.latest, escalation_rate: 5 } },
+      })
+
+      const caption = await screen.findByText(/8–12%/)
+      expect(caption.parentElement).toHaveClass(chartStyles.deltaGood ?? '')
+    })
+
+    it('colours a zero rate good rather than leaving it untoned', async () => {
+      renderOverview(OVERVIEW, {
+        pulse: { ...PULSE, latest: { ...PULSE.latest, escalation_rate: 0 } },
+      })
+
+      const caption = await screen.findByText('No analyzed call was escalated')
+      expect(caption).toHaveClass(chartStyles.deltaGood ?? '')
+    })
   })
 
   describe('resolution time', () => {

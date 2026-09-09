@@ -53,7 +53,14 @@ import {
 import { Card, Empty, Failure, Loading, Note, PageHeader } from '@/shared/ui/primitives'
 import { GraphPeriodFilter, type GraphFilterMode } from './GraphPeriodFilter'
 import { DEFAULT_GRANULARITY, PeriodFilter, type Granularity } from './PeriodFilter'
+import chartStyles from '@/shared/ui/charts.module.css'
 import styles from './OverviewPage.module.css'
+
+/** Escalation above this is worse than the industry range; at or below it,
+ *  a lower rate is only ever better, down to and including zero. Shared
+ *  between the value's own colour and the benchmark caption's, so the two
+ *  never disagree about whether this period reads well. */
+const ESCALATION_RATE_CEILING = 12
 
 /** The graph's own request, given its mode and the day it is currently set
  *  to — any day within a month in month mode, the centre day in week mode.
@@ -486,13 +493,27 @@ function PulseStrip({
           // nobody escalated says so in words. Decided by this period's rate
           // rather than the corpus's, which is the point of the move: most
           // weeks here escalate nothing while the corpus reads 1%.
-          latest.escalation_rate === 0 ? (
-            <>No analyzed call was escalated</>
-          ) : (
-            <>
-              Industry range <b>8–12%</b>
-            </>
-          )
+          //
+          // Coloured the same way the delta above it is: green at or below
+          // the range's top, red past it — the one sub-text on this page that
+          // states a benchmark rather than a plain fact, so it is the one
+          // that gets to say whether this period read well against it.
+          <span
+            className={
+              typeof latest.escalation_rate === 'number' &&
+              latest.escalation_rate > ESCALATION_RATE_CEILING
+                ? chartStyles.deltaBad
+                : chartStyles.deltaGood
+            }
+          >
+            {latest.escalation_rate === 0 ? (
+              'No analyzed call was escalated'
+            ) : (
+              <>
+                Industry range <b>8–12%</b>
+              </>
+            )}
+          </span>
         }
       />
     </MetricStrip>
