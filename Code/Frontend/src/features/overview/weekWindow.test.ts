@@ -8,6 +8,7 @@ import {
   monthKey,
   monthLabel,
   monthOf,
+  pointRangeLabel,
   shiftMonth,
 } from './weekWindow'
 
@@ -103,5 +104,29 @@ describe('monthKey', () => {
 
   it('differs across a month boundary', () => {
     expect(monthKey('2026-08-31')).not.toBe(monthKey('2026-09-01'))
+  })
+})
+
+describe('pointRangeLabel', () => {
+  it('labels a week as its own start-to-end range', () => {
+    // 7 Sep is a Monday; the week it starts runs to Sunday the 13th.
+    expect(pointRangeLabel('2026-09-07', 'week')).toBe('7–13 Sep')
+  })
+
+  it('names both months when a week crosses one', () => {
+    // 31 Aug's week runs into September.
+    expect(pointRangeLabel('2026-08-31', 'week')).toBe('31 Aug–6 Sep')
+  })
+
+  it('labels a month as its own first-to-last range', () => {
+    expect(pointRangeLabel('2026-09-01', 'month')).toBe('Sep 1–30')
+  })
+
+  it('uses the right last day for a shorter month', () => {
+    expect(pointRangeLabel('2026-02-01', 'month')).toBe('Feb 1–28')
+  })
+
+  it('uses the right last day in a leap year', () => {
+    expect(pointRangeLabel('2028-02-01', 'month')).toBe('Feb 1–29')
   })
 })

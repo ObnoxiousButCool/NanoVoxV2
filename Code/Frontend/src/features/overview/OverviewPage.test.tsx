@@ -657,11 +657,32 @@ describe('OverviewPage', () => {
       expect(container.getElementsByClassName((chartStyles.point ?? ''))).toHaveLength(4)
     })
 
+    it('labels a point by its month, not a single date, once the graph is in Month mode', async () => {
+      // The page opens in Month, so this is the graph's own default view.
+      // Real month-bucketed points start on the 1st, unlike the shared
+      // fixture's weekly ones -- given here so the range comes out right.
+      renderOverview(OVERVIEW, {
+        pulse: {
+          ...PULSE,
+          points: [{ ...PULSE.points[0], starting: '2026-09-01', label: 'Sep 2026' }],
+        },
+      })
+
+      expect(await screen.findByText('Sep 1–30')).toBeInTheDocument()
+    })
+
     it("shows a week's numbers on hover", async () => {
+      // The page opens in Month; week mode is what this test is actually
+      // about, so it switches the graph's own filter there first.
       const user = userEvent.setup()
       renderOverview()
 
-      const point = await screen.findByRole('img', { name: /31 Aug/ })
+      const heading = await screen.findByText('Overall Call Quality vs Average Handling Time')
+      const card = heading.closest('section')
+      if (!card) throw new Error('quality-vs-handling-time card has no containing section')
+      await user.selectOptions(within(card).getByLabelText('View by'), 'week')
+
+      const point = await screen.findByRole('img', { name: /31 Aug–6 Sep/ })
       await user.hover(point)
 
       expect(screen.getByText('Quality 88')).toBeInTheDocument()

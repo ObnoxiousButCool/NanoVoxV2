@@ -103,3 +103,30 @@ export function dayLabel(iso: string): string {
     year: 'numeric',
   })
 }
+
+const MONTH_ONLY = { month: 'short' } as const
+
+/**
+ * A trend point's own x-axis label: the whole span its bucket covers, not
+ * just the date it starts on. "7 Sep" alone reads as a single day; the point
+ * it labels is a week.
+ *
+ * A week's end stays within the same month as often as it crosses one, so
+ * both are handled: "7–13 Sep" when it does not cross, "31 Aug–6 Sep" when
+ * it does. A month's own range never needs that split — it starts and ends
+ * in the month it names by definition.
+ */
+export function pointRangeLabel(starting: string, bucket: 'week' | 'month'): string {
+  const start = parseIsoDate(starting)
+
+  if (bucket === 'month') {
+    const lastDay = new Date(start.getFullYear(), start.getMonth() + 1, 0).getDate()
+    return `${start.toLocaleDateString('en-US', MONTH_ONLY)} ${String(start.getDate())}–${String(lastDay)}`
+  }
+
+  const end = parseIsoDate(addDays(starting, 6))
+  if (start.getMonth() === end.getMonth()) {
+    return `${String(start.getDate())}–${String(end.getDate())} ${start.toLocaleDateString('en-US', MONTH_ONLY)}`
+  }
+  return `${String(start.getDate())} ${start.toLocaleDateString('en-US', MONTH_ONLY)}–${String(end.getDate())} ${end.toLocaleDateString('en-US', MONTH_ONLY)}`
+}

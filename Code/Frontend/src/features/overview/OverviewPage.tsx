@@ -53,6 +53,7 @@ import {
 import { Card, Empty, Failure, Loading, Note, PageHeader } from '@/shared/ui/primitives'
 import { GraphPeriodFilter, type GraphFilterMode } from './GraphPeriodFilter'
 import { DEFAULT_GRANULARITY, PeriodFilter, type Granularity } from './PeriodFilter'
+import { pointRangeLabel } from './weekWindow'
 import chartStyles from '@/shared/ui/charts.module.css'
 import styles from './OverviewPage.module.css'
 
@@ -516,6 +517,10 @@ function QualityVsHandlingTimeCard({ params }: { params: PulseParams }) {
   const { points } = pulse.data
   if (points.length === 0) return null
 
+  // The only mode that buckets by month; every other request to this card
+  // (the default trailing view, and 3-week mode's `centre`) buckets weekly.
+  const bucket = params.month ? 'month' : 'week'
+
   return (
     <DualLineTrend
       // Taller than the shared default of 220, because this is the one place
@@ -529,7 +534,9 @@ function QualityVsHandlingTimeCard({ params }: { params: PulseParams }) {
       // with the box.
       height={340}
       points={points.map((point) => ({
-        label: point.label,
+        // The point's whole span, not just where it starts — "7 Sep" alone
+        // reads as a single day, and the point it labels is a week or month.
+        label: pointRangeLabel(point.starting, bucket),
         quality: point.median_score ?? null,
         ahtMinutes: point.median_handle_minutes ?? null,
       }))}
