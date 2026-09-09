@@ -6,7 +6,7 @@
 - **Score:** 72/100
 - **Sentiment Arc:** CONFUSED → INFORMED
 - **Resolution:** RESOLVED
-- **Date:** 2026-09-25
+- **Date:** 2026-08-25
 - **Start:** 13:53:30
 - **End:** 14:00:20
 - **AHT:** 6m 50s

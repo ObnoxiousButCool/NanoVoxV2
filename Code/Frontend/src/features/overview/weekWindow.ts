@@ -56,12 +56,44 @@ export function daysBetween(a: string, b: string): number {
 
 const SHORT_DATE = { month: 'short', day: 'numeric' } as const
 
-/** "Sep 7 – Sep 21, 2026": the 15-day window centred on `center`. */
+/** Three whole weeks: the centre's week, plus one either side. */
+const WINDOW_DAYS = 21
+
+/** The Monday of `iso`'s week.
+ *
+ *  Monday because that is where the API's weeks begin, so this is the same
+ *  boundary the graph's points are bucketed on. `getDay()` counts from Sunday,
+ *  hence the shift.
+ */
+function mondayOf(iso: string): string {
+  const date = parseIsoDate(iso)
+  return addDays(iso, -((date.getDay() + 6) % 7))
+}
+
+/**
+ * "Aug 24 – Sep 13, 2026": the three whole weeks the graph plots.
+ *
+ * Anchored on week boundaries rather than measured out from `center` itself.
+ * Two things were wrong with the latter. It ran centre-7 to centre+7, which
+ * stopped on the *first* day of the third week and so named a 15-day span for
+ * a period that is 21 days long — the label said "Aug 24 – Sep 7" while the
+ * chart drew Aug 24, Aug 31 and Sep 7, that last week running to the 13th. And
+ * with a centre that is not a Monday — the calendar lets any day be picked —
+ * it named a span offset from the weeks actually drawn.
+ *
+ * Both years are named when the window crosses a year boundary. Naming only
+ * the end year, as this once did, reads as though the whole window were in it.
+ */
 export function formatWeekRange(center: string): string {
-  const start = parseIsoDate(addDays(center, -7))
-  const end = parseIsoDate(addDays(center, 7))
-  const year = end.getFullYear()
-  return `${start.toLocaleDateString('en-US', SHORT_DATE)} – ${end.toLocaleDateString('en-US', SHORT_DATE)}, ${String(year)}`
+  const start = mondayOf(addDays(center, -7))
+  const end = addDays(start, WINDOW_DAYS - 1)
+  const from = parseIsoDate(start)
+  const to = parseIsoDate(end)
+  const fromLabel = from.toLocaleDateString('en-US', SHORT_DATE)
+  const toLabel = to.toLocaleDateString('en-US', SHORT_DATE)
+  return from.getFullYear() === to.getFullYear()
+    ? `${fromLabel} – ${toLabel}, ${String(to.getFullYear())}`
+    : `${fromLabel}, ${String(from.getFullYear())} – ${toLabel}, ${String(to.getFullYear())}`
 }
 
 export interface CalendarDay {

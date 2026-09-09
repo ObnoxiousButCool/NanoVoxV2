@@ -37,14 +37,27 @@ describe('daysBetween', () => {
 })
 
 describe('formatWeekRange', () => {
-  it('spans a week either side of the centre', () => {
-    expect(formatWeekRange('2026-09-14')).toBe('Sep 7 – Sep 21, 2026')
+  it('spans all three weeks, not just up to the last one', () => {
+    // The chart draws the weeks of 7, 14 and 21 September, and the third runs
+    // to the 27th. Measuring 7 days either side of the centre stopped on the
+    // first day of that week, naming a 15-day span for a 21-day period.
+    expect(formatWeekRange('2026-09-14')).toBe('Sep 7 – Sep 27, 2026')
   })
 
-  it('names the window\'s own year when the centre sits near a year boundary', () => {
-    // The window itself (28 Dec - 11 Jan) crosses the boundary; the label
-    // takes its year from where the window ends, not where it starts.
-    expect(formatWeekRange('2027-01-04')).toBe('Dec 28 – Jan 11, 2027')
+  it('reports the same window whichever day of the centre week is picked', () => {
+    // The calendar lets any day be chosen and the API buckets it into that
+    // day's week, so the label has to sit on week boundaries. Measured from
+    // the raw centre, a Thursday named a span three days off the weeks drawn.
+    const fromMonday = formatWeekRange('2026-08-31')
+    expect(fromMonday).toBe('Aug 24 – Sep 13, 2026')
+    for (const day of ['2026-09-01', '2026-09-03', '2026-09-06']) {
+      expect(formatWeekRange(day)).toBe(fromMonday)
+    }
+  })
+
+  it('names both years when the window crosses one', () => {
+    // Naming only the end year read as though all three weeks were in it.
+    expect(formatWeekRange('2027-01-04')).toBe('Dec 28, 2026 – Jan 17, 2027')
   })
 })
 

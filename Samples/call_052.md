@@ -6,7 +6,7 @@
 - **Score:** 92/100
 - **Sentiment Arc:** ANGRY → RETAINED
 - **Resolution:** RESOLVED
-- **Date:** 2026-09-15
+- **Date:** 2026-08-15
 - **Start:** 11:00:00
 - **End:** 11:09:36
 - **AHT:** 9m 36s

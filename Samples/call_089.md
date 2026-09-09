@@ -6,7 +6,7 @@
 - **Score:** 75/100
 - **Sentiment Arc:** IRRITATED → SATISFIED
 - **Resolution:** RESOLVED
-- **Date:** 2026-09-25
+- **Date:** 2026-08-25
 - **Start:** 16:02:00
 - **End:** 16:07:35
 - **AHT:** 5m 35s
