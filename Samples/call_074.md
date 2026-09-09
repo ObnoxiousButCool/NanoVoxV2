@@ -6,7 +6,7 @@
 - **Score:** 34/100
 - **Sentiment Arc:** NEUTRAL → ANNOYED
 - **Resolution:** UNRESOLVED
-- **Date:** 2026-09-22
+- **Date:** 2026-08-22
 - **Start:** 11:17:00
 - **End:** 11:21:42
 - **AHT:** 4m 42s

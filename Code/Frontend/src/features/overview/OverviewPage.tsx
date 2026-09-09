@@ -27,7 +27,7 @@
  *   volume is real; a tier on four calls is not.
  */
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 
 import {
@@ -53,7 +53,7 @@ import {
 import { Card, Empty, Failure, Loading, Note, PageHeader } from '@/shared/ui/primitives'
 import { GraphPeriodFilter, type GraphFilterMode } from './GraphPeriodFilter'
 import { DEFAULT_GRANULARITY, PeriodFilter, type Granularity } from './PeriodFilter'
-import { pointRangeLabel } from './weekWindow'
+import { addDays, pointRangeLabel, today } from './weekWindow'
 import chartStyles from '@/shared/ui/charts.module.css'
 import styles from './OverviewPage.module.css'
 
@@ -93,6 +93,9 @@ function headerPeriodParams(
   const value = anchor ?? fallback
   return value ? { month: value } : {}
 }
+
+/** Days in a week, so the graph's opening offset reads as "a week back". */
+const WEEK_IN_DAYS = 7
 
 /** The prototype's outcome colours. */
 const OUTCOME_COLOURS = {
@@ -681,12 +684,40 @@ export function OverviewPage() {
   // from the header's on every render.
   const [globalAnchor, setGlobalAnchor] = useState<string | undefined>(undefined)
   const [globalGranularity, setGlobalGranularity] = useState<Granularity>(DEFAULT_GRANULARITY)
+  // The graph opens on the three weeks ending with today's, whatever the header
+  // opens on. The two answer different questions: the cards report a period,
+  // and the graph shows which way it is moving — which needs more than one
+  // point, so a month-wide single figure is the wrong opening shape for it.
+  //
+  // A week back from today, not today itself. The window is centred on its
+  // middle week, so centring it on today reaches a week *past* today — seven
+  // days that cannot hold a call yet, drawn as a gap at the right-hand edge on
+  // every load. Centred a week earlier it ends on the Sunday of today's week:
+  // for a Wednesday the 9th, 24 August to 13 September.
   const [graphMode, setGraphMode] = useState<GraphFilterMode>('week')
-  const [graphValue, setGraphValue] = useState<string | undefined>(undefined)
-  useEffect(() => {
-    setGraphMode(globalGranularity)
-    setGraphValue(globalAnchor)
-  }, [globalAnchor, globalGranularity])
+  const [graphValue, setGraphValue] = useState<string | undefined>(() =>
+    addDays(today(), -WEEK_IN_DAYS),
+  )
+
+  // Re-seeding the graph is a response to the reader moving the header filter,
+  // so it happens in the handler rather than in an effect watching the
+  // header's state.
+  //
+  // An effect was the original shape and it could not work: it fires on mount
+  // too, which overwrote the graph's opening state above with the header's
+  // Month default, so the graph never opened on a week. Guarding it with a
+  // "skip the first run" ref does not help either — StrictMode invokes effects
+  // twice in development, the first run flips the ref and the second proceeds.
+  // Handlers have neither problem: they run when, and only when, something
+  // actually changed.
+  const changeHeaderPeriod = (anchor: string | undefined) => {
+    setGlobalAnchor(anchor)
+    setGraphValue(anchor)
+  }
+  const changeHeaderGranularity = (granularity: Granularity) => {
+    setGlobalGranularity(granularity)
+    setGraphMode(granularity)
+  }
 
   // A stable query — its key never changes — purely to source the calendar
   // pickers' available weeks and the corpus's true latest week. Sourcing
@@ -750,8 +781,8 @@ export function OverviewPage() {
             availableWeeks={availableWeeks}
             availableMonths={availableMonths}
             anchor={globalAnchor}
-            onChange={setGlobalAnchor}
-            onGranularityChange={setGlobalGranularity}
+            onChange={changeHeaderPeriod}
+            onGranularityChange={changeHeaderGranularity}
           />
         }
       />
