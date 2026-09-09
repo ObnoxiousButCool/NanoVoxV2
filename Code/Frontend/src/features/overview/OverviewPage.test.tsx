@@ -657,11 +657,10 @@ describe('OverviewPage', () => {
       expect(container.getElementsByClassName((chartStyles.point ?? ''))).toHaveLength(4)
     })
 
-    it('labels a point by its month, not a single date, once the graph is in Month mode', async () => {
-      // The graph itself opens on a 3-week window regardless of the header's
-      // mode, so this test switches the graph's own filter to Month first.
-      // Real month-bucketed points start on the 1st, unlike the shared
-      // fixture's weekly ones -- given here so the range comes out right.
+    it("labels a point by its own week even in Month mode, since Month only narrows which weeks come back", async () => {
+      // Month mode asks the API for every week of the picked month, not one
+      // point per month -- so a point still spans a week, and "1 Sep" would
+      // read as a single day rather than the week it actually covers.
       const user = userEvent.setup()
       renderOverview(OVERVIEW, {
         pulse: {
@@ -675,7 +674,7 @@ describe('OverviewPage', () => {
       if (!card) throw new Error('quality-vs-handling-time card has no containing section')
       await user.selectOptions(within(card).getByLabelText('View by'), 'month')
 
-      expect(await screen.findByText('Sep 1–30')).toBeInTheDocument()
+      expect(await screen.findByText('1–7 Sep')).toBeInTheDocument()
     })
 
     it("shows a week's numbers on hover", async () => {

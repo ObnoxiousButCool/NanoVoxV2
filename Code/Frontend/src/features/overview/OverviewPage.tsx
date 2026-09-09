@@ -520,10 +520,6 @@ function QualityVsHandlingTimeCard({ params }: { params: PulseParams }) {
   const { points } = pulse.data
   if (points.length === 0) return null
 
-  // The only mode that buckets by month; every other request to this card
-  // (the default trailing view, and 3-week mode's `centre`) buckets weekly.
-  const bucket = params.month ? 'month' : 'week'
-
   return (
     <DualLineTrend
       // Taller than the shared default of 220, because this is the one place
@@ -537,9 +533,11 @@ function QualityVsHandlingTimeCard({ params }: { params: PulseParams }) {
       // with the box.
       height={340}
       points={points.map((point) => ({
-        // The point's whole span, not just where it starts — "7 Sep" alone
-        // reads as a single day, and the point it labels is a week or month.
-        label: pointRangeLabel(point.starting, bucket),
+        // Every point this card ever requests is a week — `month` narrows
+        // *which* weeks come back (every week of that calendar month) rather
+        // than re-bucketing them into one, so the label always spans a week,
+        // never "start of month to end of month".
+        label: pointRangeLabel(point.starting, 'week'),
         quality: point.median_score ?? null,
         ahtMinutes: point.median_handle_minutes ?? null,
       }))}
