@@ -64,6 +64,10 @@ export const queryKeys = {
       params.month ?? 'no-month',
       params.centre ?? 'no-centre',
       params.anchor ?? 'latest',
+      // Part of the key, not just the request: the same anchor bucketed by
+      // month is a different answer, and leaving this out served one from the
+      // other's cache entry.
+      params.bucket ?? 'week',
     ] as const,
   workMix: ['dashboard', 'work-mix'] as const,
   corpus: ['corpus'] as const,

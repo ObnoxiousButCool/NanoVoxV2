@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from datetime import date, datetime
 
-from domain.aggregation.trend import TrendCall, centred_window, month_window, trend
+from domain.aggregation.trend import Bucket, TrendCall, centred_window, month_window, trend
 
 
 def call(
@@ -258,3 +258,94 @@ class TestCentredWindow:
         result = centred_window(full, date(2026, 9, 30))  # inside the 28 Sep week
 
         assert [point.label for point in result.points] == ["21 Sep", "28 Sep"]
+
+
+class TestMonthBuckets:
+    """Months are re-bucketed from the calls, never folded from the weeks.
+
+    The dashboard's period filter used to resolve "September" to September's
+    last week and leave the series weekly, so the strip reported 11 of the
+    month's 89 calls. Folding the weekly points together instead would fix the
+    count and leave the medians wrong: the median of four weekly medians is not
+    the median of the calls, and it is not a number the corpus contains.
+    """
+
+    def test_a_month_starts_on_the_first(self) -> None:
+        result = trend([call("2026-09-17T10:00:00")], Bucket.MONTH)
+
+        assert result.points[0].starting == date(2026, 9, 1)
+        assert result.points[0].label == "Sep 2026"
+
+    def test_a_week_spanning_two_months_splits_between_them(self) -> None:
+        # The week of 31 August holds one August call and one September call.
+        # Weekly, both land in August's "31 Aug" bucket; by month they do not.
+        calls = [call("2026-08-31T09:00:00"), call("2026-09-01T09:00:00")]
+
+        weekly = trend(calls)
+        monthly = trend(calls, Bucket.MONTH)
+
+        assert [(p.label, p.calls) for p in weekly.points] == [("31 Aug", 2)]
+        assert [(p.label, p.calls) for p in monthly.points] == [
+            ("Aug 2026", 1),
+            ("Sep 2026", 1),
+        ]
+
+    def test_the_median_is_taken_over_the_month_own_calls(self) -> None:
+        # Weekly medians of 20 and 90 either side of a month boundary would
+        # average to 55. The month's own median is neither.
+        calls = [
+            call("2026-09-07T09:00:00", score=10),
+            call("2026-09-08T09:00:00", score=30),
+            call("2026-09-21T09:00:00", score=80),
+            call("2026-09-22T09:00:00", score=100),
+        ]
+
+        month = trend(calls, Bucket.MONTH).points[0]
+
+        assert month.calls == 4
+        assert month.median_score == 55.0
+
+    def test_the_resolution_rate_is_counted_over_the_month(self) -> None:
+        calls = [
+            call("2026-09-02T09:00:00", resolution="RESOLVED"),
+            call("2026-09-09T09:00:00", resolution="UNRESOLVED"),
+            call("2026-09-16T09:00:00", resolution="RESOLVED"),
+            call("2026-09-23T09:00:00", resolution="RESOLVED"),
+        ]
+
+        month = trend(calls, Bucket.MONTH).points[0]
+
+        assert month.resolution_rate == 75.0
+
+    def test_a_month_nobody_called_in_is_kept_and_carries_nothing(self) -> None:
+        # Same rule as an empty week: a gap is a fact about the year, and
+        # closing it would draw a line through a month that was never measured.
+        result = trend([call("2026-09-15T09:00:00"), call("2026-11-15T09:00:00")], Bucket.MONTH)
+
+        assert [(p.label, p.calls) for p in result.points] == [
+            ("Sep 2026", 1),
+            ("Oct 2026", 0),
+            ("Nov 2026", 1),
+        ]
+        assert result.points[1].median_score is None
+
+    def test_the_series_crosses_a_year_end(self) -> None:
+        result = trend([call("2025-12-10T09:00:00"), call("2026-01-10T09:00:00")], Bucket.MONTH)
+
+        assert [p.label for p in result.points] == ["Dec 2025", "Jan 2026"]
+
+    def test_a_month_is_not_stepped_by_a_fixed_number_of_days(self) -> None:
+        # Stepping 31 days from 31 January lands in March and drops February
+        # out of the series entirely.
+        result = trend([call("2026-01-31T09:00:00"), call("2026-03-02T09:00:00")], Bucket.MONTH)
+
+        assert [p.label for p in result.points] == ["Jan 2026", "Feb 2026", "Mar 2026"]
+
+    def test_the_previous_point_is_the_month_before(self) -> None:
+        # What the strip's delta compares against, once a month is picked.
+        result = trend([call("2026-08-10T09:00:00"), call("2026-09-10T09:00:00")], Bucket.MONTH)
+
+        assert result.latest is not None
+        assert result.previous is not None
+        assert result.latest.label == "Sep 2026"
+        assert result.previous.label == "Aug 2026"

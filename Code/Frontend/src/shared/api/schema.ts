@@ -628,6 +628,18 @@ export interface components {
             quote: string;
         };
         /**
+         * Bucket
+         * @description The period one point covers.
+         *
+         *     A month is not four weeks added up. Every figure here is computed from the
+         *     calls in the bucket, so a month's median score is the median of its own
+         *     calls -- the median of four weekly medians is a different number, and not
+         *     one the corpus contains. That is why picking a month re-buckets from the
+         *     calls rather than folding the weekly series.
+         * @enum {string}
+         */
+        Bucket: "week" | "month";
+        /**
          * CallSort
          * @description A column the calls list may be ordered by.
          *
@@ -1257,6 +1269,11 @@ export interface components {
         };
         /** PulseResponse */
         PulseResponse: {
+            /**
+             * Available Months
+             * @description Every month that actually contains a call, oldest first, as first-of-month dates. Not the same set as the months of `available_weeks`: a week starting 31 August whose calls all fall in September would otherwise offer an August the corpus cannot answer for.
+             */
+            available_months: string[];
             /**
              * Available Weeks
              * @description Every week the corpus spans, oldest first — what a period picker offers, as distinct from `points`, which is only the anchored window.
@@ -2122,6 +2139,8 @@ export interface operations {
                 month?: string | null;
                 /** @description The week either side of this date's own week, instead of a trailing window. Empty if this date does not fall in any week the corpus has. */
                 centre?: string | null;
+                /** @description What one point covers. Months are re-bucketed from the calls themselves, so a month's median is the median of its own calls and not the median of its weekly medians. */
+                bucket?: components["schemas"]["Bucket"];
             };
             header?: never;
             path?: never;

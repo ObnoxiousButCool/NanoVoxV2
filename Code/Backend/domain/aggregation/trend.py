@@ -25,10 +25,12 @@ from __future__ import annotations
 from collections.abc import Iterable, Sequence
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta
+from enum import Enum
 
 from domain.aggregation.statistics import median, percentage
 
 __all__ = [
+    "Bucket",
     "Trend",
     "TrendCall",
     "TrendPoint",
@@ -42,6 +44,20 @@ DEFAULT_WINDOW = 3
 DEFAULT_HALF_WIDTH = 1
 
 _RESOLVED = "RESOLVED"
+
+
+class Bucket(str, Enum):
+    """The period one point covers.
+
+    A month is not four weeks added up. Every figure here is computed from the
+    calls in the bucket, so a month's median score is the median of its own
+    calls -- the median of four weekly medians is a different number, and not
+    one the corpus contains. That is why picking a month re-buckets from the
+    calls rather than folding the weekly series.
+    """
+
+    WEEK = "week"
+    MONTH = "month"
 
 
 @dataclass(frozen=True)
@@ -97,16 +113,41 @@ def _monday(moment: datetime) -> date:
     return day - timedelta(days=day.weekday())
 
 
-def _label(starting: date) -> str:
+def _first_of_month(moment: datetime) -> date:
+    return moment.date().replace(day=1)
+
+
+def _start(moment: datetime, bucket: Bucket) -> date:
+    return _monday(moment) if bucket is Bucket.WEEK else _first_of_month(moment)
+
+
+def _next(starting: date, bucket: Bucket) -> date:
+    """The following bucket's start. Months are uneven, so this cannot be an
+    interval: stepping 31 days from 31 January lands in March and drops
+    February out of the series entirely."""
+    if bucket is Bucket.WEEK:
+        return starting + timedelta(days=7)
+    return (
+        date(starting.year + 1, 1, 1)
+        if starting.month == 12
+        else date(starting.year, starting.month + 1, 1)
+    )
+
+
+def _label(starting: date, bucket: Bucket = Bucket.WEEK) -> str:
     # "1 Sep" rather than a week number: nobody knows what week 38 is.
-    return f"{starting.day} {starting.strftime('%b')}"
+    if bucket is Bucket.WEEK:
+        return f"{starting.day} {starting.strftime('%b')}"
+    # The year is carried on a month because a month label is the one a reader
+    # quotes out of context, and "Sep" alone repeats every year the corpus grows.
+    return starting.strftime("%b %Y")
 
 
-def _point(starting: date, calls: Sequence[TrendCall]) -> TrendPoint:
+def _point(starting: date, calls: Sequence[TrendCall], bucket: Bucket = Bucket.WEEK) -> TrendPoint:
     if not calls:
         return TrendPoint(
             starting=starting,
-            label=_label(starting),
+            label=_label(starting, bucket),
             calls=0,
             median_score=None,
             resolution_rate=None,
@@ -116,7 +157,7 @@ def _point(starting: date, calls: Sequence[TrendCall]) -> TrendPoint:
     timed = [call.duration_seconds for call in calls if call.duration_seconds]
     return TrendPoint(
         starting=starting,
-        label=_label(starting),
+        label=_label(starting, bucket),
         calls=len(calls),
         median_score=median([call.score for call in calls]),
         resolution_rate=percentage(
@@ -129,27 +170,27 @@ def _point(starting: date, calls: Sequence[TrendCall]) -> TrendPoint:
     )
 
 
-def trend(calls: Iterable[TrendCall]) -> Trend:
-    """Bucket calls into weeks, first to last, leaving empty weeks empty."""
+def trend(calls: Iterable[TrendCall], bucket: Bucket = Bucket.WEEK) -> Trend:
+    """Bucket calls into periods, first to last, leaving empty ones empty."""
     every = list(calls)
     dated = [call for call in every if call.started_at is not None]
     if not dated:
         return Trend(points=(), undated_calls=len(every))
 
-    by_week: dict[date, list[TrendCall]] = {}
+    by_period: dict[date, list[TrendCall]] = {}
     for call in dated:
         assert call.started_at is not None  # noqa: S101 - narrowed by the filter above
-        by_week.setdefault(_monday(call.started_at), []).append(call)
+        by_period.setdefault(_start(call.started_at, bucket), []).append(call)
 
-    first, last = min(by_week), max(by_week)
-    weeks: list[date] = []
+    first, last = min(by_period), max(by_period)
+    periods: list[date] = []
     cursor = first
     while cursor <= last:
-        weeks.append(cursor)
-        cursor += timedelta(days=7)
+        periods.append(cursor)
+        cursor = _next(cursor, bucket)
 
     return Trend(
-        points=tuple(_point(week, by_week.get(week, [])) for week in weeks),
+        points=tuple(_point(period, by_period.get(period, []), bucket) for period in periods),
         undated_calls=len(every) - len(dated),
     )
 

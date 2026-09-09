@@ -5,10 +5,26 @@ import { describe, expect, it, vi } from 'vitest'
 import { PeriodFilter } from './PeriodFilter'
 
 const WEEKS = ['2026-08-31', '2026-09-07', '2026-09-14', '2026-09-21']
+// Deliberately not the months of WEEKS. The week starting 31 August holds
+// September calls, so the corpus has no August — which is exactly the case
+// this component must not offer.
+const MONTHS = ['2026-09-01']
+
+function renderFilter(props: Partial<Parameters<typeof PeriodFilter>[0]> = {}) {
+  return render(
+    <PeriodFilter
+      availableWeeks={WEEKS}
+      availableMonths={MONTHS}
+      anchor={undefined}
+      onChange={vi.fn()}
+      {...props}
+    />,
+  )
+}
 
 describe('PeriodFilter', () => {
   it('offers every week, newest first', () => {
-    render(<PeriodFilter availableWeeks={WEEKS} anchor={undefined} onChange={vi.fn()} />)
+    renderFilter()
 
     const options = screen.getAllByRole('option').map((option) => option.textContent)
     expect(options).toContain('Sep 21')
@@ -18,7 +34,7 @@ describe('PeriodFilter', () => {
   it('reports the picked week as the anchor', async () => {
     const onChange = vi.fn()
     const user = userEvent.setup()
-    render(<PeriodFilter availableWeeks={WEEKS} anchor={undefined} onChange={onChange} />)
+    renderFilter({ onChange })
 
     await user.selectOptions(screen.getByLabelText('Week'), '2026-09-07')
 
@@ -30,32 +46,57 @@ describe('PeriodFilter', () => {
     // newest week should say that, not name a date that already means it.
     const onChange = vi.fn()
     const user = userEvent.setup()
-    render(<PeriodFilter availableWeeks={WEEKS} anchor="2026-08-31" onChange={onChange} />)
+    renderFilter({ anchor: '2026-08-31', onChange })
 
     await user.selectOptions(screen.getByLabelText('Week'), '2026-09-21')
 
     expect(onChange).toHaveBeenCalledWith(undefined)
   })
 
-  it('switches to naming months, and resolves a month to its last week', async () => {
+  it('names the month itself, not its last week', async () => {
+    // The anchor has to be a date the month owns. Resolving September to the
+    // week of the 28th is what made the strip report 11 of the month's 89
+    // calls: the period stayed weekly while the label said Month.
     const onChange = vi.fn()
     const user = userEvent.setup()
-    render(<PeriodFilter availableWeeks={WEEKS} anchor={undefined} onChange={onChange} />)
+    renderFilter({ availableMonths: ['2026-08-01', '2026-09-01'], onChange })
 
     await user.selectOptions(screen.getByLabelText('View by'), 'month')
     expect(screen.getByLabelText('Month')).toBeInTheDocument()
-    expect(screen.getByText('August 2026')).toBeInTheDocument()
 
     await user.selectOptions(screen.getByLabelText('Month'), '2026-08')
 
-    // August only contains one of these weeks: the 31st.
-    expect(onChange).toHaveBeenCalledWith('2026-08-31')
+    expect(onChange).toHaveBeenLastCalledWith('2026-08-01')
+  })
+
+  it('offers only the months that contain a call', async () => {
+    // A week starting 31 August whose calls all fall in September would make
+    // August look populated. Picking it would draw an empty strip.
+    const user = userEvent.setup()
+    renderFilter()
+
+    await user.selectOptions(screen.getByLabelText('View by'), 'month')
+
+    const options = screen.getAllByRole('option').map((option) => option.textContent)
+    expect(options).toContain('September 2026')
+    expect(options).not.toContain('August 2026')
+  })
+
+  it('returns to the latest period when the granularity changes', async () => {
+    // The two modes emit different kinds of date — a Monday and a
+    // first-of-month — so a carried-over anchor leaves the other dropdown
+    // showing a value it has no option for.
+    const onChange = vi.fn()
+    const user = userEvent.setup()
+    renderFilter({ anchor: '2026-09-07', onChange })
+
+    await user.selectOptions(screen.getByLabelText('View by'), 'month')
+
+    expect(onChange).toHaveBeenCalledWith(undefined)
   })
 
   it('renders nothing when the corpus has no week to offer', () => {
-    const { container } = render(
-      <PeriodFilter availableWeeks={[]} anchor={undefined} onChange={vi.fn()} />,
-    )
+    const { container } = renderFilter({ availableWeeks: [], availableMonths: [] })
 
     expect(container).toBeEmptyDOMElement()
   })

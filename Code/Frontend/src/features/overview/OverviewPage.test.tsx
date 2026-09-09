@@ -247,6 +247,10 @@ const PULSE = {
   sentiment: { improved: 0, unchanged: 0, worsened: 0, unclassified: 0, improved_rate: 0 },
   undated_calls: 0,
   available_weeks: ['2026-08-31', '2026-09-07', '2026-09-14'],
+  // The months that hold a call, which the API reports separately: the months
+  // of `available_weeks` are not the same set, because a week starting 31
+  // August can hold nothing but September calls.
+  available_months: ['2026-08-01', '2026-09-01'],
 }
 
 const WORK_MIX = {
@@ -554,6 +558,45 @@ describe('OverviewPage', () => {
       renderOverview(OVERVIEW, { pulse: { ...PULSE, previous: null, delta: null } })
 
       expect((await screen.findAllByText('No previous week')).length).toBeGreaterThan(0)
+    })
+
+    it('asks the API to bucket by month when a month is picked', async () => {
+      // Not a request detail: a month's figures have to be counted over the
+      // month's own calls. Resolved to its last week instead, September
+      // reported 11 of its 89 calls under a delta captioned "on last week".
+      const user = userEvent.setup()
+      const { container } = renderOverview()
+
+      await screen.findByText('Calls Monitored')
+      const header = container.querySelector('header')
+      if (!header) throw new Error('the page header is missing')
+      await user.selectOptions(within(header).getByLabelText('View by'), 'month')
+      // August, not the latest month: picking the latest one means "latest" and
+      // correctly sends no anchor at all, which would prove nothing here.
+      await user.selectOptions(within(header).getByLabelText('Month'), '2026-08')
+
+      const calls = vi.mocked(globalThis.fetch).mock.calls.map(([input]) =>
+        requestUrl(input as RequestInfo),
+      )
+      const pulses = calls.filter((url) => url.includes('/dashboard/pulse'))
+      expect(pulses.some((url) => url.includes('bucket=month'))).toBe(true)
+      // The month itself, not that month's final week.
+      expect(pulses.some((url) => url.includes('anchor=2026-08-01'))).toBe(true)
+    })
+
+    it('captions a month delta as a month, not as a week', async () => {
+      // "on last week" beneath a figure covering a month is a false statement
+      // about the arithmetic, not a loose one.
+      const user = userEvent.setup()
+      const { container } = renderOverview()
+
+      await screen.findByText('Calls Monitored')
+      const header = container.querySelector('header')
+      if (!header) throw new Error('the page header is missing')
+      await user.selectOptions(within(header).getByLabelText('View by'), 'month')
+
+      expect((await screen.findAllByText(/on last month/)).length).toBeGreaterThan(0)
+      expect(screen.queryByText(/on last week/)).not.toBeInTheDocument()
     })
   })
 

@@ -518,6 +518,15 @@
         "title": "BrokerSignalResponse",
         "type": "object"
       },
+      "Bucket": {
+        "description": "The period one point covers.\n\nA month is not four weeks added up. Every figure here is computed from the\ncalls in the bucket, so a month's median score is the median of its own\ncalls -- the median of four weekly medians is a different number, and not\none the corpus contains. That is why picking a month re-buckets from the\ncalls rather than folding the weekly series.",
+        "enum": [
+          "week",
+          "month"
+        ],
+        "title": "Bucket",
+        "type": "string"
+      },
       "CallSort": {
         "description": "A column the calls list may be ordered by.\n\nAn allowlist, not a column name passed through: the value arrives from a\nquery string, and mapping it to a column here is what stops it reaching SQL.",
         "enum": [
@@ -2038,6 +2047,15 @@
       },
       "PulseResponse": {
         "properties": {
+          "available_months": {
+            "description": "Every month that actually contains a call, oldest first, as first-of-month dates. Not the same set as the months of `available_weeks`: a week starting 31 August whose calls all fall in September would otherwise offer an August the corpus cannot answer for.",
+            "items": {
+              "format": "date",
+              "type": "string"
+            },
+            "title": "Available Months",
+            "type": "array"
+          },
           "available_weeks": {
             "description": "Every week the corpus spans, oldest first \u2014 what a period picker offers, as distinct from `points`, which is only the anchored window.",
             "items": {
@@ -2099,7 +2117,8 @@
           "delta",
           "sentiment",
           "undated_calls",
-          "available_weeks"
+          "available_weeks",
+          "available_months"
         ],
         "title": "PulseResponse",
         "type": "object"
@@ -3962,6 +3981,17 @@
               ],
               "description": "The week either side of this date's own week, instead of a trailing window. Empty if this date does not fall in any week the corpus has.",
               "title": "Centre"
+            }
+          },
+          {
+            "description": "What one point covers. Months are re-bucketed from the calls themselves, so a month's median is the median of its own calls and not the median of its weekly medians.",
+            "in": "query",
+            "name": "bucket",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/Bucket",
+              "default": "week",
+              "description": "What one point covers. Months are re-bucketed from the calls themselves, so a month's median is the median of its own calls and not the median of its weekly medians."
             }
           }
         ],

@@ -438,6 +438,7 @@ export function DeltaMetric({
   delta,
   format,
   goodDirection = 'up',
+  period = 'week',
   sub,
 }: {
   label: string
@@ -445,6 +446,10 @@ export function DeltaMetric({
   delta: number | null | undefined
   format: (value: number) => string
   goodDirection?: 'up' | 'down' | 'neutral'
+  /** What the figure covers, and so what the delta compares it against. Named
+   *  in the caption because "on last week" under a card showing a month is a
+   *  wrong statement about the arithmetic, not a loose one. */
+  period?: 'week' | 'month'
   sub?: ReactNode
 }) {
   const flat = delta === null || delta === undefined || delta === 0
@@ -460,10 +465,10 @@ export function DeltaMetric({
       <div className={styles.metricValue}>{value}</div>
       <div className={styles.metricSub}>
         {delta === null || delta === undefined ? (
-          <span className={styles.deltaFlat}>No previous week</span>
+          <span className={styles.deltaFlat}>No previous {period}</span>
         ) : (
           <span className={tone}>
-            {delta > 0 ? '▲' : delta < 0 ? '▼' : '■'} {format(Math.abs(delta))} on last week
+            {delta > 0 ? '▲' : delta < 0 ? '▼' : '■'} {format(Math.abs(delta))} on last {period}
           </span>
         )}
         {sub === undefined ? null : <div>{sub}</div>}

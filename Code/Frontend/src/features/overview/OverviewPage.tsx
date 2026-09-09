@@ -385,21 +385,40 @@ function percentChange(
   return ((current - previous) / previous) * 100
 }
 
-function PulseStrip({ anchor }: { anchor: string | undefined }) {
-  const pulse = usePulse(anchor ? { anchor } : {})
+function PulseStrip({
+  anchor,
+  granularity,
+}: {
+  anchor: string | undefined
+  granularity: Granularity
+}) {
+  // Bucketed by whatever the reader picked. A month is not its last week, and
+  // it is not four weekly medians folded together either: asking the API to
+  // bucket by month makes every figure here a count over the month's own
+  // calls. Before this, picking September reported 11 of its 89 calls.
+  const month = granularity === 'month'
+  const pulse = usePulse({
+    ...(anchor ? { anchor } : {}),
+    ...(month ? { bucket: 'month' as const } : {}),
+  })
 
-  if (pulse.isPending) return <Loading what="this week" />
-  if (pulse.error) return <Failure error={pulse.error} what="the weekly trend" />
+  if (pulse.isPending) return <Loading what={month ? 'this month' : 'this week'} />
+  if (pulse.error) return <Failure error={pulse.error} what="the trend" />
   const { latest, previous, delta } = pulse.data
 
   if (!latest) {
-    return <Note>No call carries a start time, so there is no week to report.</Note>
+    return (
+      <Note>
+        No call carries a start time, so there is no {month ? 'month' : 'week'} to report.
+      </Note>
+    )
   }
 
   return (
     <MetricStrip>
       <DeltaMetric
         label="Calls Monitored"
+        period={granularity}
         value={latest.calls}
         delta={percentChange(latest.calls, previous?.calls)}
         format={(value) => `${value.toFixed(1)}%`}
@@ -407,6 +426,7 @@ function PulseStrip({ anchor }: { anchor: string | undefined }) {
       />
       <DeltaMetric
         label="First Call Resolution (FCR)"
+        period={granularity}
         value={latest.resolution_rate === null ? '—' : `${String(latest.resolution_rate)}%`}
         delta={delta?.resolution_rate}
         format={(value) => `${String(value)} pts`}
@@ -414,6 +434,7 @@ function PulseStrip({ anchor }: { anchor: string | undefined }) {
       />
       <DeltaMetric
         label="Average Call Score"
+        period={granularity}
         value={latest.median_score ?? '—'}
         delta={delta?.median_score}
         format={(value) => `${String(value)} pts`}
@@ -421,6 +442,7 @@ function PulseStrip({ anchor }: { anchor: string | undefined }) {
       />
       <DeltaMetric
         label="Average Handling Time (AHT)"
+        period={granularity}
         value={
           latest.median_handle_minutes === null
             ? '—'
@@ -621,6 +643,7 @@ export function OverviewPage() {
   // at "no data yet".
   const corpus = usePulse()
   const availableWeeks = corpus.data?.available_weeks ?? []
+  const availableMonths = corpus.data?.available_months ?? []
   const latestWeek = corpus.data?.latest?.starting
   // Both pickers need a concrete day to draw themselves around even before a
   // reader has ever touched them.
@@ -657,6 +680,7 @@ export function OverviewPage() {
         actions={
           <PeriodFilter
             availableWeeks={availableWeeks}
+            availableMonths={availableMonths}
             anchor={globalAnchor}
             onChange={setGlobalAnchor}
             onGranularityChange={setGlobalGranularity}
@@ -669,7 +693,7 @@ export function OverviewPage() {
           leader manages against. It used to answer "who is at risk" — a
           scrolling list of member identifiers — while the totals sat fifteen
           hundred pixels below it and carried no direction at all. */}
-      <PulseStrip anchor={globalAnchor} />
+      <PulseStrip anchor={globalAnchor} granularity={globalGranularity} />
 
       {/* --- The detail behind it ---------------------------------------------
           Kept in full, and moved up beside the figures it elaborates on —

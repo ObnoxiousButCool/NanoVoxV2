@@ -159,6 +159,11 @@ export interface PulseParams {
    *  trailing window has no such date and would silently answer with
    *  whichever weeks it does have instead. */
   readonly centre?: string
+  /** What one point covers. `month` re-buckets from the calls themselves, so a
+   *  month's median is the median of its own calls rather than the median of
+   *  its weekly medians — which is a different number, and not one the corpus
+   *  contains. Defaults to `week` server-side. */
+  readonly bucket?: 'week' | 'month'
 }
 
 export function fetchPulse(params: PulseParams = {}, signal?: AbortSignal): Promise<Pulse> {
@@ -171,6 +176,11 @@ export function fetchPulse(params: PulseParams = {}, signal?: AbortSignal): Prom
     query.set('centre', params.centre)
   } else if (params.anchor) {
     query.set('anchor', params.anchor)
+  }
+  // Orthogonal to the three above: it says how wide a point is, not which
+  // points are selected, so it is set alongside whichever one of them applies.
+  if (params.bucket) {
+    query.set('bucket', params.bucket)
   }
   const encoded = query.toString()
   return getJson<Pulse>(`/dashboard/pulse${encoded ? `?${encoded}` : ''}`, signal ? { signal } : {})

@@ -55,6 +55,7 @@ from domain.aggregation.statistics import (
 )
 from domain.aggregation.time_value import TimeValue, time_value
 from domain.aggregation.trend import (
+    Bucket,
     Trend,
     TrendCall,
     centred_window,
@@ -317,6 +318,12 @@ class Pulse:
     # Every week the corpus spans, unwindowed — what a period picker offers,
     # as distinct from ``trend.points``, which is only the anchored window.
     available_weeks: tuple[date, ...]
+    # The months that actually contain a call, as first-of-month dates. Not
+    # derivable from ``available_weeks``: a week starting 31 August whose
+    # calls all fall in September makes August look populated when no call
+    # was placed in it, and a picker built from the weeks offers a month the
+    # corpus cannot answer for.
+    available_months: tuple[date, ...]
 
 
 @dataclass(frozen=True)
@@ -328,9 +335,14 @@ class WorkMix:
 
 
 class GetPulse:
-    """Builds the weekly trend: a trailing window ending at ``anchor``, a
-    window centred on ``centre``, or a whole calendar ``month`` — whichever
-    one of the three is given."""
+    """Builds the trend: a trailing window ending at ``anchor``, a window
+    centred on ``centre``, or a whole calendar ``month`` — whichever one of
+    the three is given.
+
+    ``bucket`` decides what one point covers. Weeks are the default and what
+    the graph draws; months are for a reader who asked for a month and should
+    be given the month's own figures rather than its last week's.
+    """
 
     def __init__(self, repository: ReadModelRepository) -> None:
         self._repository = repository
@@ -340,9 +352,10 @@ class GetPulse:
         anchor: date | None = None,
         month: date | None = None,
         centre: date | None = None,
+        bucket: Bucket = Bucket.WEEK,
     ) -> Pulse:
         facts = await self._repository.call_facts()
-        full_trend = trend(
+        calls = [
             TrendCall(
                 started_at=fact.started_at,
                 score=fact.score,
@@ -350,7 +363,8 @@ class GetPulse:
                 duration_seconds=fact.duration_seconds,
             )
             for fact in facts
-        )
+        ]
+        full_trend = trend(calls, bucket)
         # Exactly one of the three ever arrives on a real request — each
         # caller (the trailing-window filter, the centred-window graph, the
         # whole-month graph) builds its own request shape and never mixes
@@ -369,7 +383,21 @@ class GetPulse:
             #     for fact in facts
             # ),
             sentiment=SentimentMovement(improved=0, unchanged=0, worsened=0, unclassified=0),
-            available_weeks=tuple(point.starting for point in full_trend.points),
+            # Always weekly, whatever this request was bucketed by: this is
+            # what both pickers draw their options from, and a month-bucketed
+            # request would otherwise empty the week dropdown of the page that
+            # made it.
+            available_weeks=tuple(
+                point.starting
+                for point in (full_trend if bucket is Bucket.WEEK else trend(calls)).points
+            ),
+            available_months=tuple(
+                point.starting
+                for point in (
+                    full_trend if bucket is Bucket.MONTH else trend(calls, Bucket.MONTH)
+                ).points
+                if point.calls
+            ),
         )
 
 

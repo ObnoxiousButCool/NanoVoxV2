@@ -1,14 +1,19 @@
 /**
  * The week/month picker that drives the dashboard's period.
  *
- * The corpus is bucketed into calendar weeks and stays that way: picking
- * "month" does not aggregate anything new, it just narrows which weeks the
- * dropdown offers and jumps the trailing window to end at the last one in
- * that month. Picking "week" offers every week directly.
+ * Emits an `anchor` — a date inside the chosen period — rather than an index,
+ * because that is what the API accepts: the date to end the window on.
  *
- * Emits an `anchor` — a week's starting date — rather than an index or a
- * granularity, because that is exactly what the API already accepts: the
- * date to end the trailing window on.
+ * Picking a month used to resolve to that month's *last week* and leave the
+ * period weekly, so "September" reported one week of September: 11 calls out
+ * of the month's 89, over a delta still captioned "on last week". A month now
+ * emits the month itself and the caller asks the API to bucket by month, so
+ * every figure is counted over the month's own calls.
+ *
+ * The months offered are the ones that contain a call, which is not the same
+ * as the months the available weeks start in: a week starting 31 August whose
+ * calls all fall in September makes August look populated when nothing was
+ * placed in it, and picking it would draw an empty strip.
  */
 
 import { useMemo, useState } from 'react'
@@ -32,19 +37,17 @@ function weekLabel(isoDate: string): string {
   return date.toLocaleDateString('en-US', { day: 'numeric', month: 'short' })
 }
 
-/** The latest week (by start date) whose month matches `month` (`YYYY-MM`). */
-function lastWeekInMonth(weeks: readonly string[], month: string): string | undefined {
-  return [...weeks].reverse().find((week) => monthKey(week) === month)
-}
-
 export function PeriodFilter({
   availableWeeks,
+  availableMonths,
   anchor,
   onChange,
   onGranularityChange,
 }: {
   /** Every week the corpus spans, oldest first. */
   availableWeeks: readonly string[]
+  /** Every month that contains a call, oldest first, as first-of-month dates. */
+  availableMonths: readonly string[]
   /** The currently selected anchor, or `undefined` for the latest window. */
   anchor: string | undefined
   onChange: (anchor: string | undefined) => void
@@ -57,21 +60,14 @@ export function PeriodFilter({
   const [granularity, setGranularityState] = useState<Granularity>('week')
   const setGranularity = (next: Granularity) => {
     setGranularityState(next)
+    // Back to the latest period. The two modes emit different kinds of date —
+    // a Monday and a first-of-month — so carrying one over leaves the other
+    // dropdown displaying a value it has no option for.
+    onChange(undefined)
     onGranularityChange?.(next)
   }
 
-  const months = useMemo(() => {
-    const seen = new Set<string>()
-    const ordered: string[] = []
-    for (const week of availableWeeks) {
-      const key = monthKey(week)
-      if (!seen.has(key)) {
-        seen.add(key)
-        ordered.push(key)
-      }
-    }
-    return ordered
-  }, [availableWeeks])
+  const months = useMemo(() => availableMonths.map(monthKey), [availableMonths])
 
   const weeksNewestFirst = useMemo(() => [...availableWeeks].reverse(), [availableWeeks])
   const monthsNewestFirst = useMemo(() => [...months].reverse(), [months])
@@ -123,8 +119,8 @@ export function PeriodFilter({
           <select
             value={anchor ? monthKey(anchor) : latestMonth}
             onChange={(event) => {
-              const target = lastWeekInMonth(availableWeeks, event.target.value) ?? latestWeek
-              onChange(target === latestWeek ? undefined : target)
+              const target = `${event.target.value}-01`
+              onChange(monthKey(target) === latestMonth ? undefined : target)
             }}
           >
             {monthsNewestFirst.map((month) => (

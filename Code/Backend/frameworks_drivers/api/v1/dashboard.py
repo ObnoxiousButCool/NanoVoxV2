@@ -20,7 +20,7 @@ from application.use_cases.get_dashboard import (
 )
 from domain.aggregation.attention import AttentionItem, RuleKind
 from domain.aggregation.member_risk import RiskFactor
-from domain.aggregation.trend import TrendPoint
+from domain.aggregation.trend import Bucket, TrendPoint
 from domain.value_objects.resolution import Resolution
 from frameworks_drivers.api.dependencies import (
     AgentPerformanceDep,
@@ -455,6 +455,12 @@ class PulseResponse(BaseModel):
         description="Every week the corpus spans, oldest first — what a period "
         "picker offers, as distinct from `points`, which is only the anchored window."
     )
+    available_months: list[date] = Field(
+        description="Every month that actually contains a call, oldest first, as "
+        "first-of-month dates. Not the same set as the months of `available_weeks`: "
+        "a week starting 31 August whose calls all fall in September would otherwise "
+        "offer an August the corpus cannot answer for."
+    )
 
 
 class CallerBreakdownResponse(BaseModel):
@@ -663,8 +669,14 @@ async def get_pulse(
         description="The week either side of this date's own week, instead of a trailing "
         "window. Empty if this date does not fall in any week the corpus has.",
     ),
+    bucket: Bucket = Query(  # noqa: B008
+        default=Bucket.WEEK,
+        description="What one point covers. Months are re-bucketed from the calls "
+        "themselves, so a month's median is the median of its own calls and not "
+        "the median of its weekly medians.",
+    ),
 ) -> PulseResponse:
-    pulse = await use_case.execute(anchor=anchor, month=month, centre=centre)
+    pulse = await use_case.execute(anchor=anchor, month=month, centre=centre, bucket=bucket)
     latest, previous = pulse.trend.latest, pulse.trend.previous
 
     delta = (
@@ -694,6 +706,7 @@ async def get_pulse(
         ),
         undated_calls=pulse.trend.undated_calls,
         available_weeks=list(pulse.available_weeks),
+        available_months=list(pulse.available_months),
     )
 
 
