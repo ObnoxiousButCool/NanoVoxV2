@@ -573,8 +573,9 @@ describe('OverviewPage', () => {
     })
 
     it('marks a fall as bad and a rise as good, per measure', async () => {
-      // Handle time is the exception: shorter is an answer found faster or a
-      // member brushed off, and this figure cannot tell them apart.
+      // Resolution rising is good; a shorter handle time is too, read as an
+      // efficiency win — so both a fall in resolution and a fall in handle
+      // time land on opposite sides of good/bad, and their classes differ.
       const { container } = renderOverview()
       await inWeekMode(container)
 
@@ -582,6 +583,19 @@ describe('OverviewPage', () => {
       const handleTime = screen.getByText(/1.5 min on last week/)
 
       expect(resolution.className).not.toEqual(handleTime.className)
+    })
+
+    it('treats call volume as the one measure neither direction is good for', async () => {
+      // Calls Monitored is the exception: more calls is not obviously good
+      // (a busier week) or bad (a slower one), unlike every other figure on
+      // this strip, which now reads a fall or rise as bad or good.
+      const { container } = renderOverview()
+      await inWeekMode(container)
+
+      const calls = await screen.findByText(/12.5% from last week/)
+      const handleTime = screen.getByText(/1.5 min on last week/)
+
+      expect(calls.className).not.toEqual(handleTime.className)
     })
 
     it('says so rather than inventing a comparison when there is no prior week', async () => {

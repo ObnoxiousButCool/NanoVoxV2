@@ -469,10 +469,9 @@ function PulseStrip({
         }
         delta={delta?.median_handle_minutes}
         format={(value) => `${String(value)} min`}
-        // Neither direction is good on its own. A shorter call is an answer
-        // found faster or a member brushed off, and this figure cannot tell
-        // them apart — the card below it can.
-        goodDirection="neutral"
+        // A shorter call is read as an efficiency win, matching every other
+        // figure on this strip where a fall is coloured good.
+        goodDirection="down"
       />
       <DeltaMetric
         label="Escalation rate"
