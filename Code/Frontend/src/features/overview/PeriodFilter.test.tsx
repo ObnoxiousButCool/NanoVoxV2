@@ -22,9 +22,31 @@ function renderFilter(props: Partial<Parameters<typeof PeriodFilter>[0]> = {}) {
   )
 }
 
+/** Switches the filter into Week mode, which it no longer opens in. */
+async function inWeekMode(user: ReturnType<typeof userEvent.setup>): Promise<void> {
+  await user.selectOptions(screen.getByLabelText('View by'), 'week')
+}
+
 describe('PeriodFilter', () => {
-  it('offers every week, newest first', () => {
+  it('opens in Month, so the default period is one the cards can request', () => {
+    // Week mode sends no period until a week is picked, and the card
+    // endpoints read that as the whole corpus — so the screen used to open
+    // with the top strip on a single week and every other card on every call
+    // ever analysed. Month mode resolves to the corpus's latest month, so the
+    // default is a real period and the screen agrees with itself on first
+    // paint. Asserted here and in OverviewPage, which holds the same default
+    // in its own state.
     renderFilter()
+
+    expect(screen.getByLabelText('View by')).toHaveValue('month')
+    expect(screen.getByLabelText('Month')).toBeInTheDocument()
+    expect(screen.queryByLabelText('Week')).not.toBeInTheDocument()
+  })
+
+  it('offers every week, newest first', async () => {
+    const user = userEvent.setup()
+    renderFilter()
+    await inWeekMode(user)
 
     const options = screen.getAllByRole('option').map((option) => option.textContent)
     expect(options).toContain('Sep 21')
@@ -35,6 +57,7 @@ describe('PeriodFilter', () => {
     const onChange = vi.fn()
     const user = userEvent.setup()
     renderFilter({ onChange })
+    await inWeekMode(user)
 
     await user.selectOptions(screen.getByLabelText('Week'), '2026-09-07')
 
@@ -47,6 +70,7 @@ describe('PeriodFilter', () => {
     const onChange = vi.fn()
     const user = userEvent.setup()
     renderFilter({ anchor: '2026-08-31', onChange })
+    await inWeekMode(user)
 
     await user.selectOptions(screen.getByLabelText('Week'), '2026-09-21')
 

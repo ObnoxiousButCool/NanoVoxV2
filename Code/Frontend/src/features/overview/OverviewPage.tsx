@@ -47,13 +47,12 @@ import {
   DeltaMetric,
   Histogram,
   Legend,
-  Metric,
   MetricStrip,
   DualLineTrend,
 } from '@/shared/ui/charts'
 import { Card, Empty, Failure, Loading, Note, PageHeader } from '@/shared/ui/primitives'
 import { GraphPeriodFilter, type GraphFilterMode } from './GraphPeriodFilter'
-import { PeriodFilter, type Granularity } from './PeriodFilter'
+import { DEFAULT_GRANULARITY, PeriodFilter, type Granularity } from './PeriodFilter'
 import styles from './OverviewPage.module.css'
 
 /** The graph's own request, given its mode and the day it is currently set
@@ -71,7 +70,12 @@ function graphPulseParams(mode: GraphFilterMode, value: string | undefined): Pul
 /** Every other card's own request: narrowed to the picked week or month, with
  *  no comparison to a prior period — the top strip's own comparison is built
  *  into its `bucket` request to `/pulse` instead, since only that endpoint
- *  has a "last week"/"last month" figure to diff against. */
+ *  has a "last week"/"last month" figure to diff against.
+ *
+ *  Month mode falls back to the corpus's latest week when nothing has been
+ *  picked, which is what makes the screen's default period a real one — see
+ *  DEFAULT_GRANULARITY. Week mode has no such fallback: with no week picked
+ *  it sends no period, and these endpoints read that as the whole corpus. */
 function headerPeriodParams(
   granularity: Granularity,
   anchor: string | undefined,
@@ -469,6 +473,28 @@ function PulseStrip({
         // them apart — the card below it can.
         goodDirection="neutral"
       />
+      <DeltaMetric
+        label="Escalation rate"
+        period={granularity}
+        value={latest.escalation_rate === null ? '—' : `${String(latest.escalation_rate)}%`}
+        delta={delta?.escalation_rate}
+        format={(value) => `${String(value)} pts`}
+        goodDirection="down"
+        sub={
+          // Carried over from the standalone card this replaces. A flat 0%
+          // beside an industry range reads as a broken feed, so a period where
+          // nobody escalated says so in words. Decided by this period's rate
+          // rather than the corpus's, which is the point of the move: most
+          // weeks here escalate nothing while the corpus reads 1%.
+          latest.escalation_rate === 0 ? (
+            <>No analyzed call was escalated</>
+          ) : (
+            <>
+              Industry range <b>8–12%</b>
+            </>
+          )
+        }
+      />
     </MetricStrip>
   )
 }
@@ -638,7 +664,7 @@ export function OverviewPage() {
   // graph's mode and value get their own state rather than being derived
   // from the header's on every render.
   const [globalAnchor, setGlobalAnchor] = useState<string | undefined>(undefined)
-  const [globalGranularity, setGlobalGranularity] = useState<Granularity>('week')
+  const [globalGranularity, setGlobalGranularity] = useState<Granularity>(DEFAULT_GRANULARITY)
   const [graphMode, setGraphMode] = useState<GraphFilterMode>('week')
   const [graphValue, setGraphValue] = useState<string | undefined>(undefined)
   useEffect(() => {
@@ -720,29 +746,6 @@ export function OverviewPage() {
           scrolling list of member identifiers — while the totals sat fifteen
           hundred pixels below it and carried no direction at all. */}
       <PulseStrip anchor={globalAnchor} granularity={globalGranularity} />
-
-      {/* --- The detail behind it ---------------------------------------------
-          Kept in full, and moved up beside the figures it elaborates on —
-          it used to sit below the coaching charts, level with material that
-          answers a different question entirely. */}
-      <MetricStrip>
-        <Metric
-          label="Escalation rate"
-          value={`${String(metrics.escalation_rate)}%`}
-          sub={
-            // A flat 0% beside an industry range reads as a broken feed. It is
-            // not: no call in this corpus was ever marked escalated, and saying
-            // so is the difference between a finding and a suspected bug.
-            metrics.escalation_rate === 0 ? (
-              <>No analyzed call was escalated</>
-            ) : (
-              <>
-                Industry range <b>8–12%</b>
-              </>
-            )
-          }
-        />
-      </MetricStrip>
 
       <Card
         className={styles.solo}

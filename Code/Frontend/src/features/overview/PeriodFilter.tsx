@@ -22,6 +22,21 @@ import styles from './PeriodFilter.module.css'
 
 export type Granularity = 'week' | 'month'
 
+/**
+ * The mode the dashboard opens in, shared so the filter's own state and the
+ * page's cannot drift apart.
+ *
+ * Month rather than Week. Until a period is picked, week mode sent no period
+ * at all to the card endpoints, and they read that as the whole corpus -- so
+ * the screen opened with the top strip on a single week and every other card
+ * on every call ever analysed, under a filter already naming that week.
+ * Opening in Month gives the default a period the cards actually request, so
+ * the screen agrees with itself on first paint, and it lands on the fullest
+ * view rather than on whichever week happens to be last (often the thinnest,
+ * being a partial one).
+ */
+export const DEFAULT_GRANULARITY: Granularity = 'month'
+
 function monthKey(isoDate: string): string {
   return isoDate.slice(0, 7)
 }
@@ -57,7 +72,7 @@ export function PeriodFilter({
    *  starting mode; this filter's own Week/Month state stays internal. */
   onGranularityChange?: (granularity: Granularity) => void
 }) {
-  const [granularity, setGranularityState] = useState<Granularity>('week')
+  const [granularity, setGranularityState] = useState<Granularity>(DEFAULT_GRANULARITY)
   const setGranularity = (next: Granularity) => {
     setGranularityState(next)
     // Back to the latest period. The two modes emit different kinds of date —

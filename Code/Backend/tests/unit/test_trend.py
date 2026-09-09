@@ -349,3 +349,48 @@ class TestMonthBuckets:
         assert result.previous is not None
         assert result.latest.label == "Sep 2026"
         assert result.previous.label == "Aug 2026"
+
+
+class TestEscalationRate:
+    """Counted per period, for the same reason the resolution rate is.
+
+    One call escalating in a quiet week is a different fact from one escalating
+    across a hundred, and the all-time card reported the second while a reader
+    asking "how are we doing this week" wanted the first. On the shipped corpus
+    four weeks in five escalate nothing while the corpus reads 1%.
+    """
+
+    def test_the_rate_is_counted_over_the_period(self) -> None:
+        calls = [
+            call("2026-09-07T09:00:00", resolution="ESCALATED"),
+            call("2026-09-08T09:00:00", resolution="RESOLVED"),
+            call("2026-09-09T09:00:00", resolution="RESOLVED"),
+            call("2026-09-10T09:00:00", resolution="UNRESOLVED"),
+        ]
+
+        assert trend(calls).points[0].escalation_rate == 25.0
+
+    def test_a_period_nobody_escalated_in_reads_zero_not_absent(self) -> None:
+        # Distinct from a period with no calls: this one was measured, and the
+        # answer was none.
+        result = trend([call("2026-09-07T09:00:00", resolution="RESOLVED")])
+
+        assert result.points[0].escalation_rate == 0.0
+
+    def test_a_period_with_no_calls_carries_nothing(self) -> None:
+        result = trend([call("2026-09-07T09:00:00"), call("2026-09-21T09:00:00")])
+
+        assert result.points[1].calls == 0
+        assert result.points[1].escalation_rate is None
+
+    def test_a_month_counts_escalations_over_the_month(self) -> None:
+        # Not the average of its weeks: two escalations in a 20-call month is
+        # 10%, whatever the weekly rates either side of it were.
+        calls = [call(f"2026-09-{day:02d}T09:00:00") for day in range(1, 21)]
+        calls[0] = call("2026-09-01T09:00:00", resolution="ESCALATED")
+        calls[15] = call("2026-09-16T09:00:00", resolution="ESCALATED")
+
+        month = trend(calls, Bucket.MONTH).points[0]
+
+        assert month.calls == 20
+        assert month.escalation_rate == 10.0

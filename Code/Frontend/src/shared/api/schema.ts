@@ -1553,6 +1553,8 @@ export interface components {
         TrendDeltaResponse: {
             /** Calls */
             calls: number;
+            /** Escalation Rate */
+            escalation_rate: number | null;
             /** Median Handle Minutes */
             median_handle_minutes: number | null;
             /** Median Score */
@@ -1564,6 +1566,11 @@ export interface components {
         TrendPointResponse: {
             /** Calls */
             calls: number;
+            /**
+             * Escalation Rate
+             * @description The share of this period's calls that escalated. Absent for a period with no calls; 0 means calls were analysed and none escalated.
+             */
+            escalation_rate?: number | null;
             /** Label */
             label: string;
             /** Median Handle Minutes */

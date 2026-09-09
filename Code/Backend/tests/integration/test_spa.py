@@ -15,7 +15,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from frameworks_drivers.main import create_app
-from tests.support.settings import make_settings
+from infrastructure.config.settings import Settings
 
 INDEX_HTML = "<!doctype html><html><body>NanoVox</body></html>"
 
@@ -33,8 +33,22 @@ def dist(tmp_path: Path) -> Path:
 
 
 @pytest.fixture
-def client(dist: Path) -> Iterator[TestClient]:
-    app = create_app(make_settings(frontend_dist_path=dist))
+def client(dist: Path, settings: Settings, schema: None) -> Iterator[TestClient]:
+    """A started application serving ``dist``, over an isolated database.
+
+    ``settings`` and ``schema`` come from the root conftest: a database in this
+    test's own tmp_path, with the application's tables created in it. Both are
+    needed even though nothing here reads the database -- entering
+    ``TestClient`` runs the lifespan, and that releases abandoned runs, which
+    queries ``analysis_runs``.
+
+    Built with ``make_settings`` alone, these tests left ``database_url`` at its
+    default and opened ``Data/nanovox.db``. That is a real file on a developer's
+    machine, so they passed locally; in CI the file is absent (it is
+    gitignored), SQLite obligingly created an empty one, and every test in this
+    module failed on a missing table.
+    """
+    app = create_app(settings.model_copy(update={"frontend_dist_path": dist}))
     with TestClient(app) as test_client:
         yield test_client
 
@@ -101,10 +115,15 @@ class TestContainment:
 
 
 class TestWithoutABuild:
-    def test_the_api_runs_with_no_frontend_present(self, tmp_path: Path) -> None:
+    def test_the_api_runs_with_no_frontend_present(
+        self, tmp_path: Path, settings: Settings, schema: None
+    ) -> None:
         # The development arrangement: Vite serves the frontend on its own port,
         # and the absence of a build here is normal rather than a failure.
-        app = create_app(make_settings(frontend_dist_path=tmp_path / "absent"))
+        #
+        # Isolated settings for the same reason the fixture above uses them:
+        # starting the app touches the database whether or not this test does.
+        app = create_app(settings.model_copy(update={"frontend_dist_path": tmp_path / "absent"}))
 
         with TestClient(app) as client:
             assert client.get("/api/v1/health").status_code in {200, 503}

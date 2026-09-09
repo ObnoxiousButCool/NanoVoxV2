@@ -204,6 +204,7 @@ const PULSE = {
       median_score: 88,
       resolution_rate: 87.5,
       median_handle_minutes: 8,
+      escalation_rate: 12.5,
     },
     {
       starting: '2026-09-07',
@@ -212,6 +213,7 @@ const PULSE = {
       median_score: null,
       resolution_rate: null,
       median_handle_minutes: null,
+      escalation_rate: null,
     },
     {
       starting: '2026-09-14',
@@ -220,6 +222,7 @@ const PULSE = {
       median_score: 69.5,
       resolution_rate: 33.3,
       median_handle_minutes: 6.5,
+      escalation_rate: 28.6,
     },
   ],
   latest: {
@@ -229,6 +232,7 @@ const PULSE = {
     median_score: 69.5,
     resolution_rate: 33.3,
     median_handle_minutes: 6.5,
+    escalation_rate: 28.6,
   },
   previous: {
     starting: '2026-08-31',
@@ -237,12 +241,14 @@ const PULSE = {
     median_score: 88,
     resolution_rate: 87.5,
     median_handle_minutes: 8,
+    escalation_rate: 12.5,
   },
   delta: {
     calls: -1,
     median_score: -18.5,
     resolution_rate: -54.2,
     median_handle_minutes: -1.5,
+    escalation_rate: 16.1,
   },
   sentiment: { improved: 0, unchanged: 0, worsened: 0, unclassified: 0, improved_rate: 0 },
   undated_calls: 0,
@@ -345,6 +351,21 @@ function renderOverview(
       </MemoryRouter>
     </AppProviders>,
   )
+}
+
+/**
+ * Puts the page into Week mode, which it no longer opens in.
+ *
+ * The screen defaults to Month so that its first paint asks for a period the
+ * card endpoints can answer — see DEFAULT_GRANULARITY. Tests about weekly
+ * movement therefore have to select Week rather than assume it.
+ */
+async function inWeekMode(container: HTMLElement): Promise<void> {
+  const user = userEvent.setup()
+  await screen.findByText('Operations dashboard')
+  const header = container.querySelector('header')
+  if (!header) throw new Error('page header not found')
+  await user.selectOptions(within(header).getByLabelText('View by'), 'week')
 }
 
 afterEach(() => {
@@ -535,7 +556,8 @@ describe('OverviewPage', () => {
     })
 
     it('says which way each figure moved and by how much', async () => {
-      renderOverview()
+      const { container } = renderOverview()
+      await inWeekMode(container)
 
       expect(await screen.findByText(/54.2 pts on last week/)).toBeInTheDocument()
       expect(screen.getByText(/18.5 pts on last week/)).toBeInTheDocument()
@@ -544,7 +566,8 @@ describe('OverviewPage', () => {
     it('reports the call count as a percentage move against last week', async () => {
       // 7 calls against 8 the week before: a percentage of the count itself,
       // not of some other metric shown beside it.
-      renderOverview()
+      const { container } = renderOverview()
+      await inWeekMode(container)
 
       expect(await screen.findByText(/12.5% on last week/)).toBeInTheDocument()
     })
@@ -552,7 +575,8 @@ describe('OverviewPage', () => {
     it('marks a fall as bad and a rise as good, per measure', async () => {
       // Handle time is the exception: shorter is an answer found faster or a
       // member brushed off, and this figure cannot tell them apart.
-      renderOverview()
+      const { container } = renderOverview()
+      await inWeekMode(container)
 
       const resolution = await screen.findByText(/54.2 pts on last week/)
       const handleTime = screen.getByText(/1.5 min on last week/)
@@ -561,7 +585,10 @@ describe('OverviewPage', () => {
     })
 
     it('says so rather than inventing a comparison when there is no prior week', async () => {
-      renderOverview(OVERVIEW, { pulse: { ...PULSE, previous: null, delta: null } })
+      const { container } = renderOverview(OVERVIEW, {
+        pulse: { ...PULSE, previous: null, delta: null },
+      })
+      await inWeekMode(container)
 
       expect((await screen.findAllByText('No previous week')).length).toBeGreaterThan(0)
     })
@@ -649,7 +676,10 @@ describe('OverviewPage', () => {
       const header = await pageHeaderScope(container)
       const card = await graphCard()
 
-      // Defaults to 3-week until the page filter says otherwise.
+      // The page opens in Month, so the seeding is only observable from Week:
+      // move the page filter there first, watch the graph follow, then send it
+      // back to Month and watch it follow again.
+      await user.selectOptions(within(header).getByLabelText('View by'), 'week')
       expect(within(card).getByLabelText('View by')).toHaveValue('week')
 
       await user.selectOptions(within(header).getByLabelText('View by'), 'month')
@@ -704,7 +734,10 @@ describe('OverviewPage', () => {
       // label. `centre` is a distinct, honest request the API can answer
       // "nothing" to.
       const user = userEvent.setup()
-      renderOverview()
+      const { container } = renderOverview()
+      // The two-week shift belongs to the graph's 3-week mode, and the page
+      // now opens in Month — which seeds the graph to Month as well.
+      await inWeekMode(container)
       const card = await graphCard()
       const forward = await within(card).findByRole('button', {
         name: 'Shift the window forward two weeks',
@@ -848,12 +881,59 @@ describe('OverviewPage', () => {
   })
 
   describe('the detail behind it', () => {
-    it('explains a zero escalation rate instead of leaving it beside a benchmark', async () => {
-      // A flat 0% next to "industry range 8-12%" reads as a broken feed. It is
-      // not one: the shipped corpus contains no escalated call at all.
-      renderOverview({ ...OVERVIEW, metrics: { ...OVERVIEW.metrics, escalation_rate: 0 } })
+    it('reports the period, not the corpus', async () => {
+      // The point of moving this into the strip. On the shipped corpus four
+      // weeks in five escalate nothing while the corpus reads 1%, and one
+      // all-time figure answers the second question while a reader asks the
+      // first. The metrics block still carries its own rate; this card must
+      // not be reading it.
+      renderOverview({ ...OVERVIEW, metrics: { ...OVERVIEW.metrics, escalation_rate: 1 } })
+
+      expect(await screen.findByText('28.6%')).toBeInTheDocument()
+      expect(screen.queryByText('1%')).not.toBeInTheDocument()
+    })
+
+    it('sits inline with the other strip cards, carrying a delta like they do', async () => {
+      // It used to be a lone card in its own strip below them, with no
+      // comparison at all -- the request was to bring it up beside AHT.
+      renderOverview()
+
+      // The label is the card's own key element, so the strip is two hops up.
+      const strip = (await screen.findByText('Calls Monitored')).parentElement?.parentElement
+      if (!strip) throw new Error('the metric strip is missing')
+      const labels = [...strip.querySelectorAll('[class*=metricKey]')].map((k) => k.textContent)
+      expect(labels).toEqual([
+        'Calls Monitored',
+        'First Call Resolution (FCR)',
+        'Average Call Score',
+        'Average Handling Time (AHT)',
+        'Escalation rate',
+      ])
+      // A rise in escalation is bad, so the delta is toned the opposite way to
+      // FCR's -- worth asserting, since getting it backwards still renders.
+      // "month" because the screen opens in Month; the arithmetic is the same
+      // either way, and the caption naming the period is checked elsewhere.
+      expect(await screen.findByText(/16.1 pts on last month/)).toBeInTheDocument()
+    })
+
+    it('explains a zero rate instead of leaving it beside a benchmark', async () => {
+      // A flat 0% next to "industry range 8-12%" reads as a broken feed. Now
+      // decided by this period's rate, which most weeks here are.
+      renderOverview(OVERVIEW, {
+        pulse: { ...PULSE, latest: { ...PULSE.latest, escalation_rate: 0 } },
+      })
 
       expect(await screen.findByText('No analyzed call was escalated')).toBeInTheDocument()
+    })
+
+    it('carries nothing for a period that measured nothing', async () => {
+      // Same rule as every other figure in the strip: a gap, not a zero.
+      renderOverview(OVERVIEW, {
+        pulse: { ...PULSE, latest: { ...PULSE.latest, escalation_rate: null } },
+      })
+
+      await screen.findByText('Escalation rate')
+      expect(screen.getAllByText('—').length).toBeGreaterThan(0)
     })
 
     it('keeps the benchmark when calls do escalate', async () => {

@@ -76,6 +76,20 @@ filterwarnings = [
     # how pytest-asyncio manages event loops and connections with SQLAlchemy's
     # async session factories. They don't indicate bugs in our code.
     "ignore::ResourceWarning",
+    # Starlette's TestClient reads `anyio.abc.BlockingPortal`, an alias newer
+    # anyio releases deprecate. Raised while *importing* starlette, so with
+    # warnings-as-errors it takes conftest down before a single test runs --
+    # and there is nothing here to fix: the deprecated call is starlette's, in
+    # third-party code we do not control.
+    #
+    # This is a version-resolution difference, not a code change. Neither
+    # library is pinned, so a CI agent installing from the ranges in
+    # requirements.txt paired a starlette that uses the alias with an anyio
+    # that deprecates it, while a developer's older environment had a
+    # combination that does not warn. Scoped to the exact message rather than
+    # to DeprecationWarning as a whole, so our own deprecations still fail the
+    # build. Remove once starlette moves to anyio.from_thread.BlockingPortal.
+    "ignore:The anyio.abc.BlockingPortal alias is deprecated:DeprecationWarning",
 ]
 
 [tool.coverage.run]

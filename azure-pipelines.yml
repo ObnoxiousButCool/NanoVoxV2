@@ -66,8 +66,8 @@ variables:
   PIP_CACHE_DIR: $(Pipeline.Workspace)/.pip
 
 jobs:
-  - job: backend_lint
-    displayName: Backend lint
+  - job: backend_checks
+    displayName: Backend checks
     steps:
       - task: UsePythonVersion@0
         displayName: Use Python $(pythonVersion)
@@ -100,6 +100,14 @@ jobs:
         displayName: 'ruff check'
         workingDirectory: Code/Backend
 
+      # Types. Not redundant with ruff, which does not typecheck: this is the
+      # step that catches an unreachable branch, a wrong return type, or a
+      # subclass narrowing a base method's signature. It has already caught
+      # both a dead isinstance branch and a Liskov violation on this project.
+      - script: mypy .
+        displayName: mypy
+        workingDirectory: Code/Backend
+
       # The Clean Architecture contracts: domain <- application <-
       # infrastructure <- frameworks_drivers. A violation here is not a style
       # preference, it is a dependency pointing the wrong way, and it is
@@ -108,8 +116,22 @@ jobs:
         displayName: Architecture contracts
         workingDirectory: Code/Backend
 
-  - job: frontend_lint
-    displayName: Frontend lint
+      # The suite. Last because it is the slowest step and the cheap static
+      # checks above it should fail first, and because a step that fails ends
+      # the job — the same short-circuit as the `if ($?)` chain developers run
+      # locally.
+      #
+      # No environment to arrange: the tests construct settings explicitly and
+      # never read a developer's `.env`, and the database is SQLite created per
+      # test. `-q` and `--strict-markers` already come from
+      # `[tool.pytest.ini_options]`, so the bare command matches what runs on a
+      # developer's machine rather than drifting from it.
+      - script: pytest
+        displayName: pytest
+        workingDirectory: Code/Backend
+
+  - job: frontend_checks
+    displayName: Frontend checks
     steps:
       - task: NodeTool@0
         displayName: Use Node $(nodeVersion)
@@ -130,6 +152,29 @@ jobs:
         displayName: Install dependencies
         workingDirectory: Code/Frontend
 
+      # Types before lint: `tsc --build` is the cheapest of the three and a
+      # compile error makes the other two noise.
+      #
+      # `npm run typecheck` rather than a bare `tsc --noEmit`. That distinction
+      # is the whole reason this step exists: the root tsconfig.json is
+      # `"files": []` with project references only, so `tsc --noEmit` against it
+      # checks nothing at all and exits 0. It looked like a passing gate for a
+      # long time while catching nothing. `--build` walks the referenced
+      # projects, which is where the source actually is.
+      - script: npm run typecheck
+        displayName: tsc
+        workingDirectory: Code/Frontend
+
       - script: npm run lint
         displayName: eslint
+        workingDirectory: Code/Frontend
+
+      # The suite. Last for the same reason pytest is last on the backend job:
+      # slowest step, and the static checks above it should fail first.
+      #
+      # `vitest run` (via `npm test`) is already the non-watch form, so nothing
+      # here has to force CI mode -- a watching test runner would hang the
+      # agent until the job timed out.
+      - script: npm test
+        displayName: vitest
         workingDirectory: Code/Frontend

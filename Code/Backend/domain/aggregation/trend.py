@@ -44,6 +44,7 @@ DEFAULT_WINDOW = 3
 DEFAULT_HALF_WIDTH = 1
 
 _RESOLVED = "RESOLVED"
+_ESCALATED = "ESCALATED"
 
 
 class Bucket(str, Enum):
@@ -81,6 +82,11 @@ class TrendPoint:
     median_score: float | None
     resolution_rate: float | None
     median_handle_minutes: float | None
+    # Counted per period, for the same reason the resolution rate is. One call
+    # escalating in a quiet week is a different fact from one escalating across
+    # a hundred, and an all-time rate reports the second while a reader asking
+    # "how are we doing this week" wanted the first.
+    escalation_rate: float | None
 
 
 @dataclass(frozen=True)
@@ -152,6 +158,7 @@ def _point(starting: date, calls: Sequence[TrendCall], bucket: Bucket = Bucket.W
             median_score=None,
             resolution_rate=None,
             median_handle_minutes=None,
+            escalation_rate=None,
         )
 
     timed = [call.duration_seconds for call in calls if call.duration_seconds]
@@ -167,6 +174,9 @@ def _point(starting: date, calls: Sequence[TrendCall], bucket: Bucket = Bucket.W
         # week: a week where half the calls are untimed still has a real median
         # for the half that are, and reporting None there would hide it.
         median_handle_minutes=round(median(timed) / 60, 1) if timed else None,
+        escalation_rate=percentage(
+            sum(1 for call in calls if call.resolution == _ESCALATED), len(calls)
+        ),
     )
 
 

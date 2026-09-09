@@ -425,6 +425,11 @@ class TrendPointResponse(BaseModel):
     )
     resolution_rate: float | None = None
     median_handle_minutes: float | None = None
+    escalation_rate: float | None = Field(
+        default=None,
+        description="The share of this period's calls that escalated. Absent for a "
+        "period with no calls; 0 means calls were analysed and none escalated.",
+    )
 
 
 class TrendDeltaResponse(BaseModel):
@@ -434,6 +439,7 @@ class TrendDeltaResponse(BaseModel):
     median_score: float | None
     resolution_rate: float | None
     median_handle_minutes: float | None
+    escalation_rate: float | None
 
 
 class SentimentMovementResponse(BaseModel):
@@ -677,6 +683,7 @@ def _trend_point(point: TrendPoint) -> TrendPointResponse:
         median_score=point.median_score,
         resolution_rate=point.resolution_rate,
         median_handle_minutes=point.median_handle_minutes,
+        escalation_rate=point.escalation_rate,
     )
 
 
@@ -727,6 +734,7 @@ async def get_pulse(
             median_handle_minutes=_difference(
                 latest.median_handle_minutes, previous.median_handle_minutes
             ),
+            escalation_rate=_difference(latest.escalation_rate, previous.escalation_rate),
         )
         if latest and previous
         else None
