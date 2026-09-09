@@ -1061,6 +1061,18 @@ describe('OverviewPage', () => {
       expect(within(card).getByText('7.5h')).toBeInTheDocument()
     })
 
+    it('carries its legend in the card header, not the body', async () => {
+      // Used to sit under the stat row, level with the bars. Moved beside
+      // the title so it reads the same way the graph's own legend does.
+      renderOverview()
+      const card = await timeCard()
+
+      const header = card.querySelector<HTMLElement>('[class*=cardHeader]')
+      if (!header) throw new Error('card header not found')
+      expect(within(header).getByText('Resolved')).toBeInTheDocument()
+      expect(within(header).getByText('Partially resolved')).toBeInTheDocument()
+    })
+
     it('opens every call in a category, because every outcome claimed minutes', async () => {
       // Unlike the resolution-time card, this one counts the minutes a
       // category claimed rather than the ones it earned, so the link carries

@@ -277,10 +277,6 @@ function TimeValueCard({ params }: { params: PeriodParams }) {
           <span>BROUGHT NOTHING</span>
         </div>
       </div>
-
-      <Legend
-        items={OUTCOME_LEGEND.map((entry) => ({ label: entry.label, color: entry.color }))}
-      />
       <BarRows>
         {data.categories.map((category) => (
           <Bar
@@ -385,14 +381,6 @@ function ResolutionByAgent({ agents }: { agents: readonly AgentPerformance[] }) 
           />
         ))}
       </BarRows>
-      <Legend
-        items={[
-          { label: 'Resolved', color: OUTCOME_COLOURS.resolved },
-          { label: 'Partial', color: OUTCOME_COLOURS.partial },
-          { label: 'Escalated', color: OUTCOME_COLOURS.escalated },
-          { label: 'Unresolved', color: OUTCOME_COLOURS.unresolved },
-        ]}
-      />
     </>
   )
 }
@@ -844,6 +832,11 @@ export function OverviewPage() {
         className={styles.solo}
         title="Productivity"
         hint="Calls with no recorded duration are left out entirely rather than counted as zero, which would understate the minutes."
+        actions={
+          <Legend
+            items={OUTCOME_LEGEND.map((entry) => ({ label: entry.label, color: entry.color }))}
+          />
+        }
       >
         <TimeValueCard params={headerPeriod} />
       </Card>
@@ -855,6 +848,16 @@ export function OverviewPage() {
         <Card
           title="Resolution by agent"
           hint="Every agent's average is shown; a starred one is not tier-rated, because the agent has fewer calls than the significance threshold. The average is real arithmetic either way — what is withheld is the GOOD, AVERAGE or POOR label, since one call moves a four-call average by four points and a tier boundary should not turn on that. The bars are outcomes, not the score: they show how the agent's calls ended."
+          actions={
+            <Legend
+              items={[
+                { label: 'Resolved', color: OUTCOME_COLOURS.resolved },
+                { label: 'Partial', color: OUTCOME_COLOURS.partial },
+                { label: 'Escalated', color: OUTCOME_COLOURS.escalated },
+                { label: 'Unresolved', color: OUTCOME_COLOURS.unresolved },
+              ]}
+            />
+          }
         >
           {agents.isPending ? <Loading what="agents" /> : null}
           {agents.error ? <Failure error={agents.error} what="agent performance" /> : null}
