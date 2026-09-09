@@ -436,7 +436,6 @@ function PulseStrip({
       <DeltaMetric
         label="Calls Monitored"
         period={granularity}
-        preposition="from"
         value={latest.calls}
         delta={percentChange(latest.calls, previous?.calls)}
         format={(value) => `${value.toFixed(1)}%`}

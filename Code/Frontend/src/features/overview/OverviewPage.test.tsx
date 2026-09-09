@@ -559,8 +559,8 @@ describe('OverviewPage', () => {
       const { container } = renderOverview()
       await inWeekMode(container)
 
-      expect(await screen.findByText(/54.2 pts on last week/)).toBeInTheDocument()
-      expect(screen.getByText(/18.5 pts on last week/)).toBeInTheDocument()
+      expect(await screen.findByText(/54.2 pts from last week/)).toBeInTheDocument()
+      expect(screen.getByText(/18.5 pts from last week/)).toBeInTheDocument()
     })
 
     it('reports the call count as a percentage move against last week', async () => {
@@ -579,8 +579,8 @@ describe('OverviewPage', () => {
       const { container } = renderOverview()
       await inWeekMode(container)
 
-      const resolution = await screen.findByText(/54.2 pts on last week/)
-      const handleTime = screen.getByText(/1.5 min on last week/)
+      const resolution = await screen.findByText(/54.2 pts from last week/)
+      const handleTime = screen.getByText(/1.5 min from last week/)
 
       expect(resolution.className).not.toEqual(handleTime.className)
     })
@@ -593,8 +593,8 @@ describe('OverviewPage', () => {
       await inWeekMode(container)
 
       const calls = await screen.findByText(/12.5% from last week/)
-      const resolution = screen.getByText(/54.2 pts on last week/)
-      const handleTime = screen.getByText(/1.5 min on last week/)
+      const resolution = screen.getByText(/54.2 pts from last week/)
+      const handleTime = screen.getByText(/1.5 min from last week/)
 
       expect(calls.className).toEqual(resolution.className)
       expect(calls.className).not.toEqual(handleTime.className)
@@ -612,7 +612,7 @@ describe('OverviewPage', () => {
     it('asks the API to bucket by month when a month is picked', async () => {
       // Not a request detail: a month's figures have to be counted over the
       // month's own calls. Resolved to its last week instead, September
-      // reported 11 of its 89 calls under a delta captioned "on last week".
+      // reported 11 of its 89 calls under a delta captioned "from last week".
       const user = userEvent.setup()
       const { container } = renderOverview()
 
@@ -634,8 +634,8 @@ describe('OverviewPage', () => {
     })
 
     it('captions a month delta as a month, not as a week', async () => {
-      // "on last week" beneath a figure covering a month is a false statement
-      // about the arithmetic, not a loose one.
+      // "from last week" beneath a figure covering a month is a false
+      // statement about the arithmetic, not a loose one.
       const user = userEvent.setup()
       const { container } = renderOverview()
 
@@ -644,8 +644,8 @@ describe('OverviewPage', () => {
       if (!header) throw new Error('the page header is missing')
       await user.selectOptions(within(header).getByLabelText('View by'), 'month')
 
-      expect((await screen.findAllByText(/on last month/)).length).toBeGreaterThan(0)
-      expect(screen.queryByText(/on last week/)).not.toBeInTheDocument()
+      expect((await screen.findAllByText(/from last month/)).length).toBeGreaterThan(0)
+      expect(screen.queryByText(/from last week/)).not.toBeInTheDocument()
     })
   })
 
@@ -1003,7 +1003,7 @@ describe('OverviewPage', () => {
       // FCR's -- worth asserting, since getting it backwards still renders.
       // "month" because the screen opens in Month; the arithmetic is the same
       // either way, and the caption naming the period is checked elsewhere.
-      expect(await screen.findByText(/16.1 pts on last month/)).toBeInTheDocument()
+      expect(await screen.findByText(/16.1 pts from last month/)).toBeInTheDocument()
     })
 
     it('explains a zero rate instead of leaving it beside a benchmark', async () => {

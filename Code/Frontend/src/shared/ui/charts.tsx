@@ -452,7 +452,7 @@ export function DeltaMetric({
   format,
   goodDirection = 'up',
   period = 'week',
-  preposition = 'on',
+  preposition = 'from',
   sub,
 }: {
   label: string
@@ -464,9 +464,10 @@ export function DeltaMetric({
    *  in the caption because "on last week" under a card showing a month is a
    *  wrong statement about the arithmetic, not a loose one. */
   period?: 'week' | 'month'
-  /** The word before "last {period}" — "on" everywhere except Calls
-   *  Monitored, which reads as a count arriving "from" the prior period
-   *  rather than a score measured "on" it. */
+  /** The word before "last {period}". Every figure on this strip is a count
+   *  or a rate arriving from the prior period, not a score measured on it, so
+   *  "from" is the default; "on" stays available for a future figure that
+   *  reads more like a snapshot than a move. */
   preposition?: 'on' | 'from'
   sub?: ReactNode
 }) {
