@@ -276,7 +276,11 @@
 
 .scatterTooltip {
   position: absolute;
-  transform: translate(-50%, -125%);
+  /* `top` is set inline to the higher of the two dots at the hovered point;
+     the fixed 10px here is the gap above that dot, not a share of the box's
+     height, so the tooltip sits the same visual distance off the line
+     whatever the chart's height or how far up or down the dot itself is. */
+  transform: translate(-50%, calc(-100% - 10px));
   background: var(--ink);
   color: #fff;
   padding: 6px 9px;

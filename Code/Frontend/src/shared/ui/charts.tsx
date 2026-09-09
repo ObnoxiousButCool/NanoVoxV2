@@ -382,16 +382,29 @@ export function DualLineTrend({
               />
             )
           })}
-          {active ? (
-            <div
-              className={styles.scatterTooltip}
-              style={{ left: `${String(xs[activeIndex ?? 0])}%`, top: '0%' }}
-            >
-              <b>{active.label}</b>
-              <span>Quality {active.quality ?? '—'}</span>
-              <span>AHT {active.ahtMinutes ?? '—'}m</span>
-            </div>
-          ) : null}
+          {active
+            ? (() => {
+                const index = activeIndex ?? 0
+                // Above whichever of the two dots sits higher, not a fixed
+                // height — pinned to the top of the box, the tooltip used to
+                // float there for every week regardless of where its dots
+                // actually fell, reading as detached from the line it describes.
+                const dotYs = [qualityY[index], ahtY[index]].filter(
+                  (y): y is number => y !== null && y !== undefined,
+                )
+                const top = dotYs.length > 0 ? Math.min(...dotYs) : 0
+                return (
+                  <div
+                    className={styles.scatterTooltip}
+                    style={{ left: `${String(xs[index])}%`, top: `${String(top)}%` }}
+                  >
+                    <b>{active.label}</b>
+                    <span>Quality {active.quality ?? '—'}</span>
+                    <span>AHT {active.ahtMinutes ?? '—'}m</span>
+                  </div>
+                )
+              })()
+            : null}
         </div>
         <div className={styles.axisY} style={{ height }}>
           {ahtTicks.map((tick, index) => (
