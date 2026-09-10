@@ -882,7 +882,7 @@ export function OverviewPage() {
       <div className={styles.grid}>
         <Card
           title="Resolution by agent"
-          hint="Every agent's average is shown; a starred one is not tier-rated, because the agent has fewer calls than the significance threshold. The average is real arithmetic either way — what is withheld is the GOOD, AVERAGE or POOR label, since one call moves a four-call average by four points and a tier boundary should not turn on that. The bars are outcomes, not the score: they show how the agent's calls ended."
+          hint="Every agent's average is shown; a starred one is not tier-rated, because the agent has fewer calls than the significance threshold."
           actions={
             <Legend
               items={[
