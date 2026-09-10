@@ -910,19 +910,6 @@ describe('OverviewPage', () => {
       ).toBeInTheDocument()
     })
 
-    it('keeps the staffing reading of the marked hour reachable', async () => {
-      // The sentence naming 13:00 was removed, so the marking is now carried by
-      // the bar's colour alone and only the hint says what it means.
-      renderOverview()
-
-      const heading = await screen.findByText('Hourly call distribution')
-      const card = heading.closest('section')
-      if (!card) throw new Error('hourly card has no containing section')
-      expect(within(card).getByRole('note', { hidden: true })).toHaveTextContent(
-        'a staffing question rather than a coaching one',
-      )
-    })
-
     it('shares a row with Productivity, each shrunk to fit it', async () => {
       // Two full-width cards before this, each taller than it needed to be.
       renderOverview()

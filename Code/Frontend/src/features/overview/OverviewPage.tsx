@@ -982,7 +982,7 @@ export function OverviewPage() {
 
         <Card
           title="Hourly call distribution"
-          hint="Calls by the hour they started, with the mean handle time for that hour beneath it — volume alone does not size a shift, since twenty calls at seven minutes need more people than twenty at four. Handle time is averaged over the calls that state one, and shown as a dash where none do, so an unmeasured hour never reads as an instant one. The marked hour is a staffing question rather than a coaching one. Hours with fewer than four calls are drawn but carry no finding: a rota changed on two calls is a rota changed on noise, and the count above each bar is what says how much an hour rests on."
+          hint="Calls by the hour they started, with the mean handle time for that hour beneath it."
         >
           <HourlyCard params={headerPeriod} />
         </Card>
