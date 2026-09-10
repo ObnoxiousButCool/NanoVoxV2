@@ -932,7 +932,7 @@ export function OverviewPage() {
 
         <Card
           title="Member Call Reasons"
-          hint="A zero-count category means nobody called for that reason — it's still shown, not left out."
+          hint="A zero-count category means nobody called for that reason."
         >
           <BarRows>
             {categories.map((category, index) => (
