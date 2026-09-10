@@ -408,16 +408,16 @@ describe('OverviewPage', () => {
     expect(within(card).getByText('—')).toBeInTheDocument()
   })
 
-  it('keeps the double-counting rule reachable, behind the card hint', async () => {
+  it('keeps the reason bars fall short of the total reachable, behind the card hint', async () => {
     // Hidden by default but never removed: a reader who wonders why the bars
-    // do not sum to the call count has to be able to find out that they cannot.
+    // do not sum to the call count has to be able to find out why they don't.
     renderOverview()
 
     const heading = await screen.findByText('Flag Ownership')
     const card = heading.closest('section')
     if (!card) throw new Error('signals card has no containing section')
     expect(within(card).getByRole('note', { hidden: true })).toHaveTextContent(
-      'counted for the team owning the more serious one',
+      "isn't counted anywhere here",
     )
   })
 

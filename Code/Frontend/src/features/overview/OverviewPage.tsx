@@ -848,7 +848,7 @@ export function OverviewPage() {
 
         <Card
           title="Flag Ownership"
-          hint="A call raising findings for two teams is counted for the team owning the more serious one, so no call appears twice. Owners with no signals are drawn so the absence is visible rather than implied."
+          hint="A call can raise more than one signal, or none at all. Each flagged call is credited to the team owning its most serious signal, so a call with none isn't counted anywhere here — which is why these numbers can total less than all calls analyzed."
         >
           {signals.isPending ? <Loading what="signals" /> : null}
           {signals.error ? <Failure error={signals.error} what="signal distribution" /> : null}
