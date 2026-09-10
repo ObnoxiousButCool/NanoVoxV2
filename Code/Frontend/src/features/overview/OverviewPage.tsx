@@ -629,7 +629,6 @@ function CallerMixCard({ params }: { params: PeriodParams }) {
 function HourlyCard({ params }: { params: PeriodParams }) {
   const navigate = useNavigate()
   const mix = useWorkMix(params)
-  const weakest = mix.data?.weakest_hour
 
   if (mix.isPending) return <Loading what="the day" />
   if (mix.error) return <Failure error={mix.error} what="the hourly load" />
@@ -644,8 +643,8 @@ function HourlyCard({ params }: { params: PeriodParams }) {
         bars={mix.data.hours.map((hour) => ({
           label: hour.label.slice(0, 2),
           count: hour.calls,
-          // Marked, not merely low: this is the hour a rota would change for.
-          isBelowThreshold: hour.label === weakest,
+          // Every hour reads the same now -- no bar is singled out red.
+          isBelowThreshold: false,
           // Mean handle time, under the hour. Volume alone does not size a
           // shift: an hour taking twenty calls at seven minutes needs more
           // people on it than one taking twenty at four, and the pair together
