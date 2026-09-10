@@ -52,6 +52,7 @@ Desktop.ini
 # to be shared or reviewed, so it stays local and untracked.
 context-so-far.md
 demo-plan.md
+wording-plan.md
 
 # Imported corpora. A byproduct of the Corpus import screen: the same calls
 # the tracked Samples/ files hold, kept per-upload so an import cannot
