@@ -836,8 +836,8 @@ export function OverviewPage() {
           actions={
             <Legend
               items={[
-                { label: 'Resolved', color: OUTCOME_COLOURS.resolved },
-                { label: 'Not resolved', color: OUTCOME_COLOURS.unresolved },
+                { label: 'Resolved on first call', color: OUTCOME_COLOURS.resolved },
+                { label: 'Not resolved on first call', color: OUTCOME_COLOURS.unresolved },
               ]}
             />
           }

@@ -891,8 +891,8 @@ describe('OverviewPage', () => {
       if (!card) throw new Error('caller mix has no containing section')
       const header = card.querySelector<HTMLElement>('[class*=cardHeader]')
       if (!header) throw new Error('card header not found')
-      expect(within(header).getByText('Resolved')).toBeInTheDocument()
-      expect(within(header).getByText('Not resolved')).toBeInTheDocument()
+      expect(within(header).getByText('Resolved on first call')).toBeInTheDocument()
+      expect(within(header).getByText('Not resolved on first call')).toBeInTheDocument()
     })
   })
 
