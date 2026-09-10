@@ -832,7 +832,7 @@ export function OverviewPage() {
           leaves a void beside the other. */}
       <div className={styles.grid}>
         <Card
-          title="Who calls, and who gets an answer"
+          title="Caller Distribution"
           hint="Bars are the share of each population resolved first time, not their share of the queue — the populations are different sizes, and stacking them by volume would say only that members call most. An employer is a whole group’s coverage and a broker is a distribution channel; averaging them into one resolution rate describes none of them. A population that placed no call in the period is not drawn: a resolution rate over no calls does not exist, and a bar at zero would read as one that was never resolved."
         >
           <CallerMixCard params={headerPeriod} />
