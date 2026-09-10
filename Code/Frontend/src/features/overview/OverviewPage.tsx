@@ -910,7 +910,7 @@ export function OverviewPage() {
       <div className={styles.grid}>
         <Card
           title="Quality Distribution"
-          hint="Coach the cluster below the threshold; the rest needs no intervention. Bins are half-open — 70–80 holds 70 to 79 — except the last, which runs to 100 inclusive so the top score has somewhere to sit. Press a bar to open the calls in it."
+          hint="Coach the cluster below the threshold; the rest needs no intervention. Press a bar to open the calls in it."
         >
           <Histogram
             bars={histogram.bins.map((bin) => {
