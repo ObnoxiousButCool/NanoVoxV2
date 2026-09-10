@@ -901,7 +901,7 @@ export function OverviewPage() {
 
         <Card
           title="Average Time Taken"
-          hint="Average minutes to resolve, slowest category first, over the calls that reached a resolution. A category that has resolved nothing shows a dash rather than a zero, because no time was measured — not a fast one."
+          hint="Average minutes to resolve, slowest category first, over the calls that reached a resolution. A category that has resolved nothing shows a dash rather than a zero, because no time was measured."
         >
           <ResolutionTimeCard params={headerPeriod} />
         </Card>
