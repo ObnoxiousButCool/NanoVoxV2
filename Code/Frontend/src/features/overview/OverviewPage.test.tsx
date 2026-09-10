@@ -882,6 +882,18 @@ describe('OverviewPage', () => {
 
       expect(await screen.findByText('No call states who was calling')).toBeInTheDocument()
     })
+
+    it('names the two colours its bars use', async () => {
+      renderOverview()
+
+      const label = await screen.findByText('Member · 28')
+      const card = label.closest('section')
+      if (!card) throw new Error('caller mix has no containing section')
+      const header = card.querySelector<HTMLElement>('[class*=cardHeader]')
+      if (!header) throw new Error('card header not found')
+      expect(within(header).getByText('Resolved')).toBeInTheDocument()
+      expect(within(header).getByText('Not resolved')).toBeInTheDocument()
+    })
   })
 
   describe('when the calls come', () => {
