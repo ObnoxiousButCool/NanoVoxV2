@@ -683,17 +683,20 @@ export function OverviewPage() {
   // from the header's on every render.
   const [globalAnchor, setGlobalAnchor] = useState<string | undefined>(undefined)
   const [globalGranularity, setGlobalGranularity] = useState<Granularity>(DEFAULT_GRANULARITY)
-  // The graph opens on the three weeks ending with today's, whatever the header
-  // opens on. The two answer different questions: the cards report a period,
-  // and the graph shows which way it is moving — which needs more than one
-  // point, so a month-wide single figure is the wrong opening shape for it.
+  // The graph opens matching the header's own default, so the first thing a
+  // reader sees isn't two cards silently disagreeing about what period "the
+  // dashboard" means. From here the two are independent, same as before —
+  // switching the graph's own filter, or the header's, only re-seeds the one
+  // that changed.
   //
-  // A week back from today, not today itself. The window is centred on its
-  // middle week, so centring it on today reaches a week *past* today — seven
-  // days that cannot hold a call yet, drawn as a gap at the right-hand edge on
-  // every load. Centred a week earlier it ends on the Sunday of today's week:
-  // for a Wednesday the 9th, 24 August to 13 September.
-  const [graphMode, setGraphMode] = useState<GraphFilterMode>('week')
+  // A week back from today, not today itself, for the value underneath it.
+  // The window is centred on its middle week, so centring it on today reaches
+  // a week *past* today — seven days that cannot hold a call yet, drawn as a
+  // gap at the right-hand edge on every load. Centred a week earlier it ends
+  // on the Sunday of today's week: for a Wednesday the 9th, 24 August to 13
+  // September. A day within that same week names the right month too, so one
+  // value serves either mode this opens in.
+  const [graphMode, setGraphMode] = useState<GraphFilterMode>(DEFAULT_GRANULARITY)
   const [graphValue, setGraphValue] = useState<string | undefined>(() =>
     addDays(today(), -WEEK_IN_DAYS),
   )

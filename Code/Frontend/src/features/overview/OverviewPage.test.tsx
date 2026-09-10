@@ -699,11 +699,12 @@ describe('OverviewPage', () => {
   })
 
   describe('what the screen opens on', () => {
-    it('opens the graph on a centred window, not on the header month', async () => {
-      // The two answer different questions. The cards report a period, so the
-      // header opens on a month; the graph shows which way it is moving, which
-      // needs more than one point, so a month-wide single figure is the wrong
-      // opening shape for it.
+    it('opens the graph on the header month, not a centred window', async () => {
+      // The graph used to always open on a centred week regardless of the
+      // header, on the reasoning that the two answer different questions.
+      // Reversed: the first thing a reader sees should not be two cards
+      // silently disagreeing about what period "the dashboard" means, so the
+      // graph now opens matching the header's own Month default.
       renderOverview()
 
       await screen.findByText('Overall Call Quality vs Average Handling Time')
@@ -712,16 +713,11 @@ describe('OverviewPage', () => {
         .mock.calls.map(([input]) => requestUrl(input))
         .filter((url) => url.includes('/dashboard/pulse'))
 
-      expect(pulses.some((url) => url.includes('centre='))).toBe(true)
+      expect(pulses.some((url) => url.includes('month='))).toBe(true)
+      expect(pulses.some((url) => url.includes('centre='))).toBe(false)
     })
 
-    it('does not let the header overwrite the graph on mount', async () => {
-      // The regression this guards, twice over. Seeding the graph from the
-      // header in an effect fires on mount as well as on change, so the
-      // header's Month default overwrote the graph's opening week -- and a
-      // "skip the first run" ref does not save it either, because StrictMode
-      // invokes effects twice and the second run proceeds. The seeding lives
-      // in the header's own change handler for exactly that reason.
+    it('opens the header and the graph on the same period', async () => {
       const { container } = renderOverview()
 
       const heading = await screen.findByText('Overall Call Quality vs Average Handling Time')
@@ -730,7 +726,7 @@ describe('OverviewPage', () => {
       if (!header || !card) throw new Error('page header or graph card is missing')
 
       expect(within(header).getByLabelText('View by')).toHaveValue('month')
-      expect(within(card).getByLabelText('View by')).toHaveValue('week')
+      expect(within(card).getByLabelText('View by')).toHaveValue('month')
     })
   })
 
