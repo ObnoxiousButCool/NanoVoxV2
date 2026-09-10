@@ -970,7 +970,7 @@ export function OverviewPage() {
       <div className={styles.grid}>
         <Card
           title="Productivity"
-          hint="Calls with no recorded duration are left out entirely rather than counted as zero, which would understate the minutes."
+          hint="Calls with no recorded duration are left out entirely rather than counted as zero."
           actions={
             <Legend
               items={OUTCOME_LEGEND.map((entry) => ({ label: entry.label, color: entry.color }))}
