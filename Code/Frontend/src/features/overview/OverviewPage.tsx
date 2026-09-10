@@ -933,7 +933,7 @@ export function OverviewPage() {
 
         <Card
           title="Member Call Reasons"
-          hint="A zero-count category is drawn rather than omitted: an absent bar reads as “this does not happen” rather than “this did not happen here”. If coverage drops below 90% the categories need revising, not the chart."
+          hint="A zero-count category means nobody called for that reason — it's still shown, not left out."
         >
           <BarRows>
             {categories.map((category, index) => (
