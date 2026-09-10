@@ -847,7 +847,7 @@ export function OverviewPage() {
         </Card>
 
         <Card
-          title="Signals by owner"
+          title="Flag Ownership"
           hint="A call raising findings for two teams is counted for the team owning the more serious one, so no call appears twice. Owners with no signals are drawn so the absence is visible rather than implied."
         >
           {signals.isPending ? <Loading what="signals" /> : null}

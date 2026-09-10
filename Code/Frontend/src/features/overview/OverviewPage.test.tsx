@@ -413,7 +413,7 @@ describe('OverviewPage', () => {
     // do not sum to the call count has to be able to find out that they cannot.
     renderOverview()
 
-    const heading = await screen.findByText('Signals by owner')
+    const heading = await screen.findByText('Flag Ownership')
     const card = heading.closest('section')
     if (!card) throw new Error('signals card has no containing section')
     expect(within(card).getByRole('note', { hidden: true })).toHaveTextContent(
@@ -426,7 +426,7 @@ describe('OverviewPage', () => {
     // a keyboard or a touch screen, so the trigger is a real button.
     renderOverview()
 
-    const heading = await screen.findByText('Signals by owner')
+    const heading = await screen.findByText('Flag Ownership')
     const card = heading.closest('section')
     if (!card) throw new Error('signals card has no containing section')
 
@@ -503,7 +503,7 @@ describe('OverviewPage', () => {
   it('shows an owner carrying no signals as a dash', async () => {
     renderOverview()
 
-    const heading = await screen.findByText('Signals by owner')
+    const heading = await screen.findByText('Flag Ownership')
     const card = heading.closest('section')
     if (!card) throw new Error('signals card has no containing section')
 
