@@ -131,10 +131,15 @@ class TestResumability:
 
 
 class TestItemInvariants:
-    def test_a_completed_item_must_name_the_call_it_produced(self) -> None:
-        # Otherwise the dashboard counts a call nobody can open.
-        with pytest.raises(ValueError, match="without a stored call"):
-            CorpusRunItem(source_id="call_001", reference="C0001", title="Test", status=COMPLETED)
+    def test_a_completed_item_survives_its_call_being_replaced_later(self) -> None:
+        # `call_id` is ON DELETE SET NULL: a later run forcing the same
+        # reference deletes and re-analyzes the call, which clears this run's
+        # link to it without erasing the fact that this run did complete it.
+        subject = CorpusRunItem(
+            source_id="call_001", reference="C0001", title="Test", status=COMPLETED
+        )
+
+        assert subject.call_id is None
 
     @pytest.mark.parametrize("status", [FAILED, SKIPPED])
     def test_a_failure_or_a_skip_must_say_why(self, status: RunItemStatus) -> None:

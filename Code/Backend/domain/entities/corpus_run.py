@@ -34,10 +34,12 @@ class CorpusRunItem:
     duration_ms: float | None = None
 
     def __post_init__(self) -> None:
-        if self.status is RunItemStatus.COMPLETED and self.call_id is None:
-            # A completed item with no call is a claim with nothing behind it;
-            # the dashboard would count a call that cannot be opened.
-            raise ValueError(f"Item {self.source_id!r} completed without a stored call.")
+        # A completed item losing its call_id is not corruption: `force` on a
+        # later run deletes and re-analyzes the same reference, and the column
+        # is ON DELETE SET NULL for exactly this reason -- the row that proves
+        # this run finished stays, only the link to a call this run no longer
+        # owns is cleared. Requiring call_id here would make every run but the
+        # most recent one against a reference unreadable.
         if self.status in (RunItemStatus.FAILED, RunItemStatus.SKIPPED) and not self.message:
             raise ValueError(f"Item {self.source_id!r} is {self.status.value} without a reason.")
 
