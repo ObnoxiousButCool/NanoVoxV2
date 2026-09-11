@@ -609,6 +609,24 @@ describe('OverviewPage', () => {
       expect((await screen.findAllByText('No previous week')).length).toBeGreaterThan(0)
     })
 
+    it("scopes every other card to the latest week by default, matching what Calls Monitored already shows", async () => {
+      // Calls Monitored reads from `/pulse`, which defaults to the latest
+      // week with no anchor at all. The rest of the page's cards read a
+      // missing anchor as "no filter, the whole corpus" instead -- so before
+      // this fell back the same way, switching to week mode without picking
+      // a specific week showed the latest week up top and the entire corpus
+      // everywhere else, with nothing on screen to say the two figures
+      // covered different periods.
+      const { container } = renderOverview()
+      await inWeekMode(container)
+
+      const calls = vi.mocked(globalThis.fetch).mock.calls.map(([input]) =>
+        requestUrl(input as RequestInfo),
+      )
+      const overviewCalls = calls.filter((url) => url.includes('/dashboard/overview'))
+      expect(overviewCalls.some((url) => url.includes('anchor=2026-09-14'))).toBe(true)
+    })
+
     it('asks the API to bucket by month when a month is picked', async () => {
       // Not a request detail: a month's figures have to be counted over the
       // month's own calls. Resolved to its last week instead, September

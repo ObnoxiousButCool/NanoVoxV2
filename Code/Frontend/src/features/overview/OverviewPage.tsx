@@ -80,18 +80,20 @@ function graphPulseParams(mode: GraphFilterMode, value: string | undefined): Pul
  *  into its `bucket` request to `/pulse` instead, since only that endpoint
  *  has a "last week"/"last month" figure to diff against.
  *
- *  Month mode falls back to the corpus's latest week when nothing has been
- *  picked, which is what makes the screen's default period a real one — see
- *  DEFAULT_GRANULARITY. Week mode has no such fallback: with no week picked
- *  it sends no period, and these endpoints read that as the whole corpus. */
+ *  Both modes fall back to the corpus's latest week when nothing has been
+ *  picked, matching `/pulse`'s own no-anchor default. Without this, the
+ *  moment a reader opens the page in week mode without touching the picker,
+ *  Calls Monitored reads the latest week (pulse's default) while every card
+ *  below it reads the whole corpus (these endpoints' own no-period default)
+ *  — two different periods on one screen with nothing to say so. */
 function headerPeriodParams(
   granularity: Granularity,
   anchor: string | undefined,
   fallback: string | undefined,
 ): PeriodParams {
-  if (granularity !== 'month') return anchor ? { anchor } : {}
   const value = anchor ?? fallback
-  return value ? { month: value } : {}
+  if (!value) return {}
+  return granularity === 'month' ? { month: value } : { anchor: value }
 }
 
 /** Days in a week, so the graph's opening offset reads as "a week back". */
