@@ -605,7 +605,7 @@ function CallerMixCard({ params }: { params: PeriodParams }) {
               {
                 value: caller.resolution_rate,
                 color: OUTCOME_COLOURS.resolved,
-                label: 'First Call Resolution (FCR)',
+                label: 'Resolved on first call',
               },
               {
                 value: Math.max(100 - caller.resolution_rate, 0),
