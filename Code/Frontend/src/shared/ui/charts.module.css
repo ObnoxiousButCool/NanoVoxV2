@@ -287,7 +287,6 @@
    every tap; this covers both. */
 .hoverColumn:focus {
   outline: none;
-  fill: rgb(20 81 79 / 6%);
 }
 
 .scatterTooltip {
