@@ -226,7 +226,6 @@ export function CallDetailPage() {
   const l4 = layerPayload(data, 'L4')
   const l5 = layerPayload(data, 'L5')
   const provisional = data.score.status === 'provisional'
-  const gaps = data.assist_events.filter((event) => event.is_gap)
 
   return (
     <>
@@ -343,13 +342,6 @@ export function CallDetailPage() {
             </div>
           ))
         )}
-        {data.rejected_marker_notes.length > 0 ? (
-          <Note>
-            {data.rejected_marker_notes.length} observation
-            {data.rejected_marker_notes.length === 1 ? ' was' : 's were'} discarded because the
-            quoted evidence did not appear in the transcript.
-          </Note>
-        ) : null}
       </LayerBlock>
 
       <LayerBlock
@@ -385,13 +377,6 @@ export function CallDetailPage() {
               </p>
             </Alert>
           ))}
-          {data.rejected_attribution_notes.length > 0 ? (
-            <Note>
-              {data.rejected_attribution_notes.length} broker attribution
-              {data.rejected_attribution_notes.length === 1 ? ' was' : 's were'} discarded for
-              lack of evidence.
-            </Note>
-          ) : null}
         </div>
       </LayerBlock>
 
@@ -423,11 +408,6 @@ export function CallDetailPage() {
             ))}
           </div>
         )}
-        {gaps.length > 0 ? (
-          <Note>
-            Shown as a gap rather than an empty state, because the absence is the finding.
-          </Note>
-        ) : null}
       </LayerBlock>
 
       <Panel

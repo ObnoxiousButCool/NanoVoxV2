@@ -167,11 +167,15 @@ describe('CallDetailPage', () => {
     expect(marks[0]?.textContent).toBe('pressure in my chest')
   })
 
-  it('reports discarded observations rather than hiding them', async () => {
+  it('keeps the discarded-observation footnote off the layer', async () => {
+    // The call carries a rejected marker note; L3 no longer prints a count of
+    // them. What survived evidence checking is the layer's content, and the
+    // pipeline's own bookkeeping is not a reader's concern.
     renderCall()
 
     await screen.findByText('27')
-    expect(screen.getByText(/1 observation was discarded/)).toBeInTheDocument()
+    expect(screen.queryByText(/was discarded/)).not.toBeInTheDocument()
+    expect(screen.getByText(/Did not recognise chest pressure/)).toBeInTheDocument()
   })
 
   it('presents a missed assist as a gap, not an empty state', async () => {
@@ -179,7 +183,9 @@ describe('CallDetailPage', () => {
 
     await screen.findByText('27')
     expect(screen.getByText(/Did not trigger · 2:30/)).toBeInTheDocument()
-    expect(screen.getByText(/the absence is the finding/)).toBeInTheDocument()
+    // The gap itself is the statement; the sentence explaining why it is drawn
+    // that way is gone.
+    expect(screen.queryByText(/the absence is the finding/)).not.toBeInTheDocument()
   })
 
   it('names the team that owns each operational finding', async () => {

@@ -224,7 +224,78 @@ Being precise here is what buys you credibility for everything above.
 
 ---
 
-## 6. The ask
+## 6. What the dashboard actually shows — the screen you will demo
+
+This is the "Built and running" row of the table above, made concrete. If you
+share your screen at any point, this is the screen to share. Five headline
+numbers, a trend graph and eight cards, all counted from stored calls —
+**nothing on this screen is written by a model.**
+
+**One control drives the whole page.** A single Week/Month picker at the top
+sets the period for every card below it, so the page can never show one card's
+week beside another card's month. It opens on the **last completed month**, so
+the first thing anyone sees is a full period rather than a half-finished one.
+
+**Every number opens the calls behind it.** Click a bar, an hour, a score band
+or an agent and you land on that exact list of calls, with the transcript and
+the quoted evidence. That is the part that lands in a demo: the pitch is
+"evidence behind every judgement", and this is where someone tests it.
+
+### The top strip — "where we stand"
+
+Five numbers, each with its change against the previous period, coloured so
+good is always green regardless of which direction good happens to be.
+
+| Figure | What it answers |
+|---|---|
+| **Calls Monitored** | How much of the operation did we actually see? |
+| **First Call Resolution (FCR)** | How often did the customer get their answer the first time? |
+| **Average Call Score** | Quality against the rubric, out of 100 |
+| **Average Handling Time (AHT)** | How long a call takes — here, shorter is scored as better |
+| **Escalation rate** | How often a call had to go up a level, shown against the industry's 8–12% |
+
+### The trend graph
+
+**Overall Call Quality & Average Handling Time** — two lines over time, quality
+against the left axis and minutes against the right. The question it settles is
+*"are we getting better or worse"*, which no single average can answer. Worth
+saying out loud in a demo: **a period that measured nothing breaks the line
+instead of being drawn as zero**, so a gap reads as missing data rather than a
+collapse. It has its own period control, so you can move the graph without
+disturbing the rest of the page.
+
+### "Who is affected"
+
+| Card | What it answers |
+|---|---|
+| **Caller Distribution** | Which type of caller — member, employer, broker — are we failing most? Each bar is that group's first-call resolution rate, not its share of volume. |
+| **Flag Ownership** | Which team owns the problems we found? Each flagged call is credited to the team owning its most serious issue. |
+
+### "The detail behind it"
+
+| Card | What it answers |
+|---|---|
+| **Resolution by agent** | Who needs coaching? Outcomes per agent, with an average score. An agent with too few calls to judge fairly **shows the number but is deliberately not rated** — that restraint is a selling point, not a gap. |
+| **Average Time Taken** | Which kinds of work are slow? Average minutes to resolve by category, slowest first, plus the longest single call. |
+| **Quality Distribution** | How many calls sit below the quality threshold? A score histogram — this is the "coach this cluster, leave the rest alone" card. |
+| **Member Call Reasons** | Why are people calling? Volume by reason. Reasons with zero calls are still drawn, so an absence reads as "did not happen here" rather than "cannot happen". |
+| **Productivity** | What did our hours buy? The only card in minutes rather than calls: total hours on calls, the share that produced a resolution, and the hours that produced nothing. |
+| **Hourly call distribution** | When do we need people? Calls by hour of day, with that hour's average handling time underneath — volume alone does not size a shift. |
+
+### The two cards that are deliberately somewhere else
+
+The ranked findings queue and the members-at-risk list live on their own screen
+(`/inferences`). Each names individuals and asks for follow-up, which makes them
+**a worklist somebody owns, not a number you read at a glance.** If asked why
+they are not on the main dashboard, that is the answer — and it is the same
+instinct as not tier-rating an agent on four calls.
+
+> **The line to use:** "Every number on this screen opens the calls it came
+> from. That is the difference between a dashboard and a report."
+
+---
+
+## 7. The ask
 
 Pick one and be specific — vague asks get deferred.
 
@@ -236,7 +307,7 @@ Pick one and be specific — vague asks get deferred.
 
 ---
 
-## 7. Hard questions, and short answers
+## 8. Hard questions, and short answers
 
 **"How is this different from what Genesys or NICE already sell?"**
 Theirs is bundled to their platform, priced per seat, and you cannot take it with you. Ours
@@ -274,7 +345,7 @@ not a vendor demo on clean audio.
 
 ---
 
-## 8. Lines to keep in your pocket
+## 9. Lines to keep in your pocket
 
 - "Nothing we built knows it is in healthcare, and nothing we built knows it came from a phone."
 - "The engine reads one object: who said what, when. Every channel produces that object."
@@ -287,7 +358,7 @@ not a vendor demo on clean audio.
 
 ---
 
-## 9. Supporting material for the call
+## 10. Supporting material for the call
 
 | | |
 |---|---|
@@ -297,6 +368,7 @@ not a vendor demo on clean audio.
 | The channel seam, in code | `Code/Backend/domain/entities/transcript.py` |
 | The scoring policy, in config | `Code/Backend/config/rubric.yaml` |
 | The four model adapters | `Code/Backend/infrastructure/llm/providers/` |
+| The dashboard itself, card by card | section 6 above |
 
 **If you can share your screen:** open the high-level diagram at section 4, and use the
 `EMAIL · CHAT` box on the left as the proof point — it joins the same pipeline at redaction
