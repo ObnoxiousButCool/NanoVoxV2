@@ -279,7 +279,13 @@
   cursor: pointer;
 }
 
-.hoverColumn:focus-visible {
+/* Plain `:focus`, not `:focus-visible`: this rect is an unusual shape for a
+   browser to treat as focusable (an SVG rect standing in for a button), so
+   several browsers' heuristics draw their own default focus box on a mouse
+   or touch click here even though they'd stay silent on an ordinary button.
+   Suppressing it only for keyboard focus would leave that native box on
+   every tap; this covers both. */
+.hoverColumn:focus {
   outline: none;
   fill: rgb(20 81 79 / 6%);
 }
