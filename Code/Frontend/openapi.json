@@ -3340,6 +3340,25 @@
             }
           },
           {
+            "description": "Narrow to calls started in this date's calendar month. The same range the dashboard's cards use for the same month, so a figure there and this list agree.",
+            "in": "query",
+            "name": "month",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Narrow to calls started in this date's calendar month. The same range the dashboard's cards use for the same month, so a figure there and this list agree.",
+              "title": "Month"
+            }
+          },
+          {
             "description": "Matches title, summary or reference.",
             "in": "query",
             "name": "search",

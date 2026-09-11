@@ -61,6 +61,13 @@ export interface CallFilters {
   readonly caller?: string
   /** Member identifier, as stated in the call. */
   readonly member?: string
+  /**
+   * Any date in the calendar month to narrow to, as `YYYY-MM-DD`.
+   *
+   * The server resolves it to the same range the dashboard's cards use for
+   * that month, so a figure there and this list cover the same calls.
+   */
+  readonly month?: string
   readonly search?: string
   readonly limit?: number
   readonly offset?: number

@@ -9,6 +9,7 @@ way the code does proves nothing.
 from __future__ import annotations
 
 from collections.abc import AsyncIterator
+from datetime import date
 from itertools import pairwise
 from pathlib import Path
 
@@ -24,6 +25,7 @@ from application.use_cases.get_dashboard import (
     GetSignalDistribution,
 )
 from domain.aggregation.attention import RuleKind
+from domain.aggregation.period import month_range
 from domain.attribution_notes import quote_not_found_note
 from domain.scoring.rubric import Rubric
 from domain.taxonomy import Taxonomy
@@ -534,6 +536,49 @@ class TestCallsList:
         )
 
         assert page.total == MEMBER_CALLS
+
+    async def test_filter_by_month(self, read_models: SqlReadModelRepository) -> None:
+        """The fixture runs a call a day from 1 August, so August holds all of them.
+
+        Narrowing the list by month is what lets a reader read one period's
+        calls, and it resolves the month the same way the dashboard's cards do
+        so a figure there and this list cover the same calls.
+        """
+        page = await read_models.list_calls(
+            CallFilters(period=month_range(date(2026, 8, 1))), limit=50, offset=0
+        )
+
+        assert page.total == TOTAL_CALLS
+
+    async def test_a_month_with_no_calls_is_empty_rather_than_unfiltered(
+        self, read_models: SqlReadModelRepository
+    ) -> None:
+        """A quiet month must report nothing, not everything.
+
+        The failure this guards is a filter that treats its own absence and a
+        period that matches nothing as the same thing, which would answer a
+        request for September with the whole corpus.
+        """
+        page = await read_models.list_calls(
+            CallFilters(period=month_range(date(2026, 9, 1))), limit=50, offset=0
+        )
+
+        assert page.total == 0
+        assert page.items == ()
+
+    async def test_the_month_filter_combines_with_the_others(
+        self, read_models: SqlReadModelRepository
+    ) -> None:
+        # Filters are AND, so a month and an agent narrow together rather than
+        # the later one replacing the earlier.
+        page = await read_models.list_calls(
+            CallFilters(period=month_range(date(2026, 8, 1)), agent_name="Brad"),
+            limit=50,
+            offset=0,
+        )
+
+        assert page.total == 5
+        assert {item.agent_name for item in page.items} == {"Brad"}
 
     async def test_filter_by_signal(self, read_models: SqlReadModelRepository) -> None:
         page = await read_models.list_calls(

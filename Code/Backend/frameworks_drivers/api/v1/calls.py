@@ -7,13 +7,14 @@ the reported total is the number of matching calls rather than the size of a pag
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import date, datetime
 from typing import Annotated, Literal
 
 from fastapi import APIRouter, Query
 from pydantic import BaseModel, Field
 
 from application.ports.read_models import CallFilters, CallSort, CallSummary, Page
+from domain.aggregation.period import resolve_period
 from domain.errors import NotFoundError
 from frameworks_drivers.api.dependencies import AnalysisRepositoryDep, ReadModelsDep
 from frameworks_drivers.api.v1.analyses import AnalysisResponse, to_response
@@ -122,6 +123,16 @@ async def list_calls(
             )
         ),
     ] = None,
+    month: Annotated[
+        date | None,
+        Query(
+            description=(
+                "Narrow to calls started in this date's calendar month. The same "
+                "range the dashboard's cards use for the same month, so a figure "
+                "there and this list agree."
+            )
+        ),
+    ] = None,
     search: Annotated[str | None, Query(description="Matches title, summary or reference.")] = None,
     sort: Annotated[
         CallSort,
@@ -145,6 +156,7 @@ async def list_calls(
         l4_category_code=l4_category,
         started_hour=hour,
         search=search,
+        period=resolve_period(None, month),
     )
     return _page(
         await repository.list_calls(

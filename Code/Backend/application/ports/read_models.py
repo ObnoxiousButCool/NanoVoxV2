@@ -106,6 +106,12 @@ class CallFilters:
     # narrow to that member exactly rather than searching for a reference.
     member_id: str | None = None
     search: str | None = None
+    # A half-open date range, resolved from a calendar month by the same
+    # ``resolve_period`` the dashboard's cards use. Carried as a range rather
+    # than as a month so the list narrows to exactly the calls a card counted
+    # for the same selection, instead of re-deriving month boundaries here and
+    # risking a drill-down that disagrees with the figure it was opened from.
+    period: Period | None = None
 
 
 @dataclass(frozen=True)

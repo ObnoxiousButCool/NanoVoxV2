@@ -15,7 +15,7 @@
 import { useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 
-import { useAgents, useBrokers, useCalls, useTaxonomy } from '@/shared/api/queries'
+import { useAgents, useBrokers, useCalls, usePulse, useTaxonomy } from '@/shared/api/queries'
 import type { CallFilters, CallSortKey } from '@/shared/api/endpoints'
 import type { CallSummary, Taxonomy } from '@/shared/api/types'
 import { Button, Card, Chip, Empty, Failure, Loading, Note, PageHeader } from '@/shared/ui/primitives'
@@ -26,6 +26,17 @@ import styles from './CallsPage.module.css'
 
 const PAGE_SIZE = 25
 const LOW_SCORE_CEILING = 65
+
+/** "September 2026", matching how the dashboard's own month picker reads. */
+function monthLabel(iso: string): string {
+  // Built from the parts rather than parsed as a date string: `new Date('2026-09-01')`
+  // reads as UTC midnight and renders as August in any negative offset.
+  const parts = iso.split('-')
+  return new Date(Number(parts[0]), Number(parts[1]) - 1, 1).toLocaleDateString('en-US', {
+    month: 'long',
+    year: 'numeric',
+  })
+}
 
 interface QuickFilter {
   readonly id: string
@@ -229,6 +240,10 @@ export function CallsPage() {
   const taxonomy = useTaxonomy()
   const agents = useAgents()
   const brokers = useBrokers()
+  // Unparameterised, so it is the same cached query the dashboard already
+  // holds: its only job here is to say which months the corpus has calls in.
+  const corpus = usePulse()
+  const availableMonths = corpus.data?.available_months ?? []
 
   // Every filter and the sort live in the URL: the view is then linkable, it
   // survives a reload, and the back button steps through it — which is what a
@@ -251,6 +266,10 @@ export function CallsPage() {
   const caller = searchParams.get('caller')
   // One member's calls, arrived at from the at-risk list.
   const member = searchParams.get('member')
+  // A calendar month, as the first of that month. The server turns it into the
+  // same date range the dashboard's cards use, so a month picked here covers
+  // the calls a month picked there counted.
+  const month = searchParams.get('month')
   // A score band, arrived at from the histogram. Read as text and passed
   // through: the API validates the range, and inventing a number here to
   // recover from a malformed one would filter on something nobody asked for.
@@ -284,6 +303,7 @@ export function CallsPage() {
     ...(hour !== null && hour !== '' ? { hour: Number(hour) } : {}),
     ...(caller ? { caller } : {}),
     ...(member ? { member } : {}),
+    ...(month ? { month } : {}),
     ...(minScore ? { min_score: Number(minScore) } : {}),
     ...(maxScore ? { max_score: Number(maxScore) } : {}),
   })
@@ -327,6 +347,7 @@ export function CallsPage() {
         hour ||
         caller ||
         member ||
+        month ||
         scoreBand,
     )
 
@@ -345,6 +366,21 @@ export function CallsPage() {
         title="Calls"
         actions={
           <div className={styles.filters}>
+            <Dropdown
+              label="Month"
+              value={month ?? ''}
+              // Only months the corpus actually has a call in. Offering every
+              // month between the first and the last would let a reader pick
+              // one that empties the table with no way to tell whether they
+              // mis-filtered or nobody called.
+              options={availableMonths.map((value) => ({
+                value,
+                label: monthLabel(value),
+              }))}
+              onChange={(value) => {
+                setParam('month', value)
+              }}
+            />
             <Dropdown
               label="Category"
               value={category ?? ''}

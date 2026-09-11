@@ -1693,6 +1693,8 @@ export interface operations {
                 hour?: number | null;
                 /** @description L4 finding category code. The finding taxonomy, not the call category: a Coverage & Benefits call can raise a Process Breakdown finding. */
                 l4_category?: string | null;
+                /** @description Narrow to calls started in this date's calendar month. The same range the dashboard's cards use for the same month, so a figure there and this list agree. */
+                month?: string | null;
                 /** @description Matches title, summary or reference. */
                 search?: string | null;
                 /** @description Column to order by. 'severity' is what needs action first. */

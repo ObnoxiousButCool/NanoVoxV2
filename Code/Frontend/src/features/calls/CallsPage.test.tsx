@@ -65,6 +65,16 @@ const TAXONOMY = {
   rubric_version: '1.0.0',
 }
 const AGENT_OPTIONS = [{ agent_name: 'Sarah', call_count: 5 }]
+/** The Month filter offers these and nothing else: only months with calls in them. */
+const PULSE_OPTIONS = {
+  points: [],
+  latest: null,
+  previous: null,
+  delta: null,
+  undated_calls: 0,
+  available_weeks: [],
+  available_months: ['2026-08-01', '2026-09-01'],
+}
 const BROKER_OPTIONS = [{ broker_name: 'Marcus Trent', signals: 4 }]
 
 /** Records every requested URL so filters can be asserted on the query itself. */
@@ -79,6 +89,7 @@ function stubCalls(body: unknown) {
       if (url.includes('/taxonomy')) return Promise.resolve(json(TAXONOMY))
       if (url.includes('/dashboard/agents')) return Promise.resolve(json(AGENT_OPTIONS))
       if (url.includes('/dashboard/brokers')) return Promise.resolve(json(BROKER_OPTIONS))
+      if (url.includes('/dashboard/pulse')) return Promise.resolve(json(PULSE_OPTIONS))
       return Promise.resolve(json(body))
     }),
   )
@@ -477,6 +488,43 @@ describe('CallsPage', () => {
       await waitFor(() => {
         expect(urls.at(-1)).toContain('broker=Marcus')
       })
+    })
+
+    it('narrows the query to a calendar month', async () => {
+      const urls = stubCalls(page([call()]))
+      renderCalls()
+      await screen.findByText('F0006')
+
+      await userEvent.selectOptions(screen.getByLabelText('Month'), '2026-09-01')
+
+      await waitFor(() => {
+        expect(urls.at(-1)).toContain('month=2026-09-01')
+      })
+    })
+
+    it('offers only the months the corpus has calls in', async () => {
+      // Every month between the first call and the last would include months
+      // nobody called in, and picking one empties the table with no way to tell
+      // a mis-filter from a quiet month.
+      stubCalls(page([call()]))
+      renderCalls()
+      await screen.findByText('F0006')
+
+      const options = within(screen.getByLabelText('Month')).getAllByRole('option')
+      expect(options.map((option) => option.textContent)).toEqual([
+        'All',
+        'August 2026',
+        'September 2026',
+      ])
+    })
+
+    it('applies a month that arrives in the URL', async () => {
+      const urls = stubCalls(page([call()]))
+      renderCalls('/calls?month=2026-08-01')
+
+      await screen.findByText('F0006')
+      expect(urls.some((url) => url.includes('month=2026-08-01'))).toBe(true)
+      expect(screen.getByLabelText('Month')).toHaveValue('2026-08-01')
     })
 
     it('drops the parameter entirely when set back to All', async () => {

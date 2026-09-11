@@ -631,4 +631,6 @@ def _apply(statement: Select[Any], filters: CallFilters) -> Select[Any]:
                 CallRow.reference.ilike(pattern),
             )
         )
-    return statement
+    # The same clause the dashboard's cards narrow by, so a month selected here
+    # and a month selected there cover the same calls.
+    return _within(statement, filters.period)
