@@ -6,13 +6,13 @@
 - **Score:** 76/100
 - **Sentiment Arc:** CONCERNED → INFORMED
 - **Resolution:** RESOLVED
-- **Date:** 2026-08-21
+- **Date:** 2026-08-31
 - **Start:** 10:48:00
 - **End:** 10:54:30
 - **AHT:** 6m 30s
 - **Duration:** ~6 min
 - **Queue:** Employer: Renewal
-- **Repeat Contact:** follows an unresolved call on Tue 08 Sep 2026: Group Suspended and Employer Cannot Get It Reinstated
+- **Repeat Contact:** follows an unresolved call on Tue 18 Aug 2026: Group Suspended and Employer Cannot Get It Reinstated
 - **Topics:** renewal · rate increase · plan design · cost control
 
 **Member context:** Bayside Cleaning · 34 employees · Owner Alice Fontaine
@@ -62,7 +62,7 @@ offer to request the utilisation report directly (-), no lock date given (-), no
 L4 — Operational BI: PROCESS OPPORTUNITY · Owner: Account Management — small groups facing double-digit increases are a
 retention risk and are being sent to their broker without a warm handoff. Recommend flagging groups with renewals above 10% for
 proactive broker and account manager coordination before the employer calls. REPEAT CONTACT: same group (GRP-415088) called
-on Tue 08 Sep 2026 and that call closed unresolved. Repeat contact within the period is a retention signal in its own right and should be
+on Tue 18 Aug 2026 and that call closed unresolved. Repeat contact within the period is a retention signal in its own right and should be
 counted against the earlier call, not this one.
 L5 — Real-time assist: Fired at 2:00 — renewal increase above threshold surfaced plan tier comparison and defined contribution option.
 Utilisation report request action not surfaced; recommend adding.

@@ -6,13 +6,13 @@
 - **Score:** 73/100
 - **Sentiment Arc:** CONFUSED → SATISFIED
 - **Resolution:** RESOLVED
-- **Date:** 2026-09-09
+- **Date:** 2026-08-19
 - **Start:** 11:55:30
 - **End:** 12:03:07
 - **AHT:** 7m 37s
 - **Duration:** ~8 min
 - **Queue:** Claims & EOB
-- **Repeat Contact:** follows an unresolved call on Tue 08 Sep 2026: Coverage Is Expiring — Member Does Not Know Why
+- **Repeat Contact:** follows an unresolved call on Tue 18 Aug 2026: Coverage Is Expiring — Member Does Not Know Why
 - **Topics:** duplicate payment · refund · assignment of benefits · provider
 
 **Member context:** Terrence Boyd, 47 · Member ID CB-5519074 · MetLife dental · double payment
@@ -25,7 +25,7 @@ Caller: Terrence Boyd, member ID CB-5519074.
 
 Agent Michael: Thank you. I have the record open — go ahead.
 
-Caller: I called on the 8th about termination and nobody came back to me, so you should know I'm already on my second attempt. I paid my dentist $260 at the appointment, and now my EOB says you also paid them $208. Have they been paid twice?
+Caller: I called on the 18th about termination and nobody came back to me, so you should know I'm already on my second attempt. I paid my dentist $260 at the appointment, and now my EOB says you also paid them $208. Have they been paid twice?
 
 Agent Michael: Let me look. The claim processed with the allowed amount at $260. Plan paid $208, member responsibility $52.
 
@@ -58,7 +58,7 @@ conversation (+), explained the network contract protection as a backstop (+), r
 contact the provider directly (-), did not log the practice for a collection-practice pattern check (-), no written EOB summary offered (-).
 L4 — Operational BI: PROVIDER PERFORMANCE · Owner: Provider Relations — upfront full-fee collection ahead of adjudication is a
 contract compliance issue and shifts the refund burden onto members. Recommend tracking practices by overcollection reports and
-addressing repeat offenders. REPEAT CONTACT: same member (CB-5519074) called on Tue 08 Sep 2026 and that call closed
+addressing repeat offenders. REPEAT CONTACT: same member (CB-5519074) called on Tue 18 Aug 2026 and that call closed
 unresolved. Repeat contact within the period is a retention signal in its own right and should be counted against the earlier call, not this
 one.
 L5 — Real-time assist: Fired at 2:00 — member payment versus member responsibility mismatch surfaced the overcollection. Provider

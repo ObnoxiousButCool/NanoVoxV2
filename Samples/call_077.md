@@ -6,13 +6,13 @@
 - **Score:** 75/100
 - **Sentiment Arc:** NEUTRAL → SATISFIED
 - **Resolution:** RESOLVED
-- **Date:** 2026-08-22
+- **Date:** 2026-09-01
 - **Start:** 16:27:45
 - **End:** 16:32:37
 - **AHT:** 4m 52s
 - **Duration:** ~5 min
 - **Queue:** ID Cards & Portal
-- **Repeat Contact:** follows an unresolved call on Mon 14 Sep 2026: Member Cannot Reach Broker and Cannot Get Answers Here Either
+- **Repeat Contact:** follows an unresolved call on Mon 24 Aug 2026: Member Cannot Reach Broker and Cannot Get Answers Here Either
 - **Topics:** portal · dependent · visibility · enrollment lag
 
 **Member context:** Michelle Torres, 34 · ChoiceBuilder dental · daughter added but not visible
@@ -25,13 +25,13 @@ Caller: Michelle Torres, member ID CB-9904512.
 
 Agent Nicole: That's you found. Go ahead, Michelle.
 
-Caller: You'll see I called on the 14th. That one about broker unresponsive is still open as far as I know. Today is something else. I added my daughter to my dental last month but she's not showing in my portal.
+Caller: You'll see I called on 24 August. That one about broker unresponsive is still open as far as I know. Today is something else. I added my daughter to my dental last month but she's not showing in my portal.
 
 Agent Nicole: Let me check the enrollment record. She's there — effective the 1st, on the Delta Dental PPO with you.
 
 Caller: So why can't I see her?
 
-Agent Nicole: Dependent visibility in the portal refreshes on a weekly cycle rather than in real time. Her enrollment posted on the 3rd, so she should appear after this weekend's refresh.
+Agent Nicole: Dependent visibility in the portal refreshes on a weekly cycle rather than in real time. Her enrollment posted on 13 August, so she should appear after this weekend's refresh.
 
 Caller: Is she covered in the meantime?
 
@@ -52,7 +52,7 @@ concern (+), gave a workaround for immediate provider verification (+), sent a c
 lag as a product issue (-), no note that the same lag will affect claims visibility (-).
 L4 — Operational BI: PROCESS OPPORTUNITY · Owner: Digital — a weekly portal refresh produces a predictable stream of 'my
 dependent isn't showing' calls in the days after enrollment. Recommend either real-time posting or an in-portal message stating when
-newly added dependents will appear. REPEAT CONTACT: same member (CB-9904512) called on Mon 14 Sep 2026 and that call
+newly added dependents will appear. REPEAT CONTACT: same member (CB-9904512) called on Mon 24 Aug 2026 and that call
 closed unresolved. Repeat contact within the period is a retention signal in its own right and should be counted against the earlier call,
 not this one.
 L5 — Real-time assist: Fired at 1:00 — enrollment record versus portal sync status surfaced the refresh lag. Digital card action surfaced.

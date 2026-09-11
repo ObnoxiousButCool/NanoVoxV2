@@ -6,7 +6,7 @@
 - **Score:** 79/100
 - **Sentiment Arc:** CONFUSED → INFORMED
 - **Resolution:** RESOLVED
-- **Date:** 2026-08-21
+- **Date:** 2026-08-31
 - **Start:** 11:27:15
 - **End:** 11:34:55
 - **AHT:** 7m 40s
@@ -42,7 +42,7 @@ Agent Tony: Let me re-read... you're right, $25. The deductible had already been
 
 Caller: And the $90?
 
-Agent Tony: September, a root canal. Major services, 50% coverage, deductible already met. Allowed amount $180, you pay half — $90.
+Agent Tony: August, a root canal. Major services, 50% coverage, deductible already met. Allowed amount $180, you pay half — $90.
 
 Caller: So the deductible is once a year, and then the percentage depends on the type of work.
 

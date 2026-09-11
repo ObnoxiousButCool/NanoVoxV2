@@ -6,7 +6,7 @@
 - **Score:** 32/100
 - **Sentiment Arc:** URGENT → ABANDONED
 - **Resolution:** UNRESOLVED
-- **Date:** 2026-09-08
+- **Date:** 2026-08-18
 - **Start:** 11:06:00
 - **End:** 11:10:58
 - **AHT:** 4m 58s
@@ -30,7 +30,7 @@ Agent Ryan: Let me look. I see the suspension.
 
 Caller: Do you see the payment?
 
-Agent Ryan: There's a payment posted on the 8th.
+Agent Ryan: There's a payment posted on the 18th.
 
 Caller: Right. So why are we still suspended?
 

@@ -6,13 +6,13 @@
 - **Score:** 76/100
 - **Sentiment Arc:** URGENT → RESOLVED
 - **Resolution:** RESOLVED
-- **Date:** 2026-08-22
+- **Date:** 2026-09-01
 - **Start:** 10:09:15
 - **End:** 10:14:18
 - **AHT:** 5m 3s
 - **Duration:** ~5 min
 - **Queue:** ID Cards & Portal
-- **Repeat Contact:** follows an unresolved call on Thu 10 Sep 2026: Member Believed She Had Vision Coverage — She Never Did
+- **Repeat Contact:** follows an unresolved call on Thu 20 Aug 2026: Member Believed She Had Vision Coverage — She Never Did
 - **Topics:** ID card · VSP · point of service · digital card · portal
 
 **Member context:** Diane Kowalski, 49 · VSP vision · appointment in progress
@@ -25,7 +25,7 @@ Caller: Diane Kowalski, member ID CB-4483310.
 
 Agent Nicole: Thanks Diane. Tell me what's happening.
 
-Caller: I called on the 10th about coverage misunderstanding and nobody came back to me, so you should know I'm already on my second attempt. I'm at the optometrist and I don't have my vision card. Can you send me something?
+Caller: I called on 20 August about coverage misunderstanding and nobody came back to me, so you should know I'm already on my second attempt. I'm at the optometrist and I don't have my vision card. Can you send me something?
 
 Agent Nicole: Yes, I can email you a digital card right now. Let me verify your details — date of birth?
 

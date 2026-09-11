@@ -6,14 +6,14 @@
 - **Score:** 90/100
 - **Sentiment Arc:** CONCERNED → RETAINED
 - **Resolution:** RESOLVED
-- **Date:** 2026-08-14
+- **Date:** 2026-08-24
 - **Start:** 15:09:30
 - **End:** 15:19:05
 - **AHT:** 9m 35s
 - **Duration:** ~10 min
 - **Queue:** Employer: Renewal
 - **Broker Signal:** Anthony Salerno: named aloud by the caller
-- **Repeat Contact:** follows an unresolved call on Mon 07 Sep 2026: Open Enrollment Materials Never Arrived
+- **Repeat Contact:** follows an unresolved call on Mon 17 Aug 2026: Open Enrollment Materials Never Arrived
 - **Topics:** renewal · utilisation · plan design · broker absent · retention
 
 **Member context:** Eastside Dental Group · 26 employees · Practice Manager Gina Rossi · GRP-300421
@@ -26,7 +26,7 @@ Caller: Gina Rossi, Practice Manager at Eastside Dental Group, group GRP-300421.
 
 Agent Priya: That's you found. Go ahead, Gina.
 
-Caller: I called on the 7th about open enrollment and nobody came back to me, so you should know I'm already on my second attempt. Eastside Dental, Renewal is up 11%. I asked our broker, Anthony Salerno, for a utilisation analysis six weeks ago and haven't received it. Can you help me understand whether the increase is justified?
+Caller: I called on the 17th about open enrollment and nobody came back to me, so you should know I'm already on my second attempt. Eastside Dental, Renewal is up 11%. I asked our broker, Anthony Salerno, for a utilisation analysis six weeks ago and haven't received it. Can you help me understand whether the increase is justified?
 
 Agent Priya: I can give you the picture, yes. Let me pull your group's utilisation for the plan year.
 
@@ -67,7 +67,7 @@ materials directly (+), logged the broker service failure (+).
 L4 — Operational BI: BROKER ATTRIBUTION · Owner: Broker Relations — Anthony Salerno did not supply a requested utilisation
 analysis after six weeks, and the employer obtained it directly from the carrier. Fifth flagged issue for this broker. RETENTION: employer
 explicitly contrasted the service favourably against her broker, which is a relationship risk for the broker and an opportunity for direct
-account management. REPEAT CONTACT: same group (GRP-300421) called on Mon 07 Sep 2026 and that call closed unresolved.
+account management. REPEAT CONTACT: same group (GRP-300421) called on Mon 17 Aug 2026 and that call closed unresolved.
 Repeat contact within the period is a retention signal in its own right and should be counted against the earlier call, not this one.
 L5 — Real-time assist: Fired at 2:00 — renewal increase inquiry surfaced loss ratio and claims mix by service category. Preventive
 communication template surfaced. Agent used both.

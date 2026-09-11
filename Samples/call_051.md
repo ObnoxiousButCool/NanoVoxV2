@@ -6,7 +6,7 @@
 - **Score:** 74/100
 - **Sentiment Arc:** NEUTRAL → INFORMED
 - **Resolution:** RESOLVED
-- **Date:** 2026-08-15
+- **Date:** 2026-08-25
 - **Start:** 10:41:30
 - **End:** 10:48:19
 - **AHT:** 6m 49s
@@ -26,7 +26,7 @@ Agent Linda: That's you found. Go ahead, Jason.
 
 Caller: I elected $200,000 of life cover at open enrollment and I was told I need to complete an Evidence of Insurability form. I sent it three weeks ago and heard nothing.
 
-Agent Linda: Let me check the status. I can see the EOI received on the 14th, currently with Assurity underwriting.
+Agent Linda: Let me check the status. I can see the EOI received on the 24th, currently with Assurity underwriting.
 
 Caller: How long does underwriting take?
 

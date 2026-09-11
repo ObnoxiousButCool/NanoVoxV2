@@ -6,13 +6,13 @@
 - **Score:** 42/100
 - **Sentiment Arc:** CONCERNED → FRUSTRATED
 - **Resolution:** UNRESOLVED
-- **Date:** 2026-08-21
+- **Date:** 2026-08-31
 - **Start:** 14:31:30
 - **End:** 14:39:24
 - **AHT:** 7m 54s
 - **Duration:** ~8 min
 - **Queue:** Employer: Billing
-- **Repeat Contact:** follows an unresolved call on Thu 17 Sep 2026: Renewal Rates Arrived With No Broker Contact
+- **Repeat Contact:** follows an unresolved call on Thu 27 Aug 2026: Renewal Rates Arrived With No Broker Contact
 - **Topics:** grace period · late payment · auto-draft · group suspension
 
 **Member context:** Clearwater Staffing · 31 employees · Office Manager Doris Chen · bank details changed
@@ -25,9 +25,9 @@ Caller: Doris Chen, Office Manager at Clearwater Staffing, group GRP-310092.
 
 Agent Tiffany: That's you found. Go ahead, Doris.
 
-Caller: I called on the 17th about renewal and nobody came back to me, so you should know I'm already on my second attempt. Group We changed banks and I think our auto-draft failed. Are we suspended?
+Caller: I called on the 27th about renewal and nobody came back to me, so you should know I'm already on my second attempt. Group We changed banks and I think our auto-draft failed. Are we suspended?
 
-Agent Tiffany: Let me look... I see a failed payment on the 5th.
+Agent Tiffany: Let me look... I see a failed payment on the 15th.
 
 Caller: Is our coverage still active?
 
@@ -79,7 +79,7 @@ L4 — Operational BI: PROCESS BREAKDOWN · CRITICAL · Owner: Billing Operation
 date and no payment path. Recommend: (1) failed-payment calls auto-surface grace period end date and outstanding balance, (2)
 one-time immediate payment option available to agents, (3) proactive outbound call on any failed group draft rather than waiting for the
 employer to notice. AGENT KNOWLEDGE GAP: grace period terms are contractual and must be answerable at first contact. REPEAT
-CONTACT: same group (GRP-310092) called on Thu 17 Sep 2026 and that call closed unresolved. Repeat contact within the period is
+CONTACT: same group (GRP-310092) called on Thu 27 Aug 2026 and that call closed unresolved. Repeat contact within the period is
 a retention signal in its own right and should be counted against the earlier call, not this one.
 L5 — Real-time assist: SHOULD HAVE FIRED at 1:00 — failed group draft is a lapse-risk trigger. Should have surfaced grace period
 end date, outstanding balance, one-time payment link, and bank update workflow. No rule configured.

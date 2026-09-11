@@ -6,13 +6,13 @@
 - **Score:** 77/100
 - **Sentiment Arc:** ANNOYED → SATISFIED
 - **Resolution:** RESOLVED
-- **Date:** 2026-09-08
+- **Date:** 2026-08-18
 - **Start:** 15:58:15
 - **End:** 16:04:37
 - **AHT:** 6m 22s
 - **Duration:** ~6 min
 - **Queue:** Claims & EOB
-- **Repeat Contact:** follows an unresolved call on Mon 07 Sep 2026: Portal Lockout — Agent Cannot Reset and Does Not Escalate
+- **Repeat Contact:** follows an unresolved call on Mon 17 Aug 2026: Portal Lockout — Agent Cannot Reset and Does Not Escalate
 - **Topics:** coinsurance error · service category · reprocessing · basic vs major
 
 **Member context:** Ahmed Bakri, 42 · Member ID CB-6602274 · Delta Dental · filling paid at 50%
@@ -25,7 +25,7 @@ Caller: Ahmed Bakri, member ID CB-6602274.
 
 Agent Nicole: Thanks Ahmed. Tell me what's happening.
 
-Caller: This is my second call this month. The portal access issue on the 7th was never sorted. Separate thing today. My filling was paid at 50%. Fillings should be 80% on my plan.
+Caller: This is my second call this month. The portal access issue on the 17th was never sorted. Separate thing today. My filling was paid at 50%. Fillings should be 80% on my plan.
 
 Agent Nicole: Let me look at how it categorised. You're right that fillings are basic at 80%. This claim processed under major services at 50%.
 
@@ -61,7 +61,7 @@ distinction so the member could self-verify (+), gave a practical single-visit t
 NEGATIVE: no empathy at open (-), did not offer to contact the practice (-), did not quantify the difference until the member did (-).
 L4 — Operational BI: PROVIDER PERFORMANCE · Owner: Provider Relations — onlay coding on single-visit composite restorations
 shifts cost from the plan to the member and inflates the practice's reimbursement. Recommend monitoring practices with unusual
-onlay-to-filling ratios. REPEAT CONTACT: same member (CB-6602274) called on Mon 07 Sep 2026 and that call closed unresolved.
+onlay-to-filling ratios. REPEAT CONTACT: same member (CB-6602274) called on Mon 17 Aug 2026 and that call closed unresolved.
 Repeat contact within the period is a retention signal in its own right and should be counted against the earlier call, not this one.
 L5 — Real-time assist: Fired at 2:00 — coinsurance variance surfaced the submitted code and its service category classification. Agent
 used it.

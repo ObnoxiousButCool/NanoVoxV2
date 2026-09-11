@@ -6,13 +6,13 @@
 - **Score:** 72/100
 - **Sentiment Arc:** CONFUSED → INFORMED
 - **Resolution:** RESOLVED
-- **Date:** 2026-08-21
+- **Date:** 2026-08-31
 - **Start:** 11:48:45
 - **End:** 11:56:07
 - **AHT:** 7m 22s
 - **Duration:** ~7 min
 - **Queue:** Claims & EOB
-- **Repeat Contact:** follows an unresolved call on Mon 07 Sep 2026: Agent States Orthodontia Is Covered for Children When the Group Declined the Rider
+- **Repeat Contact:** follows an unresolved call on Mon 17 Aug 2026: Agent States Orthodontia Is Covered for Children When the Group Declined the Rider
 - **Topics:** coordination of benefits · dual coverage · birthday rule · secondary
 
 **Member context:** Alonso Rivera, 45 · ChoiceBuilder dental plus spouse's employer dental
@@ -25,7 +25,7 @@ Caller: Alonso Rivera, member ID CB-3305671.
 
 Agent James: Got it, thanks Alonso. What can I do for you?
 
-Caller: This is my second call this month. The orthodontia rider issue on the 7th was never sorted. Separate thing today. I have dental here and my wife has dental through her job that covers me too. The dentist billed one and now says the other should pay. I don't understand the order.
+Caller: This is my second call this month. The orthodontia rider issue on the 17th was never sorted. Separate thing today. I have dental here and my wife has dental through her job that covers me too. The dentist billed one and now says the other should pay. I don't understand the order.
 
 Agent James: This is coordination of benefits. For you as an employee, your own employer's plan is primary — the plan where you're the subscriber pays first. Your wife's plan, where you're a dependent, is secondary.
 
@@ -66,7 +66,7 @@ NEGATIVE: did not check whether existing claims are already held pending coordin
 explain how to submit the secondary claim practically (-).
 L4 — Operational BI: PROCESS BREAKDOWN · Owner: Operations — other coverage is captured only when a member volunteers it
 or a claim holds. Recommend a coordination question at enrollment and an annual refresh, reducing silent claim holds. REPEAT
-CONTACT: same member (CB-3305671) called on Mon 07 Sep 2026 and that call closed unresolved. Repeat contact within the period
+CONTACT: same member (CB-3305671) called on Mon 17 Aug 2026 and that call closed unresolved. Repeat contact within the period
 is a retention signal in its own right and should be counted against the earlier call, not this one.
 L5 — Real-time assist: Fired at 2:00 — dual coverage inquiry surfaced COB rules and the other-coverage recording action. Did not
 check for existing held claims; recommend adding.

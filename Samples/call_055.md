@@ -6,7 +6,7 @@
 - **Score:** 90/100
 - **Sentiment Arc:** WEARY → CONFIDENT
 - **Resolution:** RESOLVED
-- **Date:** 2026-08-16
+- **Date:** 2026-08-26
 - **Start:** 13:07:30
 - **End:** 13:17:12
 - **AHT:** 9m 42s
@@ -39,11 +39,11 @@ Agent Priya: Yes. For a group at your churn rate I'd move you to a monthly full-
 
 Caller: Can we do that? Nobody's offered it.
 
-Agent Priya: It's available above 100 lives and you're at 118. I'll request the change and you'd start with the October cycle.
+Agent Priya: It's available above 100 lives and you're at 118. I'll request the change and you'd start with the September cycle.
 
 Caller: What about the ones already wrong?
 
-Agent Priya: I'm raising a reconciliation for August and September now. Anything billed after a termination date gets credited, not refunded — it comes off the next invoice.
+Agent Priya: I'm raising a reconciliation for July and August now. Anything billed after a termination date gets credited, not refunded — it comes off the next invoice.
 
 Caller: And the COBRA side? I worry we're missing notices.
 
@@ -59,7 +59,7 @@ L1 — Transcription & understanding: Call type: Billing reconciliation — high
 confident. Agent tone: diagnostic, consultative. Duration: 10 min. Positive broker signal named aloud. COBRA notice timeliness raised.
 L2 — Call insights: Employer at roughly 13% monthly churn was reconciling invoices transaction by transaction. Agent diagnosed
 submission timing rather than submission accuracy as the cause, moved the group to monthly full-roster reconciliation available above
-100 lives, raised credits for August and September, and connected termination-date accuracy to COBRA notice timing. Resolution:
+100 lives, raised credits for July and August, and connected termination-date accuracy to COBRA notice timing. Resolution:
 RESOLVED.
 L3 — Agent quality: Agent Score: 90/100. POSITIVE: identified the real cause rather than accepting the employer's framing (+),
 matched a product capability to the group's profile that nobody had offered (+), raised the retrospective reconciliation without being

@@ -6,7 +6,7 @@
 - **Score:** 94/100
 - **Sentiment Arc:** NEUTRAL → SATISFIED
 - **Resolution:** RESOLVED
-- **Date:** 2026-08-29
+- **Date:** 2026-09-08
 - **Start:** 09:16:00
 - **End:** 09:23:49
 - **AHT:** 7m 49s
@@ -28,7 +28,7 @@ Caller: We just had our second child and I want to increase my life cover. Curre
 
 Agent Sarah: Congratulations. Birth of a child is a qualifying event, so you can increase outside open enrollment. You have 60 days from the birth date.
 
-Caller: She was born on the 2nd, so I have time.
+Caller: She was born on 12 August, so I have time.
 
 Agent Sarah: You do. The important thing to understand is guarantee issue. On a qualifying event you can typically increase by one or two increments without medical underwriting. Beyond that requires Evidence of Insurability.
 

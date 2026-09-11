@@ -6,14 +6,14 @@
 - **Score:** 34/100
 - **Sentiment Arc:** NEUTRAL → CHURN RISK
 - **Resolution:** UNRESOLVED
-- **Date:** 2026-08-14
+- **Date:** 2026-08-24
 - **Start:** 10:49:15
 - **End:** 10:54:01
 - **AHT:** 4m 46s
 - **Duration:** ~5 min
 - **Queue:** ID Cards & Portal
 - **Broker Signal:** Anthony Salerno: named aloud by the caller
-- **Repeat Contact:** follows an unresolved call on Tue 08 Sep 2026: Filling Denied at Month Four — Basic Services Also Had a Wait
+- **Repeat Contact:** follows an unresolved call on Tue 18 Aug 2026: Filling Denied at Month Four — Basic Services Also Had a Wait
 - **Topics:** broker unresponsive · dependent · service gap · churn risk
 
 **Member context:** Michelle Torres, 34 · Member ID CB-9904512 · questions about adding a dependent
@@ -26,7 +26,7 @@ Caller: Michelle Torres, member ID CB-9904512.
 
 Agent Kayla: Thank you Michelle, I have you. Go ahead.
 
-Caller: I called on the 8th about waiting period and nobody came back to me, so you should know I'm already on my second attempt. I've been trying to reach my broker, Anthony Salerno, for three weeks about adding my son. He doesn't return calls. Can you help?
+Caller: I called on the 18th about waiting period and nobody came back to me, so you should know I'm already on my second attempt. I've been trying to reach my broker, Anthony Salerno, for three weeks about adding my son. He doesn't return calls. Can you help?
 
 Agent Kayla: Dependent additions go through your employer, not us directly.
 
@@ -34,11 +34,11 @@ Caller: My employer told me to ask the broker. The broker doesn't answer.
 
 Agent Kayla: It would still be an employer submission.
 
-Caller: I understand who submits it. I'm asking what I need to provide and whether I'm still inside the window. My son was born in July.
+Caller: I understand who submits it. I'm asking what I need to provide and whether I'm still inside the window. My son was born in June.
 
 Agent Kayla: There's usually a 60 day window.
 
-Caller: July 9th. Is that inside or outside?
+Caller: June 18th. Is that inside or outside?
 
 Agent Kayla: You'd have to check with your employer.
 
@@ -71,7 +71,7 @@ resulting in a probable missed newborn QLE window. CHURN SIGNAL: 'I don't see wh
 service failure. PROCESS: agents can see dependent records and birth dates and should calculate QLE deadlines rather than referring
 out. Recommend broker responsiveness tracking and escalation for member-reported unresponsiveness. COMPLIANCE: call answered
 without a recording disclosure — California is a two-party consent state and the disclosure is a scored, deterministic requirement, not a
-courtesy. REPEAT CONTACT: same member (CB-9904512) called on Tue 08 Sep 2026 and that call closed unresolved. Repeat
+courtesy. REPEAT CONTACT: same member (CB-9904512) called on Tue 18 Aug 2026 and that call closed unresolved. Repeat
 contact within the period is a retention signal in its own right and should be counted against the earlier call, not this one.
 L5 — Real-time assist: SHOULD HAVE FIRED at 2:30 — birth date with no dependent on record is a QLE deadline trigger. At 4:30 —
 churn language is a retention trigger. Neither fired. — COST SHARE & POLICY — SHOULD HAVE FIRED at 0:05 — greeting

@@ -6,7 +6,7 @@
 - **Score:** 88/100
 - **Sentiment Arc:** ALARMED → REASSURED
 - **Resolution:** ESCALATED
-- **Date:** 2026-08-24
+- **Date:** 2026-09-03
 - **Start:** 11:33:15
 - **End:** 11:43:50
 - **AHT:** 10m 35s
@@ -27,7 +27,7 @@ Agent Sarah: Thanks Rita. How can I help?
 
 Caller: We got a letter confirming a change of broker of record to an agency called Whitfield Benefits. We have never spoken to them. We did not sign anything.
 
-Agent Sarah: That is serious and I want to be careful with it. Let me look at the record rather than tell you what usually happens... I can see a broker of record change processed on 11 September, incoming agency Denise Whitfield, effective 1 October.
+Agent Sarah: That is serious and I want to be careful with it. Let me look at the record rather than tell you what usually happens... I can see a broker of record change processed on 21 August, incoming agency Denise Whitfield, effective 1 October.
 
 Caller: On what basis?
 

@@ -6,13 +6,13 @@
 - **Score:** 93/100
 - **Sentiment Arc:** ANGRY → SATISFIED
 - **Resolution:** RESOLVED
-- **Date:** 2026-09-09
+- **Date:** 2026-08-19
 - **Start:** 10:45:45
 - **End:** 10:55:31
 - **AHT:** 9m 46s
 - **Duration:** ~10 min
 - **Queue:** Claims & EOB
-- **Repeat Contact:** follows an unresolved call on Thu 03 Sep 2026: Why Am I Paying a Copay When I Have Dental Insurance?
+- **Repeat Contact:** follows an unresolved call on Thu 13 Aug 2026: Why Am I Paying a Copay When I Have Dental Insurance?
 - **Topics:** duplicate denial · coding · same day procedures · tooth number
 
 **Member context:** Alicia Ferrara, 34 · Member ID CB-4471203 · Delta Dental · two fillings same day
@@ -25,7 +25,7 @@ Caller: Alicia Ferrara, member ID CB-4471203.
 
 Agent Danielle: Thank you. I have the record open — go ahead.
 
-Caller: This is my second call this month. The copay issue on the 3rd was never sorted. Separate thing today. I had two fillings on the same day and the second was denied as a duplicate. They were different teeth.
+Caller: This is my second call this month. The copay issue on the 13th was never sorted. Separate thing today. I had two fillings on the same day and the second was denied as a duplicate. They were different teeth.
 
 Agent Danielle: Let me look at how they were submitted. Both claims show the same procedure code and the same date, and both list tooth number 14.
 
@@ -61,7 +61,7 @@ correction, defusing the member's anger (+), gave language specific enough for t
 account to prevent the corrected claim being rejected again (+), advised holding billing (+).
 L4 — Operational BI: PROVIDER PERFORMANCE · Owner: Provider Relations — tooth number errors on same-day multiple
 procedures are a recurring source of duplicate denials. Recommend tracking practices by duplicate-denial rate and issuing coding
-guidance where it exceeds network norms. REPEAT CONTACT: same member (CB-4471203) called on Thu 03 Sep 2026 and that call
+guidance where it exceeds network norms. REPEAT CONTACT: same member (CB-4471203) called on Thu 13 Aug 2026 and that call
 closed unresolved. Repeat contact within the period is a retention signal in its own right and should be counted against the earlier call,
 not this one.
 L5 — Real-time assist: Fired at 1:30 — duplicate denial with identical tooth numbers on same-day claims surfaced the coding error

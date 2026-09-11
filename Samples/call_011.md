@@ -6,7 +6,7 @@
 - **Score:** 44/100
 - **Sentiment Arc:** HOPEFUL → ANGRY
 - **Resolution:** UNRESOLVED
-- **Date:** 2026-09-04
+- **Date:** 2026-08-14
 - **Start:** 14:22:45
 - **End:** 14:27:30
 - **AHT:** 4m 45s

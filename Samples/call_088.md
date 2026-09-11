@@ -6,13 +6,13 @@
 - **Score:** 72/100
 - **Sentiment Arc:** CONFUSED → INFORMED
 - **Resolution:** RESOLVED
-- **Date:** 2026-08-25
+- **Date:** 2026-09-04
 - **Start:** 13:53:30
 - **End:** 14:00:20
 - **AHT:** 6m 50s
 - **Duration:** ~7 min
 - **Queue:** Claims & EOB
-- **Repeat Contact:** follows an unresolved call on Wed 09 Sep 2026: Claim Pending for Six Weeks — Agent Cannot Say Why
+- **Repeat Contact:** follows an unresolved call on Wed 19 Aug 2026: Claim Pending for Six Weeks — Agent Cannot Say Why
 - **Topics:** missing tooth clause · exclusion · bridge · pre-existing
 
 **Member context:** Elena Petrova, 40 · Member ID CB-5548207 · Ameritas dental · bridge denied
@@ -25,7 +25,7 @@ Caller: Elena Petrova, member ID CB-5548207.
 
 Agent Nicole: That's you found. Go ahead, Elena.
 
-Caller: This is my second call this month. The pending claim issue on the 9th was never sorted. Separate thing today. My bridge was denied and the reason says missing tooth clause. What does that mean?
+Caller: This is my second call in a month. The pending claim issue on 19 August was never sorted. Separate thing today. My bridge was denied and the reason says missing tooth clause. What does that mean?
 
 Agent Nicole: It means the plan doesn't cover replacement of a tooth that was already missing before your coverage started. Was the tooth extracted before you enrolled?
 
@@ -63,7 +63,7 @@ reference number (-).
 L4 — Operational BI: MEMBER COMMUNICATION GAP · Owner: Member Communications — the missing tooth clause is rarely
 explained at enrollment and produces denials that feel arbitrary years later. Recommend disclosing it at enrollment alongside the
 continuous-coverage lapse date, which doubles as a retention message. REPEAT CONTACT: same member (CB-5548207) called on
-Wed 09 Sep 2026 and that call closed unresolved. Repeat contact within the period is a retention signal in its own right and should be
+Wed 19 Aug 2026 and that call closed unresolved. Repeat contact within the period is a retention signal in its own right and should be
 counted against the earlier call, not this one.
 L5 — Real-time assist: Fired at 3:00 — missing tooth denial surfaced the clause and the 60-month lapse provision with the member's
 coverage start date. Agent used both.

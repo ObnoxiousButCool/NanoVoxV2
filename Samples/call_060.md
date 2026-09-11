@@ -6,7 +6,7 @@
 - **Score:** 93/100
 - **Sentiment Arc:** ANXIOUS → REASSURED
 - **Resolution:** RESOLVED
-- **Date:** 2026-08-17
+- **Date:** 2026-08-27
 - **Start:** 16:16:45
 - **End:** 16:26:39
 - **AHT:** 9m 54s
@@ -30,7 +30,7 @@ Agent Danielle: Let me pull the claim and your plan history so I can tell you ex
 
 Caller: Please, because the letter just says 'not eligible' and that's it.
 
-Agent Danielle: I have it. The bridge was processed against a 12-month waiting period for major services. Your coverage started March 1st, and the bridge was done in September — that's six months in, so it fell inside the waiting period.
+Agent Danielle: I have it. The bridge was processed against a 12-month waiting period for major services. Your coverage started March 1st, and the bridge was done in August — that's five months in, so it fell inside the waiting period.
 
 Caller: What waiting period? Nobody mentioned a waiting period.
 

@@ -6,13 +6,13 @@
 - **Score:** 36/100
 - **Sentiment Arc:** WORRIED → ABANDONED
 - **Resolution:** UNRESOLVED
-- **Date:** 2026-08-24
+- **Date:** 2026-09-03
 - **Start:** 11:16:00
 - **End:** 11:19:55
 - **AHT:** 3m 55s
 - **Duration:** ~4 min
 - **Queue:** Cost Share & Policy
-- **Repeat Contact:** follows an unresolved call on Tue 15 Sep 2026: Member Asks Which Carrier They Have and Cannot Get an Answer
+- **Repeat Contact:** follows an unresolved call on Tue 25 Aug 2026: Member Asks Which Carrier They Have and Cannot Get an Answer
 - **Topics:** eligibility · hours reduction · coverage continuation · part-time
 
 **Member context:** Harold Winters, 58 · ChoiceBuilder dental, vision, life · going part-time
@@ -64,7 +64,7 @@ for continuation (-), no case opened, no callback (-). POSITIVE: correctly ident
 L4 — Operational BI: AGENT KNOWLEDGE GAP · Owner: Call Centre Management — group eligibility thresholds are visible in the
 platform and agents are treating them as employer-only information. PROCESS BREAKDOWN · Owner: Operations — hours reduction
 is a predictable coverage-loss trigger and should route to a continuation conversation, not a referral to HR. REPEAT CONTACT: same
-member (CB-2214408) called on Tue 15 Sep 2026 and that call closed unresolved. Repeat contact within the period is a retention signal
+member (CB-2214408) called on Tue 25 Aug 2026 and that call closed unresolved. Repeat contact within the period is a retention signal
 in its own right and should be counted against the earlier call, not this one.
 L5 — Real-time assist: SHOULD HAVE FIRED at 0:45 — hours reduction below a group eligibility threshold is a coverage-loss trigger.
 Should have surfaced the group's minimum hours rule, the projected loss date, and continuation options. No rule configured.

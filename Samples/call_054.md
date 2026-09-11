@@ -6,13 +6,13 @@
 - **Score:** 38/100
 - **Sentiment Arc:** NEUTRAL → FRUSTRATED
 - **Resolution:** UNRESOLVED
-- **Date:** 2026-08-16
+- **Date:** 2026-08-26
 - **Start:** 10:49:30
 - **End:** 10:54:09
 - **AHT:** 4m 39s
 - **Duration:** ~5 min
 - **Queue:** Employer: Enrollment
-- **Repeat Contact:** follows an unresolved call on Tue 01 Sep 2026: Enrollment Form Submitted Twice, Neither Processed
+- **Repeat Contact:** follows an unresolved call on Tue 11 Aug 2026: Enrollment Form Submitted Twice, Neither Processed
 - **Topics:** enrollment roster · reporting · employer portal · basic request
 
 **Member context:** Pacific Garden Supply · 29 employees · Owner Lucy Wong · GRP-388120
@@ -25,7 +25,7 @@ Caller: Lucy Wong, Owner at Pacific Garden Supply, group GRP-388120.
 
 Agent Tiffany: Thanks Lucy. Tell me what's happening.
 
-Caller: Before I start — I rang on the 1st about form submission and got nowhere, so forgive me if I sound short. Can you send me a list of which employees are currently enrolled and in what?
+Caller: Before I start — I rang on the 11th about form submission and got nowhere, so forgive me if I sound short. Can you send me a list of which employees are currently enrolled and in what?
 
 Agent Tiffany: That'd be in the employer portal.
 
@@ -66,7 +66,7 @@ POSITIVE: none identified.
 L4 — Operational BI: PROCESS BREAKDOWN · CRITICAL · Owner: Digital / Operations — employers cannot readily obtain a current
 enrollment roster, which is the foundation of payroll reconciliation and the root cause of the unsubmitted-termination and
 billing-discrepancy patterns seen repeatedly in this corpus. Recommend a self-service enrollment roster export in the employer portal as
-a priority, and agent-side export capability in the interim. REPEAT CONTACT: same group (GRP-388120) called on Tue 01 Sep 2026
+a priority, and agent-side export capability in the interim. REPEAT CONTACT: same group (GRP-388120) called on Tue 11 Aug 2026
 and that call closed unresolved. Repeat contact within the period is a retention signal in its own right and should be counted against the
 earlier call, not this one.
 L5 — Real-time assist: SHOULD HAVE FIRED at 1:00 — employer roster request should surface an export action. No such capability

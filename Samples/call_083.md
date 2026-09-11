@@ -6,7 +6,7 @@
 - **Score:** 90/100
 - **Sentiment Arc:** ANGRY → SATISFIED
 - **Resolution:** RESOLVED
-- **Date:** 2026-08-24
+- **Date:** 2026-09-03
 - **Start:** 08:55:15
 - **End:** 09:04:57
 - **AHT:** 9m 42s
@@ -30,19 +30,19 @@ Agent Priya: Let me check your group's elected lines against what's billing. You
 
 Caller: So why are we being billed?
 
-Agent Priya: The chiropractic line was added to the group in June. I can see the addition but no corresponding election on file.
+Agent Priya: The chiropractic line was added to the group in May. I can see the addition but no corresponding election on file.
 
 Caller: Nobody here authorised it.
 
 Agent Priya: Then it appears to have been added in error. How much has been billed?
 
-Caller: About $290 a month since June, so five months.
+Caller: About $290 a month since May, so five months.
 
 Agent Priya: Roughly $1,450. Let me check something before I process the credit — have any employees actually used the chiropractic benefit?
 
 Caller: I've no idea.
 
-Agent Priya: Checking... two claims, both in September, totalling $180 paid. That complicates it slightly but not much. I'll request removal of the line back to June with full premium credit, and flag the two claims for separate handling so those members aren't pursued.
+Agent Priya: Checking... two claims, both in August, totalling $180 paid. That complicates it slightly but not much. I'll request removal of the line back to May with full premium credit, and flag the two claims for separate handling so those members aren't pursued.
 
 Caller: I appreciate you thinking of that. They'd have used it in good faith.
 

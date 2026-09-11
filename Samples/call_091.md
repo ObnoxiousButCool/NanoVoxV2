@@ -6,13 +6,13 @@
 - **Score:** 71/100
 - **Sentiment Arc:** ANNOYED → INFORMED
 - **Resolution:** RESOLVED
-- **Date:** 2026-08-28
+- **Date:** 2026-09-07
 - **Start:** 09:50:30
 - **End:** 09:57:42
 - **AHT:** 7m 12s
 - **Duration:** ~7 min
 - **Queue:** Cost Share & Policy
-- **Repeat Contact:** follows an unresolved call on Wed 02 Sep 2026: Agent States There Is No Annual Maximum — There Is
+- **Repeat Contact:** follows an unresolved call on Wed 12 Aug 2026: Agent States There Is No Annual Maximum — There Is
 - **Topics:** frequency limit · cleanings · periodontal · dental
 
 **Member context:** Nadia Haddad, 45 · Member ID CB-5540118 · Delta Dental · periodontal maintenance
@@ -25,7 +25,7 @@ Caller: Nadia Haddad, member ID CB-5540118.
 
 Agent Tony: Got it, thanks Nadia. What can I do for you?
 
-Caller: Before I start — I rang on the 2nd about annual maximum and got nowhere, so forgive me if I sound short. My dentist recommends cleanings every four months because of gum issues. The third one this year was denied.
+Caller: Before I start — I rang on 12 August about annual maximum and got nowhere, so forgive me if I sound short. My dentist recommends cleanings every four months because of gum issues. The third one this year was denied.
 
 Agent Tony: Your plan covers two routine cleanings per calendar year. The third falls outside that.
 
@@ -62,7 +62,7 @@ driven denial (-), did not confirm the plan's periodontal maintenance allowance 
 note the account pending resubmission (-).
 L4 — Operational BI: MEMBER COMMUNICATION GAP · Owner: Member Communications — members with periodontal history are
 frequently billed under routine cleaning codes and hit the two-per-year limit. Recommend provider-facing guidance on maintenance
-coding and a member explainer on the distinction. REPEAT CONTACT: same member (CB-5540118) called on Wed 02 Sep 2026 and
+coding and a member explainer on the distinction. REPEAT CONTACT: same member (CB-5540118) called on Wed 12 Aug 2026 and
 that call closed unresolved. Repeat contact within the period is a retention signal in its own right and should be counted against the
 earlier call, not this one.
 L5 — Real-time assist: Fired at 3:00 — frequency denial surfaced submitted procedure code and the member's periodontal treatment

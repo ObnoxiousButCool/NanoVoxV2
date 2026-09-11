@@ -6,3 +6,12 @@
 # Batch and PowerShell are the Windows counterparts and want CRLF.
 *.bat text eol=crlf
 *.ps1 text eol=crlf
+
+# Binary documents. Without this, core.autocrlf rewrites CR and LF bytes inside
+# compressed streams and byte offsets, which silently corrupts the file: the
+# committed v5 and v6 corpora already differ from their working copies, and a
+# reader recovers them only by rebuilding the cross-reference table.
+*.pdf binary
+*.xlsx binary
+*.pptx binary
+*.docx binary

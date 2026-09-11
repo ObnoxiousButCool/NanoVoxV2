@@ -6,13 +6,13 @@
 - **Score:** 75/100
 - **Sentiment Arc:** NEUTRAL → SATISFIED
 - **Resolution:** RESOLVED
-- **Date:** 2026-08-24
+- **Date:** 2026-09-03
 - **Start:** 09:22:15
 - **End:** 09:27:22
 - **AHT:** 5m 7s
 - **Duration:** ~5 min
 - **Queue:** Platform & Forms
-- **Repeat Contact:** follows an unresolved call on Mon 07 Sep 2026: Member Asks Whether Coverage Continues After Leaving — Told to Call Back
+- **Repeat Contact:** follows an unresolved call on Mon 17 Aug 2026: Member Asks Whether Coverage Continues After Leaving — Told to Call Back
 - **Topics:** address change · member data · ID card · correspondence
 
 **Member context:** Steven Nakamura, 29 · Member ID CB-8819004 · relocated within California
@@ -25,7 +25,7 @@ Caller: Steven Nakamura, member ID CB-8819004.
 
 Agent Linda: Thanks Steven. Tell me what's happening.
 
-Caller: You'll see I called on the 7th. That one about termination is still open as far as I know. Today is something else. I've moved and I want to update my address.
+Caller: You'll see I called on 17 August. That one about termination is still open as far as I know. Today is something else. I've moved and I want to update my address.
 
 Agent Linda: I can do that. Where are you now?
 
@@ -61,7 +61,7 @@ correspondence would be affected (-).
 L4 — Operational BI: PROCESS BREAKDOWN · Owner: Operations — member-initiated address updates are routinely overwritten by
 employer eligibility files, so the member believes it is done and correspondence continues going astray. Recommend either protecting
 member-initiated updates or notifying the member when an eligibility file overwrites their change. REPEAT CONTACT: same member
-(CB-8819004) called on Mon 07 Sep 2026 and that call closed unresolved. Repeat contact within the period is a retention signal in its
+(CB-8819004) called on Mon 17 Aug 2026 and that call closed unresolved. Repeat contact within the period is a retention signal in its
 own right and should be counted against the earlier call, not this one.
 L5 — Real-time assist: Fired at 1:30 — address update surfaced the eligibility feed overwrite warning and in-state coverage
 confirmation. ID card reissue action not offered; recommend adding.

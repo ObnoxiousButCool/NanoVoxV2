@@ -6,13 +6,13 @@
 - **Score:** 71/100
 - **Sentiment Arc:** NEUTRAL → INFORMED
 - **Resolution:** RESOLVED
-- **Date:** 2026-08-21
+- **Date:** 2026-08-31
 - **Start:** 09:21:00
 - **End:** 09:26:35
 - **AHT:** 5m 35s
 - **Duration:** ~6 min
 - **Queue:** Networks & Providers
-- **Repeat Contact:** follows an unresolved call on Tue 08 Sep 2026: Told There Was No Waiting Period — Member Now Considering Dropping Coverage
+- **Repeat Contact:** follows an unresolved call on Tue 18 Aug 2026: Told There Was No Waiting Period — Member Now Considering Dropping Coverage
 - **Topics:** provider search · language · access · directory
 
 **Member context:** Rosa Delgado, 52 · Member ID CB-4479610 · language preference search
@@ -25,7 +25,7 @@ Caller: Rosa Delgado, member ID CB-4479610.
 
 Agent James: Thank you. I have the record open — go ahead.
 
-Caller: I'll say up front I called on the 8th about waiting period and it's still unresolved. I want to find a dentist near me who speaks Spanish. My mother will be coming with me and she doesn't speak English.
+Caller: I'll say up front I called on the 18th about waiting period and it's still unresolved. I want to find a dentist near me who speaks Spanish. My mother will be coming with me and she doesn't speak English.
 
 Agent James: The Delta Dental directory has a language filter. Let me search for you. What's your zip?
 
@@ -62,7 +62,7 @@ the provider list (-), no reference number (-), did not record the language pref
 L4 — Operational BI: PROCESS OPPORTUNITY · Owner: Digital / Member Communications — language preference is not stored on
 the member record, so it must be re-established each call. Recommend capturing preferred language at enrollment and surfacing it to
 agents automatically. Directory language listings should distinguish provider from staff proficiency. REPEAT CONTACT: same member
-(CB-4479610) called on Tue 08 Sep 2026 and that call closed unresolved. Repeat contact within the period is a retention signal in its
+(CB-4479610) called on Tue 18 Aug 2026 and that call closed unresolved. Repeat contact within the period is a retention signal in its
 own right and should be counted against the earlier call, not this one.
 L5 — Real-time assist: Fired at 1:30 — provider search with language filter surfaced matching providers and interpretation service
 availability. Language preference recording action not available; recommend adding.

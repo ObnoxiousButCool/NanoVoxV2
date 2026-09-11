@@ -6,7 +6,7 @@
 - **Score:** 33/100
 - **Sentiment Arc:** WORRIED → ABANDONED
 - **Resolution:** UNRESOLVED
-- **Date:** 2026-09-07
+- **Date:** 2026-08-17
 - **Start:** 12:00:00
 - **End:** 12:05:13
 - **AHT:** 5m 13s

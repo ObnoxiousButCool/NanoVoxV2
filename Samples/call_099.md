@@ -6,13 +6,13 @@
 - **Score:** 33/100
 - **Sentiment Arc:** URGENT → ABANDONED
 - **Resolution:** UNRESOLVED
-- **Date:** 2026-08-30
+- **Date:** 2026-09-09
 - **Start:** 13:38:00
 - **End:** 13:42:26
 - **AHT:** 4m 26s
 - **Duration:** ~4 min
 - **Queue:** Employer: Enrollment
-- **Repeat Contact:** follows an unresolved call on Tue 22 Sep 2026: Billed for a Terminated Employee Two Months Running
+- **Repeat Contact:** follows an unresolved call on Tue 01 Sep 2026: Billed for a Terminated Employee Two Months Running
 - **Topics:** qualifying life event · QLE window · dependent addition · deadline
 
 **Member context:** Willow Creek Services · 48 employees · HR Director George Nakamura · day 59 of 60
@@ -25,11 +25,11 @@ Caller: George Nakamura, HR Director at Willow Creek Services, group GRP-390044.
 
 Agent Ryan: Thank you George, I have you. Go ahead.
 
-Caller: Before I start — I rang on the 22nd about billing error and got nowhere, so forgive me if I sound short. I have an employee whose baby was born on the 15th of last month and I've just realised I never submitted the dependent addition. What's the window?
+Caller: Before I start — I rang on the 1st about billing error and got nowhere, so forgive me if I sound short. I have an employee whose baby was born on 12 July and I've just realised I never submitted the dependent addition. What's the window?
 
 Agent Ryan: Sixty days for a birth.
 
-Caller: The birth was the 15th. Today is the 13th. So I have two days?
+Caller: The birth was the 12th of July. Today is the 9th. So I have two days?
 
 Agent Ryan: Sounds about right.
 
@@ -82,7 +82,7 @@ L4 — Operational BI: PROCESS BREAKDOWN · CRITICAL · Owner: Digital / Operati
 retroactive effective dates for birth events, which is a defect blocking a statutory enrollment right. IMMEDIATE: (1) reproduce and fix the
 validation rule, (2) audit for other groups blocked by the same error, (3) manual submission path for agents when a portal defect blocks a
 deadline, (4) contact this employer today. AGENT COACHING: deadline plus system failure must always escalate. REPEAT
-CONTACT: same group (GRP-390044) called on Tue 22 Sep 2026 and that call closed unresolved. Repeat contact within the period is
+CONTACT: same group (GRP-390044) called on Tue 01 Sep 2026 and that call closed unresolved. Repeat contact within the period is
 a retention signal in its own right and should be counted against the earlier call, not this one.
 L5 — Real-time assist: SHOULD HAVE FIRED at 1:30 — QLE window under 5 days remaining combined with a reported portal error is
 a maximum-priority trigger requiring supervisor escalation and manual submission authority. No rule configured. — EMPLOYER:

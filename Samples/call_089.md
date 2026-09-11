@@ -6,7 +6,7 @@
 - **Score:** 75/100
 - **Sentiment Arc:** IRRITATED → SATISFIED
 - **Resolution:** RESOLVED
-- **Date:** 2026-08-25
+- **Date:** 2026-09-04
 - **Start:** 16:02:00
 - **End:** 16:07:35
 - **AHT:** 5m 35s
@@ -25,7 +25,7 @@ Caller: Denise Achebe, member ID CB-7748119.
 
 Agent Tony: Thanks. What can I do?
 
-Caller: My employer added vision in July. Our broker Patricia Nunez sent everyone a one-page summary saying it was effective 1 July and that VSP cards would follow. It's the end of September and I have no card. I've got an eye appointment on Monday.
+Caller: My employer added vision in July. Our broker Patricia Nunez sent everyone a one-page summary saying it was effective 1 July and that VSP cards would follow. It's September and I have no card. I've got an eye appointment on Monday.
 
 Agent Tony: Let me check eligibility first, because that matters more than the card. You're showing as active on VSP from 1 July.
 

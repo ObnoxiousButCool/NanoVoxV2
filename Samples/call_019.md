@@ -6,7 +6,7 @@
 - **Score:** 91/100
 - **Sentiment Arc:** SUSPICIOUS → REASSURED
 - **Resolution:** RESOLVED
-- **Date:** 2026-09-07
+- **Date:** 2026-08-17
 - **Start:** 13:44:00
 - **End:** 13:53:12
 - **AHT:** 9m 12s
@@ -25,7 +25,7 @@ Caller: Richard Drummond, controller at Drummond Precision Tooling, group GRP-28
 
 Agent Carlos: Thank you. How can I help?
 
-Caller: There's an agency name on the bottom of our September invoice that I don't recognise. Our broker is Denise Whitfield. This says something else entirely.
+Caller: There's an agency name on the bottom of our August invoice that I don't recognise. Our broker is Denise Whitfield. This says something else entirely.
 
 Agent Carlos: Let me look at the group record rather than the invoice, because those can differ. Give me a moment... your broker of record is showing under agency code AG-7719.
 
@@ -39,7 +39,7 @@ Agent Carlos: Transposed, yes. And because AG-7719 is lapsed rather than invalid
 
 Caller: How long?
 
-Agent Carlos: Since the group effective date in March. Six cycles.
+Agent Carlos: Since the group effective date in March. Five cycles.
 
 Caller: Does that cost me anything?
 
@@ -56,7 +56,7 @@ Caller: That's more than I expected. Thank you.
 L1 — Transcription & understanding: Call type: Agency of record mis-coding, discovered by the employer. Caller: EMPLOYER. Tone:
 suspicious → reassured. Agent tone: precise, transparent. Duration: 9 min.
 L2 — Call insights: Employer queried an unfamiliar agency name on the invoice. Agent identified a transposed agency code (AG-7719
-for AG-7791) entered at group submission in March, confirmed six cycles of commission accruing to a lapsed code, confirmed no
+for AG-7791) entered at group submission in March, confirmed five cycles of commission accruing to a lapsed code, confirmed no
 premium impact to the employer, corrected the record, raised a retroactive adjustment and notified the broker. Resolution: RESOLVED.
 L3 — Agent quality: Agent Score: 91/100. POSITIVE: checked the group record rather than accepting the invoice as source of truth (+),
 identified the transposition and named both codes (+), answered the employer's real question — does this cost me anything — before
@@ -65,7 +65,7 @@ raised the adjustment on the call (+), proactively notified the broker (+). NEGA
 appears on other groups (-).
 L4 — Operational BI: PROCESS BREAKDOWN · Owner: Operations — agency codes are entered manually at group submission and
 validated for format only, not against the active agency register. A transposition into a lapsed code passes silently and diverts
-commission for as long as nobody notices. Here it was six cycles, and it was the employer who noticed, not the broker and not Choice.
+commission for as long as nobody notices. Here it was five cycles, and it was the employer who noticed, not the broker and not Choice.
 Recommend: (1) validate agency codes against active agencies at submission, (2) block lapsed codes outright, (3) a monthly exception
 report on commission accruing to inactive codes. BROKER RELATIONS: broker service degradation on unpaid groups is a foreseeable
 second-order effect worth monitoring.

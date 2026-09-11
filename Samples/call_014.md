@@ -6,7 +6,7 @@
 - **Score:** 39/100
 - **Sentiment Arc:** FRUSTRATED → CHURN RISK
 - **Resolution:** UNRESOLVED
-- **Date:** 2026-09-07
+- **Date:** 2026-08-17
 - **Start:** 10:15:30
 - **End:** 10:21:12
 - **AHT:** 5m 42s

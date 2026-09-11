@@ -6,13 +6,13 @@
 - **Score:** 94/100
 - **Sentiment Arc:** ANGRY → SATISFIED
 - **Resolution:** ESCALATED
-- **Date:** 2026-08-30
+- **Date:** 2026-09-09
 - **Start:** 13:45:45
 - **End:** 13:55:23
 - **AHT:** 9m 38s
 - **Duration:** ~10 min
 - **Queue:** Claims & EOB
-- **Repeat Contact:** follows an unresolved call on Tue 22 Sep 2026: Annual Maximum Exhausted With No Warning
+- **Repeat Contact:** follows an unresolved call on Tue 01 Sep 2026: Annual Maximum Exhausted With No Warning
 - **Topics:** claim dispute · service not rendered · provider billing · fraud check
 
 **Member context:** Marcus Johnson, 43 · MetLife dental · claim for a procedure not performed
@@ -25,9 +25,9 @@ Caller: Marcus Johnson, member ID CB-4401298.
 
 Agent Sarah: Thanks Marcus. Tell me what's happening.
 
-Caller: This is my second call this month. The annual maximum issue on the 22nd was never sorted. Separate thing today. There's a claim on my account for a deep cleaning I never had. I had a regular cleaning.
+Caller: This is my second call this month. The annual maximum issue on the 1st was never sorted. Separate thing today. There's a claim on my account for a deep cleaning I never had. I had a regular cleaning.
 
-Agent Sarah: That's worth looking at carefully. Let me pull the claim. I have it — scaling and root planing, four quadrants, billed on the 12th.
+Agent Sarah: That's worth looking at carefully. Let me pull the claim. I have it — scaling and root planing, four quadrants, billed on 22 August.
 
 Caller: I had a standard cleaning. Twenty minutes. Nothing like that.
 
@@ -75,7 +75,7 @@ treating it as a billing query (+), advised non-payment and evidence retention (
 L4 — Operational BI: PROVIDER PERFORMANCE · Owner: Provider Relations / Claims Integrity — upcoding from prophylaxis to
 periodontal scaling is a known billing integrity pattern with a direct member impact through frequency limits. Recommend reviewing this
 practice's ratio of periodontal to routine cleaning claims against network norms. REPEAT CONTACT: same member (CB-4401298)
-called on Tue 22 Sep 2026 and that call closed unresolved. Repeat contact within the period is a retention signal in its own right and
+called on Tue 01 Sep 2026 and that call closed unresolved. Repeat contact within the period is a retention signal in its own right and
 should be counted against the earlier call, not this one.
 L5 — Real-time assist: Fired at 2:30 — procedure code versus visit pattern flagged an upcoding candidate. Claims integrity dispute
 pathway surfaced. Agent used both. — BROKER: QUOTING — Fired on escalation trigger — routing surfaced and used.

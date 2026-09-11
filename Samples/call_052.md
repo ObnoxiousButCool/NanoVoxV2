@@ -6,14 +6,14 @@
 - **Score:** 92/100
 - **Sentiment Arc:** ANGRY → RETAINED
 - **Resolution:** RESOLVED
-- **Date:** 2026-08-15
+- **Date:** 2026-08-25
 - **Start:** 11:00:00
 - **End:** 11:09:36
 - **AHT:** 9m 36s
 - **Duration:** ~10 min
 - **Queue:** Cost Share & Policy
 - **Broker Signal:** Marcus Trent: named aloud by the caller
-- **Repeat Contact:** follows an unresolved call on Mon 14 Sep 2026: Agent Confirms Coverage for a Service That Is Excluded
+- **Repeat Contact:** follows an unresolved call on Mon 24 Aug 2026: Agent Confirms Coverage for a Service That Is Excluded
 - **Topics:** voluntary vs employer-sponsored · payroll deduction · broker misselling · churn risk
 
 **Member context:** Yolanda Reyes, 31 · Member ID CB-9903175 · voluntary dental and vision
@@ -26,7 +26,7 @@ Caller: Yolanda Reyes, member ID CB-9903175.
 
 Agent Carlos: Got it, thanks Yolanda. What can I do for you?
 
-Caller: This is my second call this month. The exclusions issue on the 14th was never sorted. Separate thing today. There's $62 coming out of my paycheck every month for dental and vision. I was told by my broker, Marcus Trent, that the company paid for this.
+Caller: This is my second call this month. The exclusions issue on the 24th was never sorted. Separate thing today. There's $62 coming out of my paycheck every month for dental and vision. I was told by my broker, Marcus Trent, that the company paid for this.
 
 Agent Carlos: Let me check how your coverage is structured. Your group offers dental and vision on a voluntary basis, which means the employee pays the full premium through payroll.
 
@@ -68,7 +68,7 @@ the decision (+), separated the emotional and financial decisions explicitly (+)
 L4 — Operational BI: BROKER ATTRIBUTION · Owner: Broker Relations — Marcus Trent represented voluntary coverage as
 employer-paid. If repeated across his book this generates a stream of surprise-deduction complaints attributed to Choice rather than to
 him. CHURN SIGNAL: member ready to cancel on principle; retained by reframing to utilisation. Recommend auditing Trent's enrolled
-members for similar complaints. REPEAT CONTACT: same member (CB-9903175) called on Mon 14 Sep 2026 and that call closed
+members for similar complaints. REPEAT CONTACT: same member (CB-9903175) called on Mon 24 Aug 2026 and that call closed
 unresolved. Repeat contact within the period is a retention signal in its own right and should be counted against the earlier call, not this
 one.
 L5 — Real-time assist: Fired at 4:00 — voluntary coverage with a member-reported employer-paid expectation surfaced the broker

@@ -6,7 +6,7 @@
 - **Score:** 71/100
 - **Sentiment Arc:** ANNOYED → INFORMED
 - **Resolution:** RESOLVED
-- **Date:** 2026-08-14
+- **Date:** 2026-08-24
 - **Start:** 15:38:45
 - **End:** 15:44:12
 - **AHT:** 5m 27s

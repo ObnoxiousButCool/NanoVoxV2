@@ -6,7 +6,7 @@
 - **Score:** 36/100
 - **Sentiment Arc:** NEUTRAL → FRUSTRATED
 - **Resolution:** UNRESOLVED
-- **Date:** 2026-09-09
+- **Date:** 2026-08-19
 - **Start:** 10:51:00
 - **End:** 10:56:26
 - **AHT:** 5m 26s
@@ -24,7 +24,7 @@ Caller: Elena Petrova, member ID CB-5548207.
 
 Agent Kayla: That's you found. Go ahead, Elena.
 
-Caller: I have a claim from August that's still showing pending. It's been six weeks.
+Caller: I have a claim from July that's still showing pending. It's been six weeks.
 
 Agent Kayla: Let me look. Yes, it's pending.
 

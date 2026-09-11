@@ -6,7 +6,7 @@
 - **Score:** 42/100
 - **Sentiment Arc:** FRUSTRATED → RESIGNED
 - **Resolution:** UNRESOLVED
-- **Date:** 2026-08-15
+- **Date:** 2026-08-25
 - **Start:** 10:12:30
 - **End:** 10:21:04
 - **AHT:** 8m 34s
@@ -25,7 +25,7 @@ Caller: Jennifer Torres, office manager at Cornerstone Fabrication, group GRP-26
 
 Agent Ryan: Go ahead.
 
-Caller: We've been billed for two people who left in July. I've emailed our broker, Anthony Salerno, four times since the 25th of August and I've had nothing back. Not an out-of-office, nothing.
+Caller: We've been billed for two people who left in June. I've emailed our broker, Anthony Salerno, four times since the 4th of August and I've had nothing back. Not an out-of-office, nothing.
 
 Agent Ryan: Terminations have to come through the broker or the employer portal.
 
@@ -37,7 +37,7 @@ Caller: I've just told you he isn't answering. That's why I'm calling you.
 
 Agent Ryan: We're not able to act on a broker's behalf.
 
-Caller: I'm not asking you to act on his behalf. I'm the employer. I'm asking you to look at why two terminations I filed in August are still billing in September.
+Caller: I'm not asking you to act on his behalf. I'm the employer. I'm asking you to look at why two terminations I filed in July are still billing in August.
 
 Agent Ryan: I can see the group but I don't have the termination records in front of me.
 
@@ -57,7 +57,7 @@ L1 — Transcription & understanding: Call type: Billing dispute — termination
 resigned. Agent tone: flat, procedural. Duration: 9 min. Explicit supervisor request refused. Explicit market-exit language at close. No call
 recording disclosure in the agent greeting.
 L2 — Call insights: Employer has been billed for two terminated employees across two cycles. Terminations were filed in the employer
-portal in August and did not apply. The group's broker has been unresponsive for three weeks. Agent declined to investigate, declined to
+portal in July and did not apply. The group's broker has been unresponsive for three weeks. Agent declined to investigate, declined to
 transfer, and routed the employer back to the unresponsive broker. Resolution: UNRESOLVED.
 L3 — Agent quality: Agent Score: 42/100. NEGATIVE: no call recording disclosure made at the point of answer (-), refused an explicit
 supervisor request with no alternative offered (-), did not open the portal submission history despite the employer stating terminations

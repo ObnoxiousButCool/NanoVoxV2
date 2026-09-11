@@ -6,13 +6,13 @@
 - **Score:** 77/100
 - **Sentiment Arc:** CONFUSED → INFORMED
 - **Resolution:** RESOLVED
-- **Date:** 2026-08-11
+- **Date:** 2026-08-21
 - **Start:** 16:31:00
 - **End:** 16:38:45
 - **AHT:** 7m 45s
 - **Duration:** ~8 min
 - **Queue:** Networks & Providers
-- **Repeat Contact:** follows an unresolved call on Wed 09 Sep 2026: Contacts and Glasses in One Year — Only One Is Covered
+- **Repeat Contact:** follows an unresolved call on Wed 19 Aug 2026: Contacts and Glasses in One Year — Only One Is Covered
 - **Topics:** multi-carrier · network confusion · dental · ID card · Delta Dental
 
 **Member context:** Meera Raman, 36 · ChoiceBuilder dental · dentist cannot find her coverage
@@ -25,7 +25,7 @@ Caller: Meera Raman, member ID CB-9908844.
 
 Agent Linda: Thank you Meera, I have you. Go ahead.
 
-Caller: I'll say up front I called on the 9th about materials benefit and it's still unresolved. I'm at my dentist's office right now and they say they can't find me. They looked up ChoiceBuilder and there's nothing.
+Caller: I'll say up front I called on the 19th about materials benefit and it's still unresolved. I'm at my dentist's office right now and they say they can't find me. They looked up ChoiceBuilder and there's nothing.
 
 Agent Linda: This happens a lot and it's usually fixable in a minute. ChoiceBuilder is the program you enrolled through, but your actual dental coverage sits with a specific carrier. Yours is Delta Dental.
 
@@ -69,7 +69,7 @@ L4 — Operational BI: MEMBER COMMUNICATION GAP · Owner: Member Communications 
 routinely search under 'ChoiceBuilder' and fail. This is structural to the exchange model and entirely predictable. Recommend: (1) ID
 card front redesigned to lead with the carrier name and subscriber ID, (2) onboarding message stating explicitly 'your dentist should look
 you up under [carrier], not ChoiceBuilder', (3) provider-facing lookup guidance. REPEAT CONTACT: same member (CB-9908844)
-called on Wed 09 Sep 2026 and that call closed unresolved. Repeat contact within the period is a retention signal in its own right and
+called on Wed 19 Aug 2026 and that call closed unresolved. Repeat contact within the period is a retention signal in its own right and
 should be counted against the earlier call, not this one.
 L5 — Real-time assist: Fired at 1:00 — 'provider cannot find coverage' pattern surfaced the member's carrier assignment and subscriber
 ID immediately. Did not offer the digital ID card send action — worth adding.

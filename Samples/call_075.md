@@ -6,7 +6,7 @@
 - **Score:** 38/100
 - **Sentiment Arc:** FRUSTRATED → CHURN RISK
 - **Resolution:** UNRESOLVED
-- **Date:** 2026-08-22
+- **Date:** 2026-09-01
 - **Start:** 14:30:00
 - **End:** 14:34:36
 - **AHT:** 4m 36s
@@ -15,7 +15,7 @@
 - **Broker Signal:** Marcus Trent: named aloud by the caller
 - **Topics:** annual maximum · exhausted benefit · no warning · broker education failure · churn risk
 
-**Member context:** Marcus Johnson, 43 · Member ID CB-4401298 · MetLife dental · claim denied in September
+**Member context:** Marcus Johnson, 43 · Member ID CB-4401298 · MetLife dental · claim denied in August
 
 ## Transcript
 
