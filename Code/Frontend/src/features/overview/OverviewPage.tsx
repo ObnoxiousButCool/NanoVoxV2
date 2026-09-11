@@ -799,7 +799,11 @@ export function OverviewPage() {
 
       <Card
         className={styles.solo}
-        title="Overall Call Quality & Average Handling Time"
+        title={
+          <>
+            Overall Call Quality <span className={styles.ampersand}>&</span> Average Handling Time
+          </>
+        }
         hint="Two lines over time, each read against its own axis: quality on the left, out of 100; handling time on the right, in minutes. Hover or focus a week for both exact numbers. A week that measured nothing breaks the line rather than being drawn through, so a gap is missing data and not a collapse. In 3-week mode, shows the three weeks centred on whichever week is picked below — the week itself, the one before it, and the one after. In Month mode, shows every week of the picked month."
         actions={
           resolvedGraphValue ? (

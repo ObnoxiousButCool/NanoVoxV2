@@ -142,7 +142,7 @@ export function Card({
   children,
   className,
 }: {
-  title?: string | undefined
+  title?: ReactNode
   subtitle?: string | undefined
   /** Controls that act on this card, placed opposite its title. */
   actions?: ReactNode
