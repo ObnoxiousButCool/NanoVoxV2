@@ -14,7 +14,7 @@ import { Link } from 'react-router-dom'
 
 import { useBrokers } from '@/shared/api/queries'
 import type { BrokerScorecard } from '@/shared/api/types'
-import { Alert, Card, Chip, Empty, Failure, Loading, Note, PageHeader } from '@/shared/ui/primitives'
+import { Alert, Card, Chip, Empty, Failure, Loading, PageHeader } from '@/shared/ui/primitives'
 import { cx } from '@/shared/ui/cx'
 import styles from '@/shared/ui/queue.module.css'
 
@@ -115,17 +115,11 @@ export function BrokersPage() {
       ) : null}
 
       {data && data.length > 0 ? (
-        <>
-          <div className={styles.queue}>
-            {data.map((broker) => (
-              <BrokerCard key={broker.broker_name} broker={broker} />
-            ))}
-          </div>
-          <Note>
-            Scoring is net, not cumulative. Every signal links to the call that produced it — open
-            one from <Link to="/calls">Calls</Link> to read the sentence behind it.
-          </Note>
-        </>
+        <div className={styles.queue}>
+          {data.map((broker) => (
+            <BrokerCard key={broker.broker_name} broker={broker} />
+          ))}
+        </div>
       ) : null}
     </>
   )
