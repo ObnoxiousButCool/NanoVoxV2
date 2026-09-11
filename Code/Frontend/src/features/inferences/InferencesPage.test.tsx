@@ -288,7 +288,7 @@ describe('InferencesPage', () => {
       renderInferences()
 
       await screen.findByText(new RegExp('••••9074'))
-      expect(screen.getByText(/not.*a predicted probability/i)).toBeInTheDocument()
+      expect(screen.getByText(/isn't a predicted risk score/i)).toBeInTheDocument()
     })
 
     it('links a member to all of their calls, not to one reference', async () => {

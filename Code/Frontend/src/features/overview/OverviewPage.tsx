@@ -631,7 +631,6 @@ function CallerMixCard({ params }: { params: PeriodParams }) {
 function HourlyCard({ params }: { params: PeriodParams }) {
   const navigate = useNavigate()
   const mix = useWorkMix(params)
-  const weakest = mix.data?.weakest_hour
 
   if (mix.isPending) return <Loading what="the day" />
   if (mix.error) return <Failure error={mix.error} what="the hourly load" />
@@ -646,8 +645,8 @@ function HourlyCard({ params }: { params: PeriodParams }) {
         bars={mix.data.hours.map((hour) => ({
           label: hour.label.slice(0, 2),
           count: hour.calls,
-          // Marked, not merely low: this is the hour a rota would change for.
-          isBelowThreshold: hour.label === weakest,
+          // Every hour reads the same now -- no bar is singled out red.
+          isBelowThreshold: false,
           // Mean handle time, under the hour. Volume alone does not size a
           // shift: an hour taking twenty calls at seven minutes needs more
           // people on it than one taking twenty at four, and the pair together
@@ -685,17 +684,20 @@ export function OverviewPage() {
   // from the header's on every render.
   const [globalAnchor, setGlobalAnchor] = useState<string | undefined>(undefined)
   const [globalGranularity, setGlobalGranularity] = useState<Granularity>(DEFAULT_GRANULARITY)
-  // The graph opens on the three weeks ending with today's, whatever the header
-  // opens on. The two answer different questions: the cards report a period,
-  // and the graph shows which way it is moving — which needs more than one
-  // point, so a month-wide single figure is the wrong opening shape for it.
+  // The graph opens matching the header's own default, so the first thing a
+  // reader sees isn't two cards silently disagreeing about what period "the
+  // dashboard" means. From here the two are independent, same as before —
+  // switching the graph's own filter, or the header's, only re-seeds the one
+  // that changed.
   //
-  // A week back from today, not today itself. The window is centred on its
-  // middle week, so centring it on today reaches a week *past* today — seven
-  // days that cannot hold a call yet, drawn as a gap at the right-hand edge on
-  // every load. Centred a week earlier it ends on the Sunday of today's week:
-  // for a Wednesday the 9th, 24 August to 13 September.
-  const [graphMode, setGraphMode] = useState<GraphFilterMode>('week')
+  // A week back from today, not today itself, for the value underneath it.
+  // The window is centred on its middle week, so centring it on today reaches
+  // a week *past* today — seven days that cannot hold a call yet, drawn as a
+  // gap at the right-hand edge on every load. Centred a week earlier it ends
+  // on the Sunday of today's week: for a Wednesday the 9th, 24 August to 13
+  // September. A day within that same week names the right month too, so one
+  // value serves either mode this opens in.
+  const [graphMode, setGraphMode] = useState<GraphFilterMode>(DEFAULT_GRANULARITY)
   const [graphValue, setGraphValue] = useState<string | undefined>(() =>
     addDays(today(), -WEEK_IN_DAYS),
   )
@@ -831,15 +833,23 @@ export function OverviewPage() {
           leaves a void beside the other. */}
       <div className={styles.grid}>
         <Card
-          title="Who calls, and who gets an answer"
-          hint="Bars are the share of each population resolved first time, not their share of the queue — the populations are different sizes, and stacking them by volume would say only that members call most. An employer is a whole group’s coverage and a broker is a distribution channel; averaging them into one resolution rate describes none of them. A population that placed no call in the period is not drawn: a resolution rate over no calls does not exist, and a bar at zero would read as one that was never resolved."
+          title="Caller Distribution"
+          hint="Bars show each caller type's share of calls resolved on the first try, not their share of total volume. A caller type with no calls in this period isn't drawn, since a resolution rate over zero calls doesn't exist."
+          actions={
+            <Legend
+              items={[
+                { label: 'Resolved on first call', color: OUTCOME_COLOURS.resolved },
+                { label: 'Not resolved on first call', color: OUTCOME_COLOURS.unresolved },
+              ]}
+            />
+          }
         >
           <CallerMixCard params={headerPeriod} />
         </Card>
 
         <Card
-          title="Signals by owner"
-          hint="A call raising findings for two teams is counted for the team owning the more serious one, so no call appears twice. Owners with no signals are drawn so the absence is visible rather than implied."
+          title="Flag Ownership"
+          hint="A call can raise more than one signal, or none at all. Each flagged call is credited to the team owning its most serious signal, so a call with none isn't counted anywhere here — which is why these numbers can total less than all calls analyzed."
         >
           {signals.isPending ? <Loading what="signals" /> : null}
           {signals.error ? <Failure error={signals.error} what="signal distribution" /> : null}
@@ -873,7 +883,7 @@ export function OverviewPage() {
       <div className={styles.grid}>
         <Card
           title="Resolution by agent"
-          hint="Every agent's average is shown; a starred one is not tier-rated, because the agent has fewer calls than the significance threshold. The average is real arithmetic either way — what is withheld is the GOOD, AVERAGE or POOR label, since one call moves a four-call average by four points and a tier boundary should not turn on that. The bars are outcomes, not the score: they show how the agent's calls ended."
+          hint="Every agent's average is shown; a starred one is not tier-rated, because the agent has fewer calls than the significance threshold."
           actions={
             <Legend
               items={[
@@ -892,7 +902,7 @@ export function OverviewPage() {
 
         <Card
           title="Average Time Taken"
-          hint="Average minutes to resolve, slowest category first, over the calls that reached a resolution. A category that has resolved nothing shows a dash rather than a zero, because no time was measured — not a fast one."
+          hint="Average minutes to resolve, slowest category first, over the calls that reached a resolution. A category that has resolved nothing shows a dash rather than a zero, because no time was measured."
         >
           <ResolutionTimeCard params={headerPeriod} />
         </Card>
@@ -901,7 +911,7 @@ export function OverviewPage() {
       <div className={styles.grid}>
         <Card
           title="Quality Distribution"
-          hint="Coach the cluster below the threshold; the rest needs no intervention. Bins are half-open — 70–80 holds 70 to 79 — except the last, which runs to 100 inclusive so the top score has somewhere to sit. Press a bar to open the calls in it."
+          hint="Coach the cluster below the threshold; the rest needs no intervention. Press a bar to open the calls in it."
         >
           <Histogram
             bars={histogram.bins.map((bin) => {
@@ -924,7 +934,7 @@ export function OverviewPage() {
 
         <Card
           title="Member Call Reasons"
-          hint="A zero-count category is drawn rather than omitted: an absent bar reads as “this does not happen” rather than “this did not happen here”. If coverage drops below 90% the categories need revising, not the chart."
+          hint="A zero-count category means nobody called for that reason."
         >
           <BarRows>
             {categories.map((category, index) => (
@@ -961,7 +971,7 @@ export function OverviewPage() {
       <div className={styles.grid}>
         <Card
           title="Productivity"
-          hint="Calls with no recorded duration are left out entirely rather than counted as zero, which would understate the minutes."
+          hint="Calls with no recorded duration are left out entirely rather than counted as zero."
           actions={
             <Legend
               items={OUTCOME_LEGEND.map((entry) => ({ label: entry.label, color: entry.color }))}
@@ -973,7 +983,7 @@ export function OverviewPage() {
 
         <Card
           title="Hourly call distribution"
-          hint="Calls by the hour they started, with the mean handle time for that hour beneath it — volume alone does not size a shift, since twenty calls at seven minutes need more people than twenty at four. Handle time is averaged over the calls that state one, and shown as a dash where none do, so an unmeasured hour never reads as an instant one. The marked hour is a staffing question rather than a coaching one. Hours with fewer than four calls are drawn but carry no finding: a rota changed on two calls is a rota changed on noise, and the count above each bar is what says how much an hour rests on."
+          hint="Calls by the hour they started, with the mean handle time for that hour beneath it."
         >
           <HourlyCard params={headerPeriod} />
         </Card>

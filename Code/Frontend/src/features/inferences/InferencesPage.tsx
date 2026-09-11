@@ -117,7 +117,7 @@ export function InferencesPage() {
             not mean no member is at risk. */}
         <Card
           title="Members at risk"
-          hint="Ranked by how many warning signs a member shows, not by a predicted probability: no factor here has yet been measured against a member who actually left. The score is the lowest any one of their calls was given, which is what separates two members showing the same signs."
+          hint="Ranked by how many warning signs each member shows. This isn't a predicted risk score — it's just a count, and ties are broken by that member's lowest call score."
         >
           <MembersAtRisk />
         </Card>

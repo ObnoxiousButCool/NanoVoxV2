@@ -408,16 +408,16 @@ describe('OverviewPage', () => {
     expect(within(card).getByText('—')).toBeInTheDocument()
   })
 
-  it('keeps the double-counting rule reachable, behind the card hint', async () => {
+  it('keeps the reason bars fall short of the total reachable, behind the card hint', async () => {
     // Hidden by default but never removed: a reader who wonders why the bars
-    // do not sum to the call count has to be able to find out that they cannot.
+    // do not sum to the call count has to be able to find out why they don't.
     renderOverview()
 
-    const heading = await screen.findByText('Signals by owner')
+    const heading = await screen.findByText('Flag Ownership')
     const card = heading.closest('section')
     if (!card) throw new Error('signals card has no containing section')
     expect(within(card).getByRole('note', { hidden: true })).toHaveTextContent(
-      'counted for the team owning the more serious one',
+      "isn't counted anywhere here",
     )
   })
 
@@ -426,7 +426,7 @@ describe('OverviewPage', () => {
     // a keyboard or a touch screen, so the trigger is a real button.
     renderOverview()
 
-    const heading = await screen.findByText('Signals by owner')
+    const heading = await screen.findByText('Flag Ownership')
     const card = heading.closest('section')
     if (!card) throw new Error('signals card has no containing section')
 
@@ -503,7 +503,7 @@ describe('OverviewPage', () => {
   it('shows an owner carrying no signals as a dash', async () => {
     renderOverview()
 
-    const heading = await screen.findByText('Signals by owner')
+    const heading = await screen.findByText('Flag Ownership')
     const card = heading.closest('section')
     if (!card) throw new Error('signals card has no containing section')
 
@@ -717,11 +717,12 @@ describe('OverviewPage', () => {
   })
 
   describe('what the screen opens on', () => {
-    it('opens the graph on a centred window, not on the header month', async () => {
-      // The two answer different questions. The cards report a period, so the
-      // header opens on a month; the graph shows which way it is moving, which
-      // needs more than one point, so a month-wide single figure is the wrong
-      // opening shape for it.
+    it('opens the graph on the header month, not a centred window', async () => {
+      // The graph used to always open on a centred week regardless of the
+      // header, on the reasoning that the two answer different questions.
+      // Reversed: the first thing a reader sees should not be two cards
+      // silently disagreeing about what period "the dashboard" means, so the
+      // graph now opens matching the header's own Month default.
       renderOverview()
 
       await screen.findByText('Overall Call Quality vs Average Handling Time')
@@ -730,16 +731,11 @@ describe('OverviewPage', () => {
         .mock.calls.map(([input]) => requestUrl(input))
         .filter((url) => url.includes('/dashboard/pulse'))
 
-      expect(pulses.some((url) => url.includes('centre='))).toBe(true)
+      expect(pulses.some((url) => url.includes('month='))).toBe(true)
+      expect(pulses.some((url) => url.includes('centre='))).toBe(false)
     })
 
-    it('does not let the header overwrite the graph on mount', async () => {
-      // The regression this guards, twice over. Seeding the graph from the
-      // header in an effect fires on mount as well as on change, so the
-      // header's Month default overwrote the graph's opening week -- and a
-      // "skip the first run" ref does not save it either, because StrictMode
-      // invokes effects twice and the second run proceeds. The seeding lives
-      // in the header's own change handler for exactly that reason.
+    it('opens the header and the graph on the same period', async () => {
       const { container } = renderOverview()
 
       const heading = await screen.findByText('Overall Call Quality vs Average Handling Time')
@@ -748,7 +744,7 @@ describe('OverviewPage', () => {
       if (!header || !card) throw new Error('page header or graph card is missing')
 
       expect(within(header).getByLabelText('View by')).toHaveValue('month')
-      expect(within(card).getByLabelText('View by')).toHaveValue('week')
+      expect(within(card).getByLabelText('View by')).toHaveValue('month')
     })
   })
 
@@ -904,6 +900,18 @@ describe('OverviewPage', () => {
 
       expect(await screen.findByText('No call states who was calling')).toBeInTheDocument()
     })
+
+    it('names the two colours its bars use', async () => {
+      renderOverview()
+
+      const label = await screen.findByText('Member · 28')
+      const card = label.closest('section')
+      if (!card) throw new Error('caller mix has no containing section')
+      const header = card.querySelector<HTMLElement>('[class*=cardHeader]')
+      if (!header) throw new Error('card header not found')
+      expect(within(header).getByText('Resolved on first call')).toBeInTheDocument()
+      expect(within(header).getByText('Not resolved on first call')).toBeInTheDocument()
+    })
   })
 
   describe('when the calls come', () => {
@@ -918,19 +926,6 @@ describe('OverviewPage', () => {
       expect(
         screen.getByRole('button', { name: 'Show the 11 calls that started at 10:00' }),
       ).toBeInTheDocument()
-    })
-
-    it('keeps the staffing reading of the marked hour reachable', async () => {
-      // The sentence naming 13:00 was removed, so the marking is now carried by
-      // the bar's colour alone and only the hint says what it means.
-      renderOverview()
-
-      const heading = await screen.findByText('Hourly call distribution')
-      const card = heading.closest('section')
-      if (!card) throw new Error('hourly card has no containing section')
-      expect(within(card).getByRole('note', { hidden: true })).toHaveTextContent(
-        'a staffing question rather than a coaching one',
-      )
     })
 
     it('shares a row with Productivity, each shrunk to fit it', async () => {
