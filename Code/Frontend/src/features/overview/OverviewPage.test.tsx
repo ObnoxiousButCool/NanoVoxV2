@@ -777,10 +777,12 @@ describe('OverviewPage', () => {
       expect(within(card).getByLabelText('View by')).toHaveValue('week')
 
       await user.selectOptions(within(header).getByLabelText('View by'), 'month')
-      await user.selectOptions(within(header).getByLabelText('Month'), '2026-08')
+      // September, not August: the page opens on August now, so selecting it
+      // would be a no-op and prove nothing about the graph following along.
+      await user.selectOptions(within(header).getByLabelText('Month'), '2026-09')
 
       expect(within(card).getByLabelText('View by')).toHaveValue('month')
-      expect(await within(card).findByText('August 2026')).toBeInTheDocument()
+      expect(await within(card).findByText('September 2026')).toBeInTheDocument()
     })
 
     it('lets the graph filter move to 3-week mode on its own week, without disturbing the page filter', async () => {
@@ -789,8 +791,7 @@ describe('OverviewPage', () => {
       const header = await pageHeaderScope(container)
       const card = await graphCard()
 
-      await user.selectOptions(within(header).getByLabelText('View by'), 'month')
-      await user.selectOptions(within(header).getByLabelText('Month'), '2026-08')
+      // Both open on August: the page's default month seeds the graph.
       await within(card).findByText('August 2026')
 
       await user.selectOptions(within(card).getByLabelText('View by'), 'week')
@@ -808,8 +809,6 @@ describe('OverviewPage', () => {
       const header = await pageHeaderScope(container)
       const card = await graphCard()
 
-      await user.selectOptions(within(header).getByLabelText('View by'), 'month')
-      await user.selectOptions(within(header).getByLabelText('Month'), '2026-08')
       await within(card).findByText('August 2026')
 
       await user.click(within(card).getByRole('button', { name: 'Shift to the next month' }))
@@ -836,6 +835,10 @@ describe('OverviewPage', () => {
       const forward = await within(card).findByRole('button', {
         name: 'Shift the window forward one week',
       })
+      // The page opens in Month, where the top strip anchors on the opening
+      // month — a legitimate `anchor=` that is not the graph's. Cleared so the
+      // assertion below reads only the requests this click causes.
+      vi.mocked(fetch).mockClear()
 
       await user.click(forward)
 

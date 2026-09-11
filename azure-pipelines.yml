@@ -28,12 +28,26 @@
 # ever ran until a merge — the opposite of catching a problem on the pull
 # request that introduces it.
 #
+# `main` is excluded because it is the one branch a push cannot reach directly.
+# Its branch policies reject one outright — "TF402455: Pushes to this branch are
+# not permitted; you must use a pull request" — so main only ever changes
+# through a pull request the Build Validation policy has already run. Pull
+# requests here squash, so the commit that lands carries the same tree that run
+# tested, and a push trigger on main buys a second identical run of a build
+# already known to be green. Excluding it drops one of the three runs every
+# pull request used to produce.
+#
+# This makes the exclusion depend on those policies. If main is ever left
+# unprotected, put it back: nothing else would verify a direct push.
+#
 # The quotes around `*` are required. Unquoted, YAML reads a leading asterisk
 # as an alias reference and the file fails to parse.
 trigger:
   branches:
     include:
       - '*'
+    exclude:
+      - main
 
 pr: none
 

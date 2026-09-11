@@ -8,6 +8,7 @@ import {
   monthKey,
   monthLabel,
   monthOf,
+  openingMonth,
   pointRangeLabel,
   shiftMonth,
 } from './weekWindow'
@@ -141,5 +142,27 @@ describe('pointRangeLabel', () => {
 
   it('uses the right last day in a leap year', () => {
     expect(pointRangeLabel('2028-02-01', 'month')).toBe('Feb 1–29')
+  })
+})
+
+describe('openingMonth', () => {
+  const SEPTEMBER_11 = new Date(2026, 8, 11)
+
+  it('picks the most recent month that has finished', () => {
+    expect(openingMonth(['2026-07-01', '2026-08-01', '2026-09-01'], SEPTEMBER_11)).toBe('2026-08-01')
+  })
+
+  it('falls back to a part-month when none has finished', () => {
+    // A corpus in its first month. A partial view beats an empty screen.
+    expect(openingMonth(['2026-09-01'], SEPTEMBER_11)).toBe('2026-09-01')
+  })
+
+  it('has nothing to open on when no month holds a call', () => {
+    expect(openingMonth([], SEPTEMBER_11)).toBeUndefined()
+  })
+
+  it('does not treat a future month as finished', () => {
+    // A misdated call must not drag the whole dashboard into next month.
+    expect(openingMonth(['2026-08-01', '2026-12-01'], SEPTEMBER_11)).toBe('2026-08-01')
   })
 })

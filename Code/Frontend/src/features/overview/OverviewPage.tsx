@@ -53,7 +53,7 @@ import {
 import { Card, Empty, Failure, Loading, Note, PageHeader } from '@/shared/ui/primitives'
 import { GraphPeriodFilter, type GraphFilterMode } from './GraphPeriodFilter'
 import { DEFAULT_GRANULARITY, PeriodFilter, type Granularity } from './PeriodFilter'
-import { addDays, pointRangeLabel, today } from './weekWindow'
+import { addDays, openingMonth, pointRangeLabel, today } from './weekWindow'
 import chartStyles from '@/shared/ui/charts.module.css'
 import styles from './OverviewPage.module.css'
 
@@ -89,11 +89,18 @@ function graphPulseParams(mode: GraphFilterMode, value: string | undefined): Pul
 function headerPeriodParams(
   granularity: Granularity,
   anchor: string | undefined,
-  fallback: string | undefined,
+  fallback: { readonly week: string | undefined; readonly month: string | undefined },
 ): PeriodParams {
-  const value = anchor ?? fallback
-  if (!value) return {}
-  return granularity === 'month' ? { month: value } : { anchor: value }
+  // One fallback per mode. A week wants a Monday and a month wants a
+  // first-of-month, and the month is the one the picker displays when nothing
+  // has been chosen -- passing the latest week's month here instead would open
+  // the cards on September while the filter above them said August.
+  if (granularity === 'month') {
+    const month = anchor ?? fallback.month
+    return month ? { month } : {}
+  }
+  const week = anchor ?? fallback.week
+  return week ? { anchor: week } : {}
 }
 
 /** Days in a week, so the graph's opening offset reads as "a week back". */
@@ -698,9 +705,10 @@ export function OverviewPage() {
   // September. A day within that same week names the right month too, so one
   // value serves either mode this opens in.
   const [graphMode, setGraphMode] = useState<GraphFilterMode>(DEFAULT_GRANULARITY)
-  const [graphValue, setGraphValue] = useState<string | undefined>(() =>
-    addDays(today(), -WEEK_IN_DAYS),
-  )
+  // Undefined until the reader moves something. What that resolves to depends
+  // on the corpus query, which has not answered when state is initialised, so
+  // the fallback is applied at render instead of here.
+  const [graphValue, setGraphValue] = useState<string | undefined>(undefined)
 
   // Re-seeding the graph is a response to the reader moving the header filter,
   // so it happens in the handler rather than in an effect watching the
@@ -732,13 +740,30 @@ export function OverviewPage() {
   const availableWeeks = corpus.data?.available_weeks ?? []
   const availableMonths = corpus.data?.available_months ?? []
   const latestWeek = corpus.data?.latest?.starting
+  // The month the dashboard opens on, and what "no explicit anchor" resolves
+  // to in month mode. Held in one place because four readers have to agree on
+  // it: the picker's displayed value, the cards' period, the top strip's own
+  // pulse query -- which defaults to the newest month with calls, and so would
+  // report September under a filter saying August -- and the graph below them.
+  const defaultMonth = openingMonth(availableMonths)
+  const headerAnchor =
+    globalAnchor ?? (globalGranularity === 'month' ? defaultMonth : undefined)
+
   // Both pickers need a concrete day to draw themselves around even before a
-  // reader has ever touched them.
-  const resolvedGraphValue = graphValue ?? latestWeek
+  // reader has ever touched them. In month mode that is the month the rest of
+  // the screen opens on, so the graph does not label itself September while
+  // everything above it reports August; in week mode it is the window ending
+  // in today's week, which is what the graph was built to open on.
+  const resolvedGraphValue =
+    graphValue ?? (graphMode === 'month' ? defaultMonth : addDays(today(), -WEEK_IN_DAYS))
   const graphParams = graphPulseParams(graphMode, resolvedGraphValue)
+
   // What every other card reads: the same week/month the header cards do,
   // just without a prior-period comparison to fetch alongside it.
-  const headerPeriod = headerPeriodParams(globalGranularity, globalAnchor, latestWeek)
+  const headerPeriod = headerPeriodParams(globalGranularity, globalAnchor, {
+    week: latestWeek,
+    month: defaultMonth,
+  })
 
   const overview = useOverview(headerPeriod)
   const agents = useAgents(headerPeriod)
@@ -795,7 +820,7 @@ export function OverviewPage() {
           leader manages against. It used to answer "who is at risk" — a
           scrolling list of member identifiers — while the totals sat fifteen
           hundred pixels below it and carried no direction at all. */}
-      <PulseStrip anchor={globalAnchor} granularity={globalGranularity} />
+      <PulseStrip anchor={headerAnchor} granularity={globalGranularity} />
 
       <Card
         className={styles.solo}

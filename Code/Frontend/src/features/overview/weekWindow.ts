@@ -59,6 +59,31 @@ export function monthKey(iso: string): string {
   return iso.slice(0, 7)
 }
 
+/**
+ * The month the dashboard opens on: the most recent one that has finished.
+ *
+ * Not the newest month with calls in it, which is normally a part-month. On the
+ * 11th, September holds nine days of calls against August's whole month, so
+ * opening there reports a stub as though it were a period — and every delta
+ * beside it compares that stub against a full month, which reads as a collapse
+ * in volume rather than as a month that has not happened yet.
+ *
+ * Falls back to the newest month when none has finished, which is a corpus
+ * whose first month is still running: a part-month beats an empty screen.
+ *
+ * `today` is injectable so the rule is testable without freezing the clock.
+ */
+export function openingMonth(
+  monthsOldestFirst: readonly string[],
+  today: Date = new Date(),
+): string | undefined {
+  const currentKey = `${String(today.getFullYear())}-${String(today.getMonth() + 1).padStart(2, '0')}`
+  // ISO keys compare correctly as strings, so no date parsing is needed to ask
+  // whether a month is behind the current one.
+  const finished = monthsOldestFirst.filter((month) => monthKey(month) < currentKey)
+  return finished.at(-1) ?? monthsOldestFirst.at(-1)
+}
+
 /** Whole calendar days between two dates, `b - a`. Ignores time of day. */
 export function daysBetween(a: string, b: string): number {
   return Math.round((parseIsoDate(b).getTime() - parseIsoDate(a).getTime()) / MS_PER_DAY)

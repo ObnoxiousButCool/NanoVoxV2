@@ -88,9 +88,39 @@ describe('PeriodFilter', () => {
     await user.selectOptions(screen.getByLabelText('View by'), 'month')
     expect(screen.getByLabelText('Month')).toBeInTheDocument()
 
+    // September, not August: August is what the filter opens on, and
+    // reselecting the default emits `undefined` rather than a date.
+    await user.selectOptions(screen.getByLabelText('Month'), '2026-09')
+
+    expect(onChange).toHaveBeenLastCalledWith('2026-09-01')
+  })
+
+  it('opens on the last finished month, not on a part-month', async () => {
+    // The newest month with calls in it is normally a stub: nine days of
+    // September against the whole of August. Opening there reports a fraction
+    // of a month as though it were a month, and the delta beside it compares
+    // that fraction against a full one.
+    const user = userEvent.setup()
+    renderFilter({ availableMonths: ['2026-08-01', '2026-09-01'] })
+
+    await user.selectOptions(screen.getByLabelText('View by'), 'month')
+
+    expect(screen.getByLabelText('Month')).toHaveValue('2026-08')
+  })
+
+  it('emits undefined when the month it opened on is reselected', async () => {
+    // `undefined` is "no explicit period", which is what the page starts with.
+    // Emitting a date here instead would leave the page holding an anchor it
+    // never asked for, and the two would disagree about what the default is.
+    const onChange = vi.fn()
+    const user = userEvent.setup()
+    renderFilter({ availableMonths: ['2026-08-01', '2026-09-01'], onChange })
+
+    await user.selectOptions(screen.getByLabelText('View by'), 'month')
+    await user.selectOptions(screen.getByLabelText('Month'), '2026-09')
     await user.selectOptions(screen.getByLabelText('Month'), '2026-08')
 
-    expect(onChange).toHaveBeenLastCalledWith('2026-08-01')
+    expect(onChange).toHaveBeenLastCalledWith(undefined)
   })
 
   it('offers only the months that contain a call', async () => {

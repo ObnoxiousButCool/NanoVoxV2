@@ -1,0 +1,36 @@
+# Cloudflare Tunnel — publishing a deployed NanoVox on a real hostname.
+#
+# Copy to config.yml, fill in the three placeholders, and point cloudflared at
+# it with --config. `Gen Documents/DEPLOYMENT.md` has the full command sequence
+# under "Appendix: publishing it with a Cloudflare Tunnel".
+#
+# This fronts a deployment, it does not replace one: deploy.ps1 is what builds
+# the frontend, migrates the database and runs uvicorn. The tunnel only carries
+# traffic to the port that deployment is already listening on. Run deploy.ps1
+# with -BindAddress 127.0.0.1 alongside this, so the only route in is the
+# tunnel rather than the LAN as well.
+#
+# Nothing here is secret, which is why the example is in the repository. The
+# secret is the credentials file this points at — a JSON key written by
+# `cloudflared tunnel create`, which must never be committed. It lives outside
+# the repository by default and .gitignore covers this directory regardless.
+
+# The tunnel's UUID, printed by `cloudflared tunnel create nanovox`. Not the
+# name: the name is a label, and the config is matched by UUID.
+tunnel: 00000000-0000-0000-0000-000000000000
+
+# Absolute path. `cloudflared tunnel create` writes this file and prints where.
+credentials-file: C:\Users\YOU\.cloudflared\00000000-0000-0000-0000-000000000000.json
+
+ingress:
+  # The hostname must be a zone on your Cloudflare account, and
+  # `cloudflared tunnel route dns` is what creates the DNS record for it.
+  - hostname: nanovox.example.com
+    # One origin serves the API and the built frontend, so there is one rule
+    # here rather than a path split between a bundle and an API prefix. 8000 is
+    # deploy.ps1's default; match -Port if you changed it.
+    service: http://127.0.0.1:8000
+
+  # Required. A config with ingress rules and no catch-all is rejected, and
+  # 404 is the right answer for a hostname this tunnel was not asked to serve.
+  - service: http_status:404

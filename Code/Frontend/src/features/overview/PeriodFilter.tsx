@@ -19,6 +19,7 @@
 import { useMemo, useState } from 'react'
 
 import styles from './PeriodFilter.module.css'
+import { openingMonth } from './weekWindow'
 
 export type Granularity = 'week' | 'month'
 
@@ -40,6 +41,7 @@ export const DEFAULT_GRANULARITY: Granularity = 'month'
 function monthKey(isoDate: string): string {
   return isoDate.slice(0, 7)
 }
+
 
 function monthLabel(isoDate: string): string {
   const [year, month] = isoDate.split('-')
@@ -94,7 +96,12 @@ export function PeriodFilter({
   // non-empty, and destructuring (unlike `arr[0]`) types the result as
   // `string` outright instead of `string | undefined`.
   const [latestWeek] = weeksNewestFirst
-  const [latestMonth] = monthsNewestFirst
+  const [latestMonthKey] = monthsNewestFirst
+  // The month an untouched filter displays. Selecting it emits `undefined`,
+  // the same "no explicit period" the page starts with, so the dropdown and
+  // the cards cannot disagree about what the default is.
+  const opening = openingMonth(availableMonths)
+  const openingKey = opening ? monthKey(opening) : latestMonthKey
 
   return (
     <div className={styles.filters}>
@@ -132,10 +139,10 @@ export function PeriodFilter({
         <label className={styles.dropdown}>
           <span className={styles.dropdownLabel}>Month</span>
           <select
-            value={anchor ? monthKey(anchor) : latestMonth}
+            value={anchor ? monthKey(anchor) : openingKey}
             onChange={(event) => {
               const target = `${event.target.value}-01`
-              onChange(monthKey(target) === latestMonth ? undefined : target)
+              onChange(monthKey(target) === openingKey ? undefined : target)
             }}
           >
             {monthsNewestFirst.map((month) => (

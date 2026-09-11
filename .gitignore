@@ -77,3 +77,10 @@ Data/backup/
 # server port that is a local choice.
 .github/
 .claude/
+
+# --- Cloudflare Tunnel ------------------------------------------------------
+# The example config is tracked; a filled-in one is not. It names a tunnel UUID
+# and the path to a credentials key, and the key itself is a bearer credential
+# for the tunnel — anything that lands in this directory stays local.
+scripts/cloudflared/config.yml
+scripts/cloudflared/*.json

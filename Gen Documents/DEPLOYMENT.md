@@ -181,3 +181,74 @@ routes itself.
 **Set `responseBufferLimit` to `0` on that rule.** The corpus screen consumes
 Server-Sent Events, and ARR buffers responses by default, which makes run
 progress arrive in bursts or not at all.
+
+## Appendix: publishing it with a Cloudflare Tunnel
+
+A way to reach the deployment from outside the network without opening a port,
+forwarding anything on the router, or getting a certificate. Cloudflare holds
+the public hostname and TLS; `cloudflared` makes an outbound connection from
+this machine, so nothing inbound is exposed.
+
+This fronts a deployment rather than replacing one. `deploy.ps1` still builds
+the frontend, migrates the database and runs the service; the tunnel only
+carries traffic to the port it is already listening on. Deploy with
+`-BindAddress 127.0.0.1` so the tunnel is the only route in:
+
+```powershell
+.\scripts\deploy.ps1 -BindAddress 127.0.0.1
+```
+
+You need a domain already on Cloudflare. Without one, use a quick tunnel
+instead — `cloudflared tunnel --url http://127.0.0.1:8000` needs no account and
+no config, but its hostname is random and changes every restart.
+
+### Once
+
+```powershell
+winget install --id Cloudflare.cloudflared
+cloudflared tunnel login
+cloudflared tunnel create nanovox
+```
+
+`login` opens a browser to pick the zone; `create` prints the tunnel's UUID and
+writes its credentials file. Copy `scripts\cloudflared\config.example.yml` to
+`config.yml` beside it and fill in the UUID, the credentials path and your
+hostname. Then create the DNS record and start it:
+
+```powershell
+cloudflared tunnel route dns nanovox nanovox.example.com
+cloudflared --config .\scripts\cloudflared\config.yml tunnel run nanovox
+```
+
+`--config` is given explicitly rather than relying on the default search path,
+so the file in use is never in doubt. To survive a reboot the way the
+application does, install it as a service — it reads the same config:
+
+```powershell
+cloudflared --config .\scripts\cloudflared\config.yml service install
+```
+
+### Before you share the hostname
+
+**The application has no authentication of its own.** A public hostname exposes
+every transcript, every member name and identifier, and every write endpoint —
+including the corpus run, which spends real money against whichever provider
+`LLM_PROVIDER` names. Note that `VITE_SHOW_CORPUS_RUN=false` is not a control:
+it removes the navigation entry, and `/corpus` stays reachable by address.
+
+Put Cloudflare Access in front of the hostname and require a login. That is the
+reason to prefer this over a bare tunnel of any kind: the protection is a real
+identity check at the edge rather than a URL nobody has guessed yet.
+
+### Two things to watch
+
+**Requests are cut off at 100 seconds.** Cloudflare's proxy returns 524 past
+that. `.env` ships `LLM_TIMEOUT_SECONDS=120`, so a slow analysis can outlive the
+tunnel and fail for the caller even though the backend finished the work. Lower
+it below 90 for anything demonstrated over a tunnel.
+
+**Watch the corpus screen's progress once.** The application already sends what
+a proxy in front of it needs — `X-Accel-Buffering: no`, and a keep-alive frame
+every 15 seconds so the stream never idles out. If run progress still arrives
+in bursts rather than continuously, buffering is the thing to look at, the same
+way it is with ARR above.

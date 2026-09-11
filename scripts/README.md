@@ -9,6 +9,7 @@ gate that CI runs.
 | `deploy.ps1` | **Deployment on Windows.** One process serving the API and the built frontend on a single port, registered with Task Scheduler. |
 | `deploy.sh` | **Deployment on macOS.** The same seven steps, registered with launchd. On Linux it deploys everything and hands you the run command. |
 | `verify.bat` / `verify.sh` | Every gate CI runs. |
+| `cloudflared/config.example.yml` | **Publishing a deployment** on a public hostname through a Cloudflare Tunnel. Fronts `deploy.ps1`; it does not replace it. |
 
 ## Deploying
 
