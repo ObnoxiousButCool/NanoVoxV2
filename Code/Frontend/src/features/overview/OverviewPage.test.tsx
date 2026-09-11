@@ -550,7 +550,7 @@ describe('OverviewPage', () => {
       renderOverview()
 
       const week = await screen.findByText('Calls Monitored')
-      const trend = await screen.findByText('Overall Call Quality vs Average Handling Time')
+      const trend = await screen.findByText('Overall Call Quality & Average Handling Time')
 
       expect(week.compareDocumentPosition(trend)).toBe(Node.DOCUMENT_POSITION_FOLLOWING)
     })
@@ -673,7 +673,7 @@ describe('OverviewPage', () => {
       // no point to either line — two lines, two measured weeks each.
       const { container } = renderOverview()
 
-      await screen.findByText('Overall Call Quality vs Average Handling Time')
+      await screen.findByText('Overall Call Quality & Average Handling Time')
       expect(container.getElementsByClassName((chartStyles.point ?? ''))).toHaveLength(4)
     })
 
@@ -689,7 +689,7 @@ describe('OverviewPage', () => {
         },
       })
 
-      const heading = await screen.findByText('Overall Call Quality vs Average Handling Time')
+      const heading = await screen.findByText('Overall Call Quality & Average Handling Time')
       const card = heading.closest('section')
       if (!card) throw new Error('quality-vs-handling-time card has no containing section')
       await user.selectOptions(within(card).getByLabelText('View by'), 'month')
@@ -703,7 +703,7 @@ describe('OverviewPage', () => {
       const user = userEvent.setup()
       renderOverview()
 
-      const heading = await screen.findByText('Overall Call Quality vs Average Handling Time')
+      const heading = await screen.findByText('Overall Call Quality & Average Handling Time')
       const card = heading.closest('section')
       if (!card) throw new Error('quality-vs-handling-time card has no containing section')
       await user.selectOptions(within(card).getByLabelText('View by'), 'week')
@@ -725,7 +725,7 @@ describe('OverviewPage', () => {
       // graph now opens matching the header's own Month default.
       renderOverview()
 
-      await screen.findByText('Overall Call Quality vs Average Handling Time')
+      await screen.findByText('Overall Call Quality & Average Handling Time')
       const pulses = vi
         .mocked(fetch)
         .mock.calls.map(([input]) => requestUrl(input))
@@ -738,7 +738,7 @@ describe('OverviewPage', () => {
     it('opens the header and the graph on the same period', async () => {
       const { container } = renderOverview()
 
-      const heading = await screen.findByText('Overall Call Quality vs Average Handling Time')
+      const heading = await screen.findByText('Overall Call Quality & Average Handling Time')
       const header = container.querySelector('header')
       const card = heading.closest('section')
       if (!header || !card) throw new Error('page header or graph card is missing')
@@ -758,7 +758,7 @@ describe('OverviewPage', () => {
     }
 
     async function graphCard(): Promise<HTMLElement> {
-      const heading = await screen.findByText('Overall Call Quality vs Average Handling Time')
+      const heading = await screen.findByText('Overall Call Quality & Average Handling Time')
       const card = heading.closest('section')
       if (!card) throw new Error('quality-vs-handling-time card has no containing section')
       return card
@@ -1146,7 +1146,7 @@ describe('OverviewPage', () => {
 
       expect(within(card).getByText('10.0h')).toBeInTheDocument()
       expect(within(card).getByText('25%')).toBeInTheDocument()
-      expect(within(card).getByText('BOUGHT A RESOLUTION')).toBeInTheDocument()
+      expect(within(card).getByText('BROUGHT A RESOLUTION')).toBeInTheDocument()
       expect(within(card).getByText('7.5h')).toBeInTheDocument()
     })
 
@@ -1181,7 +1181,7 @@ describe('OverviewPage', () => {
 
       expect(within(card).getByText('400 min')).toBeInTheDocument()
       const labels = within(card)
-        .getAllByTitle(/bought no resolution/)
+        .getAllByTitle(/brought no resolution/)
         .map((element) => element.textContent)
       expect(labels).toEqual(['Claims & EOB', 'Pharmacy'])
     })

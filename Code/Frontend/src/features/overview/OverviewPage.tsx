@@ -276,7 +276,7 @@ function TimeValueCard({ params }: { params: PeriodParams }) {
         </div>
         <div className={styles.effortStat}>
           <b>{data.productive_share}%</b>
-          <span>BOUGHT A RESOLUTION</span>
+          <span>BROUGHT A RESOLUTION</span>
         </div>
         <div className={styles.effortStat}>
           <b>{(data.unproductive_minutes / 60).toFixed(1)}h</b>
@@ -294,7 +294,7 @@ function TimeValueCard({ params }: { params: PeriodParams }) {
               `category=${encodeURIComponent(category.code)}`,
               category.total_minutes > 0,
             )}
-            title={`${category.label}: ${String(category.total_minutes)} min, ${String(category.unproductive_share)}% bought no resolution`}
+            title={`${category.label}: ${String(category.total_minutes)} min, ${String(category.unproductive_share)}% brought no resolution`}
             segments={[
               ...category.by_outcome.map((outcome) => ({
                 value: outcome.minutes,
@@ -799,7 +799,7 @@ export function OverviewPage() {
 
       <Card
         className={styles.solo}
-        title="Overall Call Quality vs Average Handling Time"
+        title="Overall Call Quality & Average Handling Time"
         hint="Two lines over time, each read against its own axis: quality on the left, out of 100; handling time on the right, in minutes. Hover or focus a week for both exact numbers. A week that measured nothing breaks the line rather than being drawn through, so a gap is missing data and not a collapse. In 3-week mode, shows the three weeks centred on whichever week is picked below — the week itself, the one before it, and the one after. In Month mode, shows every week of the picked month."
         actions={
           resolvedGraphValue ? (
