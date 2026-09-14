@@ -37,14 +37,34 @@ def test_api_prefix_trailing_slash_is_normalised() -> None:
 
 def test_synchronous_database_url_is_rejected() -> None:
     # A sync driver would only fail once a request reached the database.
-    with pytest.raises(ValueError, match="async SQLite driver"):
+    with pytest.raises(ValueError, match="must use an async driver"):
         _settings(database_url="sqlite:///./nanovox.db")
+
+
+def test_synchronous_postgres_url_is_also_rejected() -> None:
+    # Same rule for the other supported database — psycopg2 is sync.
+    with pytest.raises(ValueError, match="must use an async driver"):
+        _settings(database_url="postgresql://user:password@host/dbname")
+
+
+def test_async_postgres_url_is_accepted() -> None:
+    # A deployment without durable local disk points here instead of SQLite.
+    settings = _settings(database_url="postgresql+asyncpg://user:password@host/dbname")
+
+    assert settings.database_url == "postgresql+asyncpg://user:password@host/dbname"
 
 
 def test_database_file_is_derived_from_the_url() -> None:
     settings = _settings(database_url="sqlite+aiosqlite:///C:/tmp/nanovox.db")
 
     assert settings.database_file == Path("C:/tmp/nanovox.db")
+
+
+def test_database_file_is_none_for_a_postgres_url() -> None:
+    # There is no on-disk file to create a parent directory for.
+    settings = _settings(database_url="postgresql+asyncpg://user:password@host/dbname")
+
+    assert settings.database_file is None
 
 
 def test_in_memory_database_has_no_file() -> None:

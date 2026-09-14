@@ -28,7 +28,7 @@ target_metadata = Base.metadata
 
 
 def _disable_foreign_keys(connection: Connection) -> None:
-    """Turn foreign keys off for the duration of the migration.
+    """Turn foreign keys off for the duration of the migration, on SQLite only.
 
     SQLite cannot ALTER most columns, so ``batch_alter_table`` drops and recreates
     the table instead. With ``PRAGMA foreign_keys=ON`` — which the application
@@ -38,13 +38,17 @@ def _disable_foreign_keys(connection: Connection) -> None:
 
     This is the documented approach for SQLite batch migrations, and the reason
     it is here rather than in the engine is that the application very much does
-    want foreign keys enforced at runtime.
+    want foreign keys enforced at runtime. Postgres has no such pragma — it
+    supports real ALTER TABLE, so ``batch_alter_table`` never rebuilds the table
+    there in the first place, and this step is a no-op.
     """
-    connection.exec_driver_sql("PRAGMA foreign_keys=OFF")
+    if connection.dialect.name == "sqlite":
+        connection.exec_driver_sql("PRAGMA foreign_keys=OFF")
 
 
 def _restore_foreign_keys(connection: Connection) -> None:
-    connection.exec_driver_sql("PRAGMA foreign_keys=ON")
+    if connection.dialect.name == "sqlite":
+        connection.exec_driver_sql("PRAGMA foreign_keys=ON")
 
 
 def _configure(connection: Connection) -> None:

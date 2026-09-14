@@ -96,6 +96,20 @@ def _count_if(condition: Any) -> Any:
     return func.sum(case((condition, 1), else_=0))
 
 
+def _joined_references(session: AsyncSession, column: Any, *, distinct_values: bool = False) -> Any:
+    """One row's worth of a string column's values, comma-joined.
+
+    SQLite and Postgres name this aggregate differently — ``GROUP_CONCAT`` vs
+    ``STRING_AGG`` — so the call is resolved against whichever dialect the
+    session is actually bound to, rather than assuming SQLite everywhere.
+    """
+    target = distinct(column) if distinct_values else column
+    dialect = session.bind.dialect.name if session.bind is not None else "sqlite"
+    if dialect == "postgresql":
+        return func.string_agg(target, ",")
+    return func.group_concat(target)
+
+
 def _within(statement: Select[Any], period: Period | None) -> Select[Any]:
     """Narrow a query to calls started in ``period``, or leave it untouched.
 
@@ -152,7 +166,7 @@ class SqlReadModelRepository(ReadModelRepository):
                     CallRow.category_code,
                     func.count(),
                     unresolved,
-                    func.group_concat(CallRow.reference),
+                    _joined_references(session, CallRow.reference),
                 )
                 .group_by(CallRow.category_code)
                 .order_by(func.count().desc()),
@@ -222,7 +236,7 @@ class SqlReadModelRepository(ReadModelRepository):
                     func.count(),
                     _count_if(BrokerSignalRow.polarity == Polarity.NEGATIVE.value),
                     _count_if(BrokerSignalRow.polarity == Polarity.POSITIVE.value),
-                    func.group_concat(distinct(CallRow.reference)),
+                    _joined_references(session, CallRow.reference, distinct_values=True),
                 )
                 .join(CallRow, CallRow.id == BrokerSignalRow.call_id)
                 .group_by(BrokerSignalRow.broker_name)
@@ -272,7 +286,7 @@ class SqlReadModelRepository(ReadModelRepository):
                 select(
                     L4SignalRow.category_code,
                     calls,
-                    func.group_concat(distinct(CallRow.reference)),
+                    _joined_references(session, CallRow.reference, distinct_values=True),
                 )
                 .join(CallRow, CallRow.id == L4SignalRow.call_id)
                 .group_by(L4SignalRow.category_code)
@@ -312,7 +326,7 @@ class SqlReadModelRepository(ReadModelRepository):
                     CallSignalRow.code,
                     func.count(distinct(CallSignalRow.call_id)),
                     unresolved,
-                    func.group_concat(distinct(CallRow.reference)),
+                    _joined_references(session, CallRow.reference, distinct_values=True),
                 )
                 .join(CallRow, CallRow.id == CallSignalRow.call_id)
                 .group_by(CallSignalRow.code)
@@ -399,7 +413,7 @@ class SqlReadModelRepository(ReadModelRepository):
                     _count_if(CallRow.resolution == Resolution.ESCALATED.value),
                     unhappy,
                     func.min(CallRow.score),
-                    func.group_concat(CallRow.reference),
+                    _joined_references(session, CallRow.reference),
                 )
                 .where(CallRow.member_id.is_not(None))
                 .group_by(CallRow.member_id)

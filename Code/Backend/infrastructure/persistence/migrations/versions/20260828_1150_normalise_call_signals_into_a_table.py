@@ -12,7 +12,6 @@ from collections.abc import Sequence
 
 import sqlalchemy as sa
 from alembic import op
-from sqlalchemy.dialects import sqlite
 
 revision: str = "067891d530f7"
 down_revision: str | None = "d5d2d66f1983"
@@ -35,7 +34,7 @@ def upgrade() -> None:
     with op.batch_alter_table("calls", schema=None) as batch_op:
         batch_op.alter_column(
             "rejected_attribution_notes",
-            existing_type=sqlite.JSON(),
+            existing_type=sa.JSON(),
             server_default=None,
             existing_nullable=False,
         )
@@ -67,11 +66,11 @@ def downgrade() -> None:
 
     with op.batch_alter_table("calls", schema=None) as batch_op:
         batch_op.add_column(
-            sa.Column("signal_codes", sqlite.JSON(), nullable=False, server_default="[]")
+            sa.Column("signal_codes", sa.JSON(), nullable=False, server_default="[]")
         )
         batch_op.alter_column(
             "rejected_attribution_notes",
-            existing_type=sqlite.JSON(),
+            existing_type=sa.JSON(),
             server_default=sa.text("'[]'"),
             existing_nullable=False,
         )

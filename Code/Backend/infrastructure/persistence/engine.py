@@ -3,7 +3,10 @@
 SQLite is configured for the access pattern this application actually has: a
 background corpus run writing while the dashboard reads. Write-ahead logging lets
 readers proceed during a write, and a busy timeout turns a transient lock into a
-short wait instead of an immediate ``database is locked`` error.
+short wait instead of an immediate ``database is locked`` error. Postgres needs
+none of this — a real database server already handles concurrent readers and
+writers itself — so the pragmas below are conditional on the engine actually
+being SQLite.
 """
 
 from __future__ import annotations
@@ -58,7 +61,10 @@ def create_database_engine(settings: Settings) -> AsyncEngine:
             ) from exc
 
     engine = create_async_engine(settings.database_url, echo=settings.db_echo, future=True)
-    event.listen(engine.sync_engine, "connect", _apply_sqlite_pragmas)
+    # Postgres has no equivalent of these pragmas and would reject them outright
+    # on every new connection; only SQLite gets them.
+    if engine.dialect.name == "sqlite":
+        event.listen(engine.sync_engine, "connect", _apply_sqlite_pragmas)
     return engine
 
 

@@ -34,6 +34,11 @@ AppEnv = Literal["local", "dev", "prod"]
 LogLevel = Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
 LogFormat = Literal["json", "text"]
 
+# SQLite is the default local/file-based store; Postgres (asyncpg) is what a
+# real deployment points at instead — e.g. a free-tier Neon database — for
+# storage that survives a redeploy rather than living on one machine's disk.
+_ASYNC_DATABASE_PREFIXES = ("sqlite+aiosqlite:", "postgresql+asyncpg:")
+
 
 class Settings(BaseSettings):
     """All backend configuration, sourced from the environment and ``.env``."""
@@ -131,13 +136,14 @@ class Settings(BaseSettings):
 
     @field_validator("database_url")
     @classmethod
-    def _database_must_be_async_sqlite(cls, value: str) -> str:
+    def _database_must_use_an_async_driver(cls, value: str) -> str:
         # The persistence layer is written against the async SQLAlchemy API. A
         # synchronous URL would fail later, inside a request; catch it here.
-        if not value.startswith("sqlite+aiosqlite:"):
+        if not value.startswith(_ASYNC_DATABASE_PREFIXES):
             raise ValueError(
-                "DATABASE_URL must use the async SQLite driver, "
-                "e.g. sqlite+aiosqlite:///C:/path/to/nanovox.db"
+                "DATABASE_URL must use an async driver — "
+                "sqlite+aiosqlite:///C:/path/to/nanovox.db for a local file, or "
+                "postgresql+asyncpg://user:password@host/dbname for Postgres"
             )
         return value
 
@@ -156,7 +162,13 @@ class Settings(BaseSettings):
 
     @property
     def database_file(self) -> Path | None:
-        """On-disk location of the SQLite database, or ``None`` for in-memory."""
+        """On-disk location of a SQLite database, or ``None`` for anything else.
+
+        A SQLite URL is the only shape with a triple slash before the path
+        (``sqlite+aiosqlite:///...``); a network database like Postgres has no
+        on-disk file of its own to create a parent directory for, so this
+        naturally and correctly falls through to ``None`` for one.
+        """
         _, _, location = self.database_url.partition("///")
         if not location or ":memory:" in location:
             return None

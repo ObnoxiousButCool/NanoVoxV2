@@ -7,6 +7,10 @@ pydantic>=2.9,<3.0
 pydantic-settings>=2.6,<3.0
 SQLAlchemy[asyncio]>=2.0.36,<2.1
 aiosqlite>=0.20,<1.0
+# Postgres driver — a deployment (e.g. a free-tier Neon database) uses this
+# instead of aiosqlite, so its storage survives a redeploy. Local/default dev
+# stays on SQLite; DATABASE_URL picks which one is actually in use.
+asyncpg>=0.29,<1.0
 alembic>=1.14,<2.0
 PyYAML>=6.0,<7.0
 # Multipart form parsing, which FastAPI needs to accept an uploaded file.
