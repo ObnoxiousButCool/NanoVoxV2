@@ -6,7 +6,8 @@
  * without saying what to do about it.
  */
 
-import { Navigate, Route, Routes } from 'react-router-dom'
+import { useEffect } from 'react'
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 
 import { AppShell } from '@/app/layout/AppShell'
 import { AnalyzePage } from '@/features/analyze/AnalyzePage'
@@ -19,9 +20,29 @@ import { CallDetailPage } from '@/features/call-detail/CallDetailPage'
 import { DiagnosticsPage } from '@/features/diagnostics/DiagnosticsPage'
 import { OverviewPage } from '@/features/overview/OverviewPage'
 
+/**
+ * Resets scroll to the top of the page on every route change.
+ *
+ * The page itself scrolls — there is no separate inner scroll container —
+ * and the router does not do this on its own. Without it, navigating away
+ * from a page scrolled partway down carries that same pixel offset onto
+ * whatever opens next, landing a reader mid-page on a screen they have not
+ * read yet.
+ */
+function ScrollToTop() {
+  const { pathname } = useLocation()
+
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [pathname])
+
+  return null
+}
+
 export function App() {
   return (
     <AppShell>
+      <ScrollToTop />
       <Routes>
         <Route path="/overview" element={<OverviewPage />} />
         <Route path="/inferences" element={<InferencesPage />} />

@@ -1,5 +1,6 @@
 import { QueryClient } from '@tanstack/react-query'
 import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
@@ -21,6 +22,13 @@ const EMPTY_OVERVIEW = {
   histogram: { bins: [], total: 0, below_threshold_count: 0, peak: 0 },
   categories: [],
   attention: [],
+}
+
+/** No member showing a warning sign — enough for Inferences to render its shell. */
+const EMPTY_MEMBERS_AT_RISK = {
+  basis: 'Observed warning signs, not a prediction.',
+  factor_vocabulary: [],
+  members: [],
 }
 
 function json(body: unknown): Response {
@@ -65,6 +73,9 @@ function renderAt(path: string) {
     'fetch',
     vi.fn((url: string) => {
       if (url.includes('/providers')) return Promise.resolve(json(PROVIDERS))
+      // Checked before the general /dashboard case below: this route also
+      // contains "/dashboard" in its path, and needs its own response shape.
+      if (url.includes('/members-at-risk')) return Promise.resolve(json(EMPTY_MEMBERS_AT_RISK))
       return Promise.resolve(json(url.includes('/dashboard') ? EMPTY_OVERVIEW : HEALTHY))
     }),
   )
@@ -104,5 +115,18 @@ describe('App', () => {
     renderAt('/diagnostics')
 
     expect(screen.getByRole('navigation', { name: 'Main navigation' })).toBeInTheDocument()
+  })
+
+  it('scrolls back to the top when navigating to a new screen', async () => {
+    // A reader who scrolled partway down Dashboard should not land mid-page
+    // on Inferences — each screen starts where a reader expects, at its top.
+    const user = userEvent.setup()
+    const scrollTo = vi.fn()
+    vi.stubGlobal('scrollTo', scrollTo)
+    renderAt('/overview')
+
+    await user.click(await screen.findByRole('link', { name: 'Inferences' }))
+
+    expect(scrollTo).toHaveBeenCalledWith(0, 0)
   })
 })
