@@ -1,0 +1,17 @@
+# Render builds from a clean git clone, where none of this exists anyway.
+# This file matters for a local `docker build`, run against the actual
+# working tree — without it, a real API key or a multi-GB venv would be sent
+# to the build context.
+
+.git/
+**/.venv/
+**/node_modules/
+**/dist/
+Data/
+Logs/
+**/.env
+**/*.db
+**/*.db-wal
+**/*.db-shm
+**/__pycache__/
+**/*.pyc

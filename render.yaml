@@ -1,0 +1,32 @@
+# Render Blueprint — see Gen Documents/DEPLOYMENT.md for the wider deployment
+# picture (this is the Render-specific path; that document covers the
+# always-on-machine path with a Cloudflare Tunnel in front of it instead).
+#
+# Two values below (marked `sync: false`) are secrets Render will prompt for
+# once, in its dashboard, rather than storing in this file:
+#   - DATABASE_URL   the Neon connection string, as postgresql+asyncpg://...
+#   - OPENAI_API_KEY the key the app calls OpenAI with
+#
+# No persistent disk is declared here on purpose. The database now lives in
+# Neon, not on this service's own filesystem, so there is nothing durable
+# left for Render itself to keep between deploys.
+services:
+  - type: web
+    name: nanovox
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    plan: free
+    healthCheckPath: /api/v1/health
+    envVars:
+      - key: APP_ENV
+        value: prod
+      - key: LLM_PROVIDER
+        value: openai
+      - key: OPENAI_API_KEY
+        sync: false
+      # postgresql+asyncpg://user:password@host/dbname?ssl=require — Neon's
+      # own connection string uses postgresql://; add +asyncpg after the
+      # scheme and ssl=require (not sslmode) as shown in .env.example.
+      - key: DATABASE_URL
+        sync: false
