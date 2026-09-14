@@ -9,7 +9,11 @@ from __future__ import annotations
 
 from sqlalchemy import event
 
-from infrastructure.persistence.engine import _apply_sqlite_pragmas, create_database_engine
+from infrastructure.persistence.engine import (
+    _apply_sqlite_pragmas,
+    _connect_args_for,
+    create_database_engine,
+)
 from tests.support.settings import make_settings
 
 
@@ -28,3 +32,15 @@ def test_postgres_engine_does_not_get_the_pragma_listener() -> None:
 
     assert engine.dialect.name == "postgresql"
     assert not event.contains(engine.sync_engine, "connect", _apply_sqlite_pragmas)
+
+
+def test_postgres_disables_asyncpgs_statement_cache() -> None:
+    # Required against a PgBouncer-pooled endpoint (Neon's, among others) in
+    # transaction-pooling mode — see the docstring in engine.py for why.
+    assert _connect_args_for("postgresql+asyncpg://user:password@host/db") == {
+        "statement_cache_size": 0
+    }
+
+
+def test_sqlite_gets_no_special_connect_args() -> None:
+    assert _connect_args_for("sqlite+aiosqlite:///:memory:") == {}

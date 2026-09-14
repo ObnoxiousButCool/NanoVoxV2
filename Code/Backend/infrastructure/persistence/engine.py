@@ -47,6 +47,23 @@ def _apply_sqlite_pragmas(dbapi_connection: Any, _record: Any) -> None:
         cursor.close()
 
 
+def _connect_args_for(database_url: str) -> dict[str, Any]:
+    """DBAPI-level connection arguments the driver needs, if any."""
+    if database_url.startswith("postgresql+asyncpg:"):
+        # A pooled Postgres endpoint (Neon's, and most providers') fronts the
+        # database with PgBouncer in transaction-pooling mode by default: a
+        # single logical connection can be served by a different backend
+        # process between statements. asyncpg's server-side prepared
+        # statements are pinned to one specific backend, so the two combine
+        # into an intermittent "prepared statement does not exist" error.
+        # Disabling asyncpg's statement cache is the documented fix, and it
+        # costs nothing here — this application never runs the same query
+        # often enough in one connection's lifetime for the cache to have
+        # mattered anyway.
+        return {"statement_cache_size": 0}
+    return {}
+
+
 def create_database_engine(settings: Settings) -> AsyncEngine:
     """Create the async engine, ensuring the database directory exists."""
     database_file = settings.database_file
@@ -60,9 +77,14 @@ def create_database_engine(settings: Settings) -> AsyncEngine:
                 detail=str(exc),
             ) from exc
 
-    engine = create_async_engine(settings.database_url, echo=settings.db_echo, future=True)
-    # Postgres has no equivalent of these pragmas and would reject them outright
-    # on every new connection; only SQLite gets them.
+    engine = create_async_engine(
+        settings.database_url,
+        echo=settings.db_echo,
+        future=True,
+        connect_args=_connect_args_for(settings.database_url),
+    )
+    # Postgres has no equivalent of the SQLite pragmas and would reject them
+    # outright on every new connection; only SQLite gets them.
     if engine.dialect.name == "sqlite":
         event.listen(engine.sync_engine, "connect", _apply_sqlite_pragmas)
     return engine
